@@ -58,6 +58,12 @@ export interface Workday {
   entries: TimeEntry[];
 }
 
+export interface ClockDto {
+  type: TimeEntryType;
+  latitude?: number;
+  longitude?: number;
+}
+
 export interface CreateTimeEntryDto {
   userId: UserId;
   type: TimeEntryType;

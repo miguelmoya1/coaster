@@ -1,5 +1,4 @@
 export * from './add-beta-tester.dto';
-export * from './fichit-settings.dto';
 export * from './admin-beta-testers-query.dto';
 export * from './admin-audit-query.dto';
 export * from './admin-establishments-query.dto';

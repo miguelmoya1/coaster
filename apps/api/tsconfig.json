@@ -31,7 +31,6 @@
       "@coaster/establishment-members": ["./src/establishment-members/index.ts"],
       "@coaster/establishment-subscription": ["./src/establishment-subscription/index.ts"],
       "@coaster/establishments": ["./src/establishments/index.ts"],
-      "@coaster/fichit": ["./src/fichit/index.ts"],
       "@coaster/categories": ["./src/categories/index.ts"],
       "@coaster/core": ["./src/core/index.ts"],
       "@coaster/core/db": ["./src/core/db/index.ts"],
@@ -46,6 +45,7 @@
       "@coaster/stats": ["./src/stats/index.ts"],
       "@coaster/stripe": ["./src/stripe/index.ts"],
       "@coaster/tables": ["./src/tables/index.ts"],
+      "@coaster/time-tracking": ["./src/time-tracking/index.ts"],
       "@coaster/users": ["./src/users/index.ts"]
     }
   }

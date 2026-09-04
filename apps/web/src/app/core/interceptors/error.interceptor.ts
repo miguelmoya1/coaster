@@ -26,8 +26,6 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         errorCode = error.error.message;
       } else if (error.error && Array.isArray(error.error.message)) {
         errorCode = error.error.message[0];
-      } else if (typeof error.error?.error?.message === 'string') {
-        errorCode = error.error.error.message;
       }
 
       const cleanError = new ApiError(errorCode, error.status, error);

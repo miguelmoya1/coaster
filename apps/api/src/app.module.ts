@@ -4,7 +4,6 @@ import { AuthModule } from '@coaster/auth';
 import { EstablishmentMembersModule } from '@coaster/establishment-members';
 import { EstablishmentSubscriptionModule } from '@coaster/establishment-subscription';
 import { EstablishmentsModule } from '@coaster/establishments';
-import { FichitModule } from '@coaster/fichit';
 import { CategoriesModule } from '@coaster/categories';
 import { CacheModule, SecurityModule, ThrottlerCacheStorage } from '@coaster/core';
 import { DbModule } from '@coaster/core/db';
@@ -21,6 +20,7 @@ import { StripeModule } from '@coaster/stripe';
 import { TablesModule } from '@coaster/tables';
 import { CatalogueModule } from '@coaster/catalogue';
 import { MenuModule } from '@coaster/menu';
+import { TimeTrackingModule } from '@coaster/time-tracking';
 import { UserModule } from '@coaster/users';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
@@ -50,11 +50,11 @@ import { ThrottlerGuard, ThrottlerModule, seconds } from '@nestjs/throttler';
     EstablishmentsModule,
     EstablishmentSubscriptionModule,
     EstablishmentMembersModule,
-    FichitModule,
     CategoriesModule,
     ProductsModule,
     ShiftsModule,
     ShiftExchangesModule,
+    TimeTrackingModule,
     CatalogueModule,
     MenuModule,
     TablesModule,

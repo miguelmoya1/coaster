@@ -1,4 +1,4 @@
-import { ErrorCodes, OrderStatus, PaymentMethod } from '@coaster/common';
+import { OrderStatus, PaymentMethod } from '@coaster/common';
 import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { DbEstablishmentRole } from '../../src/core/db';
@@ -154,13 +154,11 @@ describe('Dashboard access per role (e2e)', () => {
         .expect(200);
     });
 
-    it('should let a staff member through to their own time entries', async () => {
-      const response = await request(http())
+    it('should let a staff member read their own time entries', async () => {
+      await request(http())
         .get(`/api/establishments/${establishmentId}/time-entries/me?from=2026-01-01&to=2026-12-31`)
-        .set(testSetup.actAs(staff));
-
-      expect(response.status).not.toBe(403);
-      expect(response.body.message).toBe(ErrorCodes.FICHIT_NOT_AVAILABLE);
+        .set(testSetup.actAs(staff))
+        .expect(200);
     });
 
     it('should keep the team timesheet away from a staff member', async () => {

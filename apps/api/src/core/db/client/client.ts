@@ -62,11 +62,6 @@ export type DbBetaTester = Prisma.DbBetaTesterModel
  */
 export type DbEstablishment = Prisma.DbEstablishmentModel
 /**
- * Model DbFichitSettings
- * 
- */
-export type DbFichitSettings = Prisma.DbFichitSettingsModel
-/**
  * Model DbEstablishmentSettings
  * 
  */
@@ -156,6 +151,11 @@ export type DbPrintJob = Prisma.DbPrintJobModel
  * 
  */
 export type DbEstablishmentSubscription = Prisma.DbEstablishmentSubscriptionModel
+/**
+ * Model DbTimeEntry
+ * 
+ */
+export type DbTimeEntry = Prisma.DbTimeEntryModel
 /**
  * Model DbAdminAuditLog
  * 

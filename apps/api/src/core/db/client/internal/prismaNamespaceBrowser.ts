@@ -55,7 +55,6 @@ export const ModelName = {
   DbUser: 'DbUser',
   DbBetaTester: 'DbBetaTester',
   DbEstablishment: 'DbEstablishment',
-  DbFichitSettings: 'DbFichitSettings',
   DbEstablishmentSettings: 'DbEstablishmentSettings',
   DbPrinterPairing: 'DbPrinterPairing',
   DbAiUsage: 'DbAiUsage',
@@ -74,6 +73,7 @@ export const ModelName = {
   DbPrinterConfig: 'DbPrinterConfig',
   DbPrintJob: 'DbPrintJob',
   DbEstablishmentSubscription: 'DbEstablishmentSubscription',
+  DbTimeEntry: 'DbTimeEntry',
   DbAdminAuditLog: 'DbAdminAuditLog',
   DbInvoice: 'DbInvoice',
   DbInvoiceTaxLine: 'DbInvoiceTaxLine',
@@ -142,23 +142,11 @@ export const DbEstablishmentScalarFieldEnum = {
   taxId: 'taxId',
   legalName: 'legalName',
   fiscalAddress: 'fiscalAddress',
-  fichitCompanyId: 'fichitCompanyId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type DbEstablishmentScalarFieldEnum = (typeof DbEstablishmentScalarFieldEnum)[keyof typeof DbEstablishmentScalarFieldEnum]
-
-
-export const DbFichitSettingsScalarFieldEnum = {
-  id: 'id',
-  apiUrl: 'apiUrl',
-  apiKeyCipher: 'apiKeyCipher',
-  updatedById: 'updatedById',
-  updatedAt: 'updatedAt'
-} as const
-
-export type DbFichitSettingsScalarFieldEnum = (typeof DbFichitSettingsScalarFieldEnum)[keyof typeof DbFichitSettingsScalarFieldEnum]
 
 
 export const DbEstablishmentSettingsScalarFieldEnum = {
@@ -212,7 +200,6 @@ export type DbUserPreferencesScalarFieldEnum = (typeof DbUserPreferencesScalarFi
 
 export const DbEstablishmentMemberScalarFieldEnum = {
   id: 'id',
-  fichitEmployeeId: 'fichitEmployeeId',
   userId: 'userId',
   establishmentId: 'establishmentId',
   role: 'role',
@@ -228,7 +215,6 @@ export type DbEstablishmentMemberScalarFieldEnum = (typeof DbEstablishmentMember
 
 export const DbShiftScalarFieldEnum = {
   id: 'id',
-  fichitShiftId: 'fichitShiftId',
   startTime: 'startTime',
   endTime: 'endTime',
   userId: 'userId',
@@ -429,6 +415,32 @@ export const DbEstablishmentSubscriptionScalarFieldEnum = {
 } as const
 
 export type DbEstablishmentSubscriptionScalarFieldEnum = (typeof DbEstablishmentSubscriptionScalarFieldEnum)[keyof typeof DbEstablishmentSubscriptionScalarFieldEnum]
+
+
+export const DbTimeEntryScalarFieldEnum = {
+  id: 'id',
+  establishmentId: 'establishmentId',
+  userId: 'userId',
+  userSnapshot: 'userSnapshot',
+  shiftId: 'shiftId',
+  type: 'type',
+  action: 'action',
+  occurredAt: 'occurredAt',
+  recordedAt: 'recordedAt',
+  workdayDate: 'workdayDate',
+  source: 'source',
+  latitude: 'latitude',
+  longitude: 'longitude',
+  rootId: 'rootId',
+  supersedesId: 'supersedesId',
+  actorId: 'actorId',
+  reason: 'reason',
+  sequence: 'sequence',
+  prevHash: 'prevHash',
+  hash: 'hash'
+} as const
+
+export type DbTimeEntryScalarFieldEnum = (typeof DbTimeEntryScalarFieldEnum)[keyof typeof DbTimeEntryScalarFieldEnum]
 
 
 export const DbAdminAuditLogScalarFieldEnum = {

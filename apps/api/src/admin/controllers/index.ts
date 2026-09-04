@@ -1,12 +1,10 @@
 import { AdminBetaTestersController } from './admin-beta-testers.controller';
 import { AdminEstablishmentsController } from './admin-establishments.controller';
-import { AdminFichitController } from './admin-fichit.controller';
 import { AdminOverviewController } from './admin-overview.controller';
 import { AdminUsersController } from './admin-users.controller';
 
 export * from './admin-beta-testers.controller';
 export * from './admin-establishments.controller';
-export * from './admin-fichit.controller';
 export * from './admin-overview.controller';
 export * from './admin-users.controller';
 
@@ -15,5 +13,4 @@ export const AdminControllers = [
   AdminEstablishmentsController,
   AdminUsersController,
   AdminBetaTestersController,
-  AdminFichitController,
 ];

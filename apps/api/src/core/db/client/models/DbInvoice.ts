@@ -1803,14 +1803,6 @@ export type EnumDbInvoiceTypeFieldUpdateOperationsInput = {
   set?: $Enums.DbInvoiceType
 }
 
-export type BigIntFieldUpdateOperationsInput = {
-  set?: bigint | number
-  increment?: bigint | number
-  decrement?: bigint | number
-  multiply?: bigint | number
-  divide?: bigint | number
-}
-
 export type EnumDbAeatStatusFieldUpdateOperationsInput = {
   set?: $Enums.DbAeatStatus
 }

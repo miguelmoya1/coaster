@@ -1,10 +1,8 @@
-import { asEstablishmentId, asUserId, DEFAULT_ESTABLISHMENT_MODULES } from '@coaster/common';
+import { asUserId, DEFAULT_ESTABLISHMENT_MODULES } from '@coaster/common';
 import { DbRole } from '@coaster/core/db';
-import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { EstablishmentWriteRepository } from '../../data-access/establishment.write.repository';
-import { EstablishmentCreatedEvent } from '../../events';
 import { CreateEstablishmentCommand } from '../impl/create-establishment.command';
 import { CreateEstablishmentHandler } from './create-establishment.handler';
 
@@ -13,18 +11,10 @@ describe('CreateEstablishmentHandler', () => {
   const repository = {
     create: vi.fn(),
   };
-  const eventBus = { publish: vi.fn() };
 
   beforeEach(async () => {
-    repository.create.mockResolvedValue({ id: 'establishment-new', name: 'New Establishment' });
-    eventBus.publish.mockClear();
-
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        CreateEstablishmentHandler,
-        { provide: EstablishmentWriteRepository, useValue: repository },
-        { provide: EventBus, useValue: eventBus },
-      ],
+      providers: [CreateEstablishmentHandler, { provide: EstablishmentWriteRepository, useValue: repository }],
     }).compile();
 
     handler = module.get<CreateEstablishmentHandler>(CreateEstablishmentHandler);
@@ -81,22 +71,5 @@ describe('CreateEstablishmentHandler', () => {
     await handler.execute(new CreateEstablishmentCommand({ name: 'Third' }, user));
 
     expect(repository.create).toHaveBeenCalledWith(user.id, { name: 'Third' }, DEFAULT_ESTABLISHMENT_MODULES, 'es');
-  });
-
-  it('should announce the new establishment so it can be mirrored elsewhere', async () => {
-    const user = {
-      id: asUserId('user-4'),
-      name: 'User 4',
-      email: 'd@d.com',
-      active: true,
-      role: DbRole.USER,
-      language: 'es',
-    };
-
-    await handler.execute(new CreateEstablishmentCommand({ name: 'Fourth' }, user));
-
-    expect(eventBus.publish).toHaveBeenCalledWith(
-      new EstablishmentCreatedEvent(asEstablishmentId('establishment-new'), user.id),
-    );
   });
 });

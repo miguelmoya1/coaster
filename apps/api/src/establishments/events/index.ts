@@ -1,4 +1,3 @@
-export * from './impl/establishment-created.event';
 export * from './impl/establishment-settings-updated.event';
 
 export * from './handlers/forget-modules-cache.handler';

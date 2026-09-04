@@ -220,10 +220,11 @@ export type DbUserWhereInput = {
   shiftRequests?: Prisma.DbShiftExchangeListRelationFilter
   shiftApprovals?: Prisma.DbShiftExchangeListRelationFilter
   auditLogs?: Prisma.DbAdminAuditLogListRelationFilter
+  timeEntries?: Prisma.DbTimeEntryListRelationFilter
+  timeEntryEdits?: Prisma.DbTimeEntryListRelationFilter
   createdOrders?: Prisma.DbOrderListRelationFilter
   betaInvites?: Prisma.DbBetaTesterListRelationFilter
   orderAudits?: Prisma.DbOrderAuditLogListRelationFilter
-  fichitSettings?: Prisma.DbFichitSettingsListRelationFilter
 }
 
 export type DbUserOrderByWithRelationInput = {
@@ -242,10 +243,11 @@ export type DbUserOrderByWithRelationInput = {
   shiftRequests?: Prisma.DbShiftExchangeOrderByRelationAggregateInput
   shiftApprovals?: Prisma.DbShiftExchangeOrderByRelationAggregateInput
   auditLogs?: Prisma.DbAdminAuditLogOrderByRelationAggregateInput
+  timeEntries?: Prisma.DbTimeEntryOrderByRelationAggregateInput
+  timeEntryEdits?: Prisma.DbTimeEntryOrderByRelationAggregateInput
   createdOrders?: Prisma.DbOrderOrderByRelationAggregateInput
   betaInvites?: Prisma.DbBetaTesterOrderByRelationAggregateInput
   orderAudits?: Prisma.DbOrderAuditLogOrderByRelationAggregateInput
-  fichitSettings?: Prisma.DbFichitSettingsOrderByRelationAggregateInput
 }
 
 export type DbUserWhereUniqueInput = Prisma.AtLeast<{
@@ -267,10 +269,11 @@ export type DbUserWhereUniqueInput = Prisma.AtLeast<{
   shiftRequests?: Prisma.DbShiftExchangeListRelationFilter
   shiftApprovals?: Prisma.DbShiftExchangeListRelationFilter
   auditLogs?: Prisma.DbAdminAuditLogListRelationFilter
+  timeEntries?: Prisma.DbTimeEntryListRelationFilter
+  timeEntryEdits?: Prisma.DbTimeEntryListRelationFilter
   createdOrders?: Prisma.DbOrderListRelationFilter
   betaInvites?: Prisma.DbBetaTesterListRelationFilter
   orderAudits?: Prisma.DbOrderAuditLogListRelationFilter
-  fichitSettings?: Prisma.DbFichitSettingsListRelationFilter
 }, "id" | "email" | "firebaseUid">
 
 export type DbUserOrderByWithAggregationInput = {
@@ -319,10 +322,11 @@ export type DbUserCreateInput = {
   shiftRequests?: Prisma.DbShiftExchangeCreateNestedManyWithoutRequesterInput
   shiftApprovals?: Prisma.DbShiftExchangeCreateNestedManyWithoutTargetInput
   auditLogs?: Prisma.DbAdminAuditLogCreateNestedManyWithoutActorInput
+  timeEntries?: Prisma.DbTimeEntryCreateNestedManyWithoutUserInput
+  timeEntryEdits?: Prisma.DbTimeEntryCreateNestedManyWithoutActorInput
   createdOrders?: Prisma.DbOrderCreateNestedManyWithoutCreatedByInput
   betaInvites?: Prisma.DbBetaTesterCreateNestedManyWithoutInvitedByInput
   orderAudits?: Prisma.DbOrderAuditLogCreateNestedManyWithoutActorInput
-  fichitSettings?: Prisma.DbFichitSettingsCreateNestedManyWithoutUpdatedByInput
 }
 
 export type DbUserUncheckedCreateInput = {
@@ -341,10 +345,11 @@ export type DbUserUncheckedCreateInput = {
   shiftRequests?: Prisma.DbShiftExchangeUncheckedCreateNestedManyWithoutRequesterInput
   shiftApprovals?: Prisma.DbShiftExchangeUncheckedCreateNestedManyWithoutTargetInput
   auditLogs?: Prisma.DbAdminAuditLogUncheckedCreateNestedManyWithoutActorInput
+  timeEntries?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutUserInput
+  timeEntryEdits?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutActorInput
   createdOrders?: Prisma.DbOrderUncheckedCreateNestedManyWithoutCreatedByInput
   betaInvites?: Prisma.DbBetaTesterUncheckedCreateNestedManyWithoutInvitedByInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedCreateNestedManyWithoutActorInput
-  fichitSettings?: Prisma.DbFichitSettingsUncheckedCreateNestedManyWithoutUpdatedByInput
 }
 
 export type DbUserUpdateInput = {
@@ -363,10 +368,11 @@ export type DbUserUpdateInput = {
   shiftRequests?: Prisma.DbShiftExchangeUpdateManyWithoutRequesterNestedInput
   shiftApprovals?: Prisma.DbShiftExchangeUpdateManyWithoutTargetNestedInput
   auditLogs?: Prisma.DbAdminAuditLogUpdateManyWithoutActorNestedInput
+  timeEntries?: Prisma.DbTimeEntryUpdateManyWithoutUserNestedInput
+  timeEntryEdits?: Prisma.DbTimeEntryUpdateManyWithoutActorNestedInput
   createdOrders?: Prisma.DbOrderUpdateManyWithoutCreatedByNestedInput
   betaInvites?: Prisma.DbBetaTesterUpdateManyWithoutInvitedByNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUpdateManyWithoutActorNestedInput
-  fichitSettings?: Prisma.DbFichitSettingsUpdateManyWithoutUpdatedByNestedInput
 }
 
 export type DbUserUncheckedUpdateInput = {
@@ -385,10 +391,11 @@ export type DbUserUncheckedUpdateInput = {
   shiftRequests?: Prisma.DbShiftExchangeUncheckedUpdateManyWithoutRequesterNestedInput
   shiftApprovals?: Prisma.DbShiftExchangeUncheckedUpdateManyWithoutTargetNestedInput
   auditLogs?: Prisma.DbAdminAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  timeEntries?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutUserNestedInput
+  timeEntryEdits?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutActorNestedInput
   createdOrders?: Prisma.DbOrderUncheckedUpdateManyWithoutCreatedByNestedInput
   betaInvites?: Prisma.DbBetaTesterUncheckedUpdateManyWithoutInvitedByNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedUpdateManyWithoutActorNestedInput
-  fichitSettings?: Prisma.DbFichitSettingsUncheckedUpdateManyWithoutUpdatedByNestedInput
 }
 
 export type DbUserCreateManyInput = {
@@ -497,22 +504,6 @@ export type DbUserUpdateOneWithoutBetaInvitesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.DbUserUpdateToOneWithWhereWithoutBetaInvitesInput, Prisma.DbUserUpdateWithoutBetaInvitesInput>, Prisma.DbUserUncheckedUpdateWithoutBetaInvitesInput>
 }
 
-export type DbUserCreateNestedOneWithoutFichitSettingsInput = {
-  create?: Prisma.XOR<Prisma.DbUserCreateWithoutFichitSettingsInput, Prisma.DbUserUncheckedCreateWithoutFichitSettingsInput>
-  connectOrCreate?: Prisma.DbUserCreateOrConnectWithoutFichitSettingsInput
-  connect?: Prisma.DbUserWhereUniqueInput
-}
-
-export type DbUserUpdateOneWithoutFichitSettingsNestedInput = {
-  create?: Prisma.XOR<Prisma.DbUserCreateWithoutFichitSettingsInput, Prisma.DbUserUncheckedCreateWithoutFichitSettingsInput>
-  connectOrCreate?: Prisma.DbUserCreateOrConnectWithoutFichitSettingsInput
-  upsert?: Prisma.DbUserUpsertWithoutFichitSettingsInput
-  disconnect?: Prisma.DbUserWhereInput | boolean
-  delete?: Prisma.DbUserWhereInput | boolean
-  connect?: Prisma.DbUserWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.DbUserUpdateToOneWithWhereWithoutFichitSettingsInput, Prisma.DbUserUpdateWithoutFichitSettingsInput>, Prisma.DbUserUncheckedUpdateWithoutFichitSettingsInput>
-}
-
 export type DbUserCreateNestedOneWithoutPreferencesInput = {
   create?: Prisma.XOR<Prisma.DbUserCreateWithoutPreferencesInput, Prisma.DbUserUncheckedCreateWithoutPreferencesInput>
   connectOrCreate?: Prisma.DbUserCreateOrConnectWithoutPreferencesInput
@@ -601,6 +592,34 @@ export type DbUserUpdateOneWithoutCreatedOrdersNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.DbUserUpdateToOneWithWhereWithoutCreatedOrdersInput, Prisma.DbUserUpdateWithoutCreatedOrdersInput>, Prisma.DbUserUncheckedUpdateWithoutCreatedOrdersInput>
 }
 
+export type DbUserCreateNestedOneWithoutTimeEntriesInput = {
+  create?: Prisma.XOR<Prisma.DbUserCreateWithoutTimeEntriesInput, Prisma.DbUserUncheckedCreateWithoutTimeEntriesInput>
+  connectOrCreate?: Prisma.DbUserCreateOrConnectWithoutTimeEntriesInput
+  connect?: Prisma.DbUserWhereUniqueInput
+}
+
+export type DbUserCreateNestedOneWithoutTimeEntryEditsInput = {
+  create?: Prisma.XOR<Prisma.DbUserCreateWithoutTimeEntryEditsInput, Prisma.DbUserUncheckedCreateWithoutTimeEntryEditsInput>
+  connectOrCreate?: Prisma.DbUserCreateOrConnectWithoutTimeEntryEditsInput
+  connect?: Prisma.DbUserWhereUniqueInput
+}
+
+export type DbUserUpdateOneRequiredWithoutTimeEntriesNestedInput = {
+  create?: Prisma.XOR<Prisma.DbUserCreateWithoutTimeEntriesInput, Prisma.DbUserUncheckedCreateWithoutTimeEntriesInput>
+  connectOrCreate?: Prisma.DbUserCreateOrConnectWithoutTimeEntriesInput
+  upsert?: Prisma.DbUserUpsertWithoutTimeEntriesInput
+  connect?: Prisma.DbUserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.DbUserUpdateToOneWithWhereWithoutTimeEntriesInput, Prisma.DbUserUpdateWithoutTimeEntriesInput>, Prisma.DbUserUncheckedUpdateWithoutTimeEntriesInput>
+}
+
+export type DbUserUpdateOneRequiredWithoutTimeEntryEditsNestedInput = {
+  create?: Prisma.XOR<Prisma.DbUserCreateWithoutTimeEntryEditsInput, Prisma.DbUserUncheckedCreateWithoutTimeEntryEditsInput>
+  connectOrCreate?: Prisma.DbUserCreateOrConnectWithoutTimeEntryEditsInput
+  upsert?: Prisma.DbUserUpsertWithoutTimeEntryEditsInput
+  connect?: Prisma.DbUserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.DbUserUpdateToOneWithWhereWithoutTimeEntryEditsInput, Prisma.DbUserUpdateWithoutTimeEntryEditsInput>, Prisma.DbUserUncheckedUpdateWithoutTimeEntryEditsInput>
+}
+
 export type DbUserCreateNestedOneWithoutAuditLogsInput = {
   create?: Prisma.XOR<Prisma.DbUserCreateWithoutAuditLogsInput, Prisma.DbUserUncheckedCreateWithoutAuditLogsInput>
   connectOrCreate?: Prisma.DbUserCreateOrConnectWithoutAuditLogsInput
@@ -645,9 +664,10 @@ export type DbUserCreateWithoutBetaInvitesInput = {
   shiftRequests?: Prisma.DbShiftExchangeCreateNestedManyWithoutRequesterInput
   shiftApprovals?: Prisma.DbShiftExchangeCreateNestedManyWithoutTargetInput
   auditLogs?: Prisma.DbAdminAuditLogCreateNestedManyWithoutActorInput
+  timeEntries?: Prisma.DbTimeEntryCreateNestedManyWithoutUserInput
+  timeEntryEdits?: Prisma.DbTimeEntryCreateNestedManyWithoutActorInput
   createdOrders?: Prisma.DbOrderCreateNestedManyWithoutCreatedByInput
   orderAudits?: Prisma.DbOrderAuditLogCreateNestedManyWithoutActorInput
-  fichitSettings?: Prisma.DbFichitSettingsCreateNestedManyWithoutUpdatedByInput
 }
 
 export type DbUserUncheckedCreateWithoutBetaInvitesInput = {
@@ -666,9 +686,10 @@ export type DbUserUncheckedCreateWithoutBetaInvitesInput = {
   shiftRequests?: Prisma.DbShiftExchangeUncheckedCreateNestedManyWithoutRequesterInput
   shiftApprovals?: Prisma.DbShiftExchangeUncheckedCreateNestedManyWithoutTargetInput
   auditLogs?: Prisma.DbAdminAuditLogUncheckedCreateNestedManyWithoutActorInput
+  timeEntries?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutUserInput
+  timeEntryEdits?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutActorInput
   createdOrders?: Prisma.DbOrderUncheckedCreateNestedManyWithoutCreatedByInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedCreateNestedManyWithoutActorInput
-  fichitSettings?: Prisma.DbFichitSettingsUncheckedCreateNestedManyWithoutUpdatedByInput
 }
 
 export type DbUserCreateOrConnectWithoutBetaInvitesInput = {
@@ -703,9 +724,10 @@ export type DbUserUpdateWithoutBetaInvitesInput = {
   shiftRequests?: Prisma.DbShiftExchangeUpdateManyWithoutRequesterNestedInput
   shiftApprovals?: Prisma.DbShiftExchangeUpdateManyWithoutTargetNestedInput
   auditLogs?: Prisma.DbAdminAuditLogUpdateManyWithoutActorNestedInput
+  timeEntries?: Prisma.DbTimeEntryUpdateManyWithoutUserNestedInput
+  timeEntryEdits?: Prisma.DbTimeEntryUpdateManyWithoutActorNestedInput
   createdOrders?: Prisma.DbOrderUpdateManyWithoutCreatedByNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUpdateManyWithoutActorNestedInput
-  fichitSettings?: Prisma.DbFichitSettingsUpdateManyWithoutUpdatedByNestedInput
 }
 
 export type DbUserUncheckedUpdateWithoutBetaInvitesInput = {
@@ -724,108 +746,9 @@ export type DbUserUncheckedUpdateWithoutBetaInvitesInput = {
   shiftRequests?: Prisma.DbShiftExchangeUncheckedUpdateManyWithoutRequesterNestedInput
   shiftApprovals?: Prisma.DbShiftExchangeUncheckedUpdateManyWithoutTargetNestedInput
   auditLogs?: Prisma.DbAdminAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  timeEntries?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutUserNestedInput
+  timeEntryEdits?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutActorNestedInput
   createdOrders?: Prisma.DbOrderUncheckedUpdateManyWithoutCreatedByNestedInput
-  orderAudits?: Prisma.DbOrderAuditLogUncheckedUpdateManyWithoutActorNestedInput
-  fichitSettings?: Prisma.DbFichitSettingsUncheckedUpdateManyWithoutUpdatedByNestedInput
-}
-
-export type DbUserCreateWithoutFichitSettingsInput = {
-  id?: string
-  email: string
-  firebaseUid?: string | null
-  name: string
-  photoUrl?: string | null
-  active?: boolean
-  role?: $Enums.DbRole
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  preferences?: Prisma.DbUserPreferencesCreateNestedOneWithoutUserInput
-  memberships?: Prisma.DbEstablishmentMemberCreateNestedManyWithoutUserInput
-  shifts?: Prisma.DbShiftCreateNestedManyWithoutUserInput
-  shiftRequests?: Prisma.DbShiftExchangeCreateNestedManyWithoutRequesterInput
-  shiftApprovals?: Prisma.DbShiftExchangeCreateNestedManyWithoutTargetInput
-  auditLogs?: Prisma.DbAdminAuditLogCreateNestedManyWithoutActorInput
-  createdOrders?: Prisma.DbOrderCreateNestedManyWithoutCreatedByInput
-  betaInvites?: Prisma.DbBetaTesterCreateNestedManyWithoutInvitedByInput
-  orderAudits?: Prisma.DbOrderAuditLogCreateNestedManyWithoutActorInput
-}
-
-export type DbUserUncheckedCreateWithoutFichitSettingsInput = {
-  id?: string
-  email: string
-  firebaseUid?: string | null
-  name: string
-  photoUrl?: string | null
-  active?: boolean
-  role?: $Enums.DbRole
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  preferences?: Prisma.DbUserPreferencesUncheckedCreateNestedOneWithoutUserInput
-  memberships?: Prisma.DbEstablishmentMemberUncheckedCreateNestedManyWithoutUserInput
-  shifts?: Prisma.DbShiftUncheckedCreateNestedManyWithoutUserInput
-  shiftRequests?: Prisma.DbShiftExchangeUncheckedCreateNestedManyWithoutRequesterInput
-  shiftApprovals?: Prisma.DbShiftExchangeUncheckedCreateNestedManyWithoutTargetInput
-  auditLogs?: Prisma.DbAdminAuditLogUncheckedCreateNestedManyWithoutActorInput
-  createdOrders?: Prisma.DbOrderUncheckedCreateNestedManyWithoutCreatedByInput
-  betaInvites?: Prisma.DbBetaTesterUncheckedCreateNestedManyWithoutInvitedByInput
-  orderAudits?: Prisma.DbOrderAuditLogUncheckedCreateNestedManyWithoutActorInput
-}
-
-export type DbUserCreateOrConnectWithoutFichitSettingsInput = {
-  where: Prisma.DbUserWhereUniqueInput
-  create: Prisma.XOR<Prisma.DbUserCreateWithoutFichitSettingsInput, Prisma.DbUserUncheckedCreateWithoutFichitSettingsInput>
-}
-
-export type DbUserUpsertWithoutFichitSettingsInput = {
-  update: Prisma.XOR<Prisma.DbUserUpdateWithoutFichitSettingsInput, Prisma.DbUserUncheckedUpdateWithoutFichitSettingsInput>
-  create: Prisma.XOR<Prisma.DbUserCreateWithoutFichitSettingsInput, Prisma.DbUserUncheckedCreateWithoutFichitSettingsInput>
-  where?: Prisma.DbUserWhereInput
-}
-
-export type DbUserUpdateToOneWithWhereWithoutFichitSettingsInput = {
-  where?: Prisma.DbUserWhereInput
-  data: Prisma.XOR<Prisma.DbUserUpdateWithoutFichitSettingsInput, Prisma.DbUserUncheckedUpdateWithoutFichitSettingsInput>
-}
-
-export type DbUserUpdateWithoutFichitSettingsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  role?: Prisma.EnumDbRoleFieldUpdateOperationsInput | $Enums.DbRole
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  preferences?: Prisma.DbUserPreferencesUpdateOneWithoutUserNestedInput
-  memberships?: Prisma.DbEstablishmentMemberUpdateManyWithoutUserNestedInput
-  shifts?: Prisma.DbShiftUpdateManyWithoutUserNestedInput
-  shiftRequests?: Prisma.DbShiftExchangeUpdateManyWithoutRequesterNestedInput
-  shiftApprovals?: Prisma.DbShiftExchangeUpdateManyWithoutTargetNestedInput
-  auditLogs?: Prisma.DbAdminAuditLogUpdateManyWithoutActorNestedInput
-  createdOrders?: Prisma.DbOrderUpdateManyWithoutCreatedByNestedInput
-  betaInvites?: Prisma.DbBetaTesterUpdateManyWithoutInvitedByNestedInput
-  orderAudits?: Prisma.DbOrderAuditLogUpdateManyWithoutActorNestedInput
-}
-
-export type DbUserUncheckedUpdateWithoutFichitSettingsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  role?: Prisma.EnumDbRoleFieldUpdateOperationsInput | $Enums.DbRole
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  preferences?: Prisma.DbUserPreferencesUncheckedUpdateOneWithoutUserNestedInput
-  memberships?: Prisma.DbEstablishmentMemberUncheckedUpdateManyWithoutUserNestedInput
-  shifts?: Prisma.DbShiftUncheckedUpdateManyWithoutUserNestedInput
-  shiftRequests?: Prisma.DbShiftExchangeUncheckedUpdateManyWithoutRequesterNestedInput
-  shiftApprovals?: Prisma.DbShiftExchangeUncheckedUpdateManyWithoutTargetNestedInput
-  auditLogs?: Prisma.DbAdminAuditLogUncheckedUpdateManyWithoutActorNestedInput
-  createdOrders?: Prisma.DbOrderUncheckedUpdateManyWithoutCreatedByNestedInput
-  betaInvites?: Prisma.DbBetaTesterUncheckedUpdateManyWithoutInvitedByNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedUpdateManyWithoutActorNestedInput
 }
 
@@ -844,10 +767,11 @@ export type DbUserCreateWithoutPreferencesInput = {
   shiftRequests?: Prisma.DbShiftExchangeCreateNestedManyWithoutRequesterInput
   shiftApprovals?: Prisma.DbShiftExchangeCreateNestedManyWithoutTargetInput
   auditLogs?: Prisma.DbAdminAuditLogCreateNestedManyWithoutActorInput
+  timeEntries?: Prisma.DbTimeEntryCreateNestedManyWithoutUserInput
+  timeEntryEdits?: Prisma.DbTimeEntryCreateNestedManyWithoutActorInput
   createdOrders?: Prisma.DbOrderCreateNestedManyWithoutCreatedByInput
   betaInvites?: Prisma.DbBetaTesterCreateNestedManyWithoutInvitedByInput
   orderAudits?: Prisma.DbOrderAuditLogCreateNestedManyWithoutActorInput
-  fichitSettings?: Prisma.DbFichitSettingsCreateNestedManyWithoutUpdatedByInput
 }
 
 export type DbUserUncheckedCreateWithoutPreferencesInput = {
@@ -865,10 +789,11 @@ export type DbUserUncheckedCreateWithoutPreferencesInput = {
   shiftRequests?: Prisma.DbShiftExchangeUncheckedCreateNestedManyWithoutRequesterInput
   shiftApprovals?: Prisma.DbShiftExchangeUncheckedCreateNestedManyWithoutTargetInput
   auditLogs?: Prisma.DbAdminAuditLogUncheckedCreateNestedManyWithoutActorInput
+  timeEntries?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutUserInput
+  timeEntryEdits?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutActorInput
   createdOrders?: Prisma.DbOrderUncheckedCreateNestedManyWithoutCreatedByInput
   betaInvites?: Prisma.DbBetaTesterUncheckedCreateNestedManyWithoutInvitedByInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedCreateNestedManyWithoutActorInput
-  fichitSettings?: Prisma.DbFichitSettingsUncheckedCreateNestedManyWithoutUpdatedByInput
 }
 
 export type DbUserCreateOrConnectWithoutPreferencesInput = {
@@ -902,10 +827,11 @@ export type DbUserUpdateWithoutPreferencesInput = {
   shiftRequests?: Prisma.DbShiftExchangeUpdateManyWithoutRequesterNestedInput
   shiftApprovals?: Prisma.DbShiftExchangeUpdateManyWithoutTargetNestedInput
   auditLogs?: Prisma.DbAdminAuditLogUpdateManyWithoutActorNestedInput
+  timeEntries?: Prisma.DbTimeEntryUpdateManyWithoutUserNestedInput
+  timeEntryEdits?: Prisma.DbTimeEntryUpdateManyWithoutActorNestedInput
   createdOrders?: Prisma.DbOrderUpdateManyWithoutCreatedByNestedInput
   betaInvites?: Prisma.DbBetaTesterUpdateManyWithoutInvitedByNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUpdateManyWithoutActorNestedInput
-  fichitSettings?: Prisma.DbFichitSettingsUpdateManyWithoutUpdatedByNestedInput
 }
 
 export type DbUserUncheckedUpdateWithoutPreferencesInput = {
@@ -923,10 +849,11 @@ export type DbUserUncheckedUpdateWithoutPreferencesInput = {
   shiftRequests?: Prisma.DbShiftExchangeUncheckedUpdateManyWithoutRequesterNestedInput
   shiftApprovals?: Prisma.DbShiftExchangeUncheckedUpdateManyWithoutTargetNestedInput
   auditLogs?: Prisma.DbAdminAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  timeEntries?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutUserNestedInput
+  timeEntryEdits?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutActorNestedInput
   createdOrders?: Prisma.DbOrderUncheckedUpdateManyWithoutCreatedByNestedInput
   betaInvites?: Prisma.DbBetaTesterUncheckedUpdateManyWithoutInvitedByNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedUpdateManyWithoutActorNestedInput
-  fichitSettings?: Prisma.DbFichitSettingsUncheckedUpdateManyWithoutUpdatedByNestedInput
 }
 
 export type DbUserCreateWithoutMembershipsInput = {
@@ -944,10 +871,11 @@ export type DbUserCreateWithoutMembershipsInput = {
   shiftRequests?: Prisma.DbShiftExchangeCreateNestedManyWithoutRequesterInput
   shiftApprovals?: Prisma.DbShiftExchangeCreateNestedManyWithoutTargetInput
   auditLogs?: Prisma.DbAdminAuditLogCreateNestedManyWithoutActorInput
+  timeEntries?: Prisma.DbTimeEntryCreateNestedManyWithoutUserInput
+  timeEntryEdits?: Prisma.DbTimeEntryCreateNestedManyWithoutActorInput
   createdOrders?: Prisma.DbOrderCreateNestedManyWithoutCreatedByInput
   betaInvites?: Prisma.DbBetaTesterCreateNestedManyWithoutInvitedByInput
   orderAudits?: Prisma.DbOrderAuditLogCreateNestedManyWithoutActorInput
-  fichitSettings?: Prisma.DbFichitSettingsCreateNestedManyWithoutUpdatedByInput
 }
 
 export type DbUserUncheckedCreateWithoutMembershipsInput = {
@@ -965,10 +893,11 @@ export type DbUserUncheckedCreateWithoutMembershipsInput = {
   shiftRequests?: Prisma.DbShiftExchangeUncheckedCreateNestedManyWithoutRequesterInput
   shiftApprovals?: Prisma.DbShiftExchangeUncheckedCreateNestedManyWithoutTargetInput
   auditLogs?: Prisma.DbAdminAuditLogUncheckedCreateNestedManyWithoutActorInput
+  timeEntries?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutUserInput
+  timeEntryEdits?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutActorInput
   createdOrders?: Prisma.DbOrderUncheckedCreateNestedManyWithoutCreatedByInput
   betaInvites?: Prisma.DbBetaTesterUncheckedCreateNestedManyWithoutInvitedByInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedCreateNestedManyWithoutActorInput
-  fichitSettings?: Prisma.DbFichitSettingsUncheckedCreateNestedManyWithoutUpdatedByInput
 }
 
 export type DbUserCreateOrConnectWithoutMembershipsInput = {
@@ -1002,10 +931,11 @@ export type DbUserUpdateWithoutMembershipsInput = {
   shiftRequests?: Prisma.DbShiftExchangeUpdateManyWithoutRequesterNestedInput
   shiftApprovals?: Prisma.DbShiftExchangeUpdateManyWithoutTargetNestedInput
   auditLogs?: Prisma.DbAdminAuditLogUpdateManyWithoutActorNestedInput
+  timeEntries?: Prisma.DbTimeEntryUpdateManyWithoutUserNestedInput
+  timeEntryEdits?: Prisma.DbTimeEntryUpdateManyWithoutActorNestedInput
   createdOrders?: Prisma.DbOrderUpdateManyWithoutCreatedByNestedInput
   betaInvites?: Prisma.DbBetaTesterUpdateManyWithoutInvitedByNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUpdateManyWithoutActorNestedInput
-  fichitSettings?: Prisma.DbFichitSettingsUpdateManyWithoutUpdatedByNestedInput
 }
 
 export type DbUserUncheckedUpdateWithoutMembershipsInput = {
@@ -1023,10 +953,11 @@ export type DbUserUncheckedUpdateWithoutMembershipsInput = {
   shiftRequests?: Prisma.DbShiftExchangeUncheckedUpdateManyWithoutRequesterNestedInput
   shiftApprovals?: Prisma.DbShiftExchangeUncheckedUpdateManyWithoutTargetNestedInput
   auditLogs?: Prisma.DbAdminAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  timeEntries?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutUserNestedInput
+  timeEntryEdits?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutActorNestedInput
   createdOrders?: Prisma.DbOrderUncheckedUpdateManyWithoutCreatedByNestedInput
   betaInvites?: Prisma.DbBetaTesterUncheckedUpdateManyWithoutInvitedByNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedUpdateManyWithoutActorNestedInput
-  fichitSettings?: Prisma.DbFichitSettingsUncheckedUpdateManyWithoutUpdatedByNestedInput
 }
 
 export type DbUserCreateWithoutShiftsInput = {
@@ -1044,10 +975,11 @@ export type DbUserCreateWithoutShiftsInput = {
   shiftRequests?: Prisma.DbShiftExchangeCreateNestedManyWithoutRequesterInput
   shiftApprovals?: Prisma.DbShiftExchangeCreateNestedManyWithoutTargetInput
   auditLogs?: Prisma.DbAdminAuditLogCreateNestedManyWithoutActorInput
+  timeEntries?: Prisma.DbTimeEntryCreateNestedManyWithoutUserInput
+  timeEntryEdits?: Prisma.DbTimeEntryCreateNestedManyWithoutActorInput
   createdOrders?: Prisma.DbOrderCreateNestedManyWithoutCreatedByInput
   betaInvites?: Prisma.DbBetaTesterCreateNestedManyWithoutInvitedByInput
   orderAudits?: Prisma.DbOrderAuditLogCreateNestedManyWithoutActorInput
-  fichitSettings?: Prisma.DbFichitSettingsCreateNestedManyWithoutUpdatedByInput
 }
 
 export type DbUserUncheckedCreateWithoutShiftsInput = {
@@ -1065,10 +997,11 @@ export type DbUserUncheckedCreateWithoutShiftsInput = {
   shiftRequests?: Prisma.DbShiftExchangeUncheckedCreateNestedManyWithoutRequesterInput
   shiftApprovals?: Prisma.DbShiftExchangeUncheckedCreateNestedManyWithoutTargetInput
   auditLogs?: Prisma.DbAdminAuditLogUncheckedCreateNestedManyWithoutActorInput
+  timeEntries?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutUserInput
+  timeEntryEdits?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutActorInput
   createdOrders?: Prisma.DbOrderUncheckedCreateNestedManyWithoutCreatedByInput
   betaInvites?: Prisma.DbBetaTesterUncheckedCreateNestedManyWithoutInvitedByInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedCreateNestedManyWithoutActorInput
-  fichitSettings?: Prisma.DbFichitSettingsUncheckedCreateNestedManyWithoutUpdatedByInput
 }
 
 export type DbUserCreateOrConnectWithoutShiftsInput = {
@@ -1102,10 +1035,11 @@ export type DbUserUpdateWithoutShiftsInput = {
   shiftRequests?: Prisma.DbShiftExchangeUpdateManyWithoutRequesterNestedInput
   shiftApprovals?: Prisma.DbShiftExchangeUpdateManyWithoutTargetNestedInput
   auditLogs?: Prisma.DbAdminAuditLogUpdateManyWithoutActorNestedInput
+  timeEntries?: Prisma.DbTimeEntryUpdateManyWithoutUserNestedInput
+  timeEntryEdits?: Prisma.DbTimeEntryUpdateManyWithoutActorNestedInput
   createdOrders?: Prisma.DbOrderUpdateManyWithoutCreatedByNestedInput
   betaInvites?: Prisma.DbBetaTesterUpdateManyWithoutInvitedByNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUpdateManyWithoutActorNestedInput
-  fichitSettings?: Prisma.DbFichitSettingsUpdateManyWithoutUpdatedByNestedInput
 }
 
 export type DbUserUncheckedUpdateWithoutShiftsInput = {
@@ -1123,10 +1057,11 @@ export type DbUserUncheckedUpdateWithoutShiftsInput = {
   shiftRequests?: Prisma.DbShiftExchangeUncheckedUpdateManyWithoutRequesterNestedInput
   shiftApprovals?: Prisma.DbShiftExchangeUncheckedUpdateManyWithoutTargetNestedInput
   auditLogs?: Prisma.DbAdminAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  timeEntries?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutUserNestedInput
+  timeEntryEdits?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutActorNestedInput
   createdOrders?: Prisma.DbOrderUncheckedUpdateManyWithoutCreatedByNestedInput
   betaInvites?: Prisma.DbBetaTesterUncheckedUpdateManyWithoutInvitedByNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedUpdateManyWithoutActorNestedInput
-  fichitSettings?: Prisma.DbFichitSettingsUncheckedUpdateManyWithoutUpdatedByNestedInput
 }
 
 export type DbUserCreateWithoutShiftRequestsInput = {
@@ -1144,10 +1079,11 @@ export type DbUserCreateWithoutShiftRequestsInput = {
   shifts?: Prisma.DbShiftCreateNestedManyWithoutUserInput
   shiftApprovals?: Prisma.DbShiftExchangeCreateNestedManyWithoutTargetInput
   auditLogs?: Prisma.DbAdminAuditLogCreateNestedManyWithoutActorInput
+  timeEntries?: Prisma.DbTimeEntryCreateNestedManyWithoutUserInput
+  timeEntryEdits?: Prisma.DbTimeEntryCreateNestedManyWithoutActorInput
   createdOrders?: Prisma.DbOrderCreateNestedManyWithoutCreatedByInput
   betaInvites?: Prisma.DbBetaTesterCreateNestedManyWithoutInvitedByInput
   orderAudits?: Prisma.DbOrderAuditLogCreateNestedManyWithoutActorInput
-  fichitSettings?: Prisma.DbFichitSettingsCreateNestedManyWithoutUpdatedByInput
 }
 
 export type DbUserUncheckedCreateWithoutShiftRequestsInput = {
@@ -1165,10 +1101,11 @@ export type DbUserUncheckedCreateWithoutShiftRequestsInput = {
   shifts?: Prisma.DbShiftUncheckedCreateNestedManyWithoutUserInput
   shiftApprovals?: Prisma.DbShiftExchangeUncheckedCreateNestedManyWithoutTargetInput
   auditLogs?: Prisma.DbAdminAuditLogUncheckedCreateNestedManyWithoutActorInput
+  timeEntries?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutUserInput
+  timeEntryEdits?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutActorInput
   createdOrders?: Prisma.DbOrderUncheckedCreateNestedManyWithoutCreatedByInput
   betaInvites?: Prisma.DbBetaTesterUncheckedCreateNestedManyWithoutInvitedByInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedCreateNestedManyWithoutActorInput
-  fichitSettings?: Prisma.DbFichitSettingsUncheckedCreateNestedManyWithoutUpdatedByInput
 }
 
 export type DbUserCreateOrConnectWithoutShiftRequestsInput = {
@@ -1191,10 +1128,11 @@ export type DbUserCreateWithoutShiftApprovalsInput = {
   shifts?: Prisma.DbShiftCreateNestedManyWithoutUserInput
   shiftRequests?: Prisma.DbShiftExchangeCreateNestedManyWithoutRequesterInput
   auditLogs?: Prisma.DbAdminAuditLogCreateNestedManyWithoutActorInput
+  timeEntries?: Prisma.DbTimeEntryCreateNestedManyWithoutUserInput
+  timeEntryEdits?: Prisma.DbTimeEntryCreateNestedManyWithoutActorInput
   createdOrders?: Prisma.DbOrderCreateNestedManyWithoutCreatedByInput
   betaInvites?: Prisma.DbBetaTesterCreateNestedManyWithoutInvitedByInput
   orderAudits?: Prisma.DbOrderAuditLogCreateNestedManyWithoutActorInput
-  fichitSettings?: Prisma.DbFichitSettingsCreateNestedManyWithoutUpdatedByInput
 }
 
 export type DbUserUncheckedCreateWithoutShiftApprovalsInput = {
@@ -1212,10 +1150,11 @@ export type DbUserUncheckedCreateWithoutShiftApprovalsInput = {
   shifts?: Prisma.DbShiftUncheckedCreateNestedManyWithoutUserInput
   shiftRequests?: Prisma.DbShiftExchangeUncheckedCreateNestedManyWithoutRequesterInput
   auditLogs?: Prisma.DbAdminAuditLogUncheckedCreateNestedManyWithoutActorInput
+  timeEntries?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutUserInput
+  timeEntryEdits?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutActorInput
   createdOrders?: Prisma.DbOrderUncheckedCreateNestedManyWithoutCreatedByInput
   betaInvites?: Prisma.DbBetaTesterUncheckedCreateNestedManyWithoutInvitedByInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedCreateNestedManyWithoutActorInput
-  fichitSettings?: Prisma.DbFichitSettingsUncheckedCreateNestedManyWithoutUpdatedByInput
 }
 
 export type DbUserCreateOrConnectWithoutShiftApprovalsInput = {
@@ -1249,10 +1188,11 @@ export type DbUserUpdateWithoutShiftRequestsInput = {
   shifts?: Prisma.DbShiftUpdateManyWithoutUserNestedInput
   shiftApprovals?: Prisma.DbShiftExchangeUpdateManyWithoutTargetNestedInput
   auditLogs?: Prisma.DbAdminAuditLogUpdateManyWithoutActorNestedInput
+  timeEntries?: Prisma.DbTimeEntryUpdateManyWithoutUserNestedInput
+  timeEntryEdits?: Prisma.DbTimeEntryUpdateManyWithoutActorNestedInput
   createdOrders?: Prisma.DbOrderUpdateManyWithoutCreatedByNestedInput
   betaInvites?: Prisma.DbBetaTesterUpdateManyWithoutInvitedByNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUpdateManyWithoutActorNestedInput
-  fichitSettings?: Prisma.DbFichitSettingsUpdateManyWithoutUpdatedByNestedInput
 }
 
 export type DbUserUncheckedUpdateWithoutShiftRequestsInput = {
@@ -1270,10 +1210,11 @@ export type DbUserUncheckedUpdateWithoutShiftRequestsInput = {
   shifts?: Prisma.DbShiftUncheckedUpdateManyWithoutUserNestedInput
   shiftApprovals?: Prisma.DbShiftExchangeUncheckedUpdateManyWithoutTargetNestedInput
   auditLogs?: Prisma.DbAdminAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  timeEntries?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutUserNestedInput
+  timeEntryEdits?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutActorNestedInput
   createdOrders?: Prisma.DbOrderUncheckedUpdateManyWithoutCreatedByNestedInput
   betaInvites?: Prisma.DbBetaTesterUncheckedUpdateManyWithoutInvitedByNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedUpdateManyWithoutActorNestedInput
-  fichitSettings?: Prisma.DbFichitSettingsUncheckedUpdateManyWithoutUpdatedByNestedInput
 }
 
 export type DbUserUpsertWithoutShiftApprovalsInput = {
@@ -1302,10 +1243,11 @@ export type DbUserUpdateWithoutShiftApprovalsInput = {
   shifts?: Prisma.DbShiftUpdateManyWithoutUserNestedInput
   shiftRequests?: Prisma.DbShiftExchangeUpdateManyWithoutRequesterNestedInput
   auditLogs?: Prisma.DbAdminAuditLogUpdateManyWithoutActorNestedInput
+  timeEntries?: Prisma.DbTimeEntryUpdateManyWithoutUserNestedInput
+  timeEntryEdits?: Prisma.DbTimeEntryUpdateManyWithoutActorNestedInput
   createdOrders?: Prisma.DbOrderUpdateManyWithoutCreatedByNestedInput
   betaInvites?: Prisma.DbBetaTesterUpdateManyWithoutInvitedByNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUpdateManyWithoutActorNestedInput
-  fichitSettings?: Prisma.DbFichitSettingsUpdateManyWithoutUpdatedByNestedInput
 }
 
 export type DbUserUncheckedUpdateWithoutShiftApprovalsInput = {
@@ -1323,10 +1265,11 @@ export type DbUserUncheckedUpdateWithoutShiftApprovalsInput = {
   shifts?: Prisma.DbShiftUncheckedUpdateManyWithoutUserNestedInput
   shiftRequests?: Prisma.DbShiftExchangeUncheckedUpdateManyWithoutRequesterNestedInput
   auditLogs?: Prisma.DbAdminAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  timeEntries?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutUserNestedInput
+  timeEntryEdits?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutActorNestedInput
   createdOrders?: Prisma.DbOrderUncheckedUpdateManyWithoutCreatedByNestedInput
   betaInvites?: Prisma.DbBetaTesterUncheckedUpdateManyWithoutInvitedByNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedUpdateManyWithoutActorNestedInput
-  fichitSettings?: Prisma.DbFichitSettingsUncheckedUpdateManyWithoutUpdatedByNestedInput
 }
 
 export type DbUserCreateWithoutCreatedOrdersInput = {
@@ -1345,9 +1288,10 @@ export type DbUserCreateWithoutCreatedOrdersInput = {
   shiftRequests?: Prisma.DbShiftExchangeCreateNestedManyWithoutRequesterInput
   shiftApprovals?: Prisma.DbShiftExchangeCreateNestedManyWithoutTargetInput
   auditLogs?: Prisma.DbAdminAuditLogCreateNestedManyWithoutActorInput
+  timeEntries?: Prisma.DbTimeEntryCreateNestedManyWithoutUserInput
+  timeEntryEdits?: Prisma.DbTimeEntryCreateNestedManyWithoutActorInput
   betaInvites?: Prisma.DbBetaTesterCreateNestedManyWithoutInvitedByInput
   orderAudits?: Prisma.DbOrderAuditLogCreateNestedManyWithoutActorInput
-  fichitSettings?: Prisma.DbFichitSettingsCreateNestedManyWithoutUpdatedByInput
 }
 
 export type DbUserUncheckedCreateWithoutCreatedOrdersInput = {
@@ -1366,9 +1310,10 @@ export type DbUserUncheckedCreateWithoutCreatedOrdersInput = {
   shiftRequests?: Prisma.DbShiftExchangeUncheckedCreateNestedManyWithoutRequesterInput
   shiftApprovals?: Prisma.DbShiftExchangeUncheckedCreateNestedManyWithoutTargetInput
   auditLogs?: Prisma.DbAdminAuditLogUncheckedCreateNestedManyWithoutActorInput
+  timeEntries?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutUserInput
+  timeEntryEdits?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutActorInput
   betaInvites?: Prisma.DbBetaTesterUncheckedCreateNestedManyWithoutInvitedByInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedCreateNestedManyWithoutActorInput
-  fichitSettings?: Prisma.DbFichitSettingsUncheckedCreateNestedManyWithoutUpdatedByInput
 }
 
 export type DbUserCreateOrConnectWithoutCreatedOrdersInput = {
@@ -1403,9 +1348,10 @@ export type DbUserUpdateWithoutCreatedOrdersInput = {
   shiftRequests?: Prisma.DbShiftExchangeUpdateManyWithoutRequesterNestedInput
   shiftApprovals?: Prisma.DbShiftExchangeUpdateManyWithoutTargetNestedInput
   auditLogs?: Prisma.DbAdminAuditLogUpdateManyWithoutActorNestedInput
+  timeEntries?: Prisma.DbTimeEntryUpdateManyWithoutUserNestedInput
+  timeEntryEdits?: Prisma.DbTimeEntryUpdateManyWithoutActorNestedInput
   betaInvites?: Prisma.DbBetaTesterUpdateManyWithoutInvitedByNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUpdateManyWithoutActorNestedInput
-  fichitSettings?: Prisma.DbFichitSettingsUpdateManyWithoutUpdatedByNestedInput
 }
 
 export type DbUserUncheckedUpdateWithoutCreatedOrdersInput = {
@@ -1424,9 +1370,218 @@ export type DbUserUncheckedUpdateWithoutCreatedOrdersInput = {
   shiftRequests?: Prisma.DbShiftExchangeUncheckedUpdateManyWithoutRequesterNestedInput
   shiftApprovals?: Prisma.DbShiftExchangeUncheckedUpdateManyWithoutTargetNestedInput
   auditLogs?: Prisma.DbAdminAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  timeEntries?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutUserNestedInput
+  timeEntryEdits?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutActorNestedInput
   betaInvites?: Prisma.DbBetaTesterUncheckedUpdateManyWithoutInvitedByNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedUpdateManyWithoutActorNestedInput
-  fichitSettings?: Prisma.DbFichitSettingsUncheckedUpdateManyWithoutUpdatedByNestedInput
+}
+
+export type DbUserCreateWithoutTimeEntriesInput = {
+  id?: string
+  email: string
+  firebaseUid?: string | null
+  name: string
+  photoUrl?: string | null
+  active?: boolean
+  role?: $Enums.DbRole
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  preferences?: Prisma.DbUserPreferencesCreateNestedOneWithoutUserInput
+  memberships?: Prisma.DbEstablishmentMemberCreateNestedManyWithoutUserInput
+  shifts?: Prisma.DbShiftCreateNestedManyWithoutUserInput
+  shiftRequests?: Prisma.DbShiftExchangeCreateNestedManyWithoutRequesterInput
+  shiftApprovals?: Prisma.DbShiftExchangeCreateNestedManyWithoutTargetInput
+  auditLogs?: Prisma.DbAdminAuditLogCreateNestedManyWithoutActorInput
+  timeEntryEdits?: Prisma.DbTimeEntryCreateNestedManyWithoutActorInput
+  createdOrders?: Prisma.DbOrderCreateNestedManyWithoutCreatedByInput
+  betaInvites?: Prisma.DbBetaTesterCreateNestedManyWithoutInvitedByInput
+  orderAudits?: Prisma.DbOrderAuditLogCreateNestedManyWithoutActorInput
+}
+
+export type DbUserUncheckedCreateWithoutTimeEntriesInput = {
+  id?: string
+  email: string
+  firebaseUid?: string | null
+  name: string
+  photoUrl?: string | null
+  active?: boolean
+  role?: $Enums.DbRole
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  preferences?: Prisma.DbUserPreferencesUncheckedCreateNestedOneWithoutUserInput
+  memberships?: Prisma.DbEstablishmentMemberUncheckedCreateNestedManyWithoutUserInput
+  shifts?: Prisma.DbShiftUncheckedCreateNestedManyWithoutUserInput
+  shiftRequests?: Prisma.DbShiftExchangeUncheckedCreateNestedManyWithoutRequesterInput
+  shiftApprovals?: Prisma.DbShiftExchangeUncheckedCreateNestedManyWithoutTargetInput
+  auditLogs?: Prisma.DbAdminAuditLogUncheckedCreateNestedManyWithoutActorInput
+  timeEntryEdits?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutActorInput
+  createdOrders?: Prisma.DbOrderUncheckedCreateNestedManyWithoutCreatedByInput
+  betaInvites?: Prisma.DbBetaTesterUncheckedCreateNestedManyWithoutInvitedByInput
+  orderAudits?: Prisma.DbOrderAuditLogUncheckedCreateNestedManyWithoutActorInput
+}
+
+export type DbUserCreateOrConnectWithoutTimeEntriesInput = {
+  where: Prisma.DbUserWhereUniqueInput
+  create: Prisma.XOR<Prisma.DbUserCreateWithoutTimeEntriesInput, Prisma.DbUserUncheckedCreateWithoutTimeEntriesInput>
+}
+
+export type DbUserCreateWithoutTimeEntryEditsInput = {
+  id?: string
+  email: string
+  firebaseUid?: string | null
+  name: string
+  photoUrl?: string | null
+  active?: boolean
+  role?: $Enums.DbRole
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  preferences?: Prisma.DbUserPreferencesCreateNestedOneWithoutUserInput
+  memberships?: Prisma.DbEstablishmentMemberCreateNestedManyWithoutUserInput
+  shifts?: Prisma.DbShiftCreateNestedManyWithoutUserInput
+  shiftRequests?: Prisma.DbShiftExchangeCreateNestedManyWithoutRequesterInput
+  shiftApprovals?: Prisma.DbShiftExchangeCreateNestedManyWithoutTargetInput
+  auditLogs?: Prisma.DbAdminAuditLogCreateNestedManyWithoutActorInput
+  timeEntries?: Prisma.DbTimeEntryCreateNestedManyWithoutUserInput
+  createdOrders?: Prisma.DbOrderCreateNestedManyWithoutCreatedByInput
+  betaInvites?: Prisma.DbBetaTesterCreateNestedManyWithoutInvitedByInput
+  orderAudits?: Prisma.DbOrderAuditLogCreateNestedManyWithoutActorInput
+}
+
+export type DbUserUncheckedCreateWithoutTimeEntryEditsInput = {
+  id?: string
+  email: string
+  firebaseUid?: string | null
+  name: string
+  photoUrl?: string | null
+  active?: boolean
+  role?: $Enums.DbRole
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  preferences?: Prisma.DbUserPreferencesUncheckedCreateNestedOneWithoutUserInput
+  memberships?: Prisma.DbEstablishmentMemberUncheckedCreateNestedManyWithoutUserInput
+  shifts?: Prisma.DbShiftUncheckedCreateNestedManyWithoutUserInput
+  shiftRequests?: Prisma.DbShiftExchangeUncheckedCreateNestedManyWithoutRequesterInput
+  shiftApprovals?: Prisma.DbShiftExchangeUncheckedCreateNestedManyWithoutTargetInput
+  auditLogs?: Prisma.DbAdminAuditLogUncheckedCreateNestedManyWithoutActorInput
+  timeEntries?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutUserInput
+  createdOrders?: Prisma.DbOrderUncheckedCreateNestedManyWithoutCreatedByInput
+  betaInvites?: Prisma.DbBetaTesterUncheckedCreateNestedManyWithoutInvitedByInput
+  orderAudits?: Prisma.DbOrderAuditLogUncheckedCreateNestedManyWithoutActorInput
+}
+
+export type DbUserCreateOrConnectWithoutTimeEntryEditsInput = {
+  where: Prisma.DbUserWhereUniqueInput
+  create: Prisma.XOR<Prisma.DbUserCreateWithoutTimeEntryEditsInput, Prisma.DbUserUncheckedCreateWithoutTimeEntryEditsInput>
+}
+
+export type DbUserUpsertWithoutTimeEntriesInput = {
+  update: Prisma.XOR<Prisma.DbUserUpdateWithoutTimeEntriesInput, Prisma.DbUserUncheckedUpdateWithoutTimeEntriesInput>
+  create: Prisma.XOR<Prisma.DbUserCreateWithoutTimeEntriesInput, Prisma.DbUserUncheckedCreateWithoutTimeEntriesInput>
+  where?: Prisma.DbUserWhereInput
+}
+
+export type DbUserUpdateToOneWithWhereWithoutTimeEntriesInput = {
+  where?: Prisma.DbUserWhereInput
+  data: Prisma.XOR<Prisma.DbUserUpdateWithoutTimeEntriesInput, Prisma.DbUserUncheckedUpdateWithoutTimeEntriesInput>
+}
+
+export type DbUserUpdateWithoutTimeEntriesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  role?: Prisma.EnumDbRoleFieldUpdateOperationsInput | $Enums.DbRole
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferences?: Prisma.DbUserPreferencesUpdateOneWithoutUserNestedInput
+  memberships?: Prisma.DbEstablishmentMemberUpdateManyWithoutUserNestedInput
+  shifts?: Prisma.DbShiftUpdateManyWithoutUserNestedInput
+  shiftRequests?: Prisma.DbShiftExchangeUpdateManyWithoutRequesterNestedInput
+  shiftApprovals?: Prisma.DbShiftExchangeUpdateManyWithoutTargetNestedInput
+  auditLogs?: Prisma.DbAdminAuditLogUpdateManyWithoutActorNestedInput
+  timeEntryEdits?: Prisma.DbTimeEntryUpdateManyWithoutActorNestedInput
+  createdOrders?: Prisma.DbOrderUpdateManyWithoutCreatedByNestedInput
+  betaInvites?: Prisma.DbBetaTesterUpdateManyWithoutInvitedByNestedInput
+  orderAudits?: Prisma.DbOrderAuditLogUpdateManyWithoutActorNestedInput
+}
+
+export type DbUserUncheckedUpdateWithoutTimeEntriesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  role?: Prisma.EnumDbRoleFieldUpdateOperationsInput | $Enums.DbRole
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferences?: Prisma.DbUserPreferencesUncheckedUpdateOneWithoutUserNestedInput
+  memberships?: Prisma.DbEstablishmentMemberUncheckedUpdateManyWithoutUserNestedInput
+  shifts?: Prisma.DbShiftUncheckedUpdateManyWithoutUserNestedInput
+  shiftRequests?: Prisma.DbShiftExchangeUncheckedUpdateManyWithoutRequesterNestedInput
+  shiftApprovals?: Prisma.DbShiftExchangeUncheckedUpdateManyWithoutTargetNestedInput
+  auditLogs?: Prisma.DbAdminAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  timeEntryEdits?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutActorNestedInput
+  createdOrders?: Prisma.DbOrderUncheckedUpdateManyWithoutCreatedByNestedInput
+  betaInvites?: Prisma.DbBetaTesterUncheckedUpdateManyWithoutInvitedByNestedInput
+  orderAudits?: Prisma.DbOrderAuditLogUncheckedUpdateManyWithoutActorNestedInput
+}
+
+export type DbUserUpsertWithoutTimeEntryEditsInput = {
+  update: Prisma.XOR<Prisma.DbUserUpdateWithoutTimeEntryEditsInput, Prisma.DbUserUncheckedUpdateWithoutTimeEntryEditsInput>
+  create: Prisma.XOR<Prisma.DbUserCreateWithoutTimeEntryEditsInput, Prisma.DbUserUncheckedCreateWithoutTimeEntryEditsInput>
+  where?: Prisma.DbUserWhereInput
+}
+
+export type DbUserUpdateToOneWithWhereWithoutTimeEntryEditsInput = {
+  where?: Prisma.DbUserWhereInput
+  data: Prisma.XOR<Prisma.DbUserUpdateWithoutTimeEntryEditsInput, Prisma.DbUserUncheckedUpdateWithoutTimeEntryEditsInput>
+}
+
+export type DbUserUpdateWithoutTimeEntryEditsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  role?: Prisma.EnumDbRoleFieldUpdateOperationsInput | $Enums.DbRole
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferences?: Prisma.DbUserPreferencesUpdateOneWithoutUserNestedInput
+  memberships?: Prisma.DbEstablishmentMemberUpdateManyWithoutUserNestedInput
+  shifts?: Prisma.DbShiftUpdateManyWithoutUserNestedInput
+  shiftRequests?: Prisma.DbShiftExchangeUpdateManyWithoutRequesterNestedInput
+  shiftApprovals?: Prisma.DbShiftExchangeUpdateManyWithoutTargetNestedInput
+  auditLogs?: Prisma.DbAdminAuditLogUpdateManyWithoutActorNestedInput
+  timeEntries?: Prisma.DbTimeEntryUpdateManyWithoutUserNestedInput
+  createdOrders?: Prisma.DbOrderUpdateManyWithoutCreatedByNestedInput
+  betaInvites?: Prisma.DbBetaTesterUpdateManyWithoutInvitedByNestedInput
+  orderAudits?: Prisma.DbOrderAuditLogUpdateManyWithoutActorNestedInput
+}
+
+export type DbUserUncheckedUpdateWithoutTimeEntryEditsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  role?: Prisma.EnumDbRoleFieldUpdateOperationsInput | $Enums.DbRole
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferences?: Prisma.DbUserPreferencesUncheckedUpdateOneWithoutUserNestedInput
+  memberships?: Prisma.DbEstablishmentMemberUncheckedUpdateManyWithoutUserNestedInput
+  shifts?: Prisma.DbShiftUncheckedUpdateManyWithoutUserNestedInput
+  shiftRequests?: Prisma.DbShiftExchangeUncheckedUpdateManyWithoutRequesterNestedInput
+  shiftApprovals?: Prisma.DbShiftExchangeUncheckedUpdateManyWithoutTargetNestedInput
+  auditLogs?: Prisma.DbAdminAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  timeEntries?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutUserNestedInput
+  createdOrders?: Prisma.DbOrderUncheckedUpdateManyWithoutCreatedByNestedInput
+  betaInvites?: Prisma.DbBetaTesterUncheckedUpdateManyWithoutInvitedByNestedInput
+  orderAudits?: Prisma.DbOrderAuditLogUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type DbUserCreateWithoutAuditLogsInput = {
@@ -1444,10 +1599,11 @@ export type DbUserCreateWithoutAuditLogsInput = {
   shifts?: Prisma.DbShiftCreateNestedManyWithoutUserInput
   shiftRequests?: Prisma.DbShiftExchangeCreateNestedManyWithoutRequesterInput
   shiftApprovals?: Prisma.DbShiftExchangeCreateNestedManyWithoutTargetInput
+  timeEntries?: Prisma.DbTimeEntryCreateNestedManyWithoutUserInput
+  timeEntryEdits?: Prisma.DbTimeEntryCreateNestedManyWithoutActorInput
   createdOrders?: Prisma.DbOrderCreateNestedManyWithoutCreatedByInput
   betaInvites?: Prisma.DbBetaTesterCreateNestedManyWithoutInvitedByInput
   orderAudits?: Prisma.DbOrderAuditLogCreateNestedManyWithoutActorInput
-  fichitSettings?: Prisma.DbFichitSettingsCreateNestedManyWithoutUpdatedByInput
 }
 
 export type DbUserUncheckedCreateWithoutAuditLogsInput = {
@@ -1465,10 +1621,11 @@ export type DbUserUncheckedCreateWithoutAuditLogsInput = {
   shifts?: Prisma.DbShiftUncheckedCreateNestedManyWithoutUserInput
   shiftRequests?: Prisma.DbShiftExchangeUncheckedCreateNestedManyWithoutRequesterInput
   shiftApprovals?: Prisma.DbShiftExchangeUncheckedCreateNestedManyWithoutTargetInput
+  timeEntries?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutUserInput
+  timeEntryEdits?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutActorInput
   createdOrders?: Prisma.DbOrderUncheckedCreateNestedManyWithoutCreatedByInput
   betaInvites?: Prisma.DbBetaTesterUncheckedCreateNestedManyWithoutInvitedByInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedCreateNestedManyWithoutActorInput
-  fichitSettings?: Prisma.DbFichitSettingsUncheckedCreateNestedManyWithoutUpdatedByInput
 }
 
 export type DbUserCreateOrConnectWithoutAuditLogsInput = {
@@ -1502,10 +1659,11 @@ export type DbUserUpdateWithoutAuditLogsInput = {
   shifts?: Prisma.DbShiftUpdateManyWithoutUserNestedInput
   shiftRequests?: Prisma.DbShiftExchangeUpdateManyWithoutRequesterNestedInput
   shiftApprovals?: Prisma.DbShiftExchangeUpdateManyWithoutTargetNestedInput
+  timeEntries?: Prisma.DbTimeEntryUpdateManyWithoutUserNestedInput
+  timeEntryEdits?: Prisma.DbTimeEntryUpdateManyWithoutActorNestedInput
   createdOrders?: Prisma.DbOrderUpdateManyWithoutCreatedByNestedInput
   betaInvites?: Prisma.DbBetaTesterUpdateManyWithoutInvitedByNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUpdateManyWithoutActorNestedInput
-  fichitSettings?: Prisma.DbFichitSettingsUpdateManyWithoutUpdatedByNestedInput
 }
 
 export type DbUserUncheckedUpdateWithoutAuditLogsInput = {
@@ -1523,10 +1681,11 @@ export type DbUserUncheckedUpdateWithoutAuditLogsInput = {
   shifts?: Prisma.DbShiftUncheckedUpdateManyWithoutUserNestedInput
   shiftRequests?: Prisma.DbShiftExchangeUncheckedUpdateManyWithoutRequesterNestedInput
   shiftApprovals?: Prisma.DbShiftExchangeUncheckedUpdateManyWithoutTargetNestedInput
+  timeEntries?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutUserNestedInput
+  timeEntryEdits?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutActorNestedInput
   createdOrders?: Prisma.DbOrderUncheckedUpdateManyWithoutCreatedByNestedInput
   betaInvites?: Prisma.DbBetaTesterUncheckedUpdateManyWithoutInvitedByNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedUpdateManyWithoutActorNestedInput
-  fichitSettings?: Prisma.DbFichitSettingsUncheckedUpdateManyWithoutUpdatedByNestedInput
 }
 
 export type DbUserCreateWithoutOrderAuditsInput = {
@@ -1545,9 +1704,10 @@ export type DbUserCreateWithoutOrderAuditsInput = {
   shiftRequests?: Prisma.DbShiftExchangeCreateNestedManyWithoutRequesterInput
   shiftApprovals?: Prisma.DbShiftExchangeCreateNestedManyWithoutTargetInput
   auditLogs?: Prisma.DbAdminAuditLogCreateNestedManyWithoutActorInput
+  timeEntries?: Prisma.DbTimeEntryCreateNestedManyWithoutUserInput
+  timeEntryEdits?: Prisma.DbTimeEntryCreateNestedManyWithoutActorInput
   createdOrders?: Prisma.DbOrderCreateNestedManyWithoutCreatedByInput
   betaInvites?: Prisma.DbBetaTesterCreateNestedManyWithoutInvitedByInput
-  fichitSettings?: Prisma.DbFichitSettingsCreateNestedManyWithoutUpdatedByInput
 }
 
 export type DbUserUncheckedCreateWithoutOrderAuditsInput = {
@@ -1566,9 +1726,10 @@ export type DbUserUncheckedCreateWithoutOrderAuditsInput = {
   shiftRequests?: Prisma.DbShiftExchangeUncheckedCreateNestedManyWithoutRequesterInput
   shiftApprovals?: Prisma.DbShiftExchangeUncheckedCreateNestedManyWithoutTargetInput
   auditLogs?: Prisma.DbAdminAuditLogUncheckedCreateNestedManyWithoutActorInput
+  timeEntries?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutUserInput
+  timeEntryEdits?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutActorInput
   createdOrders?: Prisma.DbOrderUncheckedCreateNestedManyWithoutCreatedByInput
   betaInvites?: Prisma.DbBetaTesterUncheckedCreateNestedManyWithoutInvitedByInput
-  fichitSettings?: Prisma.DbFichitSettingsUncheckedCreateNestedManyWithoutUpdatedByInput
 }
 
 export type DbUserCreateOrConnectWithoutOrderAuditsInput = {
@@ -1603,9 +1764,10 @@ export type DbUserUpdateWithoutOrderAuditsInput = {
   shiftRequests?: Prisma.DbShiftExchangeUpdateManyWithoutRequesterNestedInput
   shiftApprovals?: Prisma.DbShiftExchangeUpdateManyWithoutTargetNestedInput
   auditLogs?: Prisma.DbAdminAuditLogUpdateManyWithoutActorNestedInput
+  timeEntries?: Prisma.DbTimeEntryUpdateManyWithoutUserNestedInput
+  timeEntryEdits?: Prisma.DbTimeEntryUpdateManyWithoutActorNestedInput
   createdOrders?: Prisma.DbOrderUpdateManyWithoutCreatedByNestedInput
   betaInvites?: Prisma.DbBetaTesterUpdateManyWithoutInvitedByNestedInput
-  fichitSettings?: Prisma.DbFichitSettingsUpdateManyWithoutUpdatedByNestedInput
 }
 
 export type DbUserUncheckedUpdateWithoutOrderAuditsInput = {
@@ -1624,9 +1786,10 @@ export type DbUserUncheckedUpdateWithoutOrderAuditsInput = {
   shiftRequests?: Prisma.DbShiftExchangeUncheckedUpdateManyWithoutRequesterNestedInput
   shiftApprovals?: Prisma.DbShiftExchangeUncheckedUpdateManyWithoutTargetNestedInput
   auditLogs?: Prisma.DbAdminAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  timeEntries?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutUserNestedInput
+  timeEntryEdits?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutActorNestedInput
   createdOrders?: Prisma.DbOrderUncheckedUpdateManyWithoutCreatedByNestedInput
   betaInvites?: Prisma.DbBetaTesterUncheckedUpdateManyWithoutInvitedByNestedInput
-  fichitSettings?: Prisma.DbFichitSettingsUncheckedUpdateManyWithoutUpdatedByNestedInput
 }
 
 
@@ -1640,10 +1803,11 @@ export type DbUserCountOutputType = {
   shiftRequests: number
   shiftApprovals: number
   auditLogs: number
+  timeEntries: number
+  timeEntryEdits: number
   createdOrders: number
   betaInvites: number
   orderAudits: number
-  fichitSettings: number
 }
 
 export type DbUserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1652,10 +1816,11 @@ export type DbUserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions
   shiftRequests?: boolean | DbUserCountOutputTypeCountShiftRequestsArgs
   shiftApprovals?: boolean | DbUserCountOutputTypeCountShiftApprovalsArgs
   auditLogs?: boolean | DbUserCountOutputTypeCountAuditLogsArgs
+  timeEntries?: boolean | DbUserCountOutputTypeCountTimeEntriesArgs
+  timeEntryEdits?: boolean | DbUserCountOutputTypeCountTimeEntryEditsArgs
   createdOrders?: boolean | DbUserCountOutputTypeCountCreatedOrdersArgs
   betaInvites?: boolean | DbUserCountOutputTypeCountBetaInvitesArgs
   orderAudits?: boolean | DbUserCountOutputTypeCountOrderAuditsArgs
-  fichitSettings?: boolean | DbUserCountOutputTypeCountFichitSettingsArgs
 }
 
 /**
@@ -1706,6 +1871,20 @@ export type DbUserCountOutputTypeCountAuditLogsArgs<ExtArgs extends runtime.Type
 /**
  * DbUserCountOutputType without action
  */
+export type DbUserCountOutputTypeCountTimeEntriesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.DbTimeEntryWhereInput
+}
+
+/**
+ * DbUserCountOutputType without action
+ */
+export type DbUserCountOutputTypeCountTimeEntryEditsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.DbTimeEntryWhereInput
+}
+
+/**
+ * DbUserCountOutputType without action
+ */
 export type DbUserCountOutputTypeCountCreatedOrdersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.DbOrderWhereInput
 }
@@ -1722,13 +1901,6 @@ export type DbUserCountOutputTypeCountBetaInvitesArgs<ExtArgs extends runtime.Ty
  */
 export type DbUserCountOutputTypeCountOrderAuditsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.DbOrderAuditLogWhereInput
-}
-
-/**
- * DbUserCountOutputType without action
- */
-export type DbUserCountOutputTypeCountFichitSettingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.DbFichitSettingsWhereInput
 }
 
 
@@ -1748,10 +1920,11 @@ export type DbUserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   shiftRequests?: boolean | Prisma.DbUser$shiftRequestsArgs<ExtArgs>
   shiftApprovals?: boolean | Prisma.DbUser$shiftApprovalsArgs<ExtArgs>
   auditLogs?: boolean | Prisma.DbUser$auditLogsArgs<ExtArgs>
+  timeEntries?: boolean | Prisma.DbUser$timeEntriesArgs<ExtArgs>
+  timeEntryEdits?: boolean | Prisma.DbUser$timeEntryEditsArgs<ExtArgs>
   createdOrders?: boolean | Prisma.DbUser$createdOrdersArgs<ExtArgs>
   betaInvites?: boolean | Prisma.DbUser$betaInvitesArgs<ExtArgs>
   orderAudits?: boolean | Prisma.DbUser$orderAuditsArgs<ExtArgs>
-  fichitSettings?: boolean | Prisma.DbUser$fichitSettingsArgs<ExtArgs>
   _count?: boolean | Prisma.DbUserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["dbUser"]>
 
@@ -1799,10 +1972,11 @@ export type DbUserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   shiftRequests?: boolean | Prisma.DbUser$shiftRequestsArgs<ExtArgs>
   shiftApprovals?: boolean | Prisma.DbUser$shiftApprovalsArgs<ExtArgs>
   auditLogs?: boolean | Prisma.DbUser$auditLogsArgs<ExtArgs>
+  timeEntries?: boolean | Prisma.DbUser$timeEntriesArgs<ExtArgs>
+  timeEntryEdits?: boolean | Prisma.DbUser$timeEntryEditsArgs<ExtArgs>
   createdOrders?: boolean | Prisma.DbUser$createdOrdersArgs<ExtArgs>
   betaInvites?: boolean | Prisma.DbUser$betaInvitesArgs<ExtArgs>
   orderAudits?: boolean | Prisma.DbUser$orderAuditsArgs<ExtArgs>
-  fichitSettings?: boolean | Prisma.DbUser$fichitSettingsArgs<ExtArgs>
   _count?: boolean | Prisma.DbUserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type DbUserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1817,10 +1991,11 @@ export type $DbUserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     shiftRequests: Prisma.$DbShiftExchangePayload<ExtArgs>[]
     shiftApprovals: Prisma.$DbShiftExchangePayload<ExtArgs>[]
     auditLogs: Prisma.$DbAdminAuditLogPayload<ExtArgs>[]
+    timeEntries: Prisma.$DbTimeEntryPayload<ExtArgs>[]
+    timeEntryEdits: Prisma.$DbTimeEntryPayload<ExtArgs>[]
     createdOrders: Prisma.$DbOrderPayload<ExtArgs>[]
     betaInvites: Prisma.$DbBetaTesterPayload<ExtArgs>[]
     orderAudits: Prisma.$DbOrderAuditLogPayload<ExtArgs>[]
-    fichitSettings: Prisma.$DbFichitSettingsPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2232,10 +2407,11 @@ export interface Prisma__DbUserClient<T, Null = never, ExtArgs extends runtime.T
   shiftRequests<T extends Prisma.DbUser$shiftRequestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbUser$shiftRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DbShiftExchangePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   shiftApprovals<T extends Prisma.DbUser$shiftApprovalsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbUser$shiftApprovalsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DbShiftExchangePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   auditLogs<T extends Prisma.DbUser$auditLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbUser$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DbAdminAuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  timeEntries<T extends Prisma.DbUser$timeEntriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbUser$timeEntriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DbTimeEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  timeEntryEdits<T extends Prisma.DbUser$timeEntryEditsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbUser$timeEntryEditsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DbTimeEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   createdOrders<T extends Prisma.DbUser$createdOrdersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbUser$createdOrdersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DbOrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   betaInvites<T extends Prisma.DbUser$betaInvitesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbUser$betaInvitesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DbBetaTesterPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   orderAudits<T extends Prisma.DbUser$orderAuditsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbUser$orderAuditsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DbOrderAuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  fichitSettings<T extends Prisma.DbUser$fichitSettingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbUser$fichitSettingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DbFichitSettingsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2806,6 +2982,54 @@ export type DbUser$auditLogsArgs<ExtArgs extends runtime.Types.Extensions.Intern
 }
 
 /**
+ * DbUser.timeEntries
+ */
+export type DbUser$timeEntriesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the DbTimeEntry
+   */
+  select?: Prisma.DbTimeEntrySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the DbTimeEntry
+   */
+  omit?: Prisma.DbTimeEntryOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DbTimeEntryInclude<ExtArgs> | null
+  where?: Prisma.DbTimeEntryWhereInput
+  orderBy?: Prisma.DbTimeEntryOrderByWithRelationInput | Prisma.DbTimeEntryOrderByWithRelationInput[]
+  cursor?: Prisma.DbTimeEntryWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.DbTimeEntryScalarFieldEnum | Prisma.DbTimeEntryScalarFieldEnum[]
+}
+
+/**
+ * DbUser.timeEntryEdits
+ */
+export type DbUser$timeEntryEditsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the DbTimeEntry
+   */
+  select?: Prisma.DbTimeEntrySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the DbTimeEntry
+   */
+  omit?: Prisma.DbTimeEntryOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DbTimeEntryInclude<ExtArgs> | null
+  where?: Prisma.DbTimeEntryWhereInput
+  orderBy?: Prisma.DbTimeEntryOrderByWithRelationInput | Prisma.DbTimeEntryOrderByWithRelationInput[]
+  cursor?: Prisma.DbTimeEntryWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.DbTimeEntryScalarFieldEnum | Prisma.DbTimeEntryScalarFieldEnum[]
+}
+
+/**
  * DbUser.createdOrders
  */
 export type DbUser$createdOrdersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2875,30 +3099,6 @@ export type DbUser$orderAuditsArgs<ExtArgs extends runtime.Types.Extensions.Inte
   take?: number
   skip?: number
   distinct?: Prisma.DbOrderAuditLogScalarFieldEnum | Prisma.DbOrderAuditLogScalarFieldEnum[]
-}
-
-/**
- * DbUser.fichitSettings
- */
-export type DbUser$fichitSettingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the DbFichitSettings
-   */
-  select?: Prisma.DbFichitSettingsSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the DbFichitSettings
-   */
-  omit?: Prisma.DbFichitSettingsOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.DbFichitSettingsInclude<ExtArgs> | null
-  where?: Prisma.DbFichitSettingsWhereInput
-  orderBy?: Prisma.DbFichitSettingsOrderByWithRelationInput | Prisma.DbFichitSettingsOrderByWithRelationInput[]
-  cursor?: Prisma.DbFichitSettingsWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.DbFichitSettingsScalarFieldEnum | Prisma.DbFichitSettingsScalarFieldEnum[]
 }
 
 /**
