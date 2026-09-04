@@ -54,8 +54,11 @@ export class EstablishmentSubscriptionStore {
 
   public readonly seatSummary = computed(() => {
     const seats = this.#currentSeats();
+    const isPriced = [seats?.used, seats?.included, seats?.basePriceCents, seats?.extraPriceCents].every(
+      (value) => typeof value === 'number' && Number.isFinite(value),
+    );
 
-    if (!seats) {
+    if (!seats || !isPriced) {
       return undefined;
     }
 
@@ -132,8 +135,22 @@ export class EstablishmentSubscriptionStore {
     return this.isReadOnly() || this.isTrialExpiringSoon();
   });
 
+  public readonly isPendingCancellation = computed(() => {
+    const sub = this.#currentSubscription();
+
+    if (sub?.status !== SubscriptionStatus.CANCELED || !sub.currentPeriodEnd) {
+      return false;
+    }
+
+    return new Date() <= new Date(sub.currentPeriodEnd);
+  });
+
   public readonly billingAction = computed<BillingAction>(() => {
     const subscription = this.#currentSubscription();
+
+    if (this.isPendingCancellation()) {
+      return BillingAction.MANAGE;
+    }
 
     return subscription?.stripeSubscriptionId && !this.isReadOnly() ? BillingAction.MANAGE : BillingAction.ACTIVATE;
   });

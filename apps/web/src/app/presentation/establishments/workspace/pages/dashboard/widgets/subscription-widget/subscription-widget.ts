@@ -34,15 +34,7 @@ export class SubscriptionWidget {
     return 'billing.plan_name.pro';
   });
 
-  readonly isPendingCancel = computed(() => {
-    const sub = this.subscription();
-    if (!sub) return false;
-    if (sub.status === 'CANCELED') {
-      if (!sub.currentPeriodEnd) return true;
-      return new Date() <= new Date(sub.currentPeriodEnd);
-    }
-    return false;
-  });
+  readonly isPendingCancel = this.#establishmentSubscriptionStore.isPendingCancellation;
 
   readonly statusLabelKey = computed(() => {
     const sub = this.subscription();

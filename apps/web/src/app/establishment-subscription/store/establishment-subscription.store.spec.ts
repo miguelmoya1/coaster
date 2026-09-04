@@ -156,6 +156,20 @@ describe('EstablishmentSubscriptionStore', () => {
       expect(store.seatSummary()).toMatchObject({ extraSeats: 0, monthlyTotalCents: 1999 });
     });
 
+    it('should show no price at all when the API answers without one, rather than NaN', async () => {
+      seatsEnabled.set(true);
+      store.setEstablishmentId(establishmentId);
+      TestBed.tick();
+
+      httpMock.expectOne(url).flush(activeSubscription);
+      httpMock.expectOne(seatsUrl).flush({ used: 7, billed: 7, included: 10, extraPriceCents: 200 });
+      TestBed.tick();
+      await Promise.resolve();
+      TestBed.tick();
+
+      expect(store.seatSummary()).toBeUndefined();
+    });
+
     it('should keep warning a venue already past the allowance', async () => {
       await loadSeats({ used: 14, billed: 14, included: 10, basePriceCents: 1999, extraPriceCents: 200 });
 
@@ -254,6 +268,42 @@ describe('EstablishmentSubscriptionStore', () => {
         currentPeriodEnd: new Date(Date.now() - 86_400_000).toISOString(),
       });
 
+      expect(store.billingAction()).toBe('ACTIVATE');
+    });
+
+    it('should send a subscription being cancelled to the portal, since checkout refuses it', async () => {
+      store.setEstablishmentId(establishmentId);
+      TestBed.tick();
+
+      httpMock.expectOne(url).flush({
+        ...activeSubscription,
+        status: SubscriptionStatus.CANCELED,
+        stripeSubscriptionId: null,
+        currentPeriodEnd: new Date(Date.now() + 86_400_000).toISOString(),
+      });
+      TestBed.tick();
+      await Promise.resolve();
+      TestBed.tick();
+
+      expect(store.isPendingCancellation()).toBe(true);
+      expect(store.billingAction()).toBe('MANAGE');
+    });
+
+    it('should offer to activate once a cancellation has no paid period left to manage', async () => {
+      store.setEstablishmentId(establishmentId);
+      TestBed.tick();
+
+      httpMock.expectOne(url).flush({
+        ...activeSubscription,
+        status: SubscriptionStatus.CANCELED,
+        stripeSubscriptionId: null,
+        currentPeriodEnd: null,
+      });
+      TestBed.tick();
+      await Promise.resolve();
+      TestBed.tick();
+
+      expect(store.isPendingCancellation()).toBe(false);
       expect(store.billingAction()).toBe('ACTIVATE');
     });
 
