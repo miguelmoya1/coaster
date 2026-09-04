@@ -47,6 +47,37 @@ esté dicho en `docs/operations/time-tracking.md` antes de que se olvide.
 
 El contraste completo contra la normativa vigente está en `NORMATIVA.md`, en la raíz de `dev/`.
 
+## Veri*factu: hay esquema, no hay código
+
+`VERIFACTU.md` son 791 líneas de plan escrito contra este repo, y la migración
+`20260825120000_verifactu_w0_invoicing_foundations` ya creó `Invoice` e `InvoiceTaxLine` con todo
+lo que pide la AEAT: huella encadenada, `qrPayload`, `aeatStatus`, rectificativas y anulaciones.
+
+**Encima de ese esquema no hay ni una línea de aplicación.** No existe módulo, ni servicio, ni
+controlador: `grep` solo lo encuentra en el cliente generado de Prisma. Es el hueco más grande
+entre lo que hay en `dev` y un TPV vendible en España.
+
+No es urgente por la razón que dice el propio documento —«no es obligatorio todavía para este caso
+y no hay prisa»— y su primera mitad es un TPV mejor con AEAT o sin ella. Pero conviene saber que
+está a cero, no a medias.
+
+Un apunte que casi se pierde: la sección 1 de `VERIFACTU.md` dice que la numeración correlativa es
+«copiar el primer bloque cambiando el ámbito del lock», y apunta a `time-entry-chain.ts` y
+`time-entries.write.repository.ts`. Esos dos ficheros estuvieron borrados entre el 27 de agosto y
+el 4 de septiembre, así que ese plan apuntaba a código que no existía. Al devolver el registro
+horario han vuelto, y con ellos el punto de partida.
+
+## Producción va muy por detrás de `dev`
+
+Comprobado el 4 de septiembre contra la base de `api-new`: 2 establecimientos, 4 usuarios, 17
+comandas, 6 turnos, **0 fichajes**, y **la tabla `Invoice` no existe**. Es decir, los 91 commits
+que separan `main` de `dev` —menús, catálogo, cimientos de Veri*factu, notas de comanda— no los ha
+visto ningún usuario.
+
+Los 0 fichajes son la otra cara: el registro horario restaurado está probado por 214 e2e y 773
+unitarios, pero **nadie lo ha usado nunca en producción**. Antes de contárselo a un cliente como
+característica, conviene fichar un día entero desde un local de verdad.
+
 ## `MEDIA_BUCKET` en beta
 
 No está puesta en el servicio `api-beta`, así que cae al respaldo del código
