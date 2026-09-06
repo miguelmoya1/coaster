@@ -42,6 +42,34 @@ describe('InviteMemberForm', () => {
     expect(component).toBeTruthy();
   });
 
+  describe('the role picker', () => {
+    const select = (): HTMLSelectElement => fixture.nativeElement.querySelector('select');
+
+    it('should offer the three roles in one native select, like every other form in the app', () => {
+      const options = Array.from(select().options).map((option) => option.value);
+
+      expect(options).toEqual(['OWNER', 'MANAGER', 'STAFF']);
+    });
+
+    it('should start on staff, the least dangerous role to hand out by accident', () => {
+      expect(select().value).toBe('STAFF');
+    });
+
+    it('should be styled by coasterInput, which is what makes it match the rest of the app', () => {
+      expect(select().classList.contains('coaster-input')).toBe(true);
+    });
+
+    it('should follow the picked role and explain what it can do', async () => {
+      const element = select();
+      element.value = 'MANAGER';
+      element.dispatchEvent(new Event('change'));
+      await fixture.whenStable();
+
+      expect(component['selectedRole']()).toBe('MANAGER');
+      expect(fixture.nativeElement.textContent).toContain('members.invite.role_hint_manager');
+    });
+  });
+
   describe('the seat that costs extra', () => {
     it('should say nothing while the venue still has room in its allowance', () => {
       expect(fixture.nativeElement.textContent).not.toContain('extra_seat');
