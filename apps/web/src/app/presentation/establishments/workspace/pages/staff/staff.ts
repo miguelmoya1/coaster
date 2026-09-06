@@ -89,7 +89,7 @@ export default class Staff {
   protected readonly totalMembers = computed(() => this.members()?.length ?? 0);
 
   protected readonly seats = computed(() => {
-    const summary = this.#subscriptionStore.seatSummary();
+    const summary = this.#subscriptionStore.billedSeats();
 
     return summary ? { ...summary, monthlyTotal: this.#money.format(summary.monthlyTotalCents) } : undefined;
   });
@@ -115,7 +115,6 @@ export default class Staff {
             outputBinding('invited', () => {
               bottomSheetRef.dismiss();
               this.closeModal();
-              this.#subscriptionStore.reloadSeats();
             }),
           ],
         });
@@ -139,7 +138,6 @@ export default class Staff {
 
     try {
       await this.#membersStore.remove(member.id);
-      this.#subscriptionStore.reloadSeats();
     } catch (error) {
       this.#feedback.error(error);
     }

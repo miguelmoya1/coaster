@@ -39,7 +39,7 @@ describe('Staff', () => {
     confirm: vi.fn(),
   };
 
-  const seatSummary = signal<
+  const billedSeats = signal<
     | {
         used: number;
         billed: number;
@@ -55,11 +55,11 @@ describe('Staff', () => {
   const subscriptionStoreMock = {
     isReadOnly: signal(false),
     reloadSeats: vi.fn(),
-    seatSummary,
+    billedSeats,
   };
 
   beforeEach(async () => {
-    seatSummary.set(undefined);
+    billedSeats.set(undefined);
 
     await TestBed.configureTestingModule({
       imports: [Staff],
@@ -91,7 +91,7 @@ describe('Staff', () => {
     });
 
     it('should show the plan a venue inside its allowance is paying', async () => {
-      seatSummary.set({
+      billedSeats.set({
         used: 4,
         billed: 4,
         included: 10,
@@ -108,7 +108,7 @@ describe('Staff', () => {
     });
 
     it('should price the staff a venue has beyond the allowance', async () => {
-      seatSummary.set({
+      billedSeats.set({
         used: 14,
         billed: 14,
         included: 10,

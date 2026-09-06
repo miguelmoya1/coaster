@@ -16,6 +16,8 @@ describe('EstablishmentSubscriptionStore', () => {
   let store: EstablishmentSubscriptionStore;
   let httpMock: HttpTestingController;
   const realtimeSignal = signal<{ establishmentId: string } | null>(null);
+  const memberInvitedSignal = signal<{ id: string } | null>(null);
+  const memberRemovedSignal = signal<{ id: string } | null>(null);
 
   const establishmentId = 'establishment-1' as EstablishmentId;
   const url = `/establishments/${establishmentId}/establishment-subscription`;
@@ -39,6 +41,8 @@ describe('EstablishmentSubscriptionStore', () => {
 
   beforeEach(() => {
     realtimeSignal.set(null);
+    memberInvitedSignal.set(null);
+    memberRemovedSignal.set(null);
     seatsEnabled.set(false);
 
     TestBed.configureTestingModule({
@@ -62,7 +66,14 @@ describe('EstablishmentSubscriptionStore', () => {
         },
         { provide: CreateCustomerPortalSession, useValue: { execute: vi.fn() } },
         { provide: CreateCheckoutSession, useValue: { execute: vi.fn() } },
-        { provide: Realtime, useValue: { subscriptionUpdated: realtimeSignal } },
+        {
+          provide: Realtime,
+          useValue: {
+            subscriptionUpdated: realtimeSignal,
+            memberInvited: memberInvitedSignal,
+            memberRemoved: memberRemovedSignal,
+          },
+        },
       ],
     });
 
@@ -132,6 +143,56 @@ describe('EstablishmentSubscriptionStore', () => {
       TestBed.tick();
     };
 
+    it('should say nothing about seats to a venue that is not being billed for them', async () => {
+      seatsEnabled.set(true);
+      store.setEstablishmentId(establishmentId);
+      TestBed.tick();
+
+      httpMock.expectOne(url).flush({ ...activeSubscription, stripeSubscriptionId: null });
+      httpMock
+        .expectOne(seatsUrl)
+        .flush({ used: 14, billed: 0, included: 10, basePriceCents: 1999, extraPriceCents: 200 });
+      TestBed.tick();
+      await Promise.resolve();
+      TestBed.tick();
+
+      expect(store.billedSeats()).toBeUndefined();
+      expect(store.extraSeatNotice()).toBeUndefined();
+      expect(store.seatSummary()).toMatchObject({ monthlyTotalCents: 2799 });
+    });
+
+    it('should recount the seats when a member actually joins, not when the invite is sent', async () => {
+      await loadSeats({ used: 3, billed: 3, included: 10, basePriceCents: 1999, extraPriceCents: 200 });
+
+      memberInvitedSignal.set({ id: 'member-9' });
+      TestBed.tick();
+
+      httpMock
+        .expectOne(seatsUrl)
+        .flush({ used: 4, billed: 4, included: 10, basePriceCents: 1999, extraPriceCents: 200 });
+      TestBed.tick();
+      await Promise.resolve();
+      TestBed.tick();
+
+      expect(store.billedSeats()?.used).toBe(4);
+    });
+
+    it('should recount the seats when a member is removed', async () => {
+      await loadSeats({ used: 3, billed: 3, included: 10, basePriceCents: 1999, extraPriceCents: 200 });
+
+      memberRemovedSignal.set({ id: 'member-2' });
+      TestBed.tick();
+
+      httpMock
+        .expectOne(seatsUrl)
+        .flush({ used: 2, billed: 2, included: 10, basePriceCents: 1999, extraPriceCents: 200 });
+      TestBed.tick();
+      await Promise.resolve();
+      TestBed.tick();
+
+      expect(store.billedSeats()?.used).toBe(2);
+    });
+
     it('should stay quiet while the venue still has room in its allowance', async () => {
       await loadSeats({ used: 7, billed: 7, included: 10, basePriceCents: 1999, extraPriceCents: 200 });
 
@@ -141,7 +202,7 @@ describe('EstablishmentSubscriptionStore', () => {
     it('should warn once the allowance is full, since the next hire is the one that costs', async () => {
       await loadSeats({ used: 10, billed: 10, included: 10, basePriceCents: 1999, extraPriceCents: 200 });
 
-      expect(store.extraSeatNotice()).toEqual({ used: 10, billed: 10, included: 10, basePriceCents: 1999, extraPriceCents: 200 });
+      expect(store.extraSeatNotice()).toMatchObject({ used: 10, included: 10, extraSeats: 0, monthlyTotalCents: 1999 });
     });
 
     it('should add up the flat price plus the seats beyond the allowance', async () => {

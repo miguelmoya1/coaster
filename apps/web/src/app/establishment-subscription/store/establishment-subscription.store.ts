@@ -46,12 +46,6 @@ export class EstablishmentSubscriptionStore {
     this.#seatsResource.hasValue() ? this.#seatsResource.value() : undefined,
   );
 
-  public readonly extraSeatNotice = computed(() => {
-    const seats = this.#currentSeats();
-
-    return seats && seats.used >= seats.included ? seats : undefined;
-  });
-
   public readonly seatSummary = computed(() => {
     const seats = this.#currentSeats();
     const isPriced = [seats?.used, seats?.included, seats?.basePriceCents, seats?.extraPriceCents].every(
@@ -74,6 +68,17 @@ export class EstablishmentSubscriptionStore {
   readonly #currentSubscription = computed(() =>
     this.#subscriptionResource.hasValue() ? this.#subscriptionResource.value() : undefined,
   );
+
+  public readonly billedSeats = computed(() =>
+    this.#currentSubscription()?.stripeSubscriptionId ? this.seatSummary() : undefined,
+  );
+
+  public readonly extraSeatNotice = computed(() => {
+    const seats = this.billedSeats();
+
+    return seats && seats.used >= seats.included ? seats : undefined;
+  });
+
   public readonly currentEstablishmentId = this.#currentEstablishmentId.asReadonly();
   public readonly isOpeningBillingPortal = this.#isOpeningBillingPortal.asReadonly();
 
@@ -163,6 +168,12 @@ export class EstablishmentSubscriptionStore {
       const currentEstablishmentId = this.#currentEstablishmentId();
       if (event && (!event.establishmentId || event.establishmentId === currentEstablishmentId)) {
         this.reloadSubscription();
+      }
+    });
+
+    effect(() => {
+      if (this.#realtime.memberInvited() || this.#realtime.memberRemoved()) {
+        this.reloadSeats();
       }
     });
   }
