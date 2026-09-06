@@ -10,8 +10,27 @@ How to get Stripe working locally and in production. For how the integration beh
 In the [Stripe Dashboard](https://dashboard.stripe.com/), in **Test mode**:
 
 1. **Product catalog** → create a product called **Coaster Pro**.
-2. Give it a single recurring **monthly** price.
+2. Give it a single recurring **monthly** price, billed by **graduated tiers** on quantity: the first
+   tier up to 10 units at a flat 19,99 € and 0 € per unit, the second up to infinity at 2 € per unit.
+   The dashboard hides tiering until you pick *Usage-based* → *Tiered* → *Graduated*, so the CLI is
+   less fiddly:
+
+   ```bash
+   stripe prices create --currency eur --product prod_... --recurring.interval month --tax-behavior exclusive -d "billing_scheme=tiered" -d "tiers_mode=graduated" -d "tiers[0][up_to]=10" -d "tiers[0][flat_amount]=1999" -d "tiers[0][unit_amount]=0" -d "tiers[1][up_to]=inf" -d "tiers[1][unit_amount]=200"
+   ```
+
+   The tiers have no flags of their own — `--billing-scheme`, `--tiers-mode` and `--tiers` do not
+   exist — so they travel as raw `-d` parameters. `--tax-behavior exclusive` does have a flag and
+   must be set: `automatic_tax` adds VAT on top, and a price created without it defaults to
+   `unspecified`, which Checkout refuses. Read the tiers back with
+   `stripe prices retrieve price_... -d "expand[0]=tiers"` before trusting them.
+
 3. Copy the generated price id (`price_...`).
+
+The quantity on that price is the venue's headcount, so the tiers are what actually charges the
+supplement — the three `PRO_*` variables only mirror them for the copy the owner reads, and the
+public landing repeats them again in its own code. Keep all of them in step; the rundown of which
+surface reads what is in [Stripe integration](stripe-integration.md).
 
 ### 2. Enable the Customer Portal
 
@@ -25,6 +44,9 @@ In `apps/api/.env` (copy `.env_example` if it does not exist):
 ```env
 STRIPE_SECRET_KEY="sk_test_..."
 STRIPE_PRICE_PRO="price_..."
+PRO_BASE_PRICE_CENTS="1999"
+PRO_INCLUDED_SEATS="10"
+PRO_EXTRA_SEAT_PRICE_CENTS="200"
 FRONTEND_URL="http://localhost:4200"
 ```
 
@@ -81,7 +103,9 @@ activate.
 With **Test mode off**:
 
 - **Developers → API keys**: copy the secret key (`sk_live_...`).
-- **Product catalog**: create the product with a single monthly price (`price_...`).
+- **Product catalog**: create the product with a single monthly price (`price_...`), tiered the same
+  way as in test mode — a live price is immutable, so getting the tiers wrong means a new price and a
+  migration of everyone on the old one.
 - **Settings → Billing → Customer portal**: enable and configure it in Live mode too.
 
 ### 2. Register the webhook endpoint
@@ -110,6 +134,9 @@ Open the endpoint and reveal its **signing secret** (`whsec_...`).
 ```env
 STRIPE_SECRET_KEY="sk_live_..."
 STRIPE_PRICE_PRO="price_..."
+PRO_BASE_PRICE_CENTS="1999"
+PRO_INCLUDED_SEATS="10"
+PRO_EXTRA_SEAT_PRICE_CENTS="200"
 STRIPE_WEBHOOK_SECRET="whsec_..."
 FRONTEND_URL="https://<your-app-domain>"
 ```

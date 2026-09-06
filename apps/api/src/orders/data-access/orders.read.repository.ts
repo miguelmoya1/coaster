@@ -63,6 +63,7 @@ export class OrdersReadRepository {
   public async findProductsByIds(establishmentId: EstablishmentId, productIds: string[]) {
     return this._db.dbProduct.findMany({
       where: { id: { in: productIds }, deletedAt: null, category: { establishmentId, deletedAt: null } },
+      include: { category: { select: { taxRate: true } } },
     });
   }
 

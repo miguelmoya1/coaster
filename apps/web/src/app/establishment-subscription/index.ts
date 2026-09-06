@@ -6,6 +6,7 @@ export {
   checkIsEstablishmentSubscription,
 } from './mappers/establishment-subscription.mapper';
 export { EstablishmentSubscription } from './services/establishment-subscription';
+export { SubscriptionSeats } from './services/subscription-seats';
 export { CreateCheckoutSession } from './services/create-checkout-session';
 export { CreateCustomerPortalSession } from './services/create-customer-portal-session';
 export { PlanDialogService } from './services/plan-dialog.service';

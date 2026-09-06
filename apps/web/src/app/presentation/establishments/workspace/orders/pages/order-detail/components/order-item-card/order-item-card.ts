@@ -10,12 +10,13 @@ import {
   PaymentStatus,
 } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
+import { NoteEditor } from '../../../../../../../components/note-editor/note-editor';
 import { NumberInput } from '../../../../../../../components/number-input/number-input';
 import { PricePipe } from '../../../../../pipes/price/price';
 
 @Component({
   selector: 'coaster-order-item-card',
-  imports: [TranslatePipe, MatIcon, PricePipe, MatIconButton, NumberInput],
+  imports: [TranslatePipe, MatIcon, PricePipe, MatIconButton, NumberInput, NoteEditor],
   template: `
     <div
       class="bg-surface-container border border-transparent rounded-xl p-4 flex items-center justify-between gap-3 transition-all duration-200 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-primary/50"
@@ -121,12 +122,14 @@ import { PricePipe } from '../../../../../pipes/price/price';
             </span>
           }
         </div>
-        @if (item().notes) {
-          <div class="flex items-start gap-1 mt-1 text-xs text-on-surface-variant italic">
-            <mat-icon class="text-[14px]! w-[14px]! h-[14px]! leading-[14px]! m-0! shrink-0">notes</mat-icon>
-            <span class="leading-tight">{{ item().notes }}</span>
-          </div>
-        }
+        <coaster-note-editor
+          class="mt-1"
+          [notes]="item().notes || ''"
+          [editable]="isOpen()"
+          [placeholder]="'orders.item_notes_placeholder' | translate"
+          [hint]="'orders.notes_internal' | translate"
+          (notesChanged)="notesChanged.emit($event)"
+        />
       </div>
 
       @if (isOpen()) {
@@ -181,6 +184,7 @@ export class OrderItemCard {
 
   public readonly addAdjustment = output<string>();
   public readonly removeAdjustment = output<string>();
+  public readonly notesChanged = output<string>();
 
   itemAdjustments() {
     return this.adjustments().filter((a) => a.target === AdjustmentTarget.ITEM && a.itemId === this.item().id);

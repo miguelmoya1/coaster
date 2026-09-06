@@ -1,32 +1,31 @@
-import { ALLERGENS, asCategoryId } from '@coaster/common';
+import { ALLERGENS, asCategoryId, DEFAULT_TAX_RATE, grossFromNet, toBasisPoints, toPercentage } from '@coaster/common';
 import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
-import { form, FormField, FormRoot, maxLength, min, minLength, required } from '@angular/forms/signals';
+import { form, FormField, FormRoot, max, maxLength, min, minLength, required } from '@angular/forms/signals';
 import { MatButton } from '@angular/material/button';
-import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
-import { MatInput } from '@angular/material/input';
-import { MatOption, MatSelect } from '@angular/material/select';
 import type { Category, UpdateProductDto } from '@coaster/common';
 import { handleErrorFormField } from '@coaster/core';
 import { Product, ProductsStore } from '@coaster/products';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ChipSelect } from '../../../../../../components/chip-select/chip-select';
 import { NumberInput } from '../../../../../../components/number-input/number-input';
+import { PricePipe } from '../../../../pipes/price/price';
+import { Field } from '../../../../../../components/field/field';
+import { CoasterInput } from '../../../../../../components/field/input.directive';
+import { IconPicker } from '../../../../../../components/icon-picker/icon-picker';
 
 @Component({
   selector: 'coaster-edit-product-form',
   imports: [
+    IconPicker,
+    PricePipe,
     FormRoot,
-    MatFormField,
-    MatLabel,
-    MatInput,
-    MatError,
-    MatSelect,
-    MatOption,
     NumberInput,
     ChipSelect,
     FormField,
     MatButton,
     TranslatePipe,
+    Field,
+    CoasterInput,
   ],
   host: {
     class: 'block px-6 pb-6 pt-2',
@@ -34,48 +33,51 @@ import { NumberInput } from '../../../../../../components/number-input/number-in
   template: `
     <form [formRoot]="form">
       <div class="flex flex-col gap-4">
-        <mat-form-field appearance="outline" class="w-full">
-          <mat-label>{{ 'inventory.edit_product.name_label' | translate }}</mat-label>
+        <coaster-field [label]="'inventory.edit_product.name_label' | translate">
           <input
-            matInput
+            coasterInput
+            enterkeyhint="next"
             [formField]="form.name"
             [placeholder]="'inventory.edit_product.name_placeholder' | translate"
           />
-          @if (form.name().errors().length > 0) {
-            <mat-error>{{
-              form.name().errors()[0].message || form.name().errors()[0].kind | translate: form.name().errors()[0]
-            }}</mat-error>
-          }
-        </mat-form-field>
+        </coaster-field>
 
-        <mat-form-field appearance="outline" class="w-full">
-          <mat-label>{{ 'inventory.edit_product.category_label' | translate }}</mat-label>
-          <mat-select
-            [formField]="form.categoryId"
-            [placeholder]="'inventory.edit_product.category_placeholder' | translate"
-          >
+        <coaster-field [label]="'inventory.edit_product.category_label' | translate">
+          <select coasterInput [formField]="form.categoryId">
+            <option value="" disabled>{{ 'inventory.edit_product.category_placeholder' | translate }}</option>
             @for (option of categoryOptions(); track option.value) {
-              <mat-option [value]="option.value">{{ option.label }}</mat-option>
+              <option [value]="option.value">{{ option.label }}</option>
             }
-          </mat-select>
-          @if (form.categoryId().errors().length > 0) {
-            <mat-error>{{
-              form.categoryId().errors()[0].message || form.categoryId().errors()[0].kind
-                | translate: form.categoryId().errors()[0]
-            }}</mat-error>
-          }
-        </mat-form-field>
+          </select>
+        </coaster-field>
 
-        <mat-form-field appearance="outline" class="w-full">
-          <mat-label>{{ 'inventory.edit_product.image_url_label' | translate }}</mat-label>
-          <input matInput [formField]="form.imageUrl" placeholder="https://..." />
-        </mat-form-field>
+        <coaster-field [label]="'inventory.edit_product.image_url_label' | translate">
+          <input coasterInput [formField]="form.imageUrl" placeholder="https://..." />
+        </coaster-field>
 
         <coaster-number-input [formField]="form.price" [label]="'Precio (Céntimos)'" />
 
         <coaster-number-input
           [formField]="form.minStockAlert"
           [label]="'inventory.edit_product.min_stock_label' | translate"
+        />
+
+        <coaster-field
+          [label]="'inventory.product_tax_rate_label' | translate"
+          [hint]="'inventory.product_tax_rate_hint' | translate"
+        >
+          <input coasterInput type="number" step="0.5" [formField]="form.taxRatePercent" />
+        </coaster-field>
+
+        <div class="flex items-baseline justify-between rounded-lg bg-surface-container-highest px-3 py-2 text-sm">
+          <span class="text-on-surface-variant">{{ 'inventory.gross_price_label' | translate }}</span>
+          <span class="font-bold text-on-surface">{{ grossPreview() | price }}</span>
+        </div>
+
+        <coaster-icon-picker
+          [formField]="form.icon"
+          [label]="'inventory.icon_label' | translate"
+          [placeholder]="'inventory.icon_none' | translate"
         />
 
         <coaster-chip-select
@@ -134,14 +136,32 @@ export class UpdateProductForm {
     ALLERGENS.map((allergen) => ({ value: allergen, label: this.#translate.instant(`allergens.${allergen}`) })),
   );
 
-  readonly #productModel = signal<Required<UpdateProductDto>>({
+  readonly #productModel = signal<Omit<Required<UpdateProductDto>, 'ownTaxRate'> & { taxRatePercent: number | null }>({
     categoryId: asCategoryId(''),
     price: 0,
     minStockAlert: 0,
     name: '',
     imageUrl: '',
     allergens: [],
+    icon: '',
+    taxRatePercent: null,
   });
+
+  protected readonly effectiveTaxRate = computed(() => {
+    const own = this.form.taxRatePercent().value();
+
+    if (own !== null) {
+      return toBasisPoints(own);
+    }
+
+    const categoryId = this.form.categoryId().value();
+
+    return this.categories().find((category) => category.id === categoryId)?.taxRate ?? DEFAULT_TAX_RATE;
+  });
+
+  protected readonly grossPreview = computed(() =>
+    grossFromNet(this.form.price().value() || 0, this.effectiveTaxRate()),
+  );
 
   readonly form = form(
     this.#productModel,
@@ -149,6 +169,9 @@ export class UpdateProductForm {
       required(fields.name);
       minLength(fields.name, 2);
       maxLength(fields.name, 50);
+
+      min(fields.taxRatePercent, 0);
+      max(fields.taxRatePercent, 100);
 
       required(fields.categoryId);
 
@@ -160,7 +183,11 @@ export class UpdateProductForm {
     {
       submission: {
         action: async (form) => {
-          const payload = form().value();
+          const { taxRatePercent, ...rest } = form().value();
+          const payload: UpdateProductDto = {
+            ...rest,
+            ownTaxRate: taxRatePercent === null ? null : toBasisPoints(taxRatePercent),
+          };
 
           try {
             await this.#productStore.update(this.product().id, payload);
@@ -185,6 +212,8 @@ export class UpdateProductForm {
           minStockAlert: product.minStockAlert,
           imageUrl: product.imageUrl ?? '',
           allergens: [...(product.allergens ?? [])],
+          icon: product.icon ?? '',
+          taxRatePercent: product.ownTaxRate === undefined ? null : toPercentage(product.ownTaxRate),
         });
       }
     });

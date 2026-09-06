@@ -169,6 +169,7 @@ describe('OrdersController (e2e)', () => {
                 productId: product1Id,
                 quantity: 1,
                 priceAtPurchase: 5,
+                productNameAtPurchase: 'Test Product',
               },
             ],
           },
@@ -225,6 +226,7 @@ describe('OrdersController (e2e)', () => {
                 productId: product1Id,
                 quantity: 1,
                 priceAtPurchase: 5,
+                productNameAtPurchase: 'Test Product',
               },
             ],
           },
@@ -255,6 +257,7 @@ describe('OrdersController (e2e)', () => {
                 productId: product1Id,
                 quantity: 1,
                 priceAtPurchase: 5,
+                productNameAtPurchase: 'Test Product',
                 servedQuantity: 1,
               },
             ],
@@ -284,7 +287,9 @@ describe('OrdersController (e2e)', () => {
           totalAmount: 10,
           amountPaidCash: 400,
           tipAmount: 50,
-          items: { create: [{ productId: product1Id, quantity: 2, priceAtPurchase: 5 }] },
+          items: {
+            create: [{ productId: product1Id, quantity: 2, priceAtPurchase: 5, productNameAtPurchase: 'Test Product' }],
+          },
           adjustments: { create: [{ target: 'ORDER', type: 'PERCENTAGE', value: 10 }] },
         },
       });
@@ -296,7 +301,9 @@ describe('OrdersController (e2e)', () => {
           totalAmount: 3,
           amountPaidCard: 200,
           tipAmount: 25,
-          items: { create: [{ productId: product2Id, quantity: 1, priceAtPurchase: 3 }] },
+          items: {
+            create: [{ productId: product2Id, quantity: 1, priceAtPurchase: 3, productNameAtPurchase: 'Test Product' }],
+          },
         },
       });
 
@@ -329,7 +336,11 @@ describe('OrdersController (e2e)', () => {
           establishmentId,
           status: OrderStatus.OPEN,
           totalAmount: 1000,
-          items: { create: [{ productId: product1Id, quantity: 200, priceAtPurchase: 5 }] },
+          items: {
+            create: [
+              { productId: product1Id, quantity: 200, priceAtPurchase: 5, productNameAtPurchase: 'Test Product' },
+            ],
+          },
           adjustments: { create: [{ target: 'ORDER', type: 'PERCENTAGE', value: 10 }] },
         },
       });
@@ -339,7 +350,9 @@ describe('OrdersController (e2e)', () => {
           establishmentId,
           status: OrderStatus.OPEN,
           totalAmount: 3,
-          items: { create: [{ productId: product2Id, quantity: 1, priceAtPurchase: 3 }] },
+          items: {
+            create: [{ productId: product2Id, quantity: 1, priceAtPurchase: 3, productNameAtPurchase: 'Test Product' }],
+          },
         },
       });
 
@@ -363,7 +376,11 @@ describe('OrdersController (e2e)', () => {
           establishmentId,
           status: OrderStatus.OPEN,
           totalAmount: 1000,
-          items: { create: [{ productId: product1Id, quantity: 2, priceAtPurchase: 500 }] },
+          items: {
+            create: [
+              { productId: product1Id, quantity: 2, priceAtPurchase: 500, productNameAtPurchase: 'Test Product' },
+            ],
+          },
         },
         include: { items: true },
       });
@@ -425,7 +442,11 @@ describe('OrdersController (e2e)', () => {
           establishmentId,
           status: OrderStatus.OPEN,
           totalAmount: 1000,
-          items: { create: [{ productId: product1Id, quantity: 1, priceAtPurchase: 1000 }] },
+          items: {
+            create: [
+              { productId: product1Id, quantity: 1, priceAtPurchase: 1000, productNameAtPurchase: 'Test Product' },
+            ],
+          },
         },
       });
 
@@ -441,7 +462,7 @@ describe('OrdersController (e2e)', () => {
 
       const closed = await testSetup.prisma.dbOrder.findUnique({ where: { id: order.id } });
       expect(closed?.status).toBe(OrderStatus.CLOSED);
-      expect(closed?.amountPaidCash).toBe(1000);
+      expect(closed?.amountPaidCash).toBe(1100);
     });
 
     it('should refuse a payment method that says nothing about how it was paid', async () => {
@@ -467,7 +488,17 @@ describe('OrdersController (e2e)', () => {
           status: OrderStatus.CLOSED,
           totalAmount: 10,
           amountPaidCash: 10,
-          items: { create: [{ productId: product1Id, quantity: 2, priceAtPurchase: 5, paidQuantity: 2 }] },
+          items: {
+            create: [
+              {
+                productId: product1Id,
+                quantity: 2,
+                priceAtPurchase: 5,
+                productNameAtPurchase: 'Test Product',
+                paidQuantity: 2,
+              },
+            ],
+          },
           adjustments: { create: [{ target: 'ORDER', type: 'PERCENTAGE', value: 10 }] },
         },
         include: { adjustments: true },

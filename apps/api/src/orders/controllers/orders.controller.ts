@@ -21,6 +21,8 @@ import {
   MoveOrderTableCommand,
   RemoveOrderAdjustmentCommand,
   RemoveOrderItemCommand,
+  UpdateOrderItemNotesCommand,
+  UpdateOrderNotesCommand,
   UpdateOrderTipCommand,
 } from '../commands';
 import { AddOrderAdjustmentDto } from '../dto/add-order-adjustment.dto';
@@ -30,6 +32,8 @@ import { CheckoutOrderDto } from '../dto/checkout-order.dto';
 import { CreateOrderDto } from '../dto/create-order.dto';
 import { MergeOrdersDto } from '../dto/merge-orders.dto';
 import { MoveTableDto } from '../dto/move-table.dto';
+import { UpdateOrderItemNotesDto } from '../dto/update-order-item-notes.dto';
+import { UpdateOrderNotesDto } from '../dto/update-order-notes.dto';
 import { UpdateOrderTipDto } from '../dto/update-order-tip.dto';
 import { OrdersMapper } from '../mappers/orders.mapper';
 import { GetOrderByIdQuery, GetOrdersByEstablishmentIdQuery, GetOrdersByDateQuery } from '../queries';
@@ -175,6 +179,31 @@ export class OrdersController {
   ): Promise<void> {
     await this._commandBus.execute<UpdateOrderTipCommand, void>(
       new UpdateOrderTipCommand(establishmentId, orderId, dto),
+    );
+  }
+
+  @Patch(':orderId/notes')
+  @EstablishmentPermissions(EstablishmentPermission.ESTABLISHMENT_UPDATE_ORDER)
+  async updateOrderNotes(
+    @Param('establishmentId') establishmentId: EstablishmentId,
+    @Param('orderId') orderId: OrderId,
+    @Body() dto: UpdateOrderNotesDto,
+  ): Promise<void> {
+    await this._commandBus.execute<UpdateOrderNotesCommand, void>(
+      new UpdateOrderNotesCommand(establishmentId, orderId, dto),
+    );
+  }
+
+  @Patch(':orderId/items/:itemId/notes')
+  @EstablishmentPermissions(EstablishmentPermission.ESTABLISHMENT_UPDATE_ORDER)
+  async updateOrderItemNotes(
+    @Param('establishmentId') establishmentId: EstablishmentId,
+    @Param('orderId') orderId: OrderId,
+    @Param('itemId') itemId: OrderItemId,
+    @Body() dto: UpdateOrderItemNotesDto,
+  ): Promise<void> {
+    await this._commandBus.execute<UpdateOrderItemNotesCommand, void>(
+      new UpdateOrderItemNotesCommand(establishmentId, orderId, itemId, dto),
     );
   }
 

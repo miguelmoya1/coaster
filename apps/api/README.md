@@ -1,98 +1,69 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Coaster API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+NestJS on Fastify, CQRS (`@nestjs/cqrs`), Prisma over PostgreSQL. Every business capability is a
+module under `src`, and every module declares its public API in its `index.ts`.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+The architecture — modules, aliases, layering, the guards, the runtime — is in
+[backend architecture](../../docs/architecture/backend.md). Who is allowed to do what is in
+[access model](../../docs/architecture/permissions.md).
 
-## Description
+## Running it
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Project setup
+The API is meant to run in its container, alongside the database and the Firebase emulator:
 
 ```bash
-$ npm install
+docker compose up db firebase api
 ```
 
-## Compile and run the project
+`npm run dev:api` from the repository root starts it on the host instead, in which case
+`DATABASE_URL` and `FIREBASE_AUTH_EMULATOR_HOST` have to point somewhere real.
 
-```bash
-# development
-$ npm run start
+Swagger is at `http://localhost:3000/api/docs`, **outside production only**. Every route is under
+`/api/v1`.
 
-# watch mode
-$ npm run start:dev
+## Commands
 
-# production mode
-$ npm run start:prod
-```
+| Command             | What it does                                                       |
+| ------------------- | ------------------------------------------------------------------ |
+| `npm run dev`       | `nest start -b swc -w`                                             |
+| `npm run build`     | `nest build` — aliases are resolved at build time, `dist` is plain |
+| `npm start`         | `node dist/main`                                                   |
+| `npm test`          | Unit tests (Vitest, Prisma mocked)                                 |
+| `npm run test:e2e`  | E2E: a real database from testcontainers, migrations applied       |
+| `npm run test:cov`  | Unit tests with coverage                                           |
+| `npm run db:gen`    | `prisma generate` **for wherever you run it**                      |
+| `npm run db:studio` | Prisma Studio                                                      |
 
-## Run tests
+From the repository root, `npm run db:generate` and `npm run db:migrate` run the same Prisma
+commands **inside the container**. That distinction matters: the unit tests run on the host, so a
+client generated only in the container makes them fail inside `@prisma/param-graph`. Generate on
+both when in doubt.
 
-```bash
-# unit tests
-$ npm run test
+The e2e suite runs `prisma migrate deploy`, never `db push` — the schema alone leaves out everything
+written in raw SQL (the append-only triggers on `TimeEntry`, the partial unique index on
+`ShiftExchange`), which is exactly what is worth leaning on in a test.
 
-# e2e tests
-$ npm run test:e2e
+## Environment
 
-# test coverage
-$ npm run test:cov
-```
+`.env` is for local development only; it is in `.gitignore` and `.dockerignore`, so it neither
+travels in git nor enters the image. Production reads real environment variables — see
+[production and beta](../../docs/operations/environments.md).
 
-## Deployment
+| Variable                                                         | Needed for                                                          |
+| ---------------------------------------------------------------- | ------------------------------------------------------------------- |
+| `DATABASE_URL`                                                   | Everything                                                          |
+| `FIREBASE_AUTH_EMULATOR_HOST`                                    | Local sign-in against the emulator                                  |
+| `FRONTEND_URL`                                                   | Stripe return URLs and invitation links                             |
+| `PUBLIC_URL`                                                     | Where printer bridges download updates from                         |
+| `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_PRO` | Billing                                                             |
+| `RESEND_API_KEY`                                                 | Invitation emails                                                   |
+| `PRINTER_JWT_SECRET`                                             | The LAN printing fallback                                           |
+| `MEDIA_BUCKET`                                                   | Signed upload URLs for product images                               |
+| `AI_GATEWAY_API_KEY`                                             | The assistant (read by the AI SDK, not by our code)                 |
+| `REDIS_URL`                                                      | Optional — unset means no cache and no shared realtime bus          |
+| `CORS_ORIGINS`                                                   | Browser origins allowed to call the API; fails closed in production |
+| `TRUST_PROXY_HOPS`                                               | Defaults to `1` (Cloud Run); `compose.yaml` sets `0`                |
+| `BETA_ALLOWLIST_ENABLED`                                         | Closes sign-up to the `BetaTester` allowlist                        |
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+Migrations are **not** run by the image. Apply them with `prisma migrate deploy` before or during
+the release.

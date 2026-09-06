@@ -1,12 +1,14 @@
 import { Component, input, output, signal } from '@angular/core';
 import { MatCard } from '@angular/material/card';
+import { MatIcon } from '@angular/material/icon';
+import { grossFromNet } from '@coaster/common';
 import { Product } from '@coaster/products';
 import { TranslatePipe } from '@ngx-translate/core';
 import { PricePipe } from '../../../../../pipes/price/price';
 
 @Component({
   selector: 'coaster-pos-products-list',
-  imports: [TranslatePipe, PricePipe, MatCard],
+  imports: [TranslatePipe, PricePipe, MatCard, MatIcon],
   template: `
     <div data-testid="pos-products-list" class="grid grid-cols-2 sm:grid-cols-3 gap-3">
       @for (product of products(); track product.id) {
@@ -30,6 +32,14 @@ import { PricePipe } from '../../../../../pipes/price/price';
                   (error)="handleImageError(product.id)"
                 />
               </div>
+            } @else if (product.icon) {
+              <div
+                class="w-14 h-14 rounded-lg shrink-0 mb-1 bg-surface-container-highest flex items-center justify-center"
+              >
+                <mat-icon data-testid="pos-product-icon" class="text-on-surface-variant/70 text-3xl w-8 h-8">{{
+                  product.icon
+                }}</mat-icon>
+              </div>
             }
             <span
               class="font-semibold text-on-surface text-sm text-center leading-tight line-clamp-2 wrap-break-word w-full h-10 flex items-center justify-center"
@@ -38,7 +48,7 @@ import { PricePipe } from '../../../../../pipes/price/price';
               {{ product.name }}
             </span>
             <div class="flex flex-col items-center gap-1 mt-1 w-full">
-              <span class="font-bold text-primary text-sm">{{ product.price | price }}</span>
+              <span class="font-bold text-primary text-sm">{{ grossOf(product) | price }}</span>
               <span
                 class="text-xxs-plus px-2 py-0.5 rounded-full font-bold w-fit text-center"
                 [class]="
@@ -65,6 +75,10 @@ import { PricePipe } from '../../../../../pipes/price/price';
   `,
 })
 export class PosProductsList {
+  protected grossOf(product: Product): number {
+    return grossFromNet(product.price, product.taxRate);
+  }
+
   readonly products = input.required<Product[]>();
   readonly productClicked = output<Product>();
 

@@ -1,13 +1,12 @@
 import { Component, inject } from '@angular/core';
 import { MatButton } from '@angular/material/button';
-import { MatFormField, MatLabel, MatSuffix } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
-import { MatInput } from '@angular/material/input';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AdminEstablishmentsStore } from '@coaster/admin';
 import type { EstablishmentBillingSource, EstablishmentId } from '@coaster/common';
 import { EstablishmentBillingSource as BillingSource } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
+import { CoasterInput } from '../../../components/field/input.directive';
 import { Loading } from '../../../components/loading/loading';
 import { PageHeader } from '../../../components/page-header/page-header';
 import { AdminPagination } from '../../components/admin-pagination/admin-pagination';
@@ -26,16 +25,13 @@ const BILLING_FILTERS: (EstablishmentBillingSource | undefined)[] = [
   imports: [
     MatIcon,
     MatButton,
-    MatFormField,
-    MatLabel,
-    MatSuffix,
-    MatInput,
     TranslatePipe,
     Loading,
     PageHeader,
     AdminPagination,
     BillingBadge,
     StatusChip,
+    CoasterInput,
   ],
   templateUrl: './admin-establishments.html',
   host: {

@@ -58,7 +58,9 @@ describe('CreateOrderHandler', () => {
         { productId: asProductId('prod-1'), quantity: 1 },
       ],
     };
-    repository.findProductsByIds.mockResolvedValue([{ id: 'prod-1', price: 2 }]);
+    repository.findProductsByIds.mockResolvedValue([
+      { id: 'prod-1', name: 'Producto', price: 2, taxRate: null, category: { taxRate: 1000 } },
+    ]);
     repository.createOrder.mockResolvedValue({
       id: 'order-1',
       establishmentId: 'establishment-1',
@@ -81,7 +83,9 @@ describe('CreateOrderHandler', () => {
   });
 
   it('should throw BadRequestException if table is occupied', async () => {
-    repository.findProductsByIds.mockResolvedValue([{ id: 'prod-1', price: 2 }]);
+    repository.findProductsByIds.mockResolvedValue([
+      { id: 'prod-1', name: 'Producto', price: 2, taxRate: null, category: { taxRate: 1000 } },
+    ]);
     repository.findTableById.mockResolvedValue({
       id: 'table-1',
       establishmentId: 'establishment-1',
@@ -92,7 +96,9 @@ describe('CreateOrderHandler', () => {
   });
 
   it('should create order and publish event', async () => {
-    repository.findProductsByIds.mockResolvedValue([{ id: 'prod-1', price: 2 }]);
+    repository.findProductsByIds.mockResolvedValue([
+      { id: 'prod-1', name: 'Producto', price: 2, taxRate: null, category: { taxRate: 1000 } },
+    ]);
     repository.findTableById.mockResolvedValue({
       id: 'table-1',
       establishmentId: 'establishment-1',

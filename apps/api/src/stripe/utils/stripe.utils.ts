@@ -5,6 +5,16 @@ import { ConfigService } from '@nestjs/config';
 import { createHash, randomBytes } from 'crypto';
 import type { Subscription } from 'stripe';
 
+const DEFAULT_BASE_PRICE_CENTS = 1999;
+const DEFAULT_INCLUDED_SEATS = 10;
+const DEFAULT_EXTRA_SEAT_PRICE_CENTS = 200;
+
+function readPositiveInt(value: string | undefined, fallback: number): number {
+  const parsed = Number(value);
+
+  return Number.isSafeInteger(parsed) && parsed > 0 ? parsed : fallback;
+}
+
 export function getPriceId(plan: Exclude<SubscriptionPlan, 'FREE'>, configService: ConfigService): string {
   if (plan !== SubscriptionPlan.PRO) {
     throw new BadRequestException(ErrorCodes.INVALID_SUBSCRIPTION_PLAN);
@@ -58,6 +68,18 @@ export function getProPriceIds(configService: ConfigService): string[] {
     .filter(Boolean);
 }
 
+export function getBasePriceCents(configService: ConfigService): number {
+  return readPositiveInt(configService.get<string>('PRO_BASE_PRICE_CENTS'), DEFAULT_BASE_PRICE_CENTS);
+}
+
+export function getIncludedSeats(configService: ConfigService): number {
+  return readPositiveInt(configService.get<string>('PRO_INCLUDED_SEATS'), DEFAULT_INCLUDED_SEATS);
+}
+
+export function getExtraSeatPriceCents(configService: ConfigService): number {
+  return readPositiveInt(configService.get<string>('PRO_EXTRA_SEAT_PRICE_CENTS'), DEFAULT_EXTRA_SEAT_PRICE_CENTS);
+}
+
 export function toDbPlan(priceId: string | undefined, configService: ConfigService): DbSubscriptionPlan {
   if (priceId && getProPriceIds(configService).includes(priceId)) {
     return DbSubscriptionPlan.PRO;
@@ -88,6 +110,7 @@ export function toDbStatus(status: Subscription.Status): DbSubscriptionStatus {
 export interface StripeSubscriptionSnapshot {
   plan: DbSubscriptionPlan;
   status: DbSubscriptionStatus;
+  seats: number;
   stripeSubscriptionId: string | null;
   currentPeriodStart: Date | null;
   currentPeriodEnd: Date | null;
@@ -106,6 +129,7 @@ export function toSubscriptionSnapshot(
 
   return {
     plan: isTerminalCancellation ? DbSubscriptionPlan.FREE : toDbPlan(firstItem?.price?.id, configService),
+    seats: firstItem?.quantity ?? 1,
     status:
       isTerminalCancellation || isScheduledCancellation
         ? DbSubscriptionStatus.CANCELED

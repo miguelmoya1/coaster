@@ -6,6 +6,8 @@ import { OrdersWriteRepository } from '../../data-access/orders.write.repository
 import { OrderItemsAddedEvent } from '../../events';
 import { OrdersMapper } from '../../mappers/orders.mapper';
 import { AddOrderItemsCommand } from '../impl/add-order-items.command';
+import type { ProductSnapshot } from '../../data-access/orders.write.repository';
+import { resolveTaxRate } from '@coaster/common';
 
 @CommandHandler(AddOrderItemsCommand)
 export class AddOrderItemsHandler implements ICommandHandler<AddOrderItemsCommand, void> {
@@ -33,9 +35,14 @@ export class AddOrderItemsHandler implements ICommandHandler<AddOrderItemsComman
       throw new NotFoundException(ErrorCodes.PRODUCT_NOT_FOUND);
     }
 
-    const priceMap = new Map(products.map((p) => [p.id, p.price]));
+    const snapshots = new Map<string, ProductSnapshot>(
+      products.map((p) => [
+        p.id,
+        { price: p.price, name: p.name, taxRate: resolveTaxRate(p.taxRate, p.category.taxRate) },
+      ]),
+    );
     const additionalAmount = command.dto.items.reduce(
-      (sum, item) => sum + (priceMap.get(item.productId) ?? 0) * item.quantity,
+      (sum, item) => sum + (snapshots.get(item.productId)?.price ?? 0) * item.quantity,
       0,
     );
 
@@ -43,7 +50,7 @@ export class AddOrderItemsHandler implements ICommandHandler<AddOrderItemsComman
       command.orderId,
       additionalAmount,
       command.dto,
-      priceMap,
+      snapshots,
       existingOrder.totalAmount,
     );
 

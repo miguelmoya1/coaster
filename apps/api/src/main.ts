@@ -1,7 +1,13 @@
 import compression from '@fastify/compress';
 import helmet from '@fastify/helmet';
 import fastifyStatic from '@fastify/static';
-import { PUBLIC_ROOT } from '@coaster/core';
+import {
+  BETA_ALLOWLIST_ENABLED,
+  CORS_ORIGINS,
+  isBetaAllowlistEnabled,
+  PUBLIC_ROOT,
+  resolveCorsOrigins,
+} from '@coaster/core';
 import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
@@ -53,8 +59,14 @@ async function bootstrap() {
     routes: ['/api/v1/stripe/webhook'],
   });
 
+  const corsOrigins = resolveCorsOrigins(process.env[CORS_ORIGINS], isProduction);
+
+  if (corsOrigins.length === 0) {
+    Logger.error(`${CORS_ORIGINS} is not set: every cross-origin request will be refused`);
+  }
+
   app.enableCors({
-    origin: '*',
+    origin: corsOrigins,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Last-Event-ID'],
     credentials: true,
@@ -83,6 +95,10 @@ async function bootstrap() {
 
     const documentFactory = () => SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('api/docs', app, documentFactory);
+  }
+
+  if (isBetaAllowlistEnabled(process.env[BETA_ALLOWLIST_ENABLED])) {
+    Logger.warn('Beta allowlist is ON: only emails on the BetaTester table can open a new account');
   }
 
   await app.listen(port, '0.0.0.0');

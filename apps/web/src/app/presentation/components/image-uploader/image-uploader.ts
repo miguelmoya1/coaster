@@ -5,25 +5,27 @@ import { ActionFeedback } from '@coaster/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { MediaRepository } from '../../../core/data-access/media-repository';
 import { Spinner } from '../spinner/spinner';
+import { CoasterInput } from '../field/input.directive';
 
 @Component({
   selector: 'coaster-image-uploader',
-  imports: [MatIcon, Spinner, TranslatePipe],
+  imports: [MatIcon, Spinner, TranslatePipe, CoasterInput],
   host: {
     class: 'flex flex-col gap-2 w-full',
   },
   template: `
     @if (label()) {
-      <span class="text-sm font-medium text-gray-700">{{ label() }}</span>
+      <span class="text-xs font-semibold text-on-surface-variant">{{ label() }}</span>
     }
 
     <label
       [attr.for]="fileInputId"
-      class="relative flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg transition-colors overflow-hidden group cursor-pointer"
-      [class.border-primary-500]="isDragging()"
-      [class.bg-primary-50]="isDragging()"
-      [class.border-gray-300]="!isDragging()"
-      [class.hover:bg-gray-50]="!isDragging()"
+      class="relative flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-xl transition-colors overflow-hidden group cursor-pointer"
+      [class]="
+        isDragging()
+          ? 'border-primary bg-primary/10'
+          : 'border-outline-variant/40 bg-surface-container-highest hover:bg-surface-container-high'
+      "
       (dragover)="onDragOver($event)"
       (dragleave)="onDragLeave($event)"
       (drop)="onDrop($event)"
@@ -46,25 +48,26 @@ import { Spinner } from '../spinner/spinner';
         </div>
       } @else {
         <div class="flex flex-col items-center justify-center p-4 text-center">
-          <mat-icon class="text-gray-400 mb-2">cloud_upload</mat-icon>
-          <p class="text-sm text-gray-600">
+          <mat-icon class="text-on-surface-variant mb-2">cloud_upload</mat-icon>
+          <p class="text-sm text-on-surface-variant">
             <span class="font-semibold">{{ 'UPLOAD_CLICK_TO_UPLOAD' | translate }}</span>
             {{ 'UPLOAD_DRAG_DROP' | translate }}
           </p>
-          <p class="text-xs text-gray-500 mt-1">PNG, JPG, WEBP</p>
+          <p class="text-xs text-on-surface-variant/70 mt-1">PNG, JPG, WEBP</p>
         </div>
       }
 
       @if (uploading()) {
-        <div class="absolute inset-0 bg-white/70 flex items-center justify-center">
+        <div class="absolute inset-0 bg-surface/70 flex items-center justify-center">
           <coaster-spinner [diameter]="32" />
         </div>
       }
     </label>
 
     <input
+      coasterInput
       type="text"
-      class="mt-2 flex-1 text-sm px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary-500"
+      class="mt-2"
       [placeholder]="'UPLOAD_OR_PASTE_URL' | translate"
       [value]="value()"
       (input)="onUrlPaste($event)"

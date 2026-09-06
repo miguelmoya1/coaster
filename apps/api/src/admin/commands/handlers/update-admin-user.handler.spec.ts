@@ -55,9 +55,7 @@ describe('UpdateAdminUserHandler', () => {
   it('should drop the cached user so a deactivation takes effect on the next request', async () => {
     await handler.execute(new UpdateAdminUserCommand(asUserId('user-2'), { active: false }, actor));
 
-    expect(eventBus.publish).toHaveBeenCalledWith(
-      expect.objectContaining({ userId: 'user-2', firebaseUid: 'uid-2' }),
-    );
+    expect(eventBus.publish).toHaveBeenCalledWith(expect.objectContaining({ userId: 'user-2', firebaseUid: 'uid-2' }));
   });
 
   it('should record an activation change on its own entry', async () => {

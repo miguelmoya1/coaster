@@ -56,11 +56,21 @@ export interface Order {
   adjustments: OrderAdjustment[];
   paymentMethod: PaymentMethod;
   notes?: string;
+  ticketNotes?: string;
   tipAmount: number;
+  netTotal: number;
+  taxBreakdown: OrderTaxLine[];
+  taxAmountTotal: number;
   orderTotal: number;
   payableTotal: number;
   createdAt?: string;
   updatedAt?: string;
+}
+
+export interface OrderTaxLine {
+  taxRate: number;
+  taxBase: number;
+  taxAmount: number;
 }
 
 export interface CreateOrderItemDto {
@@ -79,6 +89,15 @@ export interface CreateOrderDto {
 
 export interface AddOrderItemsDto {
   items: CreateOrderItemDto[];
+  notes?: string;
+}
+
+export interface UpdateOrderNotesDto {
+  notes?: string;
+  ticketNotes?: string;
+}
+
+export interface UpdateOrderItemNotesDto {
   notes?: string;
 }
 

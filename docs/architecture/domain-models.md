@@ -22,8 +22,51 @@ the raw key to a user.
 
 ## Contexts
 
-Establishments and memberships · menu (categories and products) · tables and orders · shifts and exchanges ·
-time tracking · printing · billing (Stripe and manual grants) · platform administration.
+Establishments, their settings and memberships · the catalogue (categories and products) · the
+published menu · tables and orders · shifts and exchanges · time tracking · printing · media
+uploads · takings and statistics · the AI assistant · billing (Stripe and manual grants) · platform
+administration.
+
+## The establishment and its settings
+
+- Establishment — a name, and everything else hangs off it.
+- EstablishmentSettings — one row per establishment, created with it:
+  - `modules`: which of `TIME_TRACKING`, `ORDERS`, `INVENTORY` the venue runs. Enforced by
+    `EstablishmentModulesGuard` — see [access model](permissions.md).
+  - `language`: the establishment's own language, inherited from its creator. It decides what the
+    starter catalogue is imported as and what a draft menu's default language is. It is **not** the
+    language of the interface, which is `UserPreferences.language`, per person.
+  - `markSoldOut`: whether a product at zero stock is shown as sold out on the order screen.
+  - `configuredAt`: null until onboarding has been through. It is what makes the business-type
+    dialog appear exactly once.
+
+`EstablishmentMember` carries `hourlyRateCents`, which is what the labour-cost figure
+(`establishment:view-labor-cost`) is computed from, and `deletedAt`, because removing a member is a
+soft delete — the guards, the AI handler and the members list all filter on it.
+
+## Accounts
+
+There is **no `Account` table, on purpose**. `User.firebaseUid` is the Firebase UID, and Firebase is
+the account layer: adding a sign-in provider is a Firebase setting, not a migration. `User` rows can
+exist before their owner has ever signed in — that is how an invitation works — and the claim rules
+are in [access model](permissions.md).
+
+`UserPreferences` holds the interface language, one row per user.
+
+`BetaTester` is an allowlist of email addresses that may open a **new** account while the beta is
+closed. It gates sign-up only, and only when `BETA_ALLOWLIST_ENABLED` is on. See
+[closed beta](../saas/closed-beta.md).
+
+## The catalogue and the menu
+
+Two different documents, deliberately — the catalogue is operational and private, the menu is
+published. `Category` and `Product` are the catalogue; `Menu`, `MenuSection` and `MenuItem` are the
+menu, with their text in JSON `translations` columns and a whole rendered `publishedSnapshot` the
+public page reads. `Product.allergens` carries the fourteen the Spanish rules list. The reasoning and
+the shape are in [catalogue and menu](catalogue-and-menu.md).
+
+Both `Category` and `Product` are soft-deleted (`deletedAt`), because an order line points at a
+product and history must survive the product being retired.
 
 ## Orders and pricing
 
@@ -111,12 +154,95 @@ all — otherwise an absence, which is exactly what you want to see, would be in
 There is no local copy of Stripe events. See [Stripe integration](../saas/stripe-integration.md) for
 why idempotency does not need one here.
 
+## Printing
+
+- PrinterConfig — one per establishment: the `deviceKey` a bridge authenticates with, plus the
+  address and port it last reported.
+- PrinterPairing — a short-lived, single-use code that a bridge exchanges for the device key on
+  first run, so nobody has to copy a UUID onto a computer at the venue.
+- PrintJob — the queue: payload, status, attempts and the last error.
+
+See [printing bridge](printing-bridge.md).
+
+## The assistant
+
+- AiUsage — one row per establishment per calendar month (`period` is `YYYY-MM`), holding the count
+  of messages. It is the monthly allowance; it stores no conversation and no prompt.
+
 ## Administration
 
 - AdminAuditLog
   - actor (`User`), action, target type and id, human-readable label
   - optional reason and a JSON `metadata` with before and after
   - indexed by date and by target
+
+## Invoicing
+
+`Invoice` is the Veri*factu billing record: one table for the whole chain, cancellations included,
+because they share a sequence, a lock and a verification function. `InvoiceTaxLine` is a table rather
+than three columns on the invoice — most tickets carry one 10% line, but a closed bottle taken away
+(21%) alongside what was consumed gives the same ticket two bases.
+
+`OrderAuditLog` is the establishment-level counterpart of `AdminAuditLog`: who voided a line, applied
+a discount or reprinted a ticket, and why.
+
+The full design, and the eleven work packages it is split into, are in
+[`VERIFACTU.md`](../../VERIFACTU.md).
+
+### Where the tax rate lives
+
+`Category.taxRate` carries the rate, in whole basis points, and its products inherit it.
+`Product.taxRate` is **nullable**: null means "whatever my category says", and a value means this one
+product is different. `resolveTaxRate(product, category)` is the only thing that decides.
+
+That shape exists because Coaster is no longer only for bars. A shop that uses the clock-in register
+and stock control without ever taking an order sets 21% once on its category rather than on every
+product. An earlier attempt used named brackets (`HOSPITALITY`, `ALCOHOL`, …); it was withdrawn
+because it wrote one sector's vocabulary into a shared domain, and because the rate is copied onto
+the product row at import anyway, so editing the bracket table never reached venues that had already
+imported.
+
+Over the wire the two are told apart by name, so neither can be used by mistake: `Product.taxRate` is
+the **effective** rate, always present, resolved by the API; `Product.ownTaxRate` is the override the
+row actually stores, and it is what the edit form reads and writes.
+
+### Prices are net, and the tax is added on top
+
+**`Product.price` is the base**, without tax. The customer pays base + tax: a product at 2,00 € with
+10% is charged at 2,20 €.
+
+The screens show the customer-facing figure, because a price without its tax is not a price anyone
+recognises. The till and the inventory list render `grossFromNet(price, taxRate)`, and the product
+form shows the resulting final price live while you type the base and the rate.
+
+The consequence worth knowing: **not every final price is reachable.** At 10%, a base of 0,94 € gives
+1,03 € and 0,95 € gives 1,05 €, so 1,04 € cannot be expressed. That is inherent to quoting net, and
+it is the trade for having the tax computed rather than buried inside the price.
+
+### The breakdown is computed, never stored twice
+
+`OrderPricingEngine` returns `netTotal`, a `taxBreakdown` of one line per rate, and `orderTotal`,
+which is the gross the customer owes. `taxBaseTotal + taxAmountTotal === orderTotal` always holds.
+
+Two rules keep the arithmetic honest:
+
+- **Each rate is taxed once, on its summed base**, not line by line and then added up, so seven lines
+  of 0,33 € at 21% give 0,49 € of tax rather than seven separate roundings of 0,07 €.
+- **Discounts come off the net, and what is left is taxed.** An order-level discount is spread across
+  rates in proportion to their weight, and the leftover cent goes to the heaviest rate, so the same
+  order always produces the same breakdown whatever the item ordering.
+
+The tip sits outside the base and outside the tax; it reaches `payableTotal` only.
+
+## What an order line freezes
+
+`OrderItem` snapshots what it was sold as, not just what it cost:
+
+- `priceAtPurchase`
+- `productNameAtPurchase` — renaming a product no longer rewrites history. A receipt reprinted after
+  a rename shows the name it was actually sold under, the same way `TimeEntry` snapshots the worker.
+- `taxRateAtPurchase` — a product moved to another bracket does not retroactively change the VAT on
+  a ticket that has already been issued.
 
 ## Billing domain events
 
@@ -138,7 +264,11 @@ end at the same realtime handler, which tells the establishment's clients with `
 ## Indexing
 
 PostgreSQL does not index foreign keys on its own and Prisma does not add them. Every hot filter has
-an explicit index: `Order(establishmentId, status)` and `Order(establishmentId, createdAt)`, `OrderItem(orderId)`,
-`OrderAdjustment(orderId)`, `Shift(establishmentId, startTime)`, `Category(establishmentId, deletedAt)`,
-`Product(categoryId, deletedAt)`, `EstablishmentMember(establishmentId, deletedAt)`. Without them the orders screen was
-a sequential scan of the whole table.
+an explicit index: `Order(establishmentId, status)`, `Order(establishmentId, createdAt)` and
+`Order(establishmentId, createdById, createdAt)` for one waiter's own takings, `OrderItem(orderId)`,
+`OrderAdjustment(orderId)`, `Shift(establishmentId, startTime)` and `Shift(userId, startTime)`,
+`Category(establishmentId, deletedAt)`, `Product(categoryId, deletedAt)`,
+`EstablishmentMember(establishmentId, deletedAt)`, `PrintJob(establishmentId, status, createdAt)` for
+the bridge's long-poll, and on `TimeEntry` both `(establishmentId, userId, workdayDate)` and
+`(establishmentId, workdayDate)`. Without them the orders screen was a sequential scan of the whole
+table.

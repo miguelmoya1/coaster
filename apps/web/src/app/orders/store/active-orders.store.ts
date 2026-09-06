@@ -11,6 +11,7 @@ import type {
   Order,
   OrderId,
   OrderItemId,
+  UpdateOrderNotesDto,
 } from '@coaster/common';
 import { OrderStatus, PaymentMethod } from '@coaster/common';
 import { Realtime } from '@coaster/core';
@@ -223,6 +224,38 @@ export class ActiveOrdersStore {
     }));
     try {
       await this.#manageOrder.updateTip(establishmentId, orderId, { tipAmount });
+    } catch (e) {
+      this.revertUpdate(original);
+      throw e;
+    }
+  }
+
+  public async updateNotes(
+    establishmentId: EstablishmentId,
+    orderId: OrderId,
+    dto: UpdateOrderNotesDto,
+  ): Promise<void> {
+    const original = this.optimisticUpdate(orderId, (o) => ({ ...o, ...dto }));
+    try {
+      await this.#manageOrder.updateNotes(establishmentId, orderId, dto);
+    } catch (e) {
+      this.revertUpdate(original);
+      throw e;
+    }
+  }
+
+  public async updateItemNotes(
+    establishmentId: EstablishmentId,
+    orderId: OrderId,
+    itemId: OrderItemId,
+    notes: string,
+  ): Promise<void> {
+    const original = this.optimisticUpdate(orderId, (o) => ({
+      ...o,
+      items: o.items.map((item) => (item.id === itemId ? { ...item, notes } : item)),
+    }));
+    try {
+      await this.#manageOrder.updateItemNotes(establishmentId, orderId, itemId, { notes });
     } catch (e) {
       this.revertUpdate(original);
       throw e;

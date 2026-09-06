@@ -29,7 +29,7 @@ interface DbMenuWithSections {
   }[];
 }
 
-const wording =(translations: unknown): MenuTranslations => (translations ?? {}) as MenuTranslations;
+const wording = (translations: unknown): MenuTranslations => (translations ?? {}) as MenuTranslations;
 
 export const MenuMapper = {
   toDraft(menu: DbMenuWithSections): MenuDraft {

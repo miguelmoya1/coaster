@@ -92,6 +92,36 @@ export class StripeApi {
     }
   }
 
+  public async updateSubscriptionSeats(subscriptionId: string, seats: number, priceId: string): Promise<boolean> {
+    const subscription = await this.retrieveSubscription(subscriptionId);
+    const item = subscription?.items?.data?.find((candidate) => candidate.price?.id === priceId);
+
+    if (!item) {
+      this.#logger.warn(
+        `Subscription ${subscriptionId} has no item on price ${priceId}: leaving its quantity alone`,
+      );
+      return false;
+    }
+
+    if (item.quantity === seats) {
+      return false;
+    }
+
+    try {
+      await this._stripeClient.client.subscriptions.update(subscriptionId, {
+        items: [{ id: item.id, quantity: seats }],
+        proration_behavior: 'create_prorations',
+      });
+
+      return true;
+    } catch (error) {
+      this.#logger.error(
+        `Could not set subscription ${subscriptionId} to ${seats} seats: ${describeStripeError(error)}`,
+      );
+      throw new InternalServerErrorException(ErrorCodes.STRIPE_SUBSCRIPTION_SEATS_UPDATE_FAILED);
+    }
+  }
+
   public async findSubscriptionCustomerId(subscriptionId: string): Promise<string | null> {
     const subscription = await this.retrieveSubscription(subscriptionId);
 

@@ -53,6 +53,7 @@ describe('AiVoiceService', () => {
     onend: (() => void) | null = null;
     start = vi.fn();
     stop = vi.fn();
+    abort = vi.fn();
 
     constructor() {
       MockSpeechRecognition.latestInstance = this;
@@ -153,6 +154,50 @@ describe('AiVoiceService', () => {
     recognition?.onresult?.({ resultIndex: 0, results: [{ isFinal: true, 0: { transcript: 'mesa cinco' } }] });
 
     expect(service.transcript()).toBe('mesa cinco');
+  });
+
+  it('should not open a second microphone when start is called while already listening', () => {
+    service.start('es');
+    const first = MockSpeechRecognition.latestInstance;
+
+    service.start('es');
+
+    expect(MockSpeechRecognition.latestInstance).toBe(first);
+    expect(first?.start).toHaveBeenCalledTimes(1);
+  });
+
+  it('should shut the previous recognition down before opening another one', () => {
+    service.start('es');
+    const first = MockSpeechRecognition.latestInstance;
+
+    MockSpeechRecognition.latestInstance?.onend?.();
+
+    expect(first?.abort).toHaveBeenCalled();
+    expect(MockSpeechRecognition.latestInstance).not.toBe(first);
+  });
+
+  it('should not start listening just because the panel was opened', () => {
+    service.open();
+
+    expect(service.status()).toBe('idle');
+    expect(MockSpeechRecognition.latestInstance).toBeNull();
+  });
+
+  it('should add to what was already dictated when the microphone is pressed again', () => {
+    service.start('es');
+    MockSpeechRecognition.latestInstance?.onresult?.({
+      resultIndex: 0,
+      results: [{ isFinal: true, 0: { transcript: 'dos cervezas' } }],
+    });
+    service.stop();
+
+    service.start('es');
+    MockSpeechRecognition.latestInstance?.onresult?.({
+      resultIndex: 0,
+      results: [{ isFinal: true, 0: { transcript: 'y un vino' } }],
+    });
+
+    expect(service.transcript()).toBe('dos cervezas y un vino');
   });
 
   it('should keep what was said before the engine restarted itself mid dictation', () => {

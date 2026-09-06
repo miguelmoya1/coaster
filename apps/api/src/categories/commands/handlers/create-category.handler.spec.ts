@@ -35,6 +35,7 @@ describe('CreateCategoryHandler', () => {
       id: 'cat-1',
       establishmentId: 'establishment-1',
       name: 'Comida',
+      taxRate: 1000,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -48,6 +49,7 @@ describe('CreateCategoryHandler', () => {
         establishmentId: establishmentId,
         name: 'Comida',
         icon: undefined,
+        taxRate: 1000,
       }),
     );
     expect(result).toBeUndefined();

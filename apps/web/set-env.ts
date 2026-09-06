@@ -1,8 +1,15 @@
 import { config } from 'dotenv';
-import { existsSync, mkdirSync, writeFileSync } from 'fs';
+import { writeFileSync } from 'fs';
+import { join } from 'path';
 import type { Environment } from './src/environments/environment.interface';
 
-config();
+// Todo lo que este script lee y escribe cuelga de su propio directorio, nunca del cwd.
+// Con rutas relativas, ejecutarlo desde la raíz del monorepo generaba un
+// coaster/src/environments/environment.ts entero, sin leer el .env de aquí, y ese
+// fichero acabó commiteado porque el .gitignore que lo tapa vive en apps/web.
+const here = import.meta.dirname;
+
+config({ path: join(here, '.env') });
 
 if (process.env.PRODUCTION === undefined) {
   console.warn('⚠️  PRODUCTION is not set; building as development. Set it to "true" for a release bundle.');
@@ -40,18 +47,14 @@ const envFileContent = `import { Environment } from './environment.interface';
 export const environment: Environment = ${objectString};
 `;
 
-const targetPath = './src/environments/environment.ts';
-const dirPath = './src/environments';
-
-if (!existsSync(dirPath)) {
-  mkdirSync(dirPath, { recursive: true });
-}
-
-writeFileSync(targetPath, envFileContent);
+// Sin mkdir a propósito: src/environments existe siempre porque environment.interface.ts
+// está en git. Si algún día esta ruta deja de ser válida, la escritura falla y se ve,
+// en vez de crear un árbol nuevo en el sitio equivocado sin decir nada.
+writeFileSync(join(here, 'src/environments/environment.ts'), envFileContent);
 
 const allowIndexing = process.env.ALLOW_INDEXING !== 'false';
 
-writeFileSync('./public/robots.txt', `User-agent: *\n${allowIndexing ? 'Allow' : 'Disallow'}: /\n`);
+writeFileSync(join(here, 'public/robots.txt'), `User-agent: *\n${allowIndexing ? 'Allow' : 'Disallow'}: /\n`);
 
 console.log(
   `✅ environment.ts generado estricto. Prod: ${envConfig.production}, Emuladores: ${envConfig.useEmulators}, Indexable: ${allowIndexing}`,

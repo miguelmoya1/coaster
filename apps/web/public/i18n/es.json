@@ -300,12 +300,16 @@
       "role_label": "Rol",
       "role_hint_owner": "Control total del establecimiento, incluida la facturación y los miembros.",
       "role_hint_manager": "Gestiona catálogo, turnos e impresora, pero no la facturación ni los miembros.",
-      "role_hint_staff": "Opera la sala: pedidos, cobros, mesas y stock."
+      "role_hint_staff": "Opera la sala: pedidos, cobros, mesas y stock.",
+      "extra_seat": "Ya ocupas las {{included}} plazas que incluye tu cuota. Este empleado suma {{price}} al mes, y aparecerá en tu próxima factura."
     },
     "staff": {
       "description": "{{count}} miembros del equipo",
       "no_members": "No hay miembros en el equipo",
-      "title": "Equipo"
+      "title": "Equipo",
+      "seats_used": "{{used}} de {{included}} plazas incluidas",
+      "seats_within": "Tu cuota: {{total}} al mes + IVA",
+      "seats_over": "{{extra}} por encima de las incluidas · {{total}} al mes + IVA"
     },
     "change_role": "Cambiar rol",
     "role_dialog": {
@@ -326,7 +330,13 @@
     "add_items_title": "Añadir al Pedido",
     "assign_table": "Asignar Mesa",
     "bar_order": "Pedido de Barra",
+    "notes_internal": "Solo para el equipo · no se imprime",
+    "notes_printed": "Sale impresa en el ticket",
+    "ticket_notes": "Nota para el ticket",
+    "ticket_notes_placeholder": "Ej. para llevar",
+    "item_notes": "Notas del artículo",
     "item_notes_placeholder": "Notas (ej. sin hielo)",
+    "order_notes": "Nota del pedido",
     "order_notes_placeholder": "Notas del pedido (ej. mesa exterior)",
     "bar_order_title": "Pedido de Barra",
     "bar_orders": "Pedidos de Barra",
@@ -334,7 +344,6 @@
     "cancel_message": "¿Estás seguro de que quieres cancelar este pedido? No se puede deshacer.",
     "cancel_order": "Cancelar",
     "cancel_title": "Cancelar Pedido",
-    "cart": "Pedido",
     "checkout": "Cobrar Todo",
     "create_table": "Crear Mesa",
     "delete_table_message": "¿Estás seguro de que deseas eliminar la mesa \"{{name}}\"? Todos los datos asociados y pedidos se perderán permanentemente y esta acción no se puede deshacer.",
@@ -388,7 +397,10 @@
     "to_serve_title": "Para servir",
     "all_served_title": "¡Todo servido!",
     "all_served_desc": "No hay pedidos pendientes de servir en la barra en este momento.",
-    "total": "Total"
+    "summary": {
+      "net_total": "Base imponible",
+      "tax_line": "IVA ({{rate}}%)"
+    }
   },
   "inventory": {
     "status": {
@@ -455,7 +467,14 @@
       "current_stock_label": "Stock Actual"
     },
     "allergens_label": "Alérgenos",
-    "allergens_hint": "Se muestran en la carta pública. Si cambias esto, vuelve a publicar la carta para que los clientes lo vean."
+    "allergens_hint": "Se muestran en la carta pública. Si cambias esto, vuelve a publicar la carta para que los clientes lo vean.",
+    "icon_label": "Icono",
+    "icon_none": "Sin icono",
+    "product_tax_rate_label": "IVA propio (%)",
+    "product_tax_rate_hint": "Déjalo vacío para usar el de la categoría",
+    "category_tax_rate_label": "IVA de la categoría (%)",
+    "category_tax_rate_hint": "Se aplica a sus productos salvo que alguno tenga el suyo",
+    "gross_price_label": "Precio final (con IVA)"
   },
   "schedule": {
     "create_shift": {
@@ -534,7 +553,6 @@
       "export": "Descargar",
       "export_from": "Desde",
       "export_hint": "Elige el periodo que necesitas para la Inspeccion",
-      "export_range": "Periodo",
       "export_title": "Descargar registro horario",
       "export_to": "Hasta",
       "history": "Historial",
@@ -570,7 +588,7 @@
     "activate_pro_subtitle": "Obtén acceso completo a todas las funcionalidades de Coaster Pro",
     "manage_billing": "Gestionar suscripción y facturas",
     "monthly_title": "Plan Coaster Pro",
-    "monthly_subtitle": "Acceso completo a todas las funciones sin límites",
+    "monthly_subtitle": "Todas las funciones, sin límite de comandas ni de empleados",
     "monthly_feat_1": "Acceso completo a funciones Pro",
     "monthly_feat_2": "Gestión de comandas e inventario",
     "continue_to_checkout": "Continuar al checkout",
@@ -604,7 +622,13 @@
     },
     "renews_on": "Se renovará el {{date}}",
     "cancels_on": "Se cancelará el {{date}}",
-    "action_unavailable": "Acción no disponible: suscripción o prueba finalizada"
+    "action_unavailable": "Acción no disponible: suscripción o prueba finalizada",
+    "seats": {
+      "your_staff": "Tu equipo: {{count}} personas",
+      "breakdown_within": "Precio fijo: hasta {{included}} empleados. A partir de ahí, {{each}} al mes por cada uno.",
+      "breakdown_over": "{{base}} por los primeros {{included}} + {{extra}} × {{each}} por los que pasan de ahí.",
+      "tax_note": "IVA aparte. Si cambia tu equipo, la diferencia se ajusta en la factura siguiente."
+    }
   },
   "landing": {
     "nav": {
@@ -650,7 +674,7 @@
     "pricing": {
       "tag": "Precios",
       "title": "Pruébalo 14 días. Sin tarjeta.",
-      "subtitle": "Un solo plan, con todo incluido. Si te encaja, sigues; si no, no pagas nada.",
+      "subtitle": "Un solo plan, con todo incluido. Precio fijo hasta 10 empleados; si sois más, lo sabes de antemano.",
       "trial_badge": "14 días gratis",
       "trial_title": "Prueba completa",
       "trial_desc": "Desde el minuto uno tienes todo: control horario, comandas e inventario. No pedimos tarjeta para empezar.",
@@ -662,9 +686,17 @@
       "feature1": "Control horario con exportación para inspección",
       "feature2": "Comandas, cobros e impresión sin límite",
       "feature3": "Inventario con alertas de stock",
-      "feature4": "Equipo y usuarios sin límite",
+      "feature4": "Sin tope de empleados: 10 incluidos y 2 € al mes por cada uno más",
       "cta": "Empezar los 14 días",
-      "note": "Cancela cuando quieras. Si dejas de pagar no borramos nada: mantienes el acceso para consultar tu historial y tus registros de jornada."
+      "note": "Cancela cuando quieras. Si dejas de pagar no borramos nada: mantienes el acceso para consultar tu historial y tus registros de jornada.",
+      "included_seats": "Hasta 10 empleados incluidos en ese precio",
+      "extra_title": "¿Sois más de 10?",
+      "extra_desc": "Cada empleado a partir del undécimo suma 2 € al mes. Nunca se bloquea nada: das de alta a quien necesites y ves lo que sube antes de confirmarlo.",
+      "extra_table_caption": "Cuota mensual según el número de empleados",
+      "extra_col_staff": "Empleados",
+      "extra_col_price": "Al mes",
+      "extra_row_staff": "{{count}} empleados",
+      "extra_note": "Importes sin IVA. Cuenta el personal dado de alta en la aplicación, incluido tú."
     },
     "cta": {
       "title": "¿Empezamos?",
@@ -682,7 +714,8 @@
       "establishments": "Establecimientos",
       "users": "Usuarios",
       "audit": "Auditoría",
-      "open_panel": "Panel de admin"
+      "open_panel": "Panel de admin",
+      "beta_testers": "Testers"
     },
     "billing_source": {
       "manual": "Manual",
@@ -712,7 +745,9 @@
       "user_activation_changed": "Estado de usuario cambiado",
       "time_entry_created": "Fichaje creado",
       "time_entry_amended": "Fichaje corregido",
-      "time_entry_voided": "Fichaje anulado"
+      "time_entry_voided": "Fichaje anulado",
+      "beta_tester_added": "Tester añadido",
+      "beta_tester_removed": "Tester retirado"
     },
     "pagination": {
       "range": "{{ from }}–{{ to }} de {{ total }}",
@@ -834,6 +869,34 @@
       "subtitle": "Todo lo que se ha hecho desde el panel de administración.",
       "filter_all": "Todas",
       "empty": "No hay actividad registrada."
+    },
+    "beta_testers": {
+      "title": "Testers de la beta",
+      "subtitle": "Solo estos emails pueden crear una cuenta nueva mientras la beta esté cerrada.",
+      "open_title": "La lista no está filtrando ahora mismo",
+      "open_text": "Cualquiera puede crear una cuenta en este entorno. Prepara aquí la lista y enciéndela con BETA_ALLOWLIST_ENABLED cuando quieras cerrar la beta.",
+      "search_placeholder": "Email o nota...",
+      "col_email": "Email",
+      "col_status": "Estado",
+      "col_added": "Añadido",
+      "actions": "Acciones",
+      "empty": "Todavía no has invitado a nadie.",
+      "empty_search": "Ningún tester coincide con la búsqueda.",
+      "add": "Añadir tester",
+      "add_email": "Email",
+      "add_note": "Nota (opcional)",
+      "add_note_hint": "Por ejemplo, el nombre del bar.",
+      "add_confirm": "Añadir",
+      "add_success": "Tester añadido",
+      "cancel": "Cancelar",
+      "signed_up": "Ya ha entrado",
+      "pending": "Sin usar",
+      "invited_by": "Invitado por {{ name }}",
+      "remove": "Quitar de la lista",
+      "remove_title": "Quitar de la lista",
+      "remove_text": "{{ email }} dejará de poder crear una cuenta. Si ya entró, su cuenta sigue funcionando: para cortarle el acceso, desactívala en Usuarios.",
+      "remove_confirm": "Quitar",
+      "remove_success": "Tester retirado"
     }
   },
   "NO_MANUAL_GRANT": "Este establecimiento no tiene ningún plan concedido a mano.",
@@ -849,6 +912,7 @@
   "PRINT_JOB_NOT_FOUND": "El trabajo de impresión solicitado no existe.",
   "PRINT_JOB_FAILED": "No se pudo imprimir el ticket.",
   "PRINT_JOB_TIMEOUT": "La impresora no respondió a tiempo.",
+  "STRIPE_SUBSCRIPTION_SEATS_UPDATE_FAILED": "No se pudo actualizar el número de plazas de tu suscripción. Inténtalo de nuevo.",
   "STRIPE_SUBSCRIPTION_CANCEL_FAILED": "No se pudo cancelar la suscripción. Inténtalo de nuevo.",
   "menu": {
     "title": "Carta pública",
@@ -913,5 +977,16 @@
   "public_menu": {
     "allergens": "Alérgenos",
     "allergen_notice": "Si tienes alguna alergia o intolerancia, pregunta al personal antes de pedir."
+  },
+  "BETA_ACCESS_REQUIRED": "Coaster está en beta cerrada. Escríbenos si quieres participar.",
+  "BETA_TESTER_ALREADY_EXISTS": "Ese email ya está en la lista de testers.",
+  "BETA_TESTER_NOT_FOUND": "Ese tester ya no está en la lista.",
+  "components": {
+    "icon_picker": {
+      "search": "Buscar icono",
+      "loading": "Cargando iconos…",
+      "empty": "Ningún icono coincide",
+      "more": "Mostrando {{shown}} de {{total}}. Afina la búsqueda."
+    }
   }
 }

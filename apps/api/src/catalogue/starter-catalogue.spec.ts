@@ -1,4 +1,4 @@
-import { LANGUAGES } from '@coaster/common';
+import { LANGUAGES, MAX_TAX_RATE } from '@coaster/common';
 import { describe, expect, it } from 'vitest';
 import { STARTER_CATALOGUE } from './starter-catalogue';
 
@@ -29,6 +29,34 @@ describe('STARTER_CATALOGUE', () => {
 
   it('should price everything in whole cents above zero', () => {
     const wrong = products.filter((product) => !Number.isInteger(product.price) || product.price <= 0);
+
+    expect(wrong).toEqual([]);
+  });
+
+  it('should give every category and product an icon, since the screen falls back to bare text', () => {
+    const iconless = [...STARTER_CATALOGUE, ...products].filter((entry) => !entry.icon?.trim());
+
+    expect(iconless).toEqual([]);
+  });
+
+  it('should name icons the way Material Symbols does, or nothing renders', () => {
+    const icons = [...STARTER_CATALOGUE, ...products].map((entry) => entry.icon);
+    const malformed = icons.filter((icon) => !/^[a-z][a-z0-9_]*$/.test(icon));
+
+    expect(malformed).toEqual([]);
+  });
+
+  it('should give every category a whole tax rate in basis points', () => {
+    const wrong = STARTER_CATALOGUE.filter(
+      (category) => !Number.isInteger(category.taxRate) || category.taxRate < 0 || category.taxRate > MAX_TAX_RATE,
+    );
+
+    expect(wrong).toEqual([]);
+  });
+
+  it('should only ever override a product rate with a whole one in range', () => {
+    const overridden = products.flatMap((product) => (product.taxRate === undefined ? [] : [product.taxRate]));
+    const wrong = overridden.filter((rate) => !Number.isInteger(rate) || rate < 0 || rate > MAX_TAX_RATE);
 
     expect(wrong).toEqual([]);
   });

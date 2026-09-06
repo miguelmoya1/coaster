@@ -3,6 +3,7 @@ import { EstablishmentRole } from '../constants/establishment-role.type';
 import { Role } from '../constants/role.type';
 import { SubscriptionPlan } from '../constants/subscription-plan.type';
 import { SubscriptionStatus } from '../constants/subscription-status.type';
+import { Brand } from './brand.type';
 import { EstablishmentMemberId } from './establishment-member.interface';
 import { EstablishmentId, EstablishmentSettings } from './establishment.interface';
 import { AdminEstablishmentSubscription } from './establishment-subscription.interface';
@@ -170,6 +171,33 @@ export interface AdminAuditQuery {
   targetType?: AdminAuditTargetType;
   targetId?: string;
   action?: AdminAuditAction;
+  page?: number;
+  pageSize?: number;
+}
+
+export type BetaTesterId = Brand<string, 'BetaTesterId'>;
+
+export interface BetaTester {
+  id: BetaTesterId;
+  email: string;
+  note: string | null;
+  createdAt: string;
+  invitedByName: string | null;
+  userId: UserId | null;
+  signedUpAt: string | null;
+}
+
+export interface AdminBetaTesters extends Paginated<BetaTester> {
+  enforcing: boolean;
+}
+
+export interface AddBetaTesterDto {
+  email: string;
+  note?: string;
+}
+
+export interface AdminBetaTestersQuery {
+  q?: string;
   page?: number;
   pageSize?: number;
 }

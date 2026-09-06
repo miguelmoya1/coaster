@@ -1,3 +1,5 @@
+export * from './add-beta-tester.dto';
+export * from './admin-beta-testers-query.dto';
 export * from './admin-audit-query.dto';
 export * from './admin-establishments-query.dto';
 export * from './admin-users-query.dto';

@@ -386,6 +386,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 export const ModelName = {
   DbOrderAdjustment: 'DbOrderAdjustment',
   DbUser: 'DbUser',
+  DbBetaTester: 'DbBetaTester',
   DbEstablishment: 'DbEstablishment',
   DbEstablishmentSettings: 'DbEstablishmentSettings',
   DbPrinterPairing: 'DbPrinterPairing',
@@ -406,7 +407,10 @@ export const ModelName = {
   DbPrintJob: 'DbPrintJob',
   DbEstablishmentSubscription: 'DbEstablishmentSubscription',
   DbTimeEntry: 'DbTimeEntry',
-  DbAdminAuditLog: 'DbAdminAuditLog'
+  DbAdminAuditLog: 'DbAdminAuditLog',
+  DbInvoice: 'DbInvoice',
+  DbInvoiceTaxLine: 'DbInvoiceTaxLine',
+  DbOrderAuditLog: 'DbOrderAuditLog'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -422,7 +426,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "dbOrderAdjustment" | "dbUser" | "dbEstablishment" | "dbEstablishmentSettings" | "dbPrinterPairing" | "dbAiUsage" | "dbUserPreferences" | "dbEstablishmentMember" | "dbShift" | "dbShiftExchange" | "dbMenu" | "dbMenuSection" | "dbMenuItem" | "dbCategory" | "dbProduct" | "dbTable" | "dbOrder" | "dbOrderItem" | "dbPrinterConfig" | "dbPrintJob" | "dbEstablishmentSubscription" | "dbTimeEntry" | "dbAdminAuditLog"
+    modelProps: "dbOrderAdjustment" | "dbUser" | "dbBetaTester" | "dbEstablishment" | "dbEstablishmentSettings" | "dbPrinterPairing" | "dbAiUsage" | "dbUserPreferences" | "dbEstablishmentMember" | "dbShift" | "dbShiftExchange" | "dbMenu" | "dbMenuSection" | "dbMenuItem" | "dbCategory" | "dbProduct" | "dbTable" | "dbOrder" | "dbOrderItem" | "dbPrinterConfig" | "dbPrintJob" | "dbEstablishmentSubscription" | "dbTimeEntry" | "dbAdminAuditLog" | "dbInvoice" | "dbInvoiceTaxLine" | "dbOrderAuditLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -571,6 +575,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.DbUserCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.DbUserCountAggregateOutputType> | number
+        }
+      }
+    }
+    DbBetaTester: {
+      payload: Prisma.$DbBetaTesterPayload<ExtArgs>
+      fields: Prisma.DbBetaTesterFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DbBetaTesterFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBetaTesterPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DbBetaTesterFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBetaTesterPayload>
+        }
+        findFirst: {
+          args: Prisma.DbBetaTesterFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBetaTesterPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DbBetaTesterFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBetaTesterPayload>
+        }
+        findMany: {
+          args: Prisma.DbBetaTesterFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBetaTesterPayload>[]
+        }
+        create: {
+          args: Prisma.DbBetaTesterCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBetaTesterPayload>
+        }
+        createMany: {
+          args: Prisma.DbBetaTesterCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DbBetaTesterCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBetaTesterPayload>[]
+        }
+        delete: {
+          args: Prisma.DbBetaTesterDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBetaTesterPayload>
+        }
+        update: {
+          args: Prisma.DbBetaTesterUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBetaTesterPayload>
+        }
+        deleteMany: {
+          args: Prisma.DbBetaTesterDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DbBetaTesterUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DbBetaTesterUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBetaTesterPayload>[]
+        }
+        upsert: {
+          args: Prisma.DbBetaTesterUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBetaTesterPayload>
+        }
+        aggregate: {
+          args: Prisma.DbBetaTesterAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDbBetaTester>
+        }
+        groupBy: {
+          args: Prisma.DbBetaTesterGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DbBetaTesterGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DbBetaTesterCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DbBetaTesterCountAggregateOutputType> | number
         }
       }
     }
@@ -2128,6 +2206,228 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    DbInvoice: {
+      payload: Prisma.$DbInvoicePayload<ExtArgs>
+      fields: Prisma.DbInvoiceFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DbInvoiceFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbInvoicePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DbInvoiceFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbInvoicePayload>
+        }
+        findFirst: {
+          args: Prisma.DbInvoiceFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbInvoicePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DbInvoiceFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbInvoicePayload>
+        }
+        findMany: {
+          args: Prisma.DbInvoiceFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbInvoicePayload>[]
+        }
+        create: {
+          args: Prisma.DbInvoiceCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbInvoicePayload>
+        }
+        createMany: {
+          args: Prisma.DbInvoiceCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DbInvoiceCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbInvoicePayload>[]
+        }
+        delete: {
+          args: Prisma.DbInvoiceDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbInvoicePayload>
+        }
+        update: {
+          args: Prisma.DbInvoiceUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbInvoicePayload>
+        }
+        deleteMany: {
+          args: Prisma.DbInvoiceDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DbInvoiceUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DbInvoiceUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbInvoicePayload>[]
+        }
+        upsert: {
+          args: Prisma.DbInvoiceUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbInvoicePayload>
+        }
+        aggregate: {
+          args: Prisma.DbInvoiceAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDbInvoice>
+        }
+        groupBy: {
+          args: Prisma.DbInvoiceGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DbInvoiceGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DbInvoiceCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DbInvoiceCountAggregateOutputType> | number
+        }
+      }
+    }
+    DbInvoiceTaxLine: {
+      payload: Prisma.$DbInvoiceTaxLinePayload<ExtArgs>
+      fields: Prisma.DbInvoiceTaxLineFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DbInvoiceTaxLineFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbInvoiceTaxLinePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DbInvoiceTaxLineFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbInvoiceTaxLinePayload>
+        }
+        findFirst: {
+          args: Prisma.DbInvoiceTaxLineFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbInvoiceTaxLinePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DbInvoiceTaxLineFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbInvoiceTaxLinePayload>
+        }
+        findMany: {
+          args: Prisma.DbInvoiceTaxLineFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbInvoiceTaxLinePayload>[]
+        }
+        create: {
+          args: Prisma.DbInvoiceTaxLineCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbInvoiceTaxLinePayload>
+        }
+        createMany: {
+          args: Prisma.DbInvoiceTaxLineCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DbInvoiceTaxLineCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbInvoiceTaxLinePayload>[]
+        }
+        delete: {
+          args: Prisma.DbInvoiceTaxLineDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbInvoiceTaxLinePayload>
+        }
+        update: {
+          args: Prisma.DbInvoiceTaxLineUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbInvoiceTaxLinePayload>
+        }
+        deleteMany: {
+          args: Prisma.DbInvoiceTaxLineDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DbInvoiceTaxLineUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DbInvoiceTaxLineUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbInvoiceTaxLinePayload>[]
+        }
+        upsert: {
+          args: Prisma.DbInvoiceTaxLineUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbInvoiceTaxLinePayload>
+        }
+        aggregate: {
+          args: Prisma.DbInvoiceTaxLineAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDbInvoiceTaxLine>
+        }
+        groupBy: {
+          args: Prisma.DbInvoiceTaxLineGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DbInvoiceTaxLineGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DbInvoiceTaxLineCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DbInvoiceTaxLineCountAggregateOutputType> | number
+        }
+      }
+    }
+    DbOrderAuditLog: {
+      payload: Prisma.$DbOrderAuditLogPayload<ExtArgs>
+      fields: Prisma.DbOrderAuditLogFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DbOrderAuditLogFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbOrderAuditLogPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DbOrderAuditLogFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbOrderAuditLogPayload>
+        }
+        findFirst: {
+          args: Prisma.DbOrderAuditLogFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbOrderAuditLogPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DbOrderAuditLogFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbOrderAuditLogPayload>
+        }
+        findMany: {
+          args: Prisma.DbOrderAuditLogFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbOrderAuditLogPayload>[]
+        }
+        create: {
+          args: Prisma.DbOrderAuditLogCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbOrderAuditLogPayload>
+        }
+        createMany: {
+          args: Prisma.DbOrderAuditLogCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DbOrderAuditLogCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbOrderAuditLogPayload>[]
+        }
+        delete: {
+          args: Prisma.DbOrderAuditLogDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbOrderAuditLogPayload>
+        }
+        update: {
+          args: Prisma.DbOrderAuditLogUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbOrderAuditLogPayload>
+        }
+        deleteMany: {
+          args: Prisma.DbOrderAuditLogDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DbOrderAuditLogUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DbOrderAuditLogUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbOrderAuditLogPayload>[]
+        }
+        upsert: {
+          args: Prisma.DbOrderAuditLogUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbOrderAuditLogPayload>
+        }
+        aggregate: {
+          args: Prisma.DbOrderAuditLogAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDbOrderAuditLog>
+        }
+        groupBy: {
+          args: Prisma.DbOrderAuditLogGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DbOrderAuditLogGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DbOrderAuditLogCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DbOrderAuditLogCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -2196,9 +2496,23 @@ export const DbUserScalarFieldEnum = {
 export type DbUserScalarFieldEnum = (typeof DbUserScalarFieldEnum)[keyof typeof DbUserScalarFieldEnum]
 
 
+export const DbBetaTesterScalarFieldEnum = {
+  id: 'id',
+  email: 'email',
+  note: 'note',
+  invitedById: 'invitedById',
+  createdAt: 'createdAt'
+} as const
+
+export type DbBetaTesterScalarFieldEnum = (typeof DbBetaTesterScalarFieldEnum)[keyof typeof DbBetaTesterScalarFieldEnum]
+
+
 export const DbEstablishmentScalarFieldEnum = {
   id: 'id',
   name: 'name',
+  taxId: 'taxId',
+  legalName: 'legalName',
+  fiscalAddress: 'fiscalAddress',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -2340,6 +2654,7 @@ export const DbCategoryScalarFieldEnum = {
   establishmentId: 'establishmentId',
   name: 'name',
   icon: 'icon',
+  taxRate: 'taxRate',
   deletedAt: 'deletedAt'
 } as const
 
@@ -2354,6 +2669,8 @@ export const DbProductScalarFieldEnum = {
   currentStock: 'currentStock',
   minStockAlert: 'minStockAlert',
   imageUrl: 'imageUrl',
+  icon: 'icon',
+  taxRate: 'taxRate',
   allergens: 'allergens',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
@@ -2387,6 +2704,7 @@ export const DbOrderScalarFieldEnum = {
   amountPaidCard: 'amountPaidCard',
   paymentMethod: 'paymentMethod',
   notes: 'notes',
+  ticketNotes: 'ticketNotes',
   tipAmount: 'tipAmount',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -2401,6 +2719,8 @@ export const DbOrderItemScalarFieldEnum = {
   productId: 'productId',
   quantity: 'quantity',
   priceAtPurchase: 'priceAtPurchase',
+  productNameAtPurchase: 'productNameAtPurchase',
+  taxRateAtPurchase: 'taxRateAtPurchase',
   paidQuantity: 'paidQuantity',
   paidQuantityCash: 'paidQuantityCash',
   paidQuantityCard: 'paidQuantityCard',
@@ -2456,6 +2776,7 @@ export const DbEstablishmentSubscriptionScalarFieldEnum = {
   currentPeriodEnd: 'currentPeriodEnd',
   trialEndsAt: 'trialEndsAt',
   canceledAt: 'canceledAt',
+  seats: 'seats',
   manualPlan: 'manualPlan',
   manualGrantExpiresAt: 'manualGrantExpiresAt',
   manualGrantReason: 'manualGrantReason',
@@ -2507,6 +2828,101 @@ export const DbAdminAuditLogScalarFieldEnum = {
 } as const
 
 export type DbAdminAuditLogScalarFieldEnum = (typeof DbAdminAuditLogScalarFieldEnum)[keyof typeof DbAdminAuditLogScalarFieldEnum]
+
+
+export const DbInvoiceScalarFieldEnum = {
+  id: 'id',
+  establishmentId: 'establishmentId',
+  orderId: 'orderId',
+  idVersion: 'idVersion',
+  recordType: 'recordType',
+  type: 'type',
+  series: 'series',
+  number: 'number',
+  sequence: 'sequence',
+  issuerTaxId: 'issuerTaxId',
+  issuerLegalName: 'issuerLegalName',
+  issuerAddress: 'issuerAddress',
+  operationText: 'operationText',
+  externalRef: 'externalRef',
+  customerTaxId: 'customerTaxId',
+  customerName: 'customerName',
+  customerAddress: 'customerAddress',
+  customerCountry: 'customerCountry',
+  customerIdType: 'customerIdType',
+  simplifiedArt7273: 'simplifiedArt7273',
+  noCustomerIdArt61d: 'noCustomerIdArt61d',
+  macrodato: 'macrodato',
+  issuedByThirdParty: 'issuedByThirdParty',
+  thirdPartyTaxId: 'thirdPartyTaxId',
+  thirdPartyName: 'thirdPartyName',
+  taxBaseTotal: 'taxBaseTotal',
+  taxAmountTotal: 'taxAmountTotal',
+  totalAmount: 'totalAmount',
+  prevHash: 'prevHash',
+  hash: 'hash',
+  hashType: 'hashType',
+  prevSeries: 'prevSeries',
+  prevNumber: 'prevNumber',
+  prevIssuedAt: 'prevIssuedAt',
+  isFirstRecord: 'isFirstRecord',
+  softwareVersion: 'softwareVersion',
+  installationNumber: 'installationNumber',
+  qrPayload: 'qrPayload',
+  subsanacion: 'subsanacion',
+  rechazoPrevio: 'rechazoPrevio',
+  aeatStatus: 'aeatStatus',
+  aeatCsv: 'aeatCsv',
+  aeatRecordState: 'aeatRecordState',
+  aeatErrorCode: 'aeatErrorCode',
+  aeatErrorText: 'aeatErrorText',
+  aeatSentAt: 'aeatSentAt',
+  aeatAttempts: 'aeatAttempts',
+  substitutesId: 'substitutesId',
+  rectifiesId: 'rectifiesId',
+  rectificationType: 'rectificationType',
+  rectifiedBase: 'rectifiedBase',
+  rectifiedTaxAmount: 'rectifiedTaxAmount',
+  cancelsId: 'cancelsId',
+  noPreviousRecord: 'noPreviousRecord',
+  generatedBy: 'generatedBy',
+  issuedAt: 'issuedAt',
+  recordedAt: 'recordedAt',
+  operationDate: 'operationDate',
+  createdAt: 'createdAt'
+} as const
+
+export type DbInvoiceScalarFieldEnum = (typeof DbInvoiceScalarFieldEnum)[keyof typeof DbInvoiceScalarFieldEnum]
+
+
+export const DbInvoiceTaxLineScalarFieldEnum = {
+  id: 'id',
+  invoiceId: 'invoiceId',
+  taxType: 'taxType',
+  regimeKey: 'regimeKey',
+  qualification: 'qualification',
+  exemption: 'exemption',
+  taxRate: 'taxRate',
+  taxBase: 'taxBase',
+  taxAmount: 'taxAmount'
+} as const
+
+export type DbInvoiceTaxLineScalarFieldEnum = (typeof DbInvoiceTaxLineScalarFieldEnum)[keyof typeof DbInvoiceTaxLineScalarFieldEnum]
+
+
+export const DbOrderAuditLogScalarFieldEnum = {
+  id: 'id',
+  establishmentId: 'establishmentId',
+  actorId: 'actorId',
+  action: 'action',
+  targetType: 'targetType',
+  targetId: 'targetId',
+  reason: 'reason',
+  metadata: 'metadata',
+  createdAt: 'createdAt'
+} as const
+
+export type DbOrderAuditLogScalarFieldEnum = (typeof DbOrderAuditLogScalarFieldEnum)[keyof typeof DbOrderAuditLogScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -2849,6 +3265,62 @@ export type BigIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 
 export type ListBigIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BigInt[]'>
     
 
+
+/**
+ * Reference to a field of type 'DbInvoiceRecordType'
+ */
+export type EnumDbInvoiceRecordTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DbInvoiceRecordType'>
+    
+
+
+/**
+ * Reference to a field of type 'DbInvoiceRecordType[]'
+ */
+export type ListEnumDbInvoiceRecordTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DbInvoiceRecordType[]'>
+    
+
+
+/**
+ * Reference to a field of type 'DbInvoiceType'
+ */
+export type EnumDbInvoiceTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DbInvoiceType'>
+    
+
+
+/**
+ * Reference to a field of type 'DbInvoiceType[]'
+ */
+export type ListEnumDbInvoiceTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DbInvoiceType[]'>
+    
+
+
+/**
+ * Reference to a field of type 'DbAeatStatus'
+ */
+export type EnumDbAeatStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DbAeatStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'DbAeatStatus[]'
+ */
+export type ListEnumDbAeatStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DbAeatStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'DbRectificationType'
+ */
+export type EnumDbRectificationTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DbRectificationType'>
+    
+
+
+/**
+ * Reference to a field of type 'DbRectificationType[]'
+ */
+export type ListEnumDbRectificationTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DbRectificationType[]'>
+    
+
 /**
  * Batch Payload for updateMany & deleteMany & createMany
  */
@@ -2961,6 +3433,7 @@ export type PrismaClientOptions = ({
 export type GlobalOmitConfig = {
   dbOrderAdjustment?: Prisma.DbOrderAdjustmentOmit
   dbUser?: Prisma.DbUserOmit
+  dbBetaTester?: Prisma.DbBetaTesterOmit
   dbEstablishment?: Prisma.DbEstablishmentOmit
   dbEstablishmentSettings?: Prisma.DbEstablishmentSettingsOmit
   dbPrinterPairing?: Prisma.DbPrinterPairingOmit
@@ -2982,6 +3455,9 @@ export type GlobalOmitConfig = {
   dbEstablishmentSubscription?: Prisma.DbEstablishmentSubscriptionOmit
   dbTimeEntry?: Prisma.DbTimeEntryOmit
   dbAdminAuditLog?: Prisma.DbAdminAuditLogOmit
+  dbInvoice?: Prisma.DbInvoiceOmit
+  dbInvoiceTaxLine?: Prisma.DbInvoiceTaxLineOmit
+  dbOrderAuditLog?: Prisma.DbOrderAuditLogOmit
 }
 
 /* Types for Logging */

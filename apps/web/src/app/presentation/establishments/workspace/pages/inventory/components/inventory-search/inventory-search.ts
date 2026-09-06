@@ -1,19 +1,24 @@
 import { Component, effect, model, signal, untracked } from '@angular/core';
 import { form, FormField, FormRoot } from '@angular/forms/signals';
 import { TranslatePipe } from '@ngx-translate/core';
-import { MatFormField, MatPrefix } from '@angular/material/form-field';
-import { MatInput } from '@angular/material/input';
 import { MatIcon } from '@angular/material/icon';
+import { CoasterInput } from '../../../../../../components/field/input.directive';
 
 @Component({
   selector: 'coaster-inventory-search',
-  imports: [FormRoot, MatFormField, MatPrefix, MatInput, MatIcon, FormField, TranslatePipe],
+  imports: [FormRoot, MatIcon, FormField, CoasterInput, TranslatePipe],
   template: `
     <form [formRoot]="searchForm" class="w-full">
-      <mat-form-field appearance="outline" class="w-full">
-        <mat-icon matPrefix>search</mat-icon>
-        <input matInput [formField]="searchForm.query" [placeholder]="'inventory.search_placeholder' | translate" />
-      </mat-form-field>
+      <div class="relative w-full">
+        <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/60 text-lg">search</mat-icon>
+        <input
+          coasterInput
+          enterkeyhint="search"
+          class="pl-11"
+          [formField]="searchForm.query"
+          [placeholder]="'inventory.search_placeholder' | translate"
+        />
+      </div>
     </form>
   `,
 })

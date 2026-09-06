@@ -7,6 +7,7 @@ import { SubscriptionPlan, SubscriptionStatus } from '@coaster/common';
 import { Realtime } from '@coaster/core';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { EstablishmentSubscription } from '../services/establishment-subscription';
+import { SubscriptionSeats } from '../services/subscription-seats';
 import { CreateCheckoutSession } from '../services/create-checkout-session';
 import { CreateCustomerPortalSession } from '../services/create-customer-portal-session';
 import { EstablishmentSubscriptionStore } from './establishment-subscription.store';
@@ -15,9 +16,13 @@ describe('EstablishmentSubscriptionStore', () => {
   let store: EstablishmentSubscriptionStore;
   let httpMock: HttpTestingController;
   const realtimeSignal = signal<{ establishmentId: string } | null>(null);
+  const memberInvitedSignal = signal<{ id: string } | null>(null);
+  const memberRemovedSignal = signal<{ id: string } | null>(null);
 
   const establishmentId = 'establishment-1' as EstablishmentId;
   const url = `/establishments/${establishmentId}/establishment-subscription`;
+  const seatsUrl = `${url}/seats`;
+  const seatsEnabled = signal(false);
 
   const activeSubscription = {
     id: 'sub-1',
@@ -36,6 +41,9 @@ describe('EstablishmentSubscriptionStore', () => {
 
   beforeEach(() => {
     realtimeSignal.set(null);
+    memberInvitedSignal.set(null);
+    memberRemovedSignal.set(null);
+    seatsEnabled.set(false);
 
     TestBed.configureTestingModule({
       providers: [
@@ -49,9 +57,23 @@ describe('EstablishmentSubscriptionStore', () => {
             execute: (id?: EstablishmentId) => (id ? `/establishments/${id}/establishment-subscription` : undefined),
           },
         },
+        {
+          provide: SubscriptionSeats,
+          useValue: {
+            execute: (id?: EstablishmentId) =>
+              id && seatsEnabled() ? `/establishments/${id}/establishment-subscription/seats` : undefined,
+          },
+        },
         { provide: CreateCustomerPortalSession, useValue: { execute: vi.fn() } },
         { provide: CreateCheckoutSession, useValue: { execute: vi.fn() } },
-        { provide: Realtime, useValue: { subscriptionUpdated: realtimeSignal } },
+        {
+          provide: Realtime,
+          useValue: {
+            subscriptionUpdated: realtimeSignal,
+            memberInvited: memberInvitedSignal,
+            memberRemoved: memberRemovedSignal,
+          },
+        },
       ],
     });
 
@@ -99,6 +121,120 @@ describe('EstablishmentSubscriptionStore', () => {
       await expect(store.createCustomerPortalSession()).rejects.toThrow('stripe down');
 
       expect(store.isOpeningBillingPortal()).toBe(false);
+    });
+  });
+
+  describe('extraSeatNotice', () => {
+    const loadSeats = async (seats: {
+      used: number;
+      billed: number;
+      included: number;
+      basePriceCents: number;
+      extraPriceCents: number;
+    }) => {
+      seatsEnabled.set(true);
+      store.setEstablishmentId(establishmentId);
+      TestBed.tick();
+
+      httpMock.expectOne(url).flush(activeSubscription);
+      httpMock.expectOne(seatsUrl).flush(seats);
+      TestBed.tick();
+      await Promise.resolve();
+      TestBed.tick();
+    };
+
+    it('should say nothing about seats to a venue that is not being billed for them', async () => {
+      seatsEnabled.set(true);
+      store.setEstablishmentId(establishmentId);
+      TestBed.tick();
+
+      httpMock.expectOne(url).flush({ ...activeSubscription, stripeSubscriptionId: null });
+      httpMock
+        .expectOne(seatsUrl)
+        .flush({ used: 14, billed: 0, included: 10, basePriceCents: 1999, extraPriceCents: 200 });
+      TestBed.tick();
+      await Promise.resolve();
+      TestBed.tick();
+
+      expect(store.billedSeats()).toBeUndefined();
+      expect(store.extraSeatNotice()).toBeUndefined();
+      expect(store.seatSummary()).toMatchObject({ monthlyTotalCents: 2799 });
+    });
+
+    it('should recount the seats when a member actually joins, not when the invite is sent', async () => {
+      await loadSeats({ used: 3, billed: 3, included: 10, basePriceCents: 1999, extraPriceCents: 200 });
+
+      memberInvitedSignal.set({ id: 'member-9' });
+      TestBed.tick();
+
+      httpMock
+        .expectOne(seatsUrl)
+        .flush({ used: 4, billed: 4, included: 10, basePriceCents: 1999, extraPriceCents: 200 });
+      TestBed.tick();
+      await Promise.resolve();
+      TestBed.tick();
+
+      expect(store.billedSeats()?.used).toBe(4);
+    });
+
+    it('should recount the seats when a member is removed', async () => {
+      await loadSeats({ used: 3, billed: 3, included: 10, basePriceCents: 1999, extraPriceCents: 200 });
+
+      memberRemovedSignal.set({ id: 'member-2' });
+      TestBed.tick();
+
+      httpMock
+        .expectOne(seatsUrl)
+        .flush({ used: 2, billed: 2, included: 10, basePriceCents: 1999, extraPriceCents: 200 });
+      TestBed.tick();
+      await Promise.resolve();
+      TestBed.tick();
+
+      expect(store.billedSeats()?.used).toBe(2);
+    });
+
+    it('should stay quiet while the venue still has room in its allowance', async () => {
+      await loadSeats({ used: 7, billed: 7, included: 10, basePriceCents: 1999, extraPriceCents: 200 });
+
+      expect(store.extraSeatNotice()).toBeUndefined();
+    });
+
+    it('should warn once the allowance is full, since the next hire is the one that costs', async () => {
+      await loadSeats({ used: 10, billed: 10, included: 10, basePriceCents: 1999, extraPriceCents: 200 });
+
+      expect(store.extraSeatNotice()).toMatchObject({ used: 10, included: 10, extraSeats: 0, monthlyTotalCents: 1999 });
+    });
+
+    it('should add up the flat price plus the seats beyond the allowance', async () => {
+      await loadSeats({ used: 14, billed: 14, included: 10, basePriceCents: 1999, extraPriceCents: 200 });
+
+      expect(store.seatSummary()).toMatchObject({ extraSeats: 4, monthlyTotalCents: 2799 });
+    });
+
+    it('should charge nothing extra to a venue inside the allowance', async () => {
+      await loadSeats({ used: 3, billed: 3, included: 10, basePriceCents: 1999, extraPriceCents: 200 });
+
+      expect(store.seatSummary()).toMatchObject({ extraSeats: 0, monthlyTotalCents: 1999 });
+    });
+
+    it('should show no price at all when the API answers without one, rather than NaN', async () => {
+      seatsEnabled.set(true);
+      store.setEstablishmentId(establishmentId);
+      TestBed.tick();
+
+      httpMock.expectOne(url).flush(activeSubscription);
+      httpMock.expectOne(seatsUrl).flush({ used: 7, billed: 7, included: 10, extraPriceCents: 200 });
+      TestBed.tick();
+      await Promise.resolve();
+      TestBed.tick();
+
+      expect(store.seatSummary()).toBeUndefined();
+    });
+
+    it('should keep warning a venue already past the allowance', async () => {
+      await loadSeats({ used: 14, billed: 14, included: 10, basePriceCents: 1999, extraPriceCents: 200 });
+
+      expect(store.extraSeatNotice()?.included).toBe(10);
     });
   });
 
@@ -193,6 +329,42 @@ describe('EstablishmentSubscriptionStore', () => {
         currentPeriodEnd: new Date(Date.now() - 86_400_000).toISOString(),
       });
 
+      expect(store.billingAction()).toBe('ACTIVATE');
+    });
+
+    it('should send a subscription being cancelled to the portal, since checkout refuses it', async () => {
+      store.setEstablishmentId(establishmentId);
+      TestBed.tick();
+
+      httpMock.expectOne(url).flush({
+        ...activeSubscription,
+        status: SubscriptionStatus.CANCELED,
+        stripeSubscriptionId: null,
+        currentPeriodEnd: new Date(Date.now() + 86_400_000).toISOString(),
+      });
+      TestBed.tick();
+      await Promise.resolve();
+      TestBed.tick();
+
+      expect(store.isPendingCancellation()).toBe(true);
+      expect(store.billingAction()).toBe('MANAGE');
+    });
+
+    it('should offer to activate once a cancellation has no paid period left to manage', async () => {
+      store.setEstablishmentId(establishmentId);
+      TestBed.tick();
+
+      httpMock.expectOne(url).flush({
+        ...activeSubscription,
+        status: SubscriptionStatus.CANCELED,
+        stripeSubscriptionId: null,
+        currentPeriodEnd: null,
+      });
+      TestBed.tick();
+      await Promise.resolve();
+      TestBed.tick();
+
+      expect(store.isPendingCancellation()).toBe(false);
       expect(store.billingAction()).toBe('ACTIVATE');
     });
 

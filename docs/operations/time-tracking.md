@@ -145,9 +145,20 @@ fails. Each row also stores `userSnapshot` with the worker's name and email at t
 mark, so the register stands even if the account changes. The four-year legal custody is a deletion
 policy, not an automatic cleanup: there is none today.
 
+**The policy, written down so it stops being folklore: nothing in `TimeEntry` is ever deleted.** Not
+by a scheduled job, not by hand, not when a venue leaves. Four years is the *minimum* the law asks
+for, and it punishes failing to keep the register, never keeping it too long — so there is no
+deadline to hit and no cleanup worth building. The `RESTRICT` foreign keys already enforce it
+against the two accidents that could happen (deleting a user, deleting an establishment); anything
+beyond that would need SQL access, and at that point the hash chain is what is left to notice it.
+
+If a purge is ever built, it has to keep whole `rootId` groups together. Deleting half a chain of
+revisions leaves the remaining rows pointing at marks that are not there, and
+`GET /time-entries/integrity` would start reporting a break that is not a forgery.
+
 ## Interface
 
-Clocking has **no section of its own** in the bottom establishment: it lives inside **Shifts**
+Clocking has **no section of its own** in the bottom navigation: it lives inside **Shifts**
 (`presentation/establishments/workspace/pages/schedule`), because that is where the worker already goes to see
 their shift. Everything is managed from there.
 

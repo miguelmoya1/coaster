@@ -171,7 +171,12 @@ export class Auth {
 
     const token = await credentials.user.getIdToken();
 
-    await this.#authRepo.syncUser(token);
+    try {
+      await this.#authRepo.syncUser(token);
+    } catch (error) {
+      await signOut(this.#auth);
+      throw error;
+    }
 
     return credentials.user;
   }

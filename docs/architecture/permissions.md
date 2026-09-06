@@ -1,16 +1,18 @@
 # Access model
 
-Who can do what in Coaster is decided on **three independent axes**. A request has to clear all
-three.
+Who can do what in Coaster is decided on **four independent axes**. A request has to clear all
+four.
 
-| Axis               | Question                                     | Values                        | Where it lives              |
-| ------------------ | -------------------------------------------- | ----------------------------- | --------------------------- |
-| Platform role      | Who you are in Coaster                       | `USER`, `ADMIN`               | `User.role`                 |
-| Establishment role | What you are inside **that** establishment   | `OWNER`, `MANAGER`, `STAFF`   | `EstablishmentMember.role`  |
-| Access state       | Whether that establishment's service is live | Stripe, manual grant, neither | `EstablishmentSubscription` |
+| Axis               | Question                                        | Values                                 | Where it lives                  |
+| ------------------ | ----------------------------------------------- | -------------------------------------- | ------------------------------- |
+| Platform role      | Who you are in Coaster                          | `USER`, `ADMIN`                        | `User.role`                     |
+| Establishment role | What you are inside **that** establishment      | `OWNER`, `MANAGER`, `STAFF`            | `EstablishmentMember.role`      |
+| Access state       | Whether that establishment's service is live    | Stripe, manual grant, neither          | `EstablishmentSubscription`     |
+| Enabled modules    | Whether the venue runs that part of the product | `TIME_TRACKING`, `ORDERS`, `INVENTORY` | `EstablishmentSettings.modules` |
 
-They are orthogonal: a platform `ADMIN` is not a member of any establishment, and an establishment `OWNER` has no power
-over the platform.
+They are orthogonal: a platform `ADMIN` is not a member of any establishment, an establishment `OWNER` has no power
+over the platform, and a paid-up owner still gets a 403 on an endpoint whose module their venue does
+not run.
 
 ## The permission table
 
@@ -22,26 +24,39 @@ It used to be duplicated on both sides and drifted: the web copy was missing `es
 `establishment:manage-printer`, so the UI hid actions the API happily allowed. That is why it lives in
 `common` now.
 
-`hasPermission(role, permission)` is the function that decides. `OWNER` short-circuits to `true`: it
-has everything by definition.
+The table is **three lists composed into one**, and nothing reads it with a branch:
 
-`getRolePermissions(role)` **decides nothing**. It only describes: it fills `EstablishmentMember.permissions`
-in the payload and tells the AI assistant what the caller may do. Real authorisation is always
-`hasPermission`.
+```ts
+OWNER: [...OWNER_PERMISSIONS, ...MANAGER_PERMISSIONS, ...STAFF_PERMISSIONS];
+MANAGER: [...MANAGER_PERMISSIONS, ...STAFF_PERMISSIONS];
+STAFF: [...STAFF_PERMISSIONS];
+```
 
-Because `hasPermission` short-circuits but `getRolePermissions` has to enumerate, the two can drift.
-`OWNER`'s list is built as `MANAGER + OWNER_ONLY_PERMISSIONS`, and a test asserts it equals every
-declared `EstablishmentPermission`. Add a permission and forget to place it, and the test fails instead of the
-AI being quietly told the owner cannot do something.
+`hasPermission(role, permission)` is the function that decides, and it is a lookup: no special case
+for `OWNER`, no hierarchy walked at call time. `getRolePermissions(role)` **decides nothing**. It
+only describes: it fills `EstablishmentMember.permissions` in the payload and tells the AI assistant
+what the caller may do. Real authorisation is always `hasPermission`.
+
+Both read the same array, so they cannot disagree. What can still go wrong is a new permission added
+to the enum and placed in no list, and a test catches that: `getRolePermissions(OWNER)` is asserted
+to equal every declared `EstablishmentPermission`. Forget to place one and the test fails, instead of
+the owner being quietly told they cannot do it.
 
 Hierarchy, verified in `establishment-permissions.spec.ts`: `STAFF ⊂ MANAGER ⊂ OWNER`.
 
 - **STAFF**: works the floor. Orders, payments, tables, stock, their own shifts and exchanges,
   clocking their own day (`establishment:clock-in`) and correcting their own marks with a reason
   (`establishment:amend-own-time-entry`; the handler checks the mark actually belongs to them).
-- **MANAGER**: everything STAFF has, plus the menu, inviting members, other people's shifts, the
-  printer and the team's time register (`establishment:view-time-entries`, `establishment:manage-time-entries`).
-- **OWNER**: everything, including billing, removing members and **changing anyone's role**.
+- **MANAGER**: everything STAFF has, plus the catalogue (creating and editing categories and
+  products), the published menu (`establishment:manage-menu`), inviting members, other people's
+  shifts, the printer, today's takings (`establishment:view-financials`) and the team's time register
+  (`establishment:view-time-entries`, `establishment:manage-time-entries`).
+- **OWNER**: everything. On top of MANAGER: deleting anything (tables, orders, categories,
+  products), removing members and **changing anyone's role**, importing the starter catalogue,
+  the establishment's settings (`establishment:manage-settings`, which is the modules switch), billing,
+  and the two figures a manager does not see — takings beyond today
+  (`establishment:view-financials-history`) and labour cost (`establishment:view-labor-cost`, which is
+  derived from `EstablishmentMember.hourlyRateCents`).
 
 `establishment:update-member-role` is OWNER-only: a manager runs the day to day but does not hand out power,
 the same way they cannot remove anyone or touch billing.
@@ -60,7 +75,7 @@ carrying the actor and their platform role, and the `admin` module listens and *
 the actor was `ADMIN`**. The "never leave an establishment without an OWNER" rule lives in one place, and the
 audit entry hangs off a fact rather than a parallel route.
 
-## The four guards
+## The five guards
 
 Order matters. Nest runs **global guards before** controller-scoped ones.
 
@@ -88,7 +103,7 @@ so once it has already decided to reject, so a normal request never pays that co
 
 ### 2. `FirebaseAuthGuard` — identity
 
-Verifies the token with Firebase, finds the local user by `googleId` and **rejects when
+Verifies the token with Firebase, finds the local user by `firebaseUid` and **rejects when
 `user.active` is `false`**. That check is what makes the backoffice deactivate button real; without
 it a deactivated user kept full access. The realtime stream is a `GET` behind this same guard, so
 the rule reaches it without a second implementation.
@@ -120,6 +135,34 @@ list.
 
 Removal also closes the member's open streams for that establishment, so they stop receiving
 real-time data before their next request is refused.
+
+### 5. `EstablishmentModulesGuard` — is this part of the product switched on
+
+The last axis, and the only one the venue chooses for itself. `EstablishmentSettings.modules` holds
+which of `TIME_TRACKING`, `ORDERS` and `INVENTORY` an establishment runs, and a controller declares
+what it needs with `@RequiresModule(...)`:
+
+| Module          | Gates                                                 |
+| --------------- | ----------------------------------------------------- |
+| `ORDERS`        | orders, tables, the printer connection routes         |
+| `INVENTORY`     | products, categories, the starter catalogue, the menu |
+| `TIME_TRACKING` | nothing — it is the floor every establishment gets    |
+
+A module that is not enabled answers **403 `MODULE_NOT_ENABLED`**. Like the others it is a no-op on a
+route without an `establishmentId`, and it reads the module list through `SecurityRepository`, so it
+is one cached lookup rather than a query per request.
+
+It is declarative rather than a permission because it is not about _who_ the caller is: a bar that
+does not sell (a retail shop, an office) has no orders screen and no orders API, for its owner as
+much as for its staff. The front end mirrors it with `moduleGuard` on the workspace routes, and the
+AI assistant builds its tool list from the same array — a tool for a module you do not run does not
+exist in the conversation.
+
+Modules are chosen once at onboarding, from a business type (hospitality → all three; retail →
+time tracking and inventory; other → time tracking only), and changed afterwards under
+**Settings**, which is `establishment:manage-settings` and therefore OWNER. `configuredAt` on
+`EstablishmentSettings` is what records that onboarding happened; until it is set, the dialog opens
+on entering the workspace.
 
 ## The platform admin
 
@@ -173,11 +216,11 @@ counterweight to an admin being able to step over every barrier above.
 ## Account identity
 
 A user record can exist before its owner ever signs in — that is how invitations work: the invite
-creates a user by email with no `googleId`, and the invited person claims it when they first sign
+creates a user by email with no `firebaseUid`, and the invited person claims it when they first sign
 in with Google.
 
 Claiming is the sensitive step, so it has two conditions. The token must vouch for the address
 (`email_verified`), and the account must not already be linked to a different sign-in
-(`googleId === null`). Without the first, enabling any provider that does not verify emails would
+(`firebaseUid === null`). Without the first, enabling any provider that does not verify emails would
 turn account takeover into a sign-up form; without the second, a second Google account on the same
 address would silently take the record over.

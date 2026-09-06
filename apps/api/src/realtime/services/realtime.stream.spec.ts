@@ -91,7 +91,9 @@ describe('RealtimeStream', () => {
       throw new Error('write after end');
     });
 
-    expect(() => stream.deliver({ id: '1000', event: RealtimeEvents.orderCreated, payload: { id: 'order-1' } })).not.toThrow();
+    expect(() =>
+      stream.deliver({ id: '1000', event: RealtimeEvents.orderCreated, payload: { id: 'order-1' } }),
+    ).not.toThrow();
     expect(onClose).toHaveBeenCalled();
   });
 });

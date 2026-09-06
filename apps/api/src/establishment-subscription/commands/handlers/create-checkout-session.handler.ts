@@ -14,8 +14,12 @@ const IDEMPOTENCY_BUCKET_MS = 30 * 60 * 1000;
 
 const currentIdempotencyBucket = (): number => Math.floor(Date.now() / IDEMPOTENCY_BUCKET_MS);
 
-const buildCheckoutIdempotencyKey = (establishmentId: string, plan: string, bucket: number): string =>
-  `checkout:${establishmentId}:${plan}:${bucket}`;
+const buildCheckoutIdempotencyKey = (
+  establishmentId: string,
+  plan: string,
+  seats: number,
+  bucket: number,
+): string => `checkout:${establishmentId}:${plan}:${seats}:${bucket}`;
 
 const bucketExpiresAt = (bucket: number): number =>
   Math.floor((bucket * IDEMPOTENCY_BUCKET_MS) / 1000) + CHECKOUT_SESSION_TTL_SECONDS;
@@ -73,8 +77,9 @@ export class CreateCheckoutSessionHandler implements ICommandHandler<
     }
 
     const priceId = getPriceId(plan, this._configService);
+    const seats = await this._readRepo.countBillableSeats(establishmentId);
     const bucket = currentIdempotencyBucket();
-    const idempotencyKey = buildCheckoutIdempotencyKey(establishmentId, plan, bucket);
+    const idempotencyKey = buildCheckoutIdempotencyKey(establishmentId, plan, seats, bucket);
 
     const session = await this._stripeApi.createCheckoutSession(
       {
@@ -87,7 +92,7 @@ export class CreateCheckoutSessionHandler implements ICommandHandler<
         billing_address_collection: 'required',
         tax_id_collection: { enabled: true },
         expires_at: bucketExpiresAt(bucket),
-        line_items: [{ price: priceId, quantity: 1 }],
+        line_items: [{ price: priceId, quantity: seats }],
         integration_identifier: createIntegrationIdentifier(idempotencyKey),
         metadata: {
           establishmentId,

@@ -5,6 +5,7 @@ import { CommandHandlers } from './commands';
 import { AdminControllers } from './controllers';
 import {
   AdminAuditRepository,
+  AdminBetaTesterRepository,
   AdminEstablishmentReadRepository,
   AdminMetricsReadRepository,
   AdminUserReadRepository,
@@ -18,6 +19,7 @@ import { QueryHandlers } from './queries';
   controllers: [...AdminControllers],
   providers: [
     AdminAuditRepository,
+    AdminBetaTesterRepository,
     AdminEstablishmentReadRepository,
     AdminMetricsReadRepository,
     AdminUserReadRepository,

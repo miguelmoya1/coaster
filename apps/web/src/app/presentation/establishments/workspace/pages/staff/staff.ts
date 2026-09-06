@@ -2,10 +2,10 @@ import { Component, computed, effect, inject, input, outputBinding } from '@angu
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { ActivatedRoute, createUrlTreeFromSnapshot, isActive, Router, RouterLink } from '@angular/router';
 import { MyMemberStore } from '@coaster/establishment-members';
-import { RequireSubscriptionDirective } from '@coaster/establishment-subscription';
+import { EstablishmentSubscriptionStore, RequireSubscriptionDirective } from '@coaster/establishment-subscription';
 import type { EstablishmentId, EstablishmentMember, EstablishmentRole } from '@coaster/common';
 import { EstablishmentPermission } from '@coaster/common';
-import { ActionFeedback } from '@coaster/core';
+import { ActionFeedback, MoneyFormatterService } from '@coaster/core';
 import { MembersStore } from '@coaster/establishment-members';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ConfirmationDialog } from '../../../../components/confirm-dialog/confirmation-dialog.service';
@@ -50,6 +50,8 @@ export default class Staff {
   readonly #translate = inject(TranslateService);
   readonly #feedback = inject(ActionFeedback);
   readonly #bottomSheet = inject(MatBottomSheet);
+  readonly #subscriptionStore = inject(EstablishmentSubscriptionStore);
+  readonly #money = inject(MoneyFormatterService);
 
   protected readonly membersLoading = this.#membersStore.list.isLoading;
 
@@ -85,6 +87,12 @@ export default class Staff {
     this.router,
   );
   protected readonly totalMembers = computed(() => this.members()?.length ?? 0);
+
+  protected readonly seats = computed(() => {
+    const summary = this.#subscriptionStore.billedSeats();
+
+    return summary ? { ...summary, monthlyTotal: this.#money.format(summary.monthlyTotalCents) } : undefined;
+  });
 
   constructor() {
     effect(() => {

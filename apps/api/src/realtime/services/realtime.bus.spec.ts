@@ -56,10 +56,7 @@ describe('RealtimeBus', () => {
     connection = { client: publisher, open: vi.fn().mockReturnValue(subscriber) };
     registry = { deliver: vi.fn(), revoke: vi.fn() };
 
-    bus = new RealtimeBus(
-      connection as unknown as CacheConnection,
-      registry as unknown as RealtimeRegistry,
-    );
+    bus = new RealtimeBus(connection as unknown as CacheConnection, registry as unknown as RealtimeRegistry);
   });
 
   it('should open a subscriber of its own and listen on the shared channel', () => {

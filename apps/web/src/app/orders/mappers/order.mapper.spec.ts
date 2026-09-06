@@ -15,6 +15,9 @@ describe('Order Mapper', () => {
     paymentMethod: PaymentMethod.NONE,
     adjustments: [],
     tipAmount: 0,
+    netTotal: 1500,
+    taxBreakdown: [],
+    taxAmountTotal: 0,
     orderTotal: 1500,
     payableTotal: 1500,
     items: [

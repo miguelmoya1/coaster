@@ -1,10 +1,11 @@
 import { httpResource } from '@angular/common/http';
 import { computed, effect, inject, Service, signal } from '@angular/core';
-import type { EstablishmentId } from '@coaster/common';
+import type { EstablishmentId, SubscriptionSeats as SubscriptionSeatsInfo } from '@coaster/common';
 import { SubscriptionPlan, SubscriptionStatus } from '@coaster/common';
 import { Realtime } from '@coaster/core';
 import { establishmentSubscriptionMapper } from '../mappers/establishment-subscription.mapper';
 import { EstablishmentSubscription } from '../services/establishment-subscription';
+import { SubscriptionSeats } from '../services/subscription-seats';
 import { CreateCheckoutSession } from '../services/create-checkout-session';
 import { CreateCustomerPortalSession } from '../services/create-customer-portal-session';
 
@@ -20,6 +21,7 @@ export class EstablishmentSubscriptionStore {
   readonly #currentEstablishmentId = signal<EstablishmentId | undefined>(undefined);
   readonly #isOpeningBillingPortal = signal(false);
   readonly #establishmentSubscription = inject(EstablishmentSubscription);
+  readonly #subscriptionSeats = inject(SubscriptionSeats);
   readonly #createCustomerPortalSession = inject(CreateCustomerPortalSession);
   readonly #createCheckoutSession = inject(CreateCheckoutSession);
   readonly #realtime = inject(Realtime);
@@ -33,11 +35,50 @@ export class EstablishmentSubscriptionStore {
     },
   );
 
+  readonly #seatsResource = httpResource<SubscriptionSeatsInfo>(() =>
+    this.#subscriptionSeats.execute(this.#currentEstablishmentId()),
+  );
+
   public readonly subscription = this.#subscriptionResource.asReadonly();
+  public readonly seats = this.#seatsResource.asReadonly();
+
+  readonly #currentSeats = computed(() =>
+    this.#seatsResource.hasValue() ? this.#seatsResource.value() : undefined,
+  );
+
+  public readonly seatSummary = computed(() => {
+    const seats = this.#currentSeats();
+    const isPriced = [seats?.used, seats?.included, seats?.basePriceCents, seats?.extraPriceCents].every(
+      (value) => typeof value === 'number' && Number.isFinite(value),
+    );
+
+    if (!seats || !isPriced) {
+      return undefined;
+    }
+
+    const extraSeats = Math.max(0, seats.used - seats.included);
+
+    return {
+      ...seats,
+      extraSeats,
+      monthlyTotalCents: seats.basePriceCents + extraSeats * seats.extraPriceCents,
+    };
+  });
 
   readonly #currentSubscription = computed(() =>
     this.#subscriptionResource.hasValue() ? this.#subscriptionResource.value() : undefined,
   );
+
+  public readonly billedSeats = computed(() =>
+    this.#currentSubscription()?.stripeSubscriptionId ? this.seatSummary() : undefined,
+  );
+
+  public readonly extraSeatNotice = computed(() => {
+    const seats = this.billedSeats();
+
+    return seats && seats.used >= seats.included ? seats : undefined;
+  });
+
   public readonly currentEstablishmentId = this.#currentEstablishmentId.asReadonly();
   public readonly isOpeningBillingPortal = this.#isOpeningBillingPortal.asReadonly();
 
@@ -99,8 +140,22 @@ export class EstablishmentSubscriptionStore {
     return this.isReadOnly() || this.isTrialExpiringSoon();
   });
 
+  public readonly isPendingCancellation = computed(() => {
+    const sub = this.#currentSubscription();
+
+    if (sub?.status !== SubscriptionStatus.CANCELED || !sub.currentPeriodEnd) {
+      return false;
+    }
+
+    return new Date() <= new Date(sub.currentPeriodEnd);
+  });
+
   public readonly billingAction = computed<BillingAction>(() => {
     const subscription = this.#currentSubscription();
+
+    if (this.isPendingCancellation()) {
+      return BillingAction.MANAGE;
+    }
 
     return subscription?.stripeSubscriptionId && !this.isReadOnly() ? BillingAction.MANAGE : BillingAction.ACTIVATE;
   });
@@ -115,6 +170,12 @@ export class EstablishmentSubscriptionStore {
         this.reloadSubscription();
       }
     });
+
+    effect(() => {
+      if (this.#realtime.memberInvited() || this.#realtime.memberRemoved()) {
+        this.reloadSeats();
+      }
+    });
   }
 
   public setEstablishmentId(establishmentId: EstablishmentId | undefined) {
@@ -123,6 +184,10 @@ export class EstablishmentSubscriptionStore {
 
   public reloadSubscription() {
     this.#subscriptionResource.reload();
+  }
+
+  public reloadSeats() {
+    this.#seatsResource.reload();
   }
 
   public async createCustomerPortalSession(): Promise<string | undefined> {

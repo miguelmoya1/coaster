@@ -1,18 +1,18 @@
 import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
 import { form, FormField, FormRoot, maxLength, minLength, required } from '@angular/forms/signals';
 import { MatButton } from '@angular/material/button';
-import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
-import { MatInput } from '@angular/material/input';
 import type { TimeEntry } from '@coaster/common';
 import { asTimeEntryId } from '@coaster/common';
 import { handleErrorFormField } from '@coaster/core';
 import { TimeTrackingStore } from '@coaster/time-tracking';
 import { TranslatePipe } from '@ngx-translate/core';
+import { Field } from '../../../../../../components/field/field';
+import { CoasterInput } from '../../../../../../components/field/input.directive';
 
 @Component({
   selector: 'coaster-void-entry-form',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormRoot, FormField, MatFormField, MatLabel, MatError, MatInput, MatButton, TranslatePipe],
+  imports: [FormRoot, FormField, MatButton, TranslatePipe, Field, CoasterInput],
   template: `
     <div class="mb-4 pb-4 border-b border-outline-variant/15 select-none">
       <h3 class="text-white text-lg font-black uppercase tracking-tight">
@@ -24,20 +24,14 @@ import { TranslatePipe } from '@ngx-translate/core';
     </div>
 
     <form [formRoot]="form">
-      <mat-form-field appearance="outline" class="w-full">
-        <mat-label>{{ 'schedule.time_tracking.reason' | translate }}</mat-label>
+      <coaster-field [label]="'schedule.time_tracking.reason' | translate">
         <textarea
-          matInput
+          coasterInput
           rows="3"
           [formField]="form.reason"
           [placeholder]="'schedule.time_tracking.reason_placeholder' | translate"
         ></textarea>
-        @if (form.reason().errors().length > 0) {
-          <mat-error>{{
-            form.reason().errors()[0].message || form.reason().errors()[0].kind | translate: form.reason().errors()[0]
-          }}</mat-error>
-        }
-      </mat-form-field>
+      </coaster-field>
 
       @if (form().errors().length > 0) {
         <div class="flex flex-col gap-1 mt-1 ml-1" role="alert">

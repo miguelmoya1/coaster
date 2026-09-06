@@ -95,8 +95,7 @@ test.describe('Menu Management', () => {
     await menuPage.productNameInput.fill('Cola');
     await menuPage.productPriceInput.fill('2.50');
     // Select category
-    await page.locator('mat-select').click();
-    await page.locator('mat-option').first().click();
+    await menuPage.productCategorySelect.selectOption({ index: 1 });
 
     // Update GET after create
     await mockApiResponse(page, `/establishments/${establishmentId}/products`, 'GET', [newProd]);

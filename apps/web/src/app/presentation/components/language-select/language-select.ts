@@ -9,7 +9,7 @@ import { LANGUAGE_NAMES, LANGUAGES } from '@coaster/common';
   imports: [MatButtonToggle, MatButtonToggleGroup],
   template: `
     @if (!hidden()) {
-      <div class="flex flex-col gap-1 items-start">
+      <div class="flex flex-col gap-1.5 items-start">
         @if (label()) {
           <span class="text-xs font-semibold text-on-surface-variant">{{ label() }}</span>
         }

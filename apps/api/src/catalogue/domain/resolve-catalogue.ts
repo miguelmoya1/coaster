@@ -10,9 +10,12 @@ const resolveCategory = (category: StarterCategory, language: Language): Starter
   key: category.key,
   name: wordFor(category.names, language),
   icon: category.icon ?? undefined,
+  taxRate: category.taxRate,
   products: category.products.map((product) => ({
     name: wordFor(product.names, language),
     price: product.price,
+    icon: product.icon,
+    taxRate: product.taxRate,
   })),
 });
 

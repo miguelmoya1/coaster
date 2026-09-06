@@ -1,11 +1,11 @@
-import { inject, Injectable, inputBinding, outputBinding, signal } from '@angular/core';
+import { inject, inputBinding, outputBinding, Service, signal } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { EstablishmentId, ErrorCodes, SubscriptionPlan } from '@coaster/common';
 import { ApiError, Toast } from '@coaster/core';
 import { SelectPlanDialog } from '../dialogs/select-plan-dialog/select-plan-dialog';
 import { EstablishmentSubscriptionStore } from '../store/establishment-subscription.store';
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class PlanDialogService {
   readonly #dialog = inject(MatDialog);
   readonly #establishmentSubscriptionStore = inject(EstablishmentSubscriptionStore);

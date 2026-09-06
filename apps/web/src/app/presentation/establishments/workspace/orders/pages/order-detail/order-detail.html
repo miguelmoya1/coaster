@@ -15,6 +15,7 @@
     (updateTip)="onUpdateTip($event)"
     (addAdjustment)="onAddAdjustment()"
     (removeAdjustment)="onRemoveAdjustment($event)"
+    (notesChanged)="onOrderNotesChanged($event)"
   />
 
   <div class="flex flex-col gap-2">
@@ -30,6 +31,7 @@
         (removeItem)="handleRemoveItem(item)"
         (addAdjustment)="onAddAdjustment(item.id)"
         (removeAdjustment)="onRemoveAdjustment($event)"
+        (notesChanged)="onItemNotesChanged(item, $event)"
       />
     }
   </div>
@@ -45,6 +47,19 @@
   }
 
   @if (order.status === OrderStatus.OPEN) {
+    <div class="bg-surface-container rounded-2xl p-3 flex flex-col gap-1">
+      <div class="flex flex-col px-1">
+        <span class="text-xs font-semibold text-on-surface-variant">{{ 'orders.ticket_notes' | translate }}</span>
+        <span class="text-xxs text-on-surface-variant/70">{{ 'orders.notes_printed' | translate }}</span>
+      </div>
+      <coaster-note-editor
+        icon="receipt_long"
+        [notes]="order.ticketNotes || ''"
+        [placeholder]="'orders.ticket_notes_placeholder' | translate"
+        (notesChanged)="onTicketNotesChanged($event)"
+      />
+    </div>
+
     <coaster-order-actions
       [establishmentId]="establishmentId()"
       [hasTable]="!!order.tableId"

@@ -55,6 +55,47 @@ export const DbAllergen = {
 export type DbAllergen = (typeof DbAllergen)[keyof typeof DbAllergen]
 
 
+export const DbInvoiceRecordType = {
+  ALTA: 'ALTA',
+  ANULACION: 'ANULACION'
+} as const
+
+export type DbInvoiceRecordType = (typeof DbInvoiceRecordType)[keyof typeof DbInvoiceRecordType]
+
+
+export const DbInvoiceType = {
+  F1: 'F1',
+  F2: 'F2',
+  F3: 'F3',
+  R1: 'R1',
+  R2: 'R2',
+  R3: 'R3',
+  R4: 'R4',
+  R5: 'R5'
+} as const
+
+export type DbInvoiceType = (typeof DbInvoiceType)[keyof typeof DbInvoiceType]
+
+
+export const DbRectificationType = {
+  S: 'S',
+  I: 'I'
+} as const
+
+export type DbRectificationType = (typeof DbRectificationType)[keyof typeof DbRectificationType]
+
+
+export const DbAeatStatus = {
+  NOT_SENT: 'NOT_SENT',
+  PENDING: 'PENDING',
+  ACCEPTED: 'ACCEPTED',
+  ACCEPTED_WITH_ERRORS: 'ACCEPTED_WITH_ERRORS',
+  REJECTED: 'REJECTED'
+} as const
+
+export type DbAeatStatus = (typeof DbAeatStatus)[keyof typeof DbAeatStatus]
+
+
 export const DbSubscriptionPlan = {
   FREE: 'FREE',
   PRO: 'PRO'

@@ -41,9 +41,19 @@ describe('ImportStarterCatalogueHandler', () => {
 
     await importing('cafeteria');
 
-    expect(repository.createCategories).toHaveBeenCalledWith([{ establishmentId, name: 'Cafetería', icon: 'coffee' }]);
+    expect(repository.createCategories).toHaveBeenCalledWith([
+      { establishmentId, name: 'Cafetería', icon: 'coffee', taxRate: 1000 },
+    ]);
     expect(repository.createProducts).toHaveBeenCalledWith(
-      expect.arrayContaining([{ categoryId: 'cat-1', name: 'Café Solo', price: 120 }]),
+      expect.arrayContaining([
+        {
+          categoryId: 'cat-1',
+          name: 'Café Solo',
+          price: 120,
+          icon: 'coffee',
+          taxRate: undefined,
+        },
+      ]),
     );
   });
 
@@ -56,10 +66,18 @@ describe('ImportStarterCatalogueHandler', () => {
     await importing('cafeteria');
 
     expect(repository.createCategories).toHaveBeenCalledWith([
-      { establishmentId, name: 'Coffee Shop', icon: 'coffee' },
+      { establishmentId, name: 'Coffee Shop', icon: 'coffee', taxRate: 1000 },
     ]);
     expect(repository.createProducts).toHaveBeenCalledWith(
-      expect.arrayContaining([{ categoryId: 'cat-1', name: 'Black Coffee', price: 120 }]),
+      expect.arrayContaining([
+        {
+          categoryId: 'cat-1',
+          name: 'Black Coffee',
+          price: 120,
+          icon: 'coffee',
+          taxRate: undefined,
+        },
+      ]),
     );
   });
 

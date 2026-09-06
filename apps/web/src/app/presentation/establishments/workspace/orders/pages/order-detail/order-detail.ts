@@ -13,6 +13,7 @@ import { TablesStore } from '@coaster/tables';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ConfirmationDialog } from '../../../../../components/confirm-dialog/confirmation-dialog.service';
 import { Loading } from '../../../../../components/loading/loading';
+import { NoteEditor } from '../../../../../components/note-editor/note-editor';
 import { AddAdjustmentDialog, AddAdjustmentResult } from './components/add-adjustment-dialog/add-adjustment-dialog';
 import { MergeOrdersDialog } from './components/merge-orders-dialog/merge-orders-dialog';
 import { MoveTableDialog } from './components/move-table-dialog/move-table-dialog';
@@ -36,6 +37,7 @@ import { UpdateTipDialog } from './components/update-tip-dialog/update-tip-dialo
     OrderSummaryCard,
     OrderItemCard,
     OrderBulkActions,
+    NoteEditor,
   ],
   host: { class: 'flex flex-col gap-4' },
   templateUrl: './order-detail.html',
@@ -391,6 +393,32 @@ class OrderDetail {
   );
 
   protected readonly openOrders = this.#activeOrdersStore.openOrders;
+
+  async onOrderNotesChanged(notes: string) {
+    await this.saveNotes(() =>
+      this.#activeOrdersStore.updateNotes(this.establishmentId(), this.resolvedOrderId(), { notes }),
+    );
+  }
+
+  async onTicketNotesChanged(ticketNotes: string) {
+    await this.saveNotes(() =>
+      this.#activeOrdersStore.updateNotes(this.establishmentId(), this.resolvedOrderId(), { ticketNotes }),
+    );
+  }
+
+  async onItemNotesChanged(item: OrderItem, notes: string) {
+    await this.saveNotes(() =>
+      this.#activeOrdersStore.updateItemNotes(this.establishmentId(), this.resolvedOrderId(), item.id, notes),
+    );
+  }
+
+  private async saveNotes(save: () => Promise<void>) {
+    try {
+      await save();
+    } catch (e) {
+      this.#feedback.error(e);
+    }
+  }
 
   async printOrder() {
     const order = this.displayOrderViewModel();

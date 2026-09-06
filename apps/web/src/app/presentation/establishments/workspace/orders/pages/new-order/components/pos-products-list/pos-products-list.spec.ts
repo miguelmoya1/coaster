@@ -17,6 +17,7 @@ describe('PosProductsList', () => {
       categoryId: asCategoryId('cat-1'),
       currentStock: 10,
       minStockAlert: 5,
+      taxRate: 1000,
       stockStatus: 'GOOD',
       allergens: [],
       lastUpdated: new Date().toISOString(),
@@ -28,6 +29,7 @@ describe('PosProductsList', () => {
       categoryId: asCategoryId('cat-2'),
       currentStock: 0,
       minStockAlert: 10,
+      taxRate: 1000,
       stockStatus: 'WARNING',
       allergens: [],
       lastUpdated: new Date().toISOString(),
@@ -67,5 +69,37 @@ describe('PosProductsList', () => {
     const cards = fixture.nativeElement.querySelectorAll('mat-card');
     expect(cards[1].className).toContain('opacity-60');
     expect(cards[1].className).toContain('border-error/30');
+  });
+
+  describe('the product tile picture', () => {
+    const withPicture = (extra: Partial<Product>): Product => ({ ...mockProducts[0], ...extra });
+
+    it('should draw the icon when the product has one and no photo', () => {
+      fixture.componentRef.setInput('products', [withPicture({ icon: 'coffee', imageUrl: undefined })]);
+      fixture.detectChanges();
+
+      const icon = fixture.nativeElement.querySelector('[data-testid="pos-product-icon"]');
+
+      expect(icon).toBeTruthy();
+      expect(icon.textContent.trim()).toBe('coffee');
+    });
+
+    it("should prefer the venue's own photo over the icon", () => {
+      fixture.componentRef.setInput('products', [
+        withPicture({ icon: 'coffee', imageUrl: 'https://example.test/cafe.webp' }),
+      ]);
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('img')).toBeTruthy();
+      expect(fixture.nativeElement.querySelector('[data-testid="pos-product-icon"]')).toBeNull();
+    });
+
+    it('should draw neither when the product has no icon and no photo', () => {
+      fixture.componentRef.setInput('products', [withPicture({ icon: undefined, imageUrl: undefined })]);
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('img')).toBeNull();
+      expect(fixture.nativeElement.querySelector('[data-testid="pos-product-icon"]')).toBeNull();
+    });
   });
 });

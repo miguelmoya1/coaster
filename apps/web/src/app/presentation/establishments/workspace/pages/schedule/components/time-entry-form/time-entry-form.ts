@@ -1,15 +1,14 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, linkedSignal, output } from '@angular/core';
 import { form, FormField, FormRoot, maxLength, minLength, required } from '@angular/forms/signals';
 import { MatButton } from '@angular/material/button';
-import { MatError, MatFormField, MatLabel, MatSuffix } from '@angular/material/form-field';
-import { MatInput } from '@angular/material/input';
-import { MatOption, MatSelect } from '@angular/material/select';
 import { MatTimepicker, MatTimepickerInput, MatTimepickerToggle } from '@angular/material/timepicker';
 import type { EstablishmentMember, TimeEntry } from '@coaster/common';
 import { asTimeEntryId, asUserId, TimeEntryType } from '@coaster/common';
 import { handleErrorFormField } from '@coaster/core';
 import { TimeTrackingStore } from '@coaster/time-tracking';
 import { TranslatePipe } from '@ngx-translate/core';
+import { Field } from '../../../../../../components/field/field';
+import { CoasterInput } from '../../../../../../components/field/input.directive';
 
 const REASON_MIN_LENGTH = 5;
 
@@ -19,18 +18,13 @@ const REASON_MIN_LENGTH = 5;
   imports: [
     FormRoot,
     FormField,
-    MatFormField,
-    MatLabel,
-    MatSuffix,
-    MatError,
-    MatInput,
-    MatSelect,
-    MatOption,
     MatTimepicker,
     MatTimepickerInput,
     MatTimepickerToggle,
     MatButton,
     TranslatePipe,
+    Field,
+    CoasterInput,
   ],
   template: `
     <div class="mb-4 pb-4 border-b border-outline-variant/15 select-none">
@@ -43,57 +37,39 @@ const REASON_MIN_LENGTH = 5;
     <form [formRoot]="form">
       <div class="flex flex-col gap-4">
         @if (!entry()) {
-          <mat-form-field appearance="outline" class="w-full">
-            <mat-label>{{ 'schedule.create_shift.staff_label' | translate }}</mat-label>
-            <mat-select [formField]="form.userId">
+          <coaster-field [label]="'schedule.create_shift.staff_label' | translate">
+            <select coasterInput [formField]="form.userId">
               @for (option of memberOptions(); track option.value) {
-                <mat-option [value]="option.value">{{ option.label }}</mat-option>
+                <option [value]="option.value">{{ option.label }}</option>
               }
-            </mat-select>
-            @if (form.userId().errors().length > 0) {
-              <mat-error>{{
-                form.userId().errors()[0].message || form.userId().errors()[0].kind
-                  | translate: form.userId().errors()[0]
-              }}</mat-error>
-            }
-          </mat-form-field>
+            </select>
+          </coaster-field>
 
-          <mat-form-field appearance="outline" class="w-full">
-            <mat-label>{{ 'schedule.time_tracking.mark_type' | translate }}</mat-label>
-            <mat-select [formField]="form.type">
+          <coaster-field [label]="'schedule.time_tracking.mark_type' | translate">
+            <select coasterInput [formField]="form.type">
               @for (option of typeOptions; track option.value) {
-                <mat-option [value]="option.value">{{ option.label | translate }}</mat-option>
+                <option [value]="option.value">{{ option.label | translate }}</option>
               }
-            </mat-select>
-          </mat-form-field>
+            </select>
+          </coaster-field>
         }
 
-        <mat-form-field appearance="outline" class="w-full">
-          <mat-label>{{ 'schedule.time_tracking.hour' | translate }}</mat-label>
-          <input matInput [matTimepicker]="picker" [formField]="form.time" />
-          <mat-timepicker-toggle matIconSuffix [for]="picker"></mat-timepicker-toggle>
-          <mat-timepicker #picker></mat-timepicker>
-          @if (form.time().errors().length > 0) {
-            <mat-error>{{
-              form.time().errors()[0].message || form.time().errors()[0].kind | translate: form.time().errors()[0]
-            }}</mat-error>
-          }
-        </mat-form-field>
+        <coaster-field [label]="'schedule.time_tracking.hour' | translate">
+          <div class="relative">
+            <input coasterInput class="pr-11" [matTimepicker]="picker" [formField]="form.time" />
+            <mat-timepicker-toggle class="absolute right-1 top-1/2 -translate-y-1/2" [for]="picker" />
+            <mat-timepicker #picker />
+          </div>
+        </coaster-field>
 
-        <mat-form-field appearance="outline" class="w-full">
-          <mat-label>{{ 'schedule.time_tracking.reason' | translate }}</mat-label>
+        <coaster-field [label]="'schedule.time_tracking.reason' | translate">
           <textarea
-            matInput
+            coasterInput
             rows="3"
             [formField]="form.reason"
             [placeholder]="'schedule.time_tracking.reason_placeholder' | translate"
           ></textarea>
-          @if (form.reason().errors().length > 0) {
-            <mat-error>{{
-              form.reason().errors()[0].message || form.reason().errors()[0].kind | translate: form.reason().errors()[0]
-            }}</mat-error>
-          }
-        </mat-form-field>
+        </coaster-field>
 
         @if (form().errors().length > 0) {
           <div class="flex flex-col gap-1 mt-1 ml-1" role="alert">

@@ -19,6 +19,7 @@ describe('InventorySearch', () => {
   });
 
   it('should render the search icon inside the field', () => {
-    expect(element.querySelector('.mat-mdc-form-field-icon-prefix')).not.toBeNull();
+    expect(element.querySelector('mat-icon')?.textContent?.trim()).toBe('search');
+    expect(element.querySelector('input')?.className).toContain('pl-11');
   });
 });

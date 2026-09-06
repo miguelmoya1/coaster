@@ -61,6 +61,7 @@ interface ISpeechRecognition {
   onend: (() => void) | null;
   start(): void;
   stop(): void;
+  abort(): void;
 }
 
 @Service()
@@ -184,6 +185,11 @@ export class AiVoiceService {
       this.#recognition.onresult = null;
       this.#recognition.onerror = null;
       this.#recognition.onend = null;
+      try {
+        this.#recognition.abort();
+      } catch (e) {
+        console.error('Failed to abort the previous speech recognition:', e);
+      }
     }
 
     this.#recognition = new SpeechRecognition();
@@ -246,10 +252,6 @@ export class AiVoiceService {
   public open() {
     this.isOpen.set(true);
     this.snap.set('peek');
-
-    if (this.isSupported()) {
-      this.start(this.#currentLang());
-    }
   }
 
   public close() {
@@ -276,12 +278,11 @@ export class AiVoiceService {
   }
 
   public start(lang = this.#currentLang()) {
-    if (!this.isSupported()) return;
+    if (!this.isSupported() || this.status() === 'listening') return;
     this.#lang = lang;
     this.stopSpeaking();
-    this.#savedTranscript = '';
+    this.#savedTranscript = this.transcript().trim();
     this.#sessionTranscript = '';
-    this.transcript.set('');
     this.error.set(null);
     this.response.set(null);
     this.#commandParams.set(undefined);

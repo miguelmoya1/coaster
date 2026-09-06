@@ -1,8 +1,16 @@
 import type { User } from '@coaster/common';
 import { ErrorCodes } from '@coaster/common';
-import { CacheKeys, CacheService, DbUserWithPreferences, UsersMapper } from '@coaster/core';
+import {
+  BETA_ALLOWLIST_ENABLED,
+  CacheKeys,
+  CacheService,
+  DbUserWithPreferences,
+  isBetaAllowlistEnabled,
+  UsersMapper,
+} from '@coaster/core';
 import { DbService } from '@coaster/core/db';
-import { Logger, UnauthorizedException } from '@nestjs/common';
+import { ForbiddenException, Logger, UnauthorizedException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { getAuth } from 'firebase-admin/auth';
 import { SyncUserCommand } from '../impl/sync-user.command';
@@ -14,6 +22,7 @@ export class SyncUserHandler implements ICommandHandler<SyncUserCommand, User> {
   constructor(
     private readonly _db: DbService,
     private readonly _cache: CacheService,
+    private readonly _config: ConfigService,
   ) {}
 
   async execute(command: SyncUserCommand): Promise<User> {
@@ -79,6 +88,11 @@ export class SyncUserHandler implements ICommandHandler<SyncUserCommand, User> {
         );
       }
 
+      if (await this.#outsideBeta(decodedToken.email)) {
+        this.logger.warn(`Refusing to open an account for ${decodedToken.email}: not on the beta allowlist`);
+        throw new ForbiddenException(ErrorCodes.BETA_ACCESS_REQUIRED);
+      }
+
       try {
         user = await this._db.dbUser.create({
           data: {
@@ -102,12 +116,22 @@ export class SyncUserHandler implements ICommandHandler<SyncUserCommand, User> {
         throw error;
       }
     } catch (error) {
-      if (error instanceof UnauthorizedException) {
+      if (error instanceof UnauthorizedException || error instanceof ForbiddenException) {
         throw error;
       }
       this.logger.error('Error validating Firebase JWT token:', error);
       throw new UnauthorizedException(ErrorCodes.INVALID_CREDENTIALS);
     }
+  }
+
+  async #outsideBeta(email: string): Promise<boolean> {
+    if (!isBetaAllowlistEnabled(this._config.get<string>(BETA_ALLOWLIST_ENABLED))) {
+      return false;
+    }
+
+    const tester = await this._db.dbBetaTester.findUnique({ where: { email: email.toLowerCase() } });
+
+    return !tester;
   }
 
   async #linked(user: DbUserWithPreferences, firebaseUid: string): Promise<User> {

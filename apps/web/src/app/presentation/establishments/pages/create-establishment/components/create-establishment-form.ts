@@ -1,50 +1,33 @@
 import { Component, inject, output, signal } from '@angular/core';
 import { form, FormField, FormRoot, maxLength, minLength, required } from '@angular/forms/signals';
 import { MatButton } from '@angular/material/button';
-import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
-import { MatInput } from '@angular/material/input';
 import { EstablishmentListStore } from '@coaster/establishments';
 import type { CreateEstablishmentDto } from '@coaster/common';
 import { handleErrorFormField } from '@coaster/core';
 import { TranslatePipe } from '@ngx-translate/core';
+import { Field } from '../../../../components/field/field';
+import { CoasterInput } from '../../../../components/field/input.directive';
 import { Spinner } from '../../../../components/spinner/spinner';
 
 @Component({
   selector: 'coaster-create-establishment-form',
-  imports: [
-    Spinner,
-    MatFormField,
-    MatLabel,
-    MatInput,
-    MatError,
-    MatButton,
-    MatIcon,
-    FormRoot,
-    FormField,
-    TranslatePipe,
-  ],
+  imports: [Spinner, MatButton, MatIcon, FormRoot, FormField, TranslatePipe, Field, CoasterInput],
   host: {
     class: 'flex flex-col gap-6 w-full animate-in fade-in slide-in-from-bottom-4 duration-500',
   },
   template: `
     <form [formRoot]="establishmentForm" class="mt-2 flex flex-col gap-6">
       <div class="grid grid-cols-1 gap-6">
-        <mat-form-field appearance="outline" class="w-full">
-          <mat-label>{{ 'establishments.create.fields.name' | translate }}</mat-label>
+        <coaster-field [label]="'establishments.create.fields.name' | translate">
           <input
-            matInput
+            coasterInput
             data-testid="establishment-name-input"
+            enterkeyhint="send"
             [formField]="establishmentForm.name"
             [placeholder]="'establishments.create.fields.name_placeholder' | translate"
           />
-          @if (establishmentForm.name().errors().length > 0) {
-            <mat-error>{{
-              establishmentForm.name().errors()[0].message || establishmentForm.name().errors()[0].kind
-                | translate: establishmentForm.name().errors()[0]
-            }}</mat-error>
-          }
-        </mat-form-field>
+        </coaster-field>
       </div>
 
       <div class="flex items-center justify-center gap-4 mt-4">

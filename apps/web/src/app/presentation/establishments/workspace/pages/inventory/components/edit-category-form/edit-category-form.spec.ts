@@ -18,6 +18,7 @@ describe('EditCategoryForm', () => {
   const mockCategory: Category = {
     id: asCategoryId('cat-1'),
     establishmentId: asEstablishmentId('establishment-1'),
+    taxRate: 1000,
     name: 'Tapas',
     icon: '🍕',
   };
@@ -58,6 +59,7 @@ describe('EditCategoryForm', () => {
       const updatedCategory: Category = {
         id: asCategoryId('cat-2'),
         establishmentId: asEstablishmentId('establishment-1'),
+        taxRate: 1000,
         name: 'Cocktails',
         icon: '🍸',
       };

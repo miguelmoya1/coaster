@@ -16,9 +16,7 @@ export class GetCurrentWorkdayHandler implements IQueryHandler<GetCurrentWorkday
   async execute({ establishmentId, userId }: GetCurrentWorkdayQuery): Promise<Workday | null> {
     const rows = await this._readRepo.findLatestWorkday(establishmentId, userId);
     const latest = TimeEntriesMapper.groupByRoot(rows);
-    const date = isDayOpen(toDatedMarks(latest))
-      ? latest[0].workdayDate
-      : formatWorkdayDate(toWorkdayDate(new Date()));
+    const date = isDayOpen(toDatedMarks(latest)) ? latest[0].workdayDate : formatWorkdayDate(toWorkdayDate(new Date()));
 
     const [workday] = await this._queryBus.execute<GetWorkdaysQuery, Workday[]>(
       new GetWorkdaysQuery(establishmentId, date, date, userId),

@@ -30,12 +30,14 @@ export type DbProductAvgAggregateOutputType = {
   price: number | null
   currentStock: number | null
   minStockAlert: number | null
+  taxRate: number | null
 }
 
 export type DbProductSumAggregateOutputType = {
   price: number | null
   currentStock: number | null
   minStockAlert: number | null
+  taxRate: number | null
 }
 
 export type DbProductMinAggregateOutputType = {
@@ -46,6 +48,8 @@ export type DbProductMinAggregateOutputType = {
   currentStock: number | null
   minStockAlert: number | null
   imageUrl: string | null
+  icon: string | null
+  taxRate: number | null
   createdAt: Date | null
   updatedAt: Date | null
   deletedAt: Date | null
@@ -59,6 +63,8 @@ export type DbProductMaxAggregateOutputType = {
   currentStock: number | null
   minStockAlert: number | null
   imageUrl: string | null
+  icon: string | null
+  taxRate: number | null
   createdAt: Date | null
   updatedAt: Date | null
   deletedAt: Date | null
@@ -72,6 +78,8 @@ export type DbProductCountAggregateOutputType = {
   currentStock: number
   minStockAlert: number
   imageUrl: number
+  icon: number
+  taxRate: number
   allergens: number
   createdAt: number
   updatedAt: number
@@ -84,12 +92,14 @@ export type DbProductAvgAggregateInputType = {
   price?: true
   currentStock?: true
   minStockAlert?: true
+  taxRate?: true
 }
 
 export type DbProductSumAggregateInputType = {
   price?: true
   currentStock?: true
   minStockAlert?: true
+  taxRate?: true
 }
 
 export type DbProductMinAggregateInputType = {
@@ -100,6 +110,8 @@ export type DbProductMinAggregateInputType = {
   currentStock?: true
   minStockAlert?: true
   imageUrl?: true
+  icon?: true
+  taxRate?: true
   createdAt?: true
   updatedAt?: true
   deletedAt?: true
@@ -113,6 +125,8 @@ export type DbProductMaxAggregateInputType = {
   currentStock?: true
   minStockAlert?: true
   imageUrl?: true
+  icon?: true
+  taxRate?: true
   createdAt?: true
   updatedAt?: true
   deletedAt?: true
@@ -126,6 +140,8 @@ export type DbProductCountAggregateInputType = {
   currentStock?: true
   minStockAlert?: true
   imageUrl?: true
+  icon?: true
+  taxRate?: true
   allergens?: true
   createdAt?: true
   updatedAt?: true
@@ -227,6 +243,8 @@ export type DbProductGroupByOutputType = {
   currentStock: number
   minStockAlert: number
   imageUrl: string | null
+  icon: string | null
+  taxRate: number | null
   allergens: $Enums.DbAllergen[]
   createdAt: Date
   updatedAt: Date
@@ -264,6 +282,8 @@ export type DbProductWhereInput = {
   currentStock?: Prisma.IntFilter<"DbProduct"> | number
   minStockAlert?: Prisma.IntFilter<"DbProduct"> | number
   imageUrl?: Prisma.StringNullableFilter<"DbProduct"> | string | null
+  icon?: Prisma.StringNullableFilter<"DbProduct"> | string | null
+  taxRate?: Prisma.IntNullableFilter<"DbProduct"> | number | null
   allergens?: Prisma.EnumDbAllergenNullableListFilter<"DbProduct">
   createdAt?: Prisma.DateTimeFilter<"DbProduct"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DbProduct"> | Date | string
@@ -281,6 +301,8 @@ export type DbProductOrderByWithRelationInput = {
   currentStock?: Prisma.SortOrder
   minStockAlert?: Prisma.SortOrder
   imageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  icon?: Prisma.SortOrderInput | Prisma.SortOrder
+  taxRate?: Prisma.SortOrderInput | Prisma.SortOrder
   allergens?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -301,6 +323,8 @@ export type DbProductWhereUniqueInput = Prisma.AtLeast<{
   currentStock?: Prisma.IntFilter<"DbProduct"> | number
   minStockAlert?: Prisma.IntFilter<"DbProduct"> | number
   imageUrl?: Prisma.StringNullableFilter<"DbProduct"> | string | null
+  icon?: Prisma.StringNullableFilter<"DbProduct"> | string | null
+  taxRate?: Prisma.IntNullableFilter<"DbProduct"> | number | null
   allergens?: Prisma.EnumDbAllergenNullableListFilter<"DbProduct">
   createdAt?: Prisma.DateTimeFilter<"DbProduct"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DbProduct"> | Date | string
@@ -318,6 +342,8 @@ export type DbProductOrderByWithAggregationInput = {
   currentStock?: Prisma.SortOrder
   minStockAlert?: Prisma.SortOrder
   imageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  icon?: Prisma.SortOrderInput | Prisma.SortOrder
+  taxRate?: Prisma.SortOrderInput | Prisma.SortOrder
   allergens?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -340,6 +366,8 @@ export type DbProductScalarWhereWithAggregatesInput = {
   currentStock?: Prisma.IntWithAggregatesFilter<"DbProduct"> | number
   minStockAlert?: Prisma.IntWithAggregatesFilter<"DbProduct"> | number
   imageUrl?: Prisma.StringNullableWithAggregatesFilter<"DbProduct"> | string | null
+  icon?: Prisma.StringNullableWithAggregatesFilter<"DbProduct"> | string | null
+  taxRate?: Prisma.IntNullableWithAggregatesFilter<"DbProduct"> | number | null
   allergens?: Prisma.EnumDbAllergenNullableListFilter<"DbProduct">
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"DbProduct"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"DbProduct"> | Date | string
@@ -353,6 +381,8 @@ export type DbProductCreateInput = {
   currentStock?: number
   minStockAlert?: number
   imageUrl?: string | null
+  icon?: string | null
+  taxRate?: number | null
   allergens?: Prisma.DbProductCreateallergensInput | $Enums.DbAllergen[]
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -370,6 +400,8 @@ export type DbProductUncheckedCreateInput = {
   currentStock?: number
   minStockAlert?: number
   imageUrl?: string | null
+  icon?: string | null
+  taxRate?: number | null
   allergens?: Prisma.DbProductCreateallergensInput | $Enums.DbAllergen[]
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -385,6 +417,8 @@ export type DbProductUpdateInput = {
   currentStock?: Prisma.IntFieldUpdateOperationsInput | number
   minStockAlert?: Prisma.IntFieldUpdateOperationsInput | number
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxRate?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   allergens?: Prisma.DbProductUpdateallergensInput | $Enums.DbAllergen[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -402,6 +436,8 @@ export type DbProductUncheckedUpdateInput = {
   currentStock?: Prisma.IntFieldUpdateOperationsInput | number
   minStockAlert?: Prisma.IntFieldUpdateOperationsInput | number
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxRate?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   allergens?: Prisma.DbProductUpdateallergensInput | $Enums.DbAllergen[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -418,6 +454,8 @@ export type DbProductCreateManyInput = {
   currentStock?: number
   minStockAlert?: number
   imageUrl?: string | null
+  icon?: string | null
+  taxRate?: number | null
   allergens?: Prisma.DbProductCreateallergensInput | $Enums.DbAllergen[]
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -431,6 +469,8 @@ export type DbProductUpdateManyMutationInput = {
   currentStock?: Prisma.IntFieldUpdateOperationsInput | number
   minStockAlert?: Prisma.IntFieldUpdateOperationsInput | number
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxRate?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   allergens?: Prisma.DbProductUpdateallergensInput | $Enums.DbAllergen[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -445,6 +485,8 @@ export type DbProductUncheckedUpdateManyInput = {
   currentStock?: Prisma.IntFieldUpdateOperationsInput | number
   minStockAlert?: Prisma.IntFieldUpdateOperationsInput | number
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxRate?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   allergens?: Prisma.DbProductUpdateallergensInput | $Enums.DbAllergen[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -482,6 +524,8 @@ export type DbProductCountOrderByAggregateInput = {
   currentStock?: Prisma.SortOrder
   minStockAlert?: Prisma.SortOrder
   imageUrl?: Prisma.SortOrder
+  icon?: Prisma.SortOrder
+  taxRate?: Prisma.SortOrder
   allergens?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -492,6 +536,7 @@ export type DbProductAvgOrderByAggregateInput = {
   price?: Prisma.SortOrder
   currentStock?: Prisma.SortOrder
   minStockAlert?: Prisma.SortOrder
+  taxRate?: Prisma.SortOrder
 }
 
 export type DbProductMaxOrderByAggregateInput = {
@@ -502,6 +547,8 @@ export type DbProductMaxOrderByAggregateInput = {
   currentStock?: Prisma.SortOrder
   minStockAlert?: Prisma.SortOrder
   imageUrl?: Prisma.SortOrder
+  icon?: Prisma.SortOrder
+  taxRate?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
@@ -515,6 +562,8 @@ export type DbProductMinOrderByAggregateInput = {
   currentStock?: Prisma.SortOrder
   minStockAlert?: Prisma.SortOrder
   imageUrl?: Prisma.SortOrder
+  icon?: Prisma.SortOrder
+  taxRate?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
@@ -524,6 +573,7 @@ export type DbProductSumOrderByAggregateInput = {
   price?: Prisma.SortOrder
   currentStock?: Prisma.SortOrder
   minStockAlert?: Prisma.SortOrder
+  taxRate?: Prisma.SortOrder
 }
 
 export type DbProductScalarRelationFilter = {
@@ -619,6 +669,8 @@ export type DbProductCreateWithoutMenuItemsInput = {
   currentStock?: number
   minStockAlert?: number
   imageUrl?: string | null
+  icon?: string | null
+  taxRate?: number | null
   allergens?: Prisma.DbProductCreateallergensInput | $Enums.DbAllergen[]
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -635,6 +687,8 @@ export type DbProductUncheckedCreateWithoutMenuItemsInput = {
   currentStock?: number
   minStockAlert?: number
   imageUrl?: string | null
+  icon?: string | null
+  taxRate?: number | null
   allergens?: Prisma.DbProductCreateallergensInput | $Enums.DbAllergen[]
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -665,6 +719,8 @@ export type DbProductUpdateWithoutMenuItemsInput = {
   currentStock?: Prisma.IntFieldUpdateOperationsInput | number
   minStockAlert?: Prisma.IntFieldUpdateOperationsInput | number
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxRate?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   allergens?: Prisma.DbProductUpdateallergensInput | $Enums.DbAllergen[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -681,6 +737,8 @@ export type DbProductUncheckedUpdateWithoutMenuItemsInput = {
   currentStock?: Prisma.IntFieldUpdateOperationsInput | number
   minStockAlert?: Prisma.IntFieldUpdateOperationsInput | number
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxRate?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   allergens?: Prisma.DbProductUpdateallergensInput | $Enums.DbAllergen[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -695,6 +753,8 @@ export type DbProductCreateWithoutCategoryInput = {
   currentStock?: number
   minStockAlert?: number
   imageUrl?: string | null
+  icon?: string | null
+  taxRate?: number | null
   allergens?: Prisma.DbProductCreateallergensInput | $Enums.DbAllergen[]
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -710,6 +770,8 @@ export type DbProductUncheckedCreateWithoutCategoryInput = {
   currentStock?: number
   minStockAlert?: number
   imageUrl?: string | null
+  icon?: string | null
+  taxRate?: number | null
   allergens?: Prisma.DbProductCreateallergensInput | $Enums.DbAllergen[]
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -755,6 +817,8 @@ export type DbProductScalarWhereInput = {
   currentStock?: Prisma.IntFilter<"DbProduct"> | number
   minStockAlert?: Prisma.IntFilter<"DbProduct"> | number
   imageUrl?: Prisma.StringNullableFilter<"DbProduct"> | string | null
+  icon?: Prisma.StringNullableFilter<"DbProduct"> | string | null
+  taxRate?: Prisma.IntNullableFilter<"DbProduct"> | number | null
   allergens?: Prisma.EnumDbAllergenNullableListFilter<"DbProduct">
   createdAt?: Prisma.DateTimeFilter<"DbProduct"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DbProduct"> | Date | string
@@ -768,6 +832,8 @@ export type DbProductCreateWithoutOrderItemsInput = {
   currentStock?: number
   minStockAlert?: number
   imageUrl?: string | null
+  icon?: string | null
+  taxRate?: number | null
   allergens?: Prisma.DbProductCreateallergensInput | $Enums.DbAllergen[]
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -784,6 +850,8 @@ export type DbProductUncheckedCreateWithoutOrderItemsInput = {
   currentStock?: number
   minStockAlert?: number
   imageUrl?: string | null
+  icon?: string | null
+  taxRate?: number | null
   allergens?: Prisma.DbProductCreateallergensInput | $Enums.DbAllergen[]
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -814,6 +882,8 @@ export type DbProductUpdateWithoutOrderItemsInput = {
   currentStock?: Prisma.IntFieldUpdateOperationsInput | number
   minStockAlert?: Prisma.IntFieldUpdateOperationsInput | number
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxRate?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   allergens?: Prisma.DbProductUpdateallergensInput | $Enums.DbAllergen[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -830,6 +900,8 @@ export type DbProductUncheckedUpdateWithoutOrderItemsInput = {
   currentStock?: Prisma.IntFieldUpdateOperationsInput | number
   minStockAlert?: Prisma.IntFieldUpdateOperationsInput | number
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxRate?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   allergens?: Prisma.DbProductUpdateallergensInput | $Enums.DbAllergen[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -844,6 +916,8 @@ export type DbProductCreateManyCategoryInput = {
   currentStock?: number
   minStockAlert?: number
   imageUrl?: string | null
+  icon?: string | null
+  taxRate?: number | null
   allergens?: Prisma.DbProductCreateallergensInput | $Enums.DbAllergen[]
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -857,6 +931,8 @@ export type DbProductUpdateWithoutCategoryInput = {
   currentStock?: Prisma.IntFieldUpdateOperationsInput | number
   minStockAlert?: Prisma.IntFieldUpdateOperationsInput | number
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxRate?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   allergens?: Prisma.DbProductUpdateallergensInput | $Enums.DbAllergen[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -872,6 +948,8 @@ export type DbProductUncheckedUpdateWithoutCategoryInput = {
   currentStock?: Prisma.IntFieldUpdateOperationsInput | number
   minStockAlert?: Prisma.IntFieldUpdateOperationsInput | number
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxRate?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   allergens?: Prisma.DbProductUpdateallergensInput | $Enums.DbAllergen[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -887,6 +965,8 @@ export type DbProductUncheckedUpdateManyWithoutCategoryInput = {
   currentStock?: Prisma.IntFieldUpdateOperationsInput | number
   minStockAlert?: Prisma.IntFieldUpdateOperationsInput | number
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxRate?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   allergens?: Prisma.DbProductUpdateallergensInput | $Enums.DbAllergen[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -941,6 +1021,8 @@ export type DbProductSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   currentStock?: boolean
   minStockAlert?: boolean
   imageUrl?: boolean
+  icon?: boolean
+  taxRate?: boolean
   allergens?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -959,6 +1041,8 @@ export type DbProductSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   currentStock?: boolean
   minStockAlert?: boolean
   imageUrl?: boolean
+  icon?: boolean
+  taxRate?: boolean
   allergens?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -974,6 +1058,8 @@ export type DbProductSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   currentStock?: boolean
   minStockAlert?: boolean
   imageUrl?: boolean
+  icon?: boolean
+  taxRate?: boolean
   allergens?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -989,13 +1075,15 @@ export type DbProductSelectScalar = {
   currentStock?: boolean
   minStockAlert?: boolean
   imageUrl?: boolean
+  icon?: boolean
+  taxRate?: boolean
   allergens?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   deletedAt?: boolean
 }
 
-export type DbProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "price" | "categoryId" | "currentStock" | "minStockAlert" | "imageUrl" | "allergens" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["dbProduct"]>
+export type DbProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "price" | "categoryId" | "currentStock" | "minStockAlert" | "imageUrl" | "icon" | "taxRate" | "allergens" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["dbProduct"]>
 export type DbProductInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   category?: boolean | Prisma.DbCategoryDefaultArgs<ExtArgs>
   orderItems?: boolean | Prisma.DbProduct$orderItemsArgs<ExtArgs>
@@ -1024,6 +1112,8 @@ export type $DbProductPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     currentStock: number
     minStockAlert: number
     imageUrl: string | null
+    icon: string | null
+    taxRate: number | null
     allergens: $Enums.DbAllergen[]
     createdAt: Date
     updatedAt: Date
@@ -1461,6 +1551,8 @@ export interface DbProductFieldRefs {
   readonly currentStock: Prisma.FieldRef<"DbProduct", 'Int'>
   readonly minStockAlert: Prisma.FieldRef<"DbProduct", 'Int'>
   readonly imageUrl: Prisma.FieldRef<"DbProduct", 'String'>
+  readonly icon: Prisma.FieldRef<"DbProduct", 'String'>
+  readonly taxRate: Prisma.FieldRef<"DbProduct", 'Int'>
   readonly allergens: Prisma.FieldRef<"DbProduct", 'DbAllergen[]'>
   readonly createdAt: Prisma.FieldRef<"DbProduct", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"DbProduct", 'DateTime'>

@@ -1,17 +1,19 @@
 import { Component, inject, output, signal } from '@angular/core';
 import { email, form, FormField, FormRoot, maxLength, minLength, required } from '@angular/forms/signals';
 import { MatButton } from '@angular/material/button';
-import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
-import { MatInput } from '@angular/material/input';
 import type { EstablishmentRole as EstablishmentRoleType, InviteEstablishmentMemberDto } from '@coaster/common';
 import { EstablishmentRole } from '@coaster/common';
 import { handleErrorFormField } from '@coaster/core';
+import { EstablishmentSubscriptionStore } from '@coaster/establishment-subscription';
 import { MembersStore } from '@coaster/establishment-members';
 import { TranslatePipe } from '@ngx-translate/core';
+import { Field } from '../../../../../../components/field/field';
+import { CoasterInput } from '../../../../../../components/field/input.directive';
+import { PricePipe } from '../../../../pipes/price/price';
 
 @Component({
   selector: 'coaster-invite-member-form',
-  imports: [FormRoot, MatFormField, MatLabel, MatInput, MatError, FormField, MatButton, TranslatePipe],
+  imports: [FormRoot, FormField, MatButton, TranslatePipe, Field, CoasterInput, PricePipe],
   template: `
     <form [formRoot]="form">
       <div class="flex flex-col gap-2 mb-6">
@@ -21,43 +23,42 @@ import { TranslatePipe } from '@ngx-translate/core';
         </p>
       </div>
 
-      <mat-form-field appearance="outline" class="w-full">
-        <mat-label>Email</mat-label>
-        <input matInput [formField]="form.email" placeholder="Email" />
-        @if (form.email().errors().length > 0) {
-          <mat-error>{{
-            form.email().errors()[0].message || form.email().errors()[0].kind | translate: form.email().errors()[0]
-          }}</mat-error>
-        }
-      </mat-form-field>
+      <coaster-field label="Email">
+        <input
+          coasterInput
+          type="email"
+          autocomplete="email"
+          enterkeyhint="send"
+          [formField]="form.email"
+          placeholder="Email"
+        />
+      </coaster-field>
 
-      <fieldset class="border-0 p-0 m-0 mt-2">
-        <legend class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mb-2">
-          {{ 'members.invite.role_label' | translate }}
-        </legend>
+      <div class="mt-2">
+        <coaster-field
+          [label]="'members.invite.role_label' | translate"
+          [hint]="'members.invite.role_hint_' + selectedRole().toLowerCase() | translate"
+        >
+          <select coasterInput (change)="selectRole($any($event.target).value)">
+            @for (role of assignableRoles; track role) {
+              <option [value]="role" [selected]="role === selectedRole()">
+                {{ 'common.role.' + role.toLowerCase() | translate }}
+              </option>
+            }
+          </select>
+        </coaster-field>
+      </div>
 
-        <div class="flex flex-wrap gap-2">
-          @for (role of assignableRoles; track role) {
-            <button
-              type="button"
-              class="px-3 py-1.5 rounded-full text-sm border transition-colors"
-              [class]="
-                selectedRole() === role
-                  ? 'border-primary bg-primary/10 text-primary font-semibold'
-                  : 'border-outline-variant text-on-surface-variant hover:bg-surface-container'
-              "
-              [attr.aria-pressed]="selectedRole() === role"
-              (click)="selectedRole.set(role)"
-            >
-              {{ 'common.role.' + role.toLowerCase() | translate }}
-            </button>
-          }
-        </div>
-
-        <p class="text-xs text-on-surface-variant mt-2">
-          {{ 'members.invite.role_hint_' + selectedRole().toLowerCase() | translate }}
+      @if (extraSeat(); as seat) {
+        <p class="flex items-start gap-2 mt-4 p-3 rounded-2xl bg-primary/5 text-xs text-on-surface-variant">
+          <span>
+            {{
+              'members.invite.extra_seat'
+                | translate: { included: seat.included, price: seat.extraPriceCents | price }
+            }}
+          </span>
         </p>
-      </fieldset>
+      }
 
       @if (form().errors().length > 0) {
         <div class="flex flex-col gap-1 mt-1 ml-1" role="alert">
@@ -90,6 +91,9 @@ export class InviteMemberForm {
   public readonly invited = output<void>();
 
   readonly #membersStore = inject(MembersStore);
+  readonly #subscriptionStore = inject(EstablishmentSubscriptionStore);
+
+  protected readonly extraSeat = this.#subscriptionStore.extraSeatNotice;
 
   protected readonly assignableRoles = Object.values(EstablishmentRole);
   protected readonly selectedRole = signal<EstablishmentRoleType>(EstablishmentRole.STAFF);
@@ -121,6 +125,10 @@ export class InviteMemberForm {
       },
     },
   );
+
+  protected selectRole(role: EstablishmentRoleType) {
+    this.selectedRole.set(role);
+  }
 
   protected cancelHandle() {
     this.canceled.emit();

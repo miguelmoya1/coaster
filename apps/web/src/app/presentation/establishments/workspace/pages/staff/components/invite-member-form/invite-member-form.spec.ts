@@ -1,6 +1,7 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Realtime } from '@coaster/core';
+import { EstablishmentSubscriptionStore } from '@coaster/establishment-subscription';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { InviteMemberForm } from './invite-member-form';
@@ -9,11 +10,18 @@ describe('InviteMemberForm', () => {
   let component: InviteMemberForm;
   let fixture: ComponentFixture<InviteMemberForm>;
 
+  const extraSeatNotice = signal<
+    { used: number; billed: number; included: number; basePriceCents: number; extraPriceCents: number } | undefined
+  >(undefined);
+
   beforeEach(async () => {
+    extraSeatNotice.set(undefined);
+
     await TestBed.configureTestingModule({
       imports: [InviteMemberForm],
       providers: [
         provideTranslateService(),
+        { provide: EstablishmentSubscriptionStore, useValue: { extraSeatNotice } },
         {
           provide: Realtime,
           useValue: {
@@ -32,6 +40,47 @@ describe('InviteMemberForm', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  describe('the role picker', () => {
+    const select = (): HTMLSelectElement => fixture.nativeElement.querySelector('select');
+
+    it('should offer the three roles in one native select, like every other form in the app', () => {
+      const options = Array.from(select().options).map((option) => option.value);
+
+      expect(options).toEqual(['OWNER', 'MANAGER', 'STAFF']);
+    });
+
+    it('should start on staff, the least dangerous role to hand out by accident', () => {
+      expect(select().value).toBe('STAFF');
+    });
+
+    it('should be styled by coasterInput, which is what makes it match the rest of the app', () => {
+      expect(select().classList.contains('coaster-input')).toBe(true);
+    });
+
+    it('should follow the picked role and explain what it can do', async () => {
+      const element = select();
+      element.value = 'MANAGER';
+      element.dispatchEvent(new Event('change'));
+      await fixture.whenStable();
+
+      expect(component['selectedRole']()).toBe('MANAGER');
+      expect(fixture.nativeElement.textContent).toContain('members.invite.role_hint_manager');
+    });
+  });
+
+  describe('the seat that costs extra', () => {
+    it('should say nothing while the venue still has room in its allowance', () => {
+      expect(fixture.nativeElement.textContent).not.toContain('extra_seat');
+    });
+
+    it('should warn before inviting the employee that goes over the allowance', () => {
+      extraSeatNotice.set({ used: 10, billed: 10, included: 10, basePriceCents: 1999, extraPriceCents: 200 });
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.textContent).toContain('members.invite.extra_seat');
+    });
   });
 
   describe('actions', () => {

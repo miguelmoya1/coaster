@@ -68,7 +68,9 @@ describe('AddOrderItemsHandler', () => {
       items: [],
     };
     repository.findById.mockResolvedValue(order);
-    repository.findProductsByIds.mockResolvedValue([{ id: 'prod-1', price: 5 }]);
+    repository.findProductsByIds.mockResolvedValue([
+      { id: 'prod-1', name: 'Producto', price: 5, taxRate: null, category: { taxRate: 1000 } },
+    ]);
     repository.addItemsToOrder.mockResolvedValue({
       ...order,
       totalAmount: 15,

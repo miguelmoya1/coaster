@@ -3,6 +3,8 @@
 @import 'tailwindcss/utilities';
 
 :root {
+  color-scheme: dark;
+
   --color-surface-lowest: #000000;
   --color-surface-base: #0e0e0e;
   --color-surface-container-low: #131313;
@@ -265,4 +267,135 @@ mat-card-title {
 
 mat-card-subtitle {
   color: var(--color-on-surface-variant) !important;
+}
+
+@supports (appearance: base-select) {
+  select.coaster-input {
+    appearance: base-select;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-align: start;
+  }
+
+  select.coaster-input::picker-icon {
+    color: var(--color-on-surface-variant);
+    transition: transform 0.2s ease;
+  }
+
+  select.coaster-input:open::picker-icon {
+    transform: rotate(180deg);
+  }
+
+  select.coaster-input::picker(select) {
+    appearance: base-select;
+    background: var(--color-surface-container-high);
+    border: 1px solid color-mix(in srgb, var(--color-outline-variant) 40%, transparent);
+    border-radius: 0.75rem;
+    padding: 0.375rem;
+    margin-top: 0.375rem;
+    box-shadow: var(--shadow-elevated);
+    opacity: 0;
+    transform: translateY(-0.375rem);
+    transition:
+      opacity 0.16s ease,
+      transform 0.16s ease,
+      overlay 0.16s allow-discrete,
+      display 0.16s allow-discrete;
+  }
+
+  select.coaster-input:open::picker(select) {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @starting-style {
+    select.coaster-input:open::picker(select) {
+      opacity: 0;
+      transform: translateY(-0.375rem);
+    }
+  }
+
+  select.coaster-input option {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.5rem 0.625rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--color-on-surface);
+  }
+
+  select.coaster-input option:hover,
+  select.coaster-input option:focus {
+    background: var(--color-surface-container-highest);
+  }
+
+  select.coaster-input option:checked {
+    color: var(--color-primary);
+    font-weight: 600;
+  }
+
+  select.coaster-input option::checkmark {
+    content: '\2713';
+    color: var(--color-primary);
+    order: 1;
+    margin-left: auto;
+  }
+
+  select.coaster-input option:not(:checked)::checkmark,
+  select.coaster-input option:disabled::checkmark {
+    visibility: hidden;
+  }
+
+  select.coaster-input option:disabled {
+    color: var(--color-on-surface-variant);
+    opacity: 0.5;
+  }
+
+  @media (max-width: 40rem) {
+    select.coaster-input::picker(select) {
+      position-area: none;
+      inset: auto 0 0 0;
+      width: 100%;
+      max-width: none;
+      max-height: 60vh;
+      overflow-y: auto;
+      margin: 0;
+      padding: 0.5rem 0.5rem calc(0.5rem + env(safe-area-inset-bottom));
+      border-width: 1px 0 0;
+      border-radius: 1rem 1rem 0 0;
+      opacity: 1;
+      transform: translateY(100%);
+      transition:
+        transform 0.22s cubic-bezier(0.32, 0.72, 0, 1),
+        overlay 0.22s allow-discrete,
+        display 0.22s allow-discrete;
+    }
+
+    select.coaster-input:open::picker(select) {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @starting-style {
+      select.coaster-input:open::picker(select) {
+        transform: translateY(100%);
+      }
+    }
+
+    select.coaster-input::picker(select)::backdrop {
+      background: rgb(0 0 0 / 0.45);
+    }
+
+    select.coaster-input option {
+      padding: 0.875rem 0.75rem;
+      font-size: 0.9375rem;
+    }
+  }
+}
+
+.mat-bottom-sheet-container {
+  margin-bottom: var(--keyboard-inset, 0px);
+  transition: margin-bottom 0.2s ease;
 }

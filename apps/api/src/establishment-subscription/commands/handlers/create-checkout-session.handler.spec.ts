@@ -25,6 +25,7 @@ describe('CreateCheckoutSessionHandler (establishment-subscription)', () => {
 
     readRepoMock = {
       findByEstablishmentId: vi.fn(),
+      countBillableSeats: vi.fn().mockResolvedValue(1),
     };
 
     handler = new CreateCheckoutSessionHandler(stripeApiMock, configServiceMock, readRepoMock);
@@ -45,6 +46,30 @@ describe('CreateCheckoutSessionHandler (establishment-subscription)', () => {
       expect.stringContaining(`checkout:${establishmentId}:${SubscriptionPlan.PRO}:`),
     );
     expect(result).toEqual({ id: 'cs_123', url: 'https://checkout.stripe.com/pay' });
+  });
+
+  it('should buy as many seats as the venue has staff, so the first invoice already reflects the headcount', async () => {
+    readRepoMock.countBillableSeats.mockResolvedValue(12);
+
+    await handler.execute(new CreateCheckoutSessionCommand(establishmentId, SubscriptionPlan.PRO));
+
+    expect(stripeApiMock.createCheckoutSession).toHaveBeenCalledWith(
+      expect.objectContaining({ line_items: [{ price: 'price_monthly', quantity: 12 }] }),
+      undefined,
+      expect.any(String),
+    );
+  });
+
+  it('should key a changed headcount apart, so hiring within the bucket does not reuse the old session', async () => {
+    await handler.execute(new CreateCheckoutSessionCommand(establishmentId, SubscriptionPlan.PRO));
+    readRepoMock.countBillableSeats.mockResolvedValue(2);
+    await handler.execute(new CreateCheckoutSessionCommand(establishmentId, SubscriptionPlan.PRO));
+
+    const [firstKey, secondKey] = stripeApiMock.createCheckoutSession.mock.calls.map(
+      (call: unknown[]) => call[2] as string,
+    );
+
+    expect(firstKey).not.toBe(secondKey);
   });
 
   it('should reuse one idempotency key across repeated purchases so Stripe returns the same session', async () => {

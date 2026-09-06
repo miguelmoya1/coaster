@@ -86,11 +86,12 @@ export default class Login {
   public async signIn(provider: SignInProvider) {
     this.isLoading.set(true);
 
-    try {
-      await this.#auth.login(provider);
+    const user = await this.#auth.login(provider).catch(() => null);
+
+    this.isLoading.set(false);
+
+    if (user) {
       await this.#router.navigate(['/establishments/select']);
-    } finally {
-      this.isLoading.set(false);
     }
   }
 }

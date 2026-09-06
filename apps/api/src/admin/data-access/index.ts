@@ -1,3 +1,4 @@
+export * from './admin-beta-tester.repository';
 export * from './admin-audit.repository';
 export * from './admin-establishment.read.repository';
 export * from './admin-metrics.read.repository';

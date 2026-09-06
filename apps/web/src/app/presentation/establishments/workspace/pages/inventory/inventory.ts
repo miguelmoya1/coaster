@@ -7,7 +7,7 @@ import { MyMemberStore } from '@coaster/establishment-members';
 import { RequireSubscriptionDirective } from '@coaster/establishment-subscription';
 import { CategoriesStore } from '@coaster/categories';
 import type { EstablishmentId, Category } from '@coaster/common';
-import { EstablishmentPermission } from '@coaster/common';
+import { EstablishmentPermission, grossFromNet } from '@coaster/common';
 import { ActionFeedback } from '@coaster/core';
 import { Product, ProductsStore } from '@coaster/products';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
@@ -54,6 +54,10 @@ import { UpdateStockProductForm } from './components/update-stock-product-form/u
   `,
 })
 export default class Inventory {
+  protected grossOf(product: Product): number {
+    return grossFromNet(product.price, product.taxRate);
+  }
+
   public readonly establishmentId = input.required<EstablishmentId>();
 
   readonly #myMemberStore = inject(MyMemberStore);

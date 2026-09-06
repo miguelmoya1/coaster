@@ -2,33 +2,27 @@ import { asUserId } from '@coaster/common';
 import { Component, computed, inject, input, output, signal } from '@angular/core';
 import { FormField, FormRoot, form, required } from '@angular/forms/signals';
 import { MatButton } from '@angular/material/button';
-import { MatError, MatFormField, MatLabel, MatSuffix } from '@angular/material/form-field';
-import { MatInput } from '@angular/material/input';
-import { MatOption, MatSelect } from '@angular/material/select';
 import { MatTimepicker, MatTimepickerInput, MatTimepickerToggle } from '@angular/material/timepicker';
 import type { EstablishmentMember } from '@coaster/common';
 import { DateFormatterService, handleErrorFormField } from '@coaster/core';
 import { ScheduleStateService } from '@coaster/schedule';
 import { ShiftsStore } from '@coaster/shifts';
 import { TranslatePipe } from '@ngx-translate/core';
+import { Field } from '../../../../../../components/field/field';
+import { CoasterInput } from '../../../../../../components/field/input.directive';
 
 @Component({
   selector: 'coaster-create-shift-form',
   imports: [
     FormRoot,
-    MatFormField,
-    MatLabel,
-    MatSuffix,
-    MatError,
-    MatInput,
-    MatSelect,
-    MatOption,
     MatTimepicker,
     MatTimepickerInput,
     MatTimepickerToggle,
     FormField,
     MatButton,
     TranslatePipe,
+    Field,
+    CoasterInput,
   ],
   template: `
     <div class="mb-4 pb-4 border-b border-outline-variant/15 select-none">
@@ -42,60 +36,39 @@ import { TranslatePipe } from '@ngx-translate/core';
 
     <form [formRoot]="form">
       <div class="flex flex-col gap-4">
-        <mat-form-field appearance="outline" class="w-full">
-          <mat-label>{{ 'schedule.create_shift.staff_label' | translate }}</mat-label>
-          <mat-select [formField]="form.userId" [placeholder]="'schedule.create_shift.staff_placeholder' | translate">
+        <coaster-field [label]="'schedule.create_shift.staff_label' | translate">
+          <select coasterInput [formField]="form.userId">
+            <option value="" disabled>{{ 'schedule.create_shift.staff_placeholder' | translate }}</option>
             @for (option of memberOptions(); track option.value) {
-              <mat-option [value]="option.value">{{ option.label }}</mat-option>
+              <option [value]="option.value">{{ option.label }}</option>
             }
-          </mat-select>
-          @if (form.userId().errors().length > 0) {
-            <mat-error>{{
-              form.userId().errors()[0].message || form.userId().errors()[0].kind | translate: form.userId().errors()[0]
-            }}</mat-error>
-          }
-        </mat-form-field>
+          </select>
+        </coaster-field>
 
-        <mat-form-field appearance="outline" class="w-full">
-          <mat-label>{{ 'schedule.create_shift.start_time_label' | translate }}</mat-label>
-          <input matInput [matTimepicker]="startPicker" [formField]="form.startTime" />
-          <mat-timepicker-toggle matIconSuffix [for]="startPicker"></mat-timepicker-toggle>
-          <mat-timepicker #startPicker></mat-timepicker>
-          @if (form.startTime().errors().length > 0) {
-            <mat-error>{{
-              form.startTime().errors()[0].message || form.startTime().errors()[0].kind
-                | translate: form.startTime().errors()[0]
-            }}</mat-error>
-          }
-        </mat-form-field>
+        <coaster-field [label]="'schedule.create_shift.start_time_label' | translate">
+          <div class="relative">
+            <input coasterInput class="pr-11" [matTimepicker]="startPicker" [formField]="form.startTime" />
+            <mat-timepicker-toggle class="absolute right-1 top-1/2 -translate-y-1/2" [for]="startPicker" />
+            <mat-timepicker #startPicker />
+          </div>
+        </coaster-field>
 
-        <mat-form-field appearance="outline" class="w-full">
-          <mat-label>{{ 'schedule.create_shift.end_time_label' | translate }}</mat-label>
-          <input matInput [matTimepicker]="endPicker" [formField]="form.endTime" />
-          <mat-timepicker-toggle matIconSuffix [for]="endPicker"></mat-timepicker-toggle>
-          <mat-timepicker #endPicker></mat-timepicker>
-          @if (form.endTime().errors().length > 0) {
-            <mat-error>{{
-              form.endTime().errors()[0].message || form.endTime().errors()[0].kind
-                | translate: form.endTime().errors()[0]
-            }}</mat-error>
-          }
-        </mat-form-field>
+        <coaster-field [label]="'schedule.create_shift.end_time_label' | translate">
+          <div class="relative">
+            <input coasterInput class="pr-11" [matTimepicker]="endPicker" [formField]="form.endTime" />
+            <mat-timepicker-toggle class="absolute right-1 top-1/2 -translate-y-1/2" [for]="endPicker" />
+            <mat-timepicker #endPicker />
+          </div>
+        </coaster-field>
 
-        <mat-form-field appearance="outline" class="w-full">
-          <mat-label>{{ 'schedule.create_shift.notes_label' | translate }}</mat-label>
+        <coaster-field [label]="'schedule.create_shift.notes_label' | translate">
           <textarea
-            matInput
+            coasterInput
             [formField]="form.notes"
             [placeholder]="'schedule.create_shift.notes_placeholder' | translate"
             rows="3"
           ></textarea>
-          @if (form.notes().errors().length > 0) {
-            <mat-error>{{
-              form.notes().errors()[0].message || form.notes().errors()[0].kind | translate: form.notes().errors()[0]
-            }}</mat-error>
-          }
-        </mat-form-field>
+        </coaster-field>
 
         @if (form().errors().length > 0) {
           <div class="flex flex-col gap-1 mt-1 ml-1" role="alert">

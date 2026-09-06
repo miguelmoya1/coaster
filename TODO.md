@@ -1,62 +1,88 @@
-# Coaster roadmap
+# Pendiente
 
-What is left, in the order it should be built. Technical detail lives in [`docs/`](docs/README.md);
-this file is only the running order.
+Lo que está a medias y por qué, para no perderlo entre conversaciones.
 
-## Next
+> Coaster y Fichit son dos productos separados desde el 4 de septiembre de 2026, sin código ni
+> credenciales en común. Lo que queda aquí de Fichit son los dos sitios donde comparten
+> **infraestructura** —la cuenta de correo y las claves que pasaron por un chat—, no dependencias.
+> El detalle de la separación está en `SEPARACION.md`, en la raíz de `dev/`.
 
-### 1. Help with the translations
+## Correo: dominio propio
 
-The editor already counts what is unwritten in each language. What is missing is the assistant
-translating a menu in one pass — once per item rather than once per request, so a 50-item menu is
-about one message of the monthly allowance. Reviewed before it saves.
+**Ahora mismo Fichit envía desde `fichit@miguelmo.dev`** y Coaster desde
+`hello@coaster.business`. Es un apaño hasta comprar el dominio definitivo.
 
-## Later
+Cuando lo tengas, hay que tocar **dos sitios**:
 
-- **Table reservations.** The largest of the parked features and the only one that needs a design of
-  its own before it can be estimated.
-- **Per-establishment time zone.** `ESTABLISHMENT_TIME_ZONE` is a constant. `EstablishmentSettings`
-  is where it belongs, but moving it rewrites every workday calculation and the inspection CSV, and
-  it buys nothing while the product is Spanish.
-- **Intelligence layer.** AI recommendations over accumulated history: best and worst performing
-  products, price adjustments for stagnant stock, rota suggestions from historical load. Cloud Run
-  stops the container when idle, so an in-process cron will never fire — this needs Cloud Scheduler
-  hitting an endpoint, or work driven by traffic.
-- **The assistant's allowance.** Both halves of the cap are in: a context budget bounds what one
-  message costs (`ai/domain/snapshot.ts`) and a monthly allowance bounds how many arrive — 500 paid,
-  100 on trial, both environment variables. The numbers came from measurement, not from a finding.
-  Nothing to do until there is real usage: if nobody approaches 500, raise it; if many exhaust it,
-  that is an argument for a price tier rather than a problem.
+| Dónde | Qué | Cómo |
+| :--- | :--- | :--- |
+| Fichit | `FICHIT_SMTP_FROM` | Desde el panel, `PUT /api/v1/platform/settings`, sin desplegar |
+| Coaster | `hello@coaster.business` | Está **a fuego** en `apps/api/src/email/email.service.ts` |
 
-## Known debt
+Lo de Coaster es el que se olvida: no es una variable de entorno, es una cadena en el código.
 
-- **Thirteen command handlers still publish nothing** — mostly `printer` and `shift-exchanges`.
-  Every command should end up emitting its event even where nothing listens. The three that blocked
-  the cache are done: `update-user`, `update-establishment-settings` and `handle-checkout-completed`,
-  the last of which was writing an activated subscription in silence and would have left a venue that
-  had just paid looking unpaid for as long as the TTL.
-- **Renaming a product rewrites history.** `OrderItem` stores `priceAtPurchase` but never the name it
-  was sold under, so a receipt reprinted after a rename shows a sale that never happened under that
-  name. Every product is renameable now that names are words rather than keys. The fix is for the
-  order line to snapshot the name the way `TimeEntry` snapshots the user.
-- **Open CORS** (`origin: '*'`) on the API, pending a decision on the production domain. It now also
-  governs the realtime stream, which the browser reaches with a preflighted `Authorization` header. Narrow it to an allowlist before onboarding real venues.
-- **Destructive backoffice actions** were deliberately left out. If deleting establishments or users
-  is added, it must require typing the name to confirm and must land in the audit log.
-- **Five imperative GETs remain**, all in `data-access`, all through `routes`, none in a component.
-  They answer a button press or an event rather than describing state, so `httpResource` does not
-  fit: replicating a rota week, verifying the hash chain, exporting the inspection CSV, polling a
-  print job, and refreshing one order after a realtime event.
-- **Event bindings are not covered by the web tests.** Component specs assert rendered DOM and call
-  methods directly; dispatched DOM events never reach Angular listeners in that setup, so keyboard
-  and click wiring is only ever verified by hand.
-- **Browser e2e run against mocked HTTP.** The Playwright suite stubs every API response, so nothing
-  automated exercises browser → API → database end to end. Printer pairing is covered on the API
-  side and in Go, but no test drives a real binary against a real server.
-- **`member-roles.e2e-spec.ts` failed once** and has passed every run since. Its siblings had a real
-  race — asserting on a membership the invite saga writes asynchronously — fixed with
-  `E2eTestSetup.waitForMembers`. This one asserts no member counts, so if it returns it is something
-  else.
-- **The admin mobile test does not reproduce the bug it was written for.** It asserts each admin
-  screen fits a phone viewport, which is worth having, but its fixtures do not trigger the overflow
-  that prompted it. Both fixes were verified by hand instead.
+## Resend: dos cuentas, o una con un problema
+
+La clave que usa Fichit beta y la que usa **Coaster en producción son distintas**. En la cuenta
+de Fichit solo está `miguelmo.dev` (verificado). `coaster.business` no aparece ahí.
+
+Si resultara ser la misma cuenta, los correos de invitación de Coaster estarían fallando **en
+silencio**: `EmailService.sendInviteEmail` captura el error y solo lo registra, así que nadie se
+entera de que la invitación no llegó. Merece una comprobación.
+
+## Rotar lo que pasó por el chat
+
+La clave de API de Resend y la contraseña de la base de Neon se escribieron en una conversación.
+Rótalas cuando la beta esté estable.
+
+La clave de socio de Fichit ya no hace falta rotarla: el mecanismo de socio se retiró y la tabla
+`partners` no existe, así que la credencial murió con ella.
+
+## Registro horario: la conservación de cuatro años
+
+El art. 34.9 pide conservar el registro cuatro años. Hoy eso se sostiene porque las claves foráneas
+de `TimeEntry` son `RESTRICT` y nadie borra, pero **no hay política escrita ni purga automática**.
+No es urgente —lo que la ley castiga es no conservarlo, no conservarlo de más— pero conviene que
+esté dicho en `docs/operations/time-tracking.md` antes de que se olvide.
+
+El contraste completo contra la normativa vigente está en `NORMATIVA.md`, en la raíz de `dev/`.
+
+## Veri*factu: hay esquema, no hay código
+
+`VERIFACTU.md` son 791 líneas de plan escrito contra este repo, y la migración
+`20260825120000_verifactu_w0_invoicing_foundations` ya creó `Invoice` e `InvoiceTaxLine` con todo
+lo que pide la AEAT: huella encadenada, `qrPayload`, `aeatStatus`, rectificativas y anulaciones.
+
+**Encima de ese esquema no hay ni una línea de aplicación.** No existe módulo, ni servicio, ni
+controlador: `grep` solo lo encuentra en el cliente generado de Prisma. Es el hueco más grande
+entre lo que hay en `dev` y un TPV vendible en España.
+
+No es urgente por la razón que dice el propio documento —«no es obligatorio todavía para este caso
+y no hay prisa»— y su primera mitad es un TPV mejor con AEAT o sin ella. Pero conviene saber que
+está a cero, no a medias.
+
+Un apunte que casi se pierde: la sección 1 de `VERIFACTU.md` dice que la numeración correlativa es
+«copiar el primer bloque cambiando el ámbito del lock», y apunta a `time-entry-chain.ts` y
+`time-entries.write.repository.ts`. Esos dos ficheros estuvieron borrados entre el 27 de agosto y
+el 4 de septiembre, así que ese plan apuntaba a código que no existía. Al devolver el registro
+horario han vuelto, y con ellos el punto de partida.
+
+## Producción va muy por detrás de `dev`
+
+Comprobado el 4 de septiembre contra la base de `api-new`: 2 establecimientos, 4 usuarios, 17
+comandas, 6 turnos, **0 fichajes**, y **la tabla `Invoice` no existe**. Es decir, los 91 commits
+que separan `main` de `dev` —menús, catálogo, cimientos de Veri*factu, notas de comanda— no los ha
+visto ningún usuario.
+
+Los 0 fichajes son la otra cara: el registro horario restaurado está probado por 214 e2e y 773
+unitarios, pero **nadie lo ha usado nunca en producción**. Antes de contárselo a un cliente como
+característica, conviene fichar un día entero desde un local de verdad.
+
+## `MEDIA_BUCKET` en beta
+
+No está puesta en el servicio `api-beta`, así que cae al respaldo del código
+(`imagenes-clientes-app`), **que es el bucket de producción**. Las imágenes que subas en beta acaban
+ahí, y contradice lo que dice `docs/operations/environments.md`.
+
+Se arregla creando el bucket de beta (las tres órdenes están en ese documento) o poniendo la
+variable explícitamente, para dejar claro que apunta a producción a propósito.

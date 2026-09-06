@@ -115,6 +115,7 @@ describe('OrdersReadRepository', () => {
           deletedAt: null,
           category: { establishmentId: 'establishment-1', deletedAt: null },
         },
+        include: { category: { select: { taxRate: true } } },
       });
     });
   });

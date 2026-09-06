@@ -1,10 +1,21 @@
-import { describe, expect, it } from 'vitest';
+import { TestBed } from '@angular/core/testing';
+import { provideTranslateService } from '@ngx-translate/core';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { PricePipe } from './price';
 
 describe('PricePipe', () => {
-  const pipe = new PricePipe();
+  let pipe: PricePipe;
 
-  it('should format cents using browser locale', () => {
+  beforeEach(() => {
+    TestBed.configureTestingModule({ providers: [provideTranslateService(), PricePipe] });
+    pipe = TestBed.inject(PricePipe);
+  });
+
+  it('should follow the language the app is in, not the browser', () => {
+    expect(pipe.transform(1999)).toBe('19,99\u00A0€');
+  });
+
+  it('should format cents', () => {
     const result = pipe.transform(1500);
     expect(result).toBeTruthy();
     expect(result.length).toBeGreaterThan(0);

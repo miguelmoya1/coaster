@@ -1,40 +1,43 @@
 import { Component, inject, output, signal } from '@angular/core';
-import { form, FormField, FormRoot, maxLength, minLength, required } from '@angular/forms/signals';
+import { form, FormField, FormRoot, max, maxLength, min, minLength, required } from '@angular/forms/signals';
 import { MatButton } from '@angular/material/button';
-import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
-import { MatInput } from '@angular/material/input';
 import { CategoriesStore } from '@coaster/categories';
 import type { CreateCategoryDto } from '@coaster/common';
 import { handleErrorFormField } from '@coaster/core';
 import { TranslatePipe } from '@ngx-translate/core';
+import { Field } from '../../../../../../components/field/field';
+import { CoasterInput } from '../../../../../../components/field/input.directive';
 import { IconPicker } from '../../../../../../components/icon-picker/icon-picker';
+import { toBasisPoints } from '@coaster/common';
 
 @Component({
   selector: 'coaster-create-category-form',
-  imports: [FormRoot, MatFormField, MatLabel, MatInput, MatError, FormField, MatButton, TranslatePipe, IconPicker],
+  imports: [FormRoot, FormField, MatButton, TranslatePipe, IconPicker, Field, CoasterInput],
   template: `
     <form [formRoot]="form">
       <div class="flex flex-col gap-4">
-        <mat-form-field appearance="outline" class="w-full">
-          <mat-label>{{ 'inventory.create_category.name_label' | translate }}</mat-label>
+        <coaster-field [label]="'inventory.create_category.name_label' | translate">
           <input
-            matInput
+            coasterInput
             data-testid="category-name-input"
+            enterkeyhint="send"
             [formField]="form.name"
             [placeholder]="'inventory.create_category.name_placeholder' | translate"
           />
-          @if (form.name().errors().length > 0) {
-            <mat-error>{{
-              form.name().errors()[0].message || form.name().errors()[0].kind | translate: form.name().errors()[0]
-            }}</mat-error>
-          }
-        </mat-form-field>
+        </coaster-field>
 
         <coaster-icon-picker
           [formField]="form.icon"
           [label]="'inventory.create_category.icon_label' | translate"
           [placeholder]="'inventory.create_category.icon_placeholder' | translate"
         />
+
+        <coaster-field
+          [label]="'inventory.category_tax_rate_label' | translate"
+          [hint]="'inventory.category_tax_rate_hint' | translate"
+        >
+          <input coasterInput type="number" step="0.5" [formField]="form.taxRatePercent" />
+        </coaster-field>
 
         @if (form().errors().length > 0) {
           <div class="flex flex-col gap-1 mt-1 ml-1" role="alert">
@@ -74,9 +77,10 @@ export class CreateCategoryForm {
   readonly canceled = output<void>();
   readonly created = output<void>();
 
-  readonly #formBase = signal<Required<CreateCategoryDto>>({
+  readonly #formBase = signal<Omit<Required<CreateCategoryDto>, 'taxRate'> & { taxRatePercent: number }>({
     name: '',
     icon: '',
+    taxRatePercent: 10,
   });
 
   readonly form = form(
@@ -85,11 +89,15 @@ export class CreateCategoryForm {
       required(fields.name);
       minLength(fields.name, 2);
       maxLength(fields.name, 50);
+
+      min(fields.taxRatePercent, 0);
+      max(fields.taxRatePercent, 100);
     },
     {
       submission: {
         action: async (form) => {
-          const payload = form().value();
+          const { taxRatePercent, ...rest } = form().value();
+          const payload = { ...rest, taxRate: toBasisPoints(taxRatePercent) };
 
           try {
             await this.#categoryStore.create(payload);

@@ -38,17 +38,29 @@ repositories), `store/` (signal state), `services/`, `mappers/` and, where relev
 
 Around an establishment the split is:
 
-| Domain                       | Contains                                                                          |
-| ---------------------------- | --------------------------------------------------------------------------------- |
-| `establishments`             | creating and listing establishments, current establishment                        |
-| `establishment-members`      | members, invitations, my own membership and `permissionGuard`                     |
-| `establishment-subscription` | subscription, checkout, customer portal, plan dialog and its directive            |
-| `admin`                      | platform backoffice (establishments, users, metrics, audit) and `adminGuard`      |
-| `time-tracking`              | clocking: own workday, team register, corrections and export                      |
-| `schedule`                   | `ScheduleStateService`: selected date, view mode and the ranges derived from them |
+| Domain                       | Contains                                                                                     |
+| ---------------------------- | -------------------------------------------------------------------------------------------- |
+| `establishments`             | creating and listing establishments, current establishment, `ModulesStore` and `moduleGuard` |
+| `establishment-members`      | members, invitations, my own membership and `permissionGuard`                                |
+| `establishment-subscription` | subscription, checkout, customer portal, plan dialog and its directive                       |
+| `admin`                      | platform backoffice (establishments, users, beta testers, metrics, audit) and `adminGuard`   |
+| `time-tracking`              | clocking: own workday, team register, corrections and export                                 |
+| `schedule`                   | `ScheduleStateService`: selected date, view mode and the ranges derived from them            |
+| `categories`, `products`     | the catalogue                                                                                |
+| `catalogue`                  | importing the starter catalogue Coaster ships                                                |
+| `menu`                       | the menu editor's draft, publishing, and the public page's read                              |
+| `tables`, `orders`           | the floor                                                                                    |
+| `shifts`, `exchanges`        | the rota and the shift marketplace                                                           |
+| `stats`                      | takings and the dashboard figures                                                            |
+| `printer`                    | pairing, device key, print jobs                                                              |
 
 `permissionGuard` lives in `establishment-members` (not `establishments`) because it depends on `MyMemberStore`; in
 `establishments` it would form a `establishments -> establishment-members -> establishments` cycle.
+
+`moduleGuard` is its counterpart for the fourth access axis: it keeps a route out of reach when the
+establishment does not run that module, mirroring `EstablishmentModulesGuard` on the API — see
+[access model](permissions.md). It lives in `establishments` because the module list is the
+establishment's, not the member's.
 
 A domain may import `@coaster/core` and other domains by alias. **It cannot import from
 `presentation/`**: if a domain service opens a dialog, that dialog's component lives in the domain
@@ -109,6 +121,35 @@ That is how a search icon and two time pickers were missing from shipped screens
 The attributes to watch: `matSuffix` / `matIconSuffix` need `MatSuffix`, `matPrefix` /
 `matIconPrefix` need `MatPrefix`, and likewise `matInput`, `matTooltip`, `matBadge`, `matRipple`,
 `matStartDate` and `matEndDate`.
+
+## Icons
+
+Every icon in the product is a **Material Symbols ligature**, referenced by its snake_case name.
+Two consequences that have both bitten already:
+
+- A kebab-case name (`water-drop`) renders nothing, and a name the font does not know (`beer`) is
+  painted as the literal word. Neither fails a build, so both shipped once.
+- Any check that a stored icon is "valid" can only test its shape. `isMaterialIconName` does exactly
+  that and nothing more; correctness comes from `coaster-icon-picker` only ever offering names that
+  exist.
+
+The picker loads the full catalogue through a dynamic `import()` on first open, keeping it out of
+every chunk that merely renders an icon, and grows the grid a batch at a time as you scroll.
+
+## Tailwind's preflight beats a class on `<button>`
+
+`coasterInput` styles inputs, textareas, selects **and buttons**, so a control that opens a panel
+looks like the field next to it rather than like a link.
+
+A button needs two of those utilities marked `!`. Preflight's reset is
+`button, [type="button"], … { background-color: transparent; border-width: 0 }`, and `[type="button"]`
+is an attribute selector — the same specificity as a class — declared after the utilities, so it wins
+on any button that names its type. The symptom is a control with the right radius and padding and no
+fill or border at all.
+
+This is the same shape as the Material case in
+[Material buttons and Tailwind](#material-directives-that-fail-silently): on a button, assume a plain
+utility may lose and check the computed style rather than the class list.
 
 ## Typecheck
 
@@ -190,8 +231,14 @@ Two more container traps, both of which look like "my change did not apply":
 - **Adding an npm dependency.** `node_modules` are anonymous volumes, so the host install is
   invisible inside the container. Run `docker compose exec api npm install` (or `web`).
 - **Adding or removing an export in `@coaster/common`.** Vite pre-bundles dependencies into
-  `.angular/cache`, which `compose.yaml` keeps in a **named** volume that survives restarts. The
-  browser then reports `does not provide an export named '...'`. Clear it:
+  `.angular/cache`, which `compose.yaml` keeps in a **named** volume that survives restarts, so the
+  browser reported `does not provide an export named '...'` for a symbol that plainly existed. This
+  one is fixed at the root: `angular.json` now lists `@coaster/common` under the dev server's
+  `prebundle.exclude`, so it is compiled with the application and picks changes up on the spot.
+
+  If it ever comes back, the cache is stale. Delete it **from inside the container** — removing it
+  from the host while the container holds it open detaches the bind mount, and everything you do
+  afterwards on the host is silently ignored:
 
   ```bash
   docker compose exec web rm -rf /app/apps/web/.angular/cache && docker compose restart web

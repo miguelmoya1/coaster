@@ -16,7 +16,7 @@ describe('CreateProductForm', () => {
   };
 
   const mockCategories: Category[] = [
-    { id: asCategoryId('cat-1'), name: 'Drinks', establishmentId: asEstablishmentId('establishment-1') },
+    { id: asCategoryId('cat-1'), name: 'Drinks', establishmentId: asEstablishmentId('establishment-1'), taxRate: 1000 },
   ];
 
   beforeEach(async () => {
@@ -75,6 +75,8 @@ describe('CreateProductForm', () => {
       expect(productsStoreMock.create).toHaveBeenCalledWith({
         name: 'New Beer',
         allergens: [],
+        icon: '',
+        ownTaxRate: null,
         categoryId: 'cat-1',
         currentStock: 10,
         minStockAlert: 5,

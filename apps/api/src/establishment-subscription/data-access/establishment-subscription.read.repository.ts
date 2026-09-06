@@ -23,4 +23,12 @@ export class EstablishmentSubscriptionReadRepository {
       where: { stripeSubscriptionId },
     });
   }
+
+  public async countBillableSeats(establishmentId: EstablishmentId): Promise<number> {
+    const members = await this._db.dbEstablishmentMember.count({
+      where: { establishmentId, active: true, deletedAt: null },
+    });
+
+    return Math.max(members, 1);
+  }
 }

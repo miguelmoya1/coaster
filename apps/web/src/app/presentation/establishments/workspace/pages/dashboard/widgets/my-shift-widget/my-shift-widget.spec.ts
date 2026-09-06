@@ -112,7 +112,13 @@ describe('MyShiftWidget', () => {
 
   it('should list what is coming without repeating today', () => {
     const widget = withWorkdays([
-      { date: today, state: ClockState.IN, workedMinutes: 0, plannedStart: `${today}T09:00:00`, plannedEnd: `${today}T17:00:00` },
+      {
+        date: today,
+        state: ClockState.IN,
+        workedMinutes: 0,
+        plannedStart: `${today}T09:00:00`,
+        plannedEnd: `${today}T17:00:00`,
+      },
       {
         date: tomorrow,
         state: ClockState.OUT,

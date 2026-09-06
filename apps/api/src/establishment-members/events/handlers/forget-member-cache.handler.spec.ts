@@ -1,11 +1,5 @@
 import { CacheService } from '@coaster/core';
-import {
-  asEstablishmentId,
-  asEstablishmentMemberId,
-  asUserId,
-  EstablishmentRole,
-  Role,
-} from '@coaster/common';
+import { asEstablishmentId, asEstablishmentMemberId, asUserId, EstablishmentRole, Role } from '@coaster/common';
 import { Logger } from '@nestjs/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { MemberInvitedEvent } from '../impl/member-invited.event';

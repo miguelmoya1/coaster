@@ -18,10 +18,10 @@
     <coaster-pos-products-list [products]="filteredProducts()" (productClicked)="addToCart($event)" />
   </div>
 
-  <div class="w-full shrink-0 sticky bottom-4 z-10 pb-4">
+  <div class="w-full shrink-0 sticky bottom-4 z-10 pb-4 lg:max-w-2xl lg:ml-auto">
     <coaster-pos-cart
       [establishmentId]="establishmentId()"
-      class="block bg-surface-container-low rounded-2xl shadow-2xl border border-outline-variant/10 p-4"
+      class="block bg-surface-container-low rounded-2xl shadow-2xl border border-outline-variant/10 p-3"
       [items]="cartItems()"
       [tables]="isAddItemsMode() ? [] : tables()"
       [selectedTableId]="selectedTableId()"

@@ -29,6 +29,7 @@ export type AggregateDbOrderItem = {
 export type DbOrderItemAvgAggregateOutputType = {
   quantity: number | null
   priceAtPurchase: number | null
+  taxRateAtPurchase: number | null
   paidQuantity: number | null
   paidQuantityCash: number | null
   paidQuantityCard: number | null
@@ -38,6 +39,7 @@ export type DbOrderItemAvgAggregateOutputType = {
 export type DbOrderItemSumAggregateOutputType = {
   quantity: number | null
   priceAtPurchase: number | null
+  taxRateAtPurchase: number | null
   paidQuantity: number | null
   paidQuantityCash: number | null
   paidQuantityCard: number | null
@@ -50,6 +52,8 @@ export type DbOrderItemMinAggregateOutputType = {
   productId: string | null
   quantity: number | null
   priceAtPurchase: number | null
+  productNameAtPurchase: string | null
+  taxRateAtPurchase: number | null
   paidQuantity: number | null
   paidQuantityCash: number | null
   paidQuantityCard: number | null
@@ -68,6 +72,8 @@ export type DbOrderItemMaxAggregateOutputType = {
   productId: string | null
   quantity: number | null
   priceAtPurchase: number | null
+  productNameAtPurchase: string | null
+  taxRateAtPurchase: number | null
   paidQuantity: number | null
   paidQuantityCash: number | null
   paidQuantityCard: number | null
@@ -86,6 +92,8 @@ export type DbOrderItemCountAggregateOutputType = {
   productId: number
   quantity: number
   priceAtPurchase: number
+  productNameAtPurchase: number
+  taxRateAtPurchase: number
   paidQuantity: number
   paidQuantityCash: number
   paidQuantityCard: number
@@ -103,6 +111,7 @@ export type DbOrderItemCountAggregateOutputType = {
 export type DbOrderItemAvgAggregateInputType = {
   quantity?: true
   priceAtPurchase?: true
+  taxRateAtPurchase?: true
   paidQuantity?: true
   paidQuantityCash?: true
   paidQuantityCard?: true
@@ -112,6 +121,7 @@ export type DbOrderItemAvgAggregateInputType = {
 export type DbOrderItemSumAggregateInputType = {
   quantity?: true
   priceAtPurchase?: true
+  taxRateAtPurchase?: true
   paidQuantity?: true
   paidQuantityCash?: true
   paidQuantityCard?: true
@@ -124,6 +134,8 @@ export type DbOrderItemMinAggregateInputType = {
   productId?: true
   quantity?: true
   priceAtPurchase?: true
+  productNameAtPurchase?: true
+  taxRateAtPurchase?: true
   paidQuantity?: true
   paidQuantityCash?: true
   paidQuantityCard?: true
@@ -142,6 +154,8 @@ export type DbOrderItemMaxAggregateInputType = {
   productId?: true
   quantity?: true
   priceAtPurchase?: true
+  productNameAtPurchase?: true
+  taxRateAtPurchase?: true
   paidQuantity?: true
   paidQuantityCash?: true
   paidQuantityCard?: true
@@ -160,6 +174,8 @@ export type DbOrderItemCountAggregateInputType = {
   productId?: true
   quantity?: true
   priceAtPurchase?: true
+  productNameAtPurchase?: true
+  taxRateAtPurchase?: true
   paidQuantity?: true
   paidQuantityCash?: true
   paidQuantityCard?: true
@@ -265,6 +281,8 @@ export type DbOrderItemGroupByOutputType = {
   productId: string
   quantity: number
   priceAtPurchase: number
+  productNameAtPurchase: string
+  taxRateAtPurchase: number
   paidQuantity: number
   paidQuantityCash: number
   paidQuantityCard: number
@@ -306,6 +324,8 @@ export type DbOrderItemWhereInput = {
   productId?: Prisma.StringFilter<"DbOrderItem"> | string
   quantity?: Prisma.IntFilter<"DbOrderItem"> | number
   priceAtPurchase?: Prisma.IntFilter<"DbOrderItem"> | number
+  productNameAtPurchase?: Prisma.StringFilter<"DbOrderItem"> | string
+  taxRateAtPurchase?: Prisma.IntFilter<"DbOrderItem"> | number
   paidQuantity?: Prisma.IntFilter<"DbOrderItem"> | number
   paidQuantityCash?: Prisma.IntFilter<"DbOrderItem"> | number
   paidQuantityCard?: Prisma.IntFilter<"DbOrderItem"> | number
@@ -327,6 +347,8 @@ export type DbOrderItemOrderByWithRelationInput = {
   productId?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
   priceAtPurchase?: Prisma.SortOrder
+  productNameAtPurchase?: Prisma.SortOrder
+  taxRateAtPurchase?: Prisma.SortOrder
   paidQuantity?: Prisma.SortOrder
   paidQuantityCash?: Prisma.SortOrder
   paidQuantityCard?: Prisma.SortOrder
@@ -351,6 +373,8 @@ export type DbOrderItemWhereUniqueInput = Prisma.AtLeast<{
   productId?: Prisma.StringFilter<"DbOrderItem"> | string
   quantity?: Prisma.IntFilter<"DbOrderItem"> | number
   priceAtPurchase?: Prisma.IntFilter<"DbOrderItem"> | number
+  productNameAtPurchase?: Prisma.StringFilter<"DbOrderItem"> | string
+  taxRateAtPurchase?: Prisma.IntFilter<"DbOrderItem"> | number
   paidQuantity?: Prisma.IntFilter<"DbOrderItem"> | number
   paidQuantityCash?: Prisma.IntFilter<"DbOrderItem"> | number
   paidQuantityCard?: Prisma.IntFilter<"DbOrderItem"> | number
@@ -372,6 +396,8 @@ export type DbOrderItemOrderByWithAggregationInput = {
   productId?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
   priceAtPurchase?: Prisma.SortOrder
+  productNameAtPurchase?: Prisma.SortOrder
+  taxRateAtPurchase?: Prisma.SortOrder
   paidQuantity?: Prisma.SortOrder
   paidQuantityCash?: Prisma.SortOrder
   paidQuantityCard?: Prisma.SortOrder
@@ -398,6 +424,8 @@ export type DbOrderItemScalarWhereWithAggregatesInput = {
   productId?: Prisma.StringWithAggregatesFilter<"DbOrderItem"> | string
   quantity?: Prisma.IntWithAggregatesFilter<"DbOrderItem"> | number
   priceAtPurchase?: Prisma.IntWithAggregatesFilter<"DbOrderItem"> | number
+  productNameAtPurchase?: Prisma.StringWithAggregatesFilter<"DbOrderItem"> | string
+  taxRateAtPurchase?: Prisma.IntWithAggregatesFilter<"DbOrderItem"> | number
   paidQuantity?: Prisma.IntWithAggregatesFilter<"DbOrderItem"> | number
   paidQuantityCash?: Prisma.IntWithAggregatesFilter<"DbOrderItem"> | number
   paidQuantityCard?: Prisma.IntWithAggregatesFilter<"DbOrderItem"> | number
@@ -414,6 +442,8 @@ export type DbOrderItemCreateInput = {
   id?: string
   quantity: number
   priceAtPurchase: number
+  productNameAtPurchase: string
+  taxRateAtPurchase?: number
   paidQuantity?: number
   paidQuantityCash?: number
   paidQuantityCard?: number
@@ -435,6 +465,8 @@ export type DbOrderItemUncheckedCreateInput = {
   productId: string
   quantity: number
   priceAtPurchase: number
+  productNameAtPurchase: string
+  taxRateAtPurchase?: number
   paidQuantity?: number
   paidQuantityCash?: number
   paidQuantityCard?: number
@@ -452,6 +484,8 @@ export type DbOrderItemUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   priceAtPurchase?: Prisma.IntFieldUpdateOperationsInput | number
+  productNameAtPurchase?: Prisma.StringFieldUpdateOperationsInput | string
+  taxRateAtPurchase?: Prisma.IntFieldUpdateOperationsInput | number
   paidQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   paidQuantityCash?: Prisma.IntFieldUpdateOperationsInput | number
   paidQuantityCard?: Prisma.IntFieldUpdateOperationsInput | number
@@ -473,6 +507,8 @@ export type DbOrderItemUncheckedUpdateInput = {
   productId?: Prisma.StringFieldUpdateOperationsInput | string
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   priceAtPurchase?: Prisma.IntFieldUpdateOperationsInput | number
+  productNameAtPurchase?: Prisma.StringFieldUpdateOperationsInput | string
+  taxRateAtPurchase?: Prisma.IntFieldUpdateOperationsInput | number
   paidQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   paidQuantityCash?: Prisma.IntFieldUpdateOperationsInput | number
   paidQuantityCard?: Prisma.IntFieldUpdateOperationsInput | number
@@ -492,6 +528,8 @@ export type DbOrderItemCreateManyInput = {
   productId: string
   quantity: number
   priceAtPurchase: number
+  productNameAtPurchase: string
+  taxRateAtPurchase?: number
   paidQuantity?: number
   paidQuantityCash?: number
   paidQuantityCard?: number
@@ -508,6 +546,8 @@ export type DbOrderItemUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   priceAtPurchase?: Prisma.IntFieldUpdateOperationsInput | number
+  productNameAtPurchase?: Prisma.StringFieldUpdateOperationsInput | string
+  taxRateAtPurchase?: Prisma.IntFieldUpdateOperationsInput | number
   paidQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   paidQuantityCash?: Prisma.IntFieldUpdateOperationsInput | number
   paidQuantityCard?: Prisma.IntFieldUpdateOperationsInput | number
@@ -526,6 +566,8 @@ export type DbOrderItemUncheckedUpdateManyInput = {
   productId?: Prisma.StringFieldUpdateOperationsInput | string
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   priceAtPurchase?: Prisma.IntFieldUpdateOperationsInput | number
+  productNameAtPurchase?: Prisma.StringFieldUpdateOperationsInput | string
+  taxRateAtPurchase?: Prisma.IntFieldUpdateOperationsInput | number
   paidQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   paidQuantityCash?: Prisma.IntFieldUpdateOperationsInput | number
   paidQuantityCard?: Prisma.IntFieldUpdateOperationsInput | number
@@ -559,6 +601,8 @@ export type DbOrderItemCountOrderByAggregateInput = {
   productId?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
   priceAtPurchase?: Prisma.SortOrder
+  productNameAtPurchase?: Prisma.SortOrder
+  taxRateAtPurchase?: Prisma.SortOrder
   paidQuantity?: Prisma.SortOrder
   paidQuantityCash?: Prisma.SortOrder
   paidQuantityCard?: Prisma.SortOrder
@@ -574,6 +618,7 @@ export type DbOrderItemCountOrderByAggregateInput = {
 export type DbOrderItemAvgOrderByAggregateInput = {
   quantity?: Prisma.SortOrder
   priceAtPurchase?: Prisma.SortOrder
+  taxRateAtPurchase?: Prisma.SortOrder
   paidQuantity?: Prisma.SortOrder
   paidQuantityCash?: Prisma.SortOrder
   paidQuantityCard?: Prisma.SortOrder
@@ -586,6 +631,8 @@ export type DbOrderItemMaxOrderByAggregateInput = {
   productId?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
   priceAtPurchase?: Prisma.SortOrder
+  productNameAtPurchase?: Prisma.SortOrder
+  taxRateAtPurchase?: Prisma.SortOrder
   paidQuantity?: Prisma.SortOrder
   paidQuantityCash?: Prisma.SortOrder
   paidQuantityCard?: Prisma.SortOrder
@@ -604,6 +651,8 @@ export type DbOrderItemMinOrderByAggregateInput = {
   productId?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
   priceAtPurchase?: Prisma.SortOrder
+  productNameAtPurchase?: Prisma.SortOrder
+  taxRateAtPurchase?: Prisma.SortOrder
   paidQuantity?: Prisma.SortOrder
   paidQuantityCash?: Prisma.SortOrder
   paidQuantityCard?: Prisma.SortOrder
@@ -619,6 +668,7 @@ export type DbOrderItemMinOrderByAggregateInput = {
 export type DbOrderItemSumOrderByAggregateInput = {
   quantity?: Prisma.SortOrder
   priceAtPurchase?: Prisma.SortOrder
+  taxRateAtPurchase?: Prisma.SortOrder
   paidQuantity?: Prisma.SortOrder
   paidQuantityCash?: Prisma.SortOrder
   paidQuantityCard?: Prisma.SortOrder
@@ -737,6 +787,8 @@ export type DbOrderItemCreateWithoutAdjustmentsInput = {
   id?: string
   quantity: number
   priceAtPurchase: number
+  productNameAtPurchase: string
+  taxRateAtPurchase?: number
   paidQuantity?: number
   paidQuantityCash?: number
   paidQuantityCard?: number
@@ -757,6 +809,8 @@ export type DbOrderItemUncheckedCreateWithoutAdjustmentsInput = {
   productId: string
   quantity: number
   priceAtPurchase: number
+  productNameAtPurchase: string
+  taxRateAtPurchase?: number
   paidQuantity?: number
   paidQuantityCash?: number
   paidQuantityCard?: number
@@ -789,6 +843,8 @@ export type DbOrderItemUpdateWithoutAdjustmentsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   priceAtPurchase?: Prisma.IntFieldUpdateOperationsInput | number
+  productNameAtPurchase?: Prisma.StringFieldUpdateOperationsInput | string
+  taxRateAtPurchase?: Prisma.IntFieldUpdateOperationsInput | number
   paidQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   paidQuantityCash?: Prisma.IntFieldUpdateOperationsInput | number
   paidQuantityCard?: Prisma.IntFieldUpdateOperationsInput | number
@@ -809,6 +865,8 @@ export type DbOrderItemUncheckedUpdateWithoutAdjustmentsInput = {
   productId?: Prisma.StringFieldUpdateOperationsInput | string
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   priceAtPurchase?: Prisma.IntFieldUpdateOperationsInput | number
+  productNameAtPurchase?: Prisma.StringFieldUpdateOperationsInput | string
+  taxRateAtPurchase?: Prisma.IntFieldUpdateOperationsInput | number
   paidQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   paidQuantityCash?: Prisma.IntFieldUpdateOperationsInput | number
   paidQuantityCard?: Prisma.IntFieldUpdateOperationsInput | number
@@ -825,6 +883,8 @@ export type DbOrderItemCreateWithoutProductInput = {
   id?: string
   quantity: number
   priceAtPurchase: number
+  productNameAtPurchase: string
+  taxRateAtPurchase?: number
   paidQuantity?: number
   paidQuantityCash?: number
   paidQuantityCard?: number
@@ -844,6 +904,8 @@ export type DbOrderItemUncheckedCreateWithoutProductInput = {
   orderId: string
   quantity: number
   priceAtPurchase: number
+  productNameAtPurchase: string
+  taxRateAtPurchase?: number
   paidQuantity?: number
   paidQuantityCash?: number
   paidQuantityCard?: number
@@ -892,6 +954,8 @@ export type DbOrderItemScalarWhereInput = {
   productId?: Prisma.StringFilter<"DbOrderItem"> | string
   quantity?: Prisma.IntFilter<"DbOrderItem"> | number
   priceAtPurchase?: Prisma.IntFilter<"DbOrderItem"> | number
+  productNameAtPurchase?: Prisma.StringFilter<"DbOrderItem"> | string
+  taxRateAtPurchase?: Prisma.IntFilter<"DbOrderItem"> | number
   paidQuantity?: Prisma.IntFilter<"DbOrderItem"> | number
   paidQuantityCash?: Prisma.IntFilter<"DbOrderItem"> | number
   paidQuantityCard?: Prisma.IntFilter<"DbOrderItem"> | number
@@ -908,6 +972,8 @@ export type DbOrderItemCreateWithoutOrderInput = {
   id?: string
   quantity: number
   priceAtPurchase: number
+  productNameAtPurchase: string
+  taxRateAtPurchase?: number
   paidQuantity?: number
   paidQuantityCash?: number
   paidQuantityCard?: number
@@ -927,6 +993,8 @@ export type DbOrderItemUncheckedCreateWithoutOrderInput = {
   productId: string
   quantity: number
   priceAtPurchase: number
+  productNameAtPurchase: string
+  taxRateAtPurchase?: number
   paidQuantity?: number
   paidQuantityCash?: number
   paidQuantityCard?: number
@@ -971,6 +1039,8 @@ export type DbOrderItemCreateManyProductInput = {
   orderId: string
   quantity: number
   priceAtPurchase: number
+  productNameAtPurchase: string
+  taxRateAtPurchase?: number
   paidQuantity?: number
   paidQuantityCash?: number
   paidQuantityCard?: number
@@ -987,6 +1057,8 @@ export type DbOrderItemUpdateWithoutProductInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   priceAtPurchase?: Prisma.IntFieldUpdateOperationsInput | number
+  productNameAtPurchase?: Prisma.StringFieldUpdateOperationsInput | string
+  taxRateAtPurchase?: Prisma.IntFieldUpdateOperationsInput | number
   paidQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   paidQuantityCash?: Prisma.IntFieldUpdateOperationsInput | number
   paidQuantityCard?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1006,6 +1078,8 @@ export type DbOrderItemUncheckedUpdateWithoutProductInput = {
   orderId?: Prisma.StringFieldUpdateOperationsInput | string
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   priceAtPurchase?: Prisma.IntFieldUpdateOperationsInput | number
+  productNameAtPurchase?: Prisma.StringFieldUpdateOperationsInput | string
+  taxRateAtPurchase?: Prisma.IntFieldUpdateOperationsInput | number
   paidQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   paidQuantityCash?: Prisma.IntFieldUpdateOperationsInput | number
   paidQuantityCard?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1024,6 +1098,8 @@ export type DbOrderItemUncheckedUpdateManyWithoutProductInput = {
   orderId?: Prisma.StringFieldUpdateOperationsInput | string
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   priceAtPurchase?: Prisma.IntFieldUpdateOperationsInput | number
+  productNameAtPurchase?: Prisma.StringFieldUpdateOperationsInput | string
+  taxRateAtPurchase?: Prisma.IntFieldUpdateOperationsInput | number
   paidQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   paidQuantityCash?: Prisma.IntFieldUpdateOperationsInput | number
   paidQuantityCard?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1041,6 +1117,8 @@ export type DbOrderItemCreateManyOrderInput = {
   productId: string
   quantity: number
   priceAtPurchase: number
+  productNameAtPurchase: string
+  taxRateAtPurchase?: number
   paidQuantity?: number
   paidQuantityCash?: number
   paidQuantityCard?: number
@@ -1057,6 +1135,8 @@ export type DbOrderItemUpdateWithoutOrderInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   priceAtPurchase?: Prisma.IntFieldUpdateOperationsInput | number
+  productNameAtPurchase?: Prisma.StringFieldUpdateOperationsInput | string
+  taxRateAtPurchase?: Prisma.IntFieldUpdateOperationsInput | number
   paidQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   paidQuantityCash?: Prisma.IntFieldUpdateOperationsInput | number
   paidQuantityCard?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1076,6 +1156,8 @@ export type DbOrderItemUncheckedUpdateWithoutOrderInput = {
   productId?: Prisma.StringFieldUpdateOperationsInput | string
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   priceAtPurchase?: Prisma.IntFieldUpdateOperationsInput | number
+  productNameAtPurchase?: Prisma.StringFieldUpdateOperationsInput | string
+  taxRateAtPurchase?: Prisma.IntFieldUpdateOperationsInput | number
   paidQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   paidQuantityCash?: Prisma.IntFieldUpdateOperationsInput | number
   paidQuantityCard?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1094,6 +1176,8 @@ export type DbOrderItemUncheckedUpdateManyWithoutOrderInput = {
   productId?: Prisma.StringFieldUpdateOperationsInput | string
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   priceAtPurchase?: Prisma.IntFieldUpdateOperationsInput | number
+  productNameAtPurchase?: Prisma.StringFieldUpdateOperationsInput | string
+  taxRateAtPurchase?: Prisma.IntFieldUpdateOperationsInput | number
   paidQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   paidQuantityCash?: Prisma.IntFieldUpdateOperationsInput | number
   paidQuantityCard?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1143,6 +1227,8 @@ export type DbOrderItemSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   productId?: boolean
   quantity?: boolean
   priceAtPurchase?: boolean
+  productNameAtPurchase?: boolean
+  taxRateAtPurchase?: boolean
   paidQuantity?: boolean
   paidQuantityCash?: boolean
   paidQuantityCard?: boolean
@@ -1165,6 +1251,8 @@ export type DbOrderItemSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   productId?: boolean
   quantity?: boolean
   priceAtPurchase?: boolean
+  productNameAtPurchase?: boolean
+  taxRateAtPurchase?: boolean
   paidQuantity?: boolean
   paidQuantityCash?: boolean
   paidQuantityCard?: boolean
@@ -1185,6 +1273,8 @@ export type DbOrderItemSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   productId?: boolean
   quantity?: boolean
   priceAtPurchase?: boolean
+  productNameAtPurchase?: boolean
+  taxRateAtPurchase?: boolean
   paidQuantity?: boolean
   paidQuantityCash?: boolean
   paidQuantityCard?: boolean
@@ -1205,6 +1295,8 @@ export type DbOrderItemSelectScalar = {
   productId?: boolean
   quantity?: boolean
   priceAtPurchase?: boolean
+  productNameAtPurchase?: boolean
+  taxRateAtPurchase?: boolean
   paidQuantity?: boolean
   paidQuantityCash?: boolean
   paidQuantityCard?: boolean
@@ -1217,7 +1309,7 @@ export type DbOrderItemSelectScalar = {
   updatedAt?: boolean
 }
 
-export type DbOrderItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orderId" | "productId" | "quantity" | "priceAtPurchase" | "paidQuantity" | "paidQuantityCash" | "paidQuantityCard" | "servedQuantity" | "paymentStatus" | "deliveryStatus" | "paymentMethod" | "notes" | "createdAt" | "updatedAt", ExtArgs["result"]["dbOrderItem"]>
+export type DbOrderItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orderId" | "productId" | "quantity" | "priceAtPurchase" | "productNameAtPurchase" | "taxRateAtPurchase" | "paidQuantity" | "paidQuantityCash" | "paidQuantityCard" | "servedQuantity" | "paymentStatus" | "deliveryStatus" | "paymentMethod" | "notes" | "createdAt" | "updatedAt", ExtArgs["result"]["dbOrderItem"]>
 export type DbOrderItemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   order?: boolean | Prisma.DbOrderDefaultArgs<ExtArgs>
   product?: boolean | Prisma.DbProductDefaultArgs<ExtArgs>
@@ -1246,6 +1338,8 @@ export type $DbOrderItemPayload<ExtArgs extends runtime.Types.Extensions.Interna
     productId: string
     quantity: number
     priceAtPurchase: number
+    productNameAtPurchase: string
+    taxRateAtPurchase: number
     paidQuantity: number
     paidQuantityCash: number
     paidQuantityCard: number
@@ -1687,6 +1781,8 @@ export interface DbOrderItemFieldRefs {
   readonly productId: Prisma.FieldRef<"DbOrderItem", 'String'>
   readonly quantity: Prisma.FieldRef<"DbOrderItem", 'Int'>
   readonly priceAtPurchase: Prisma.FieldRef<"DbOrderItem", 'Int'>
+  readonly productNameAtPurchase: Prisma.FieldRef<"DbOrderItem", 'String'>
+  readonly taxRateAtPurchase: Prisma.FieldRef<"DbOrderItem", 'Int'>
   readonly paidQuantity: Prisma.FieldRef<"DbOrderItem", 'Int'>
   readonly paidQuantityCash: Prisma.FieldRef<"DbOrderItem", 'Int'>
   readonly paidQuantityCard: Prisma.FieldRef<"DbOrderItem", 'Int'>

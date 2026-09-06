@@ -29,15 +29,38 @@ the venue's wifi.
 ## Authentication
 
 The bridge is not a user, so it does not carry a Firebase token. Each venue has a **device key**
-stored in `PrinterConfig`, generated from the app by someone with `establishment:manage-printer` and shown
-once. The bridge sends it in the `X-Device-Key` header, and `DeviceKeyService` compares it with
-`crypto.timingSafeEqual`.
+stored in `PrinterConfig`. The bridge sends it in the `X-Device-Key` header, and `DeviceKeyService`
+compares it with `crypto.timingSafeEqual`.
 
 That is why the printer controller is the one API controller without `FirebaseAuthGuard`: it
 authenticates per device, per establishment.
 
 The long-poll endpoint is exempt from rate limiting — it deliberately holds a connection open and
 reconnects immediately.
+
+## Pairing
+
+Nobody types a UUID onto a computer at a venue. The device key is delivered by the download itself:
+
+```text
+App    POST /establishments/:id/printer/pairing  ──►  an 8-character code, valid one hour, single use
+       GET  /printer/download?os=&code=          ──►  coaster-printer-<CODE>.exe
+Bridge (first run) reads the code out of its own filename
+       POST /printer/pair { code }               ──►  { establishmentId, deviceKey }
+       writes coaster-printer.json next to the executable
+```
+
+From then on the bridge reads that file at startup, so an update or a restart re-pairs nothing. The
+code alphabet leaves out the characters people misread (`0`/`O`, `1`/`I`), because it is also
+readable aloud over a phone.
+
+`PrinterPairing` rows carry `expiresAt` and `redeemedAt`, so a code is spent the moment it is used
+and expires on its own if it is not. `POST /printer/pair` is unauthenticated by necessity — the
+bridge has no credential yet — so it is throttled to 10/minute and carries `@SkipSubscriptionCheck()`.
+
+The device key can still be issued and rotated by hand from the app by someone with
+`establishment:manage-printer` (`POST /establishments/:id/printer/device-key`); it is shown once, and
+regenerating it stops the previous one immediately.
 
 ## Direct LAN printing
 

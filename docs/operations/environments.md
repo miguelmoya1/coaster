@@ -35,12 +35,12 @@ environment that was never configured cannot half-deploy anything.
 
 **What lives where:**
 
-| Value                                                       | Where it is set                  | Why there                                                        |
-| ----------------------------------------------------------- | -------------------------------- | ---------------------------------------------------------------- |
-| `GCP_SERVICE_NAME`, `GCP_JOB_NAME`, `PUBLIC_URL`            | GitHub environment **variables** | CI needs them to know what it is deploying                       |
-| `DATABASE_URL`                                              | GitHub environment **secret**    | CI hands it to the migration job; the service holds its own copy |
-| `FRONTEND_URL`, `STRIPE_*`, `RESEND_API_KEY`, `REDIS_URL` … | The Cloud Run service            | Runtime configuration, never needed to build or release          |
-| `PRODUCTION`, `API_URL`, `FIREBASE_*`, `ALLOW_INDEXING`     | Vercel project                   | Baked into the bundle at build time by `set-env.ts`              |
+| Value                                                                                                 | Where it is set                  | Why there                                                        |
+| ----------------------------------------------------------------------------------------------------- | -------------------------------- | ---------------------------------------------------------------- |
+| `GCP_SERVICE_NAME`, `GCP_JOB_NAME`, `PUBLIC_URL`                                                      | GitHub environment **variables** | CI needs them to know what it is deploying                       |
+| `DATABASE_URL`                                                                                        | GitHub environment **secret**    | CI hands it to the migration job; the service holds its own copy |
+| `FRONTEND_URL`, `STRIPE_*`, `RESEND_API_KEY`, `REDIS_URL`, `CORS_ORIGINS`, `BETA_ALLOWLIST_ENABLED` … | The Cloud Run service            | Runtime configuration, never needed to build or release          |
+| `PRODUCTION`, `API_URL`, `FIREBASE_*`, `ALLOW_INDEXING`                                               | Vercel project                   | Baked into the bundle at build time by `set-env.ts`              |
 
 ## What the two environments must never share
 
@@ -58,6 +58,10 @@ beta prints on a real venue's printer.
 
 **Stripe.** Beta uses test-mode keys, its own webhook endpoint (`https://api.beta.coaster.business/api/v1/stripe/webhook`)
 and the signing secret that endpoint gives you. A beta checkout must not be able to charge a card.
+
+**`CORS_ORIGINS`.** Each environment allows only its own web origin. Production listing beta's
+origin would let a beta build drive production's API with a production token, which is the one
+crossing this whole page exists to prevent.
 
 **`RESEND_API_KEY`.** Invitations from beta are real emails to real people. A separate key keeps the
 quota and the audit trail separate, and lets you revoke beta without touching production. The link
@@ -154,6 +158,7 @@ STRIPE_SECRET_KEY: 'sk_test_…'
 STRIPE_WEBHOOK_SECRET: 'whsec_…'
 STRIPE_PRICE_PRO: 'price_…'
 PRINTER_JWT_SECRET: '…openssl rand -hex 32…'
+CORS_ORIGINS: 'https://beta.coaster.business'
 MEDIA_BUCKET: 'coaster-media-beta'
 AI_GATEWAY_API_KEY: '…'
 REDIS_URL: 'rediss://…beta…'
@@ -263,6 +268,21 @@ you say otherwise. Log in once so the row exists, then:
 ```sql
 UPDATE "User" SET role = 'ADMIN' WHERE email = 'you@example.com';
 ```
+
+### 10. Close the door
+
+Beta runs Stripe in test mode, so an open beta is the product for free. Add your own address to the
+allowlist first — otherwise the switch locks you out of your own environment as soon as you sign in
+from a second account:
+
+```sh
+gcloud run services update api-beta --region europe-west1 \
+  --update-env-vars BETA_ALLOWLIST_ENABLED=true
+```
+
+`--update-env-vars` leaves the rest of the environment alone, and so does every later deploy from
+CI, so the switch survives without going back into the console. See
+[closed beta](../saas/closed-beta.md).
 
 ## Deploying
 

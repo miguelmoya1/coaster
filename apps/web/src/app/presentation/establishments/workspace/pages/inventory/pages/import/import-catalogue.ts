@@ -14,6 +14,7 @@ import { PageHeader } from '../../../../../../components/page-header/page-header
 
 import { PricePipe } from '../../../../pipes/price/price';
 import { Spinner } from '../../../../../../components/spinner/spinner';
+import { CoasterInput } from '../../../../../../components/field/input.directive';
 
 @Component({
   selector: 'coaster-import-catalogue',
@@ -27,6 +28,7 @@ import { Spinner } from '../../../../../../components/spinner/spinner';
     PricePipe,
     LowerCasePipe,
     PageHeader,
+    CoasterInput,
   ],
   host: {
     class: 'flex flex-col gap-2',

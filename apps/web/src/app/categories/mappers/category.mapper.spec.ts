@@ -7,6 +7,7 @@ describe('Category Mapper', () => {
   const validCategory: Category = {
     id: asCategoryId('cat-1'),
     establishmentId: asEstablishmentId('establishment-1'),
+    taxRate: 1000,
     name: 'Tapas',
   };
 

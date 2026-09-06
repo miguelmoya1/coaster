@@ -10,15 +10,18 @@ export interface Category {
   establishment?: Establishment;
   name: string;
   icon?: string;
+  taxRate: number;
   products?: Product[];
 }
 
 export interface CreateCategoryDto {
   name: string;
   icon?: string;
+  taxRate?: number;
 }
 
 export interface UpdateCategoryDto {
   name: string;
   icon?: string;
+  taxRate?: number;
 }
