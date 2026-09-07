@@ -17,8 +17,9 @@ describe('SubscriptionActiveGuard', () => {
   let reflector: { getAllAndOverride: ReturnType<typeof vi.fn> };
   let dbService: {
     dbUser: { findUnique: ReturnType<typeof vi.fn> };
-    dbEstablishmentSubscription: { findUnique: ReturnType<typeof vi.fn> };
+    dbEstablishmentSubscription: { findUnique: ReturnType<typeof vi.fn>; update: ReturnType<typeof vi.fn> };
   };
+  let refresher: { refresh: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -29,13 +30,16 @@ describe('SubscriptionActiveGuard', () => {
 
     dbService = {
       dbUser: { findUnique: vi.fn() },
-      dbEstablishmentSubscription: { findUnique: vi.fn() },
+      dbEstablishmentSubscription: { findUnique: vi.fn(), update: vi.fn() },
     };
+
+    refresher = { refresh: vi.fn().mockResolvedValue(null) };
 
     guard = new SubscriptionActiveGuard(
       reflector as any,
       new SecurityRepository(dbService as any, passThroughCache),
       new FirebaseTokenService(dbService as any, passThroughCache),
+      { get: () => refresher } as any,
     );
   });
 
@@ -147,6 +151,82 @@ describe('SubscriptionActiveGuard', () => {
     });
 
     expect(await guard.canActivate(context)).toBe(true);
+  });
+
+  describe('while Stripe is still retrying a failed card', () => {
+    it('should let the venue keep working, since Stripe has not given the payment up', async () => {
+      const context = createMockContext('POST', '/establishments/establishment-1/orders', 'establishment-1', 'user-1');
+      dbService.dbEstablishmentSubscription.findUnique.mockResolvedValue({
+        status: DbSubscriptionStatus.PAST_DUE,
+        stripeSubscriptionId: 'sub_123',
+        currentPeriodEnd: new Date(Date.now() - 100000),
+      });
+
+      expect(await guard.canActivate(context)).toBe(true);
+    });
+
+    it('should block once Stripe has given up and marked it unpaid', async () => {
+      const context = createMockContext('POST', '/establishments/establishment-1/orders', 'establishment-1', 'user-1');
+      dbService.dbUser.findUnique.mockResolvedValue({ role: DbRole.USER });
+      dbService.dbEstablishmentSubscription.findUnique.mockResolvedValue({
+        status: DbSubscriptionStatus.UNPAID,
+        stripeSubscriptionId: 'sub_123',
+        currentPeriodEnd: new Date(Date.now() - 100000),
+      });
+
+      await expect(guard.canActivate(context)).rejects.toThrow(HttpException);
+    });
+  });
+
+  describe('when the stored subscription disagrees with Stripe', () => {
+    const lapsedLocally = {
+      status: DbSubscriptionStatus.ACTIVE,
+      stripeSubscriptionId: 'sub_123',
+      currentPeriodEnd: new Date(Date.now() - 100000),
+    };
+
+    it('should let a venue Stripe still considers paid keep working', async () => {
+      const context = createMockContext('POST', '/establishments/establishment-1/orders', 'establishment-1', 'user-1');
+      dbService.dbEstablishmentSubscription.findUnique.mockResolvedValue(lapsedLocally);
+      refresher.refresh.mockResolvedValue({
+        ...lapsedLocally,
+        currentPeriodEnd: new Date(Date.now() + 30 * 86_400_000),
+      });
+
+      expect(await guard.canActivate(context)).toBe(true);
+      expect(refresher.refresh).toHaveBeenCalledWith('establishment-1');
+    });
+
+    it('should keep blocking when Stripe agrees the subscription is gone', async () => {
+      const context = createMockContext('POST', '/establishments/establishment-1/orders', 'establishment-1', 'user-1');
+      dbService.dbUser.findUnique.mockResolvedValue({ role: DbRole.USER });
+      dbService.dbEstablishmentSubscription.findUnique.mockResolvedValue(lapsedLocally);
+      refresher.refresh.mockResolvedValue(lapsedLocally);
+
+      await expect(guard.canActivate(context)).rejects.toThrow(HttpException);
+    });
+
+    it('should never ask Stripe about an establishment that never subscribed', async () => {
+      const context = createMockContext('POST', '/establishments/establishment-1/orders', 'establishment-1', 'user-1');
+      dbService.dbUser.findUnique.mockResolvedValue({ role: DbRole.USER });
+      dbService.dbEstablishmentSubscription.findUnique.mockResolvedValue({
+        status: DbSubscriptionStatus.INACTIVE,
+        stripeSubscriptionId: null,
+        currentPeriodEnd: null,
+      });
+
+      await expect(guard.canActivate(context)).rejects.toThrow(HttpException);
+      expect(refresher.refresh).not.toHaveBeenCalled();
+    });
+
+    it('should keep blocking, not crash, when Stripe cannot be reached', async () => {
+      const context = createMockContext('POST', '/establishments/establishment-1/orders', 'establishment-1', 'user-1');
+      dbService.dbUser.findUnique.mockResolvedValue({ role: DbRole.USER });
+      dbService.dbEstablishmentSubscription.findUnique.mockResolvedValue(lapsedLocally);
+      refresher.refresh.mockRejectedValue(new Error('Stripe unavailable'));
+
+      await expect(guard.canActivate(context)).rejects.toThrow(HttpException);
+    });
   });
 
   it('should throw HTTP 402 SUBSCRIPTION_EXPIRED when trial has ended', async () => {

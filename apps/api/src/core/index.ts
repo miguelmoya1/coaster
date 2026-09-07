@@ -16,6 +16,7 @@ export * from './security/guards/admin.guard';
 export * from './security/guards/establishment-modules.guard';
 export * from './security/guards/establishment-permissions.guard';
 export * from './security/guards/subscription-active.guard';
+export * from './security/tokens/subscription-refresher.token';
 export * from './security/security.module';
 export * from './security/services/firebase-token.service';
 export * from './utils/beta-allowlist';

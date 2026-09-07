@@ -3,6 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { EstablishmentSubscriptionReadRepository } from '../../data-access/establishment-subscription.read.repository';
 import { FindEstablishmentSubscriptionQuery } from '../impl/find-establishment-subscription.query';
+import { StripeSubscriptionRefresher } from '../../services/stripe-subscription-refresher';
 import { FindEstablishmentSubscriptionHandler } from './find-establishment-subscription.handler';
 
 describe('FindEstablishmentSubscriptionHandler', () => {
@@ -10,8 +11,13 @@ describe('FindEstablishmentSubscriptionHandler', () => {
   const readRepo = {
     findByEstablishmentId: vi.fn(),
   };
+  const refresher = {
+    refresh: vi.fn().mockResolvedValue(null),
+  };
 
   beforeEach(async () => {
+    vi.clearAllMocks();
+    refresher.refresh.mockResolvedValue(null);
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-01-15T00:00:00.000Z'));
 
@@ -19,6 +25,7 @@ describe('FindEstablishmentSubscriptionHandler', () => {
       providers: [
         FindEstablishmentSubscriptionHandler,
         { provide: EstablishmentSubscriptionReadRepository, useValue: readRepo },
+        { provide: StripeSubscriptionRefresher, useValue: refresher },
       ],
     }).compile();
 
@@ -105,5 +112,47 @@ describe('FindEstablishmentSubscriptionHandler', () => {
     const result = await handler.execute(new FindEstablishmentSubscriptionQuery(establishmentId));
 
     expect(result.status).toBe(SubscriptionStatus.EXPIRED);
+  });
+
+  describe('when the stored period has run out', () => {
+    const lapsed = {
+      id: 'sub-1',
+      establishmentId: 'establishment-123',
+      plan: SubscriptionPlan.PRO,
+      status: SubscriptionStatus.ACTIVE,
+      stripeCustomerId: 'cus_123',
+      stripeSubscriptionId: 'sub_123',
+      currentPeriodStart: new Date('2025-12-15T00:00:00.000Z'),
+      currentPeriodEnd: new Date('2026-01-14T00:00:00.000Z'),
+      trialEndsAt: null,
+      canceledAt: null,
+      manualPlan: null,
+      manualGrantExpiresAt: null,
+      manualGrantReason: null,
+      manualGrantedById: null,
+      manualGrantedAt: null,
+      seats: 1,
+      createdAt: new Date('2025-12-15T00:00:00.000Z'),
+      updatedAt: new Date('2025-12-15T00:00:00.000Z'),
+    };
+
+    it('should ask Stripe before showing a venue as expired', async () => {
+      readRepo.findByEstablishmentId
+        .mockResolvedValueOnce(lapsed)
+        .mockResolvedValue({ ...lapsed, currentPeriodEnd: new Date('2026-02-14T00:00:00.000Z') });
+
+      const result = await handler.execute(new FindEstablishmentSubscriptionQuery(asEstablishmentId('establishment-123')));
+
+      expect(refresher.refresh).toHaveBeenCalledWith('establishment-123');
+      expect(result.status).toBe(SubscriptionStatus.ACTIVE);
+    });
+
+    it('should not ask Stripe about an establishment that never subscribed', async () => {
+      readRepo.findByEstablishmentId.mockResolvedValue({ ...lapsed, stripeSubscriptionId: null });
+
+      await handler.execute(new FindEstablishmentSubscriptionQuery(asEstablishmentId('establishment-123')));
+
+      expect(refresher.refresh).not.toHaveBeenCalled();
+    });
   });
 });

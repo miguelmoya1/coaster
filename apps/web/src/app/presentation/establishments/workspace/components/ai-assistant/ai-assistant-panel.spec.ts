@@ -3,7 +3,7 @@ import { asEstablishmentId } from '@coaster/common';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { EstablishmentSubscriptionStore, PlanDialogService } from '@coaster/establishment-subscription';
+import { EstablishmentSubscriptionStore, BillingEntryPoint } from '@coaster/establishment-subscription';
 import { CurrentUser } from '@coaster/core';
 import { provideTranslateService } from '@ngx-translate/core';
 import { BehaviorSubject } from 'rxjs';
@@ -79,7 +79,7 @@ describe('AiAssistantPanel', () => {
         { provide: AiVoiceService, useValue: aiVoiceServiceMock },
         { provide: BreakpointObserver, useValue: breakpointObserverMock },
         { provide: EstablishmentSubscriptionStore, useValue: { isReadOnly: () => false } },
-        { provide: PlanDialogService, useValue: { open: vi.fn() } },
+        { provide: BillingEntryPoint, useValue: { open: vi.fn() } },
       ],
     }).compileComponents();
 

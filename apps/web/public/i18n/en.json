@@ -597,7 +597,9 @@
       "activate_pro": "Activate Premium Plan",
       "trial_expiring_one": "1 trial day remaining. Subscribe to keep your features active!",
       "trial_expiring_other": "{{days}} trial days remaining. Subscribe to keep your features active!",
-      "view_plans": "View Plans"
+      "view_plans": "View Plans",
+      "payment_failed": "We could not charge your subscription. You can keep working while we retry, but your card needs a look.",
+      "update_card": "Update card"
     },
     "status": {
       "active": "Active",

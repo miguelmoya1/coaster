@@ -1,11 +1,12 @@
 import { ErrorCodes } from '@coaster/common';
 import { CanActivate, ExecutionContext, HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
+import { ModuleRef, Reflector } from '@nestjs/core';
 import { DbRole, DbSubscriptionStatus } from '../../db';
 import { isManualGrantActive } from '../../permissions/manual-grant';
 import { SecurityRepository, SubscriptionState } from '../data-access/security.repository';
 import { FirebaseTokenService } from '../services/firebase-token.service';
 import { SKIP_SUBSCRIPTION_CHECK_KEY } from '../decorators/skip-subscription-check.decorator';
+import { SUBSCRIPTION_REFRESHER, SubscriptionRefresher } from '../tokens/subscription-refresher.token';
 
 interface RequestWithParams {
   method: string;
@@ -34,6 +35,7 @@ export class SubscriptionActiveGuard implements CanActivate {
     private readonly _reflector: Reflector,
     private readonly _securityRepository: SecurityRepository,
     private readonly _tokens: FirebaseTokenService,
+    private readonly _moduleRef: ModuleRef,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -68,6 +70,10 @@ export class SubscriptionActiveGuard implements CanActivate {
       return true;
     }
 
+    if (this.#grantsAccess(await this.#healFromStripe(establishmentId, subscription))) {
+      return true;
+    }
+
     if (await this.#isPlatformAdmin(request)) {
       this.#logger.debug(
         `Letting a platform admin act on establishmentId=${establishmentId} despite its lapsed subscription`,
@@ -86,6 +92,28 @@ export class SubscriptionActiveGuard implements CanActivate {
     );
   }
 
+  // Stripe es la verdad, la fila es una copia. Cuando la copia dice que no y hay una
+  // suscripción a la que preguntar, se pregunta: un webhook perdido no puede dejar sin
+  // trabajar a alguien que está pagando. Sin stripeSubscriptionId no hay a quién preguntar,
+  // así que un establecimiento gratuito nunca llega a llamar a Stripe.
+  //
+  // Quién sabe preguntar vive fuera de core, así que llega por token. Si nadie lo registra,
+  // el guardia se comporta como antes de existir esto en vez de reventar.
+  async #healFromStripe(establishmentId: string, stale: SubscriptionState | null): Promise<SubscriptionState | null> {
+    if (!stale?.stripeSubscriptionId) {
+      return stale;
+    }
+
+    try {
+      const refresher = this._moduleRef.get<SubscriptionRefresher>(SUBSCRIPTION_REFRESHER, { strict: false });
+
+      return (await refresher.refresh(establishmentId)) ?? stale;
+    } catch (error) {
+      this.#logger.error(`Could not check establishmentId=${establishmentId} against Stripe: ${error}`);
+      return stale;
+    }
+  }
+
   #grantsAccess(subscription: SubscriptionState | null): boolean {
     if (!subscription) {
       return false;
@@ -94,6 +122,13 @@ export class SubscriptionActiveGuard implements CanActivate {
     const now = new Date();
 
     if (isManualGrantActive(subscription, now)) {
+      return true;
+    }
+
+    // Stripe reintenta el cobro unas dos semanas antes de rendirse. Cortarle el TPV a un bar
+    // el primer día por una tarjeta caducada le hace mucho más daño que el importe de la cuota,
+    // así que se bloquea cuando Stripe lo da por perdido: UNPAID, o cancelada y sin periodo.
+    if (subscription.status === DbSubscriptionStatus.PAST_DUE) {
       return true;
     }
 

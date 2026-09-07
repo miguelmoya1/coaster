@@ -32,8 +32,8 @@ export const appConfig: ApplicationConfig = {
       provide: PAYWALL_HANDLER,
       useFactory: (injector: Injector): PaywallHandler => ({
         open: (establishmentId: EstablishmentId) => {
-          void import('@coaster/establishment-subscription').then(({ PlanDialogService }) =>
-            injector.get(PlanDialogService).open(establishmentId),
+          void import('@coaster/establishment-subscription').then(({ BillingEntryPoint }) =>
+            injector.get(BillingEntryPoint).open(establishmentId),
           );
         },
       }),

@@ -4,7 +4,7 @@ import { MatCard } from '@angular/material/card';
 import { MatIcon } from '@angular/material/icon';
 import type { EstablishmentId } from '@coaster/common';
 import { ErrorCodes } from '@coaster/common';
-import { BillingAction, EstablishmentSubscriptionStore, PlanDialogService } from '@coaster/establishment-subscription';
+import { BillingAction, EstablishmentSubscriptionStore, BillingEntryPoint } from '@coaster/establishment-subscription';
 import { ActionFeedback, ApiError } from '@coaster/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Spinner } from '../../../../../../components/spinner/spinner';
@@ -19,13 +19,12 @@ export class SubscriptionWidget {
   public readonly establishmentId = input.required<EstablishmentId>();
 
   readonly #establishmentSubscriptionStore = inject(EstablishmentSubscriptionStore);
-  readonly #planDialogService = inject(PlanDialogService);
+  readonly #billingEntryPoint = inject(BillingEntryPoint);
   readonly #actionFeedback = inject(ActionFeedback);
 
   readonly subscription = computed(() => this.#establishmentSubscriptionStore.subscription.value());
   readonly billingAction = this.#establishmentSubscriptionStore.billingAction;
   readonly isOpeningBillingPortal = this.#establishmentSubscriptionStore.isOpeningBillingPortal;
-  readonly showBillingAction = this.#establishmentSubscriptionStore.showBillingAction;
   readonly BillingAction = BillingAction;
 
   readonly planLabelKey = computed(() => {
@@ -138,6 +137,6 @@ export class SubscriptionWidget {
   }
 
   activatePro(): void {
-    this.#planDialogService.open(this.establishmentId());
+    this.#billingEntryPoint.open(this.establishmentId());
   }
 }

@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { ModulesStore, CurrentEstablishmentStore } from '@coaster/establishments';
 import { MyMemberStore } from '@coaster/establishment-members';
-import { EstablishmentSubscriptionStore, PlanDialogService } from '@coaster/establishment-subscription';
+import { EstablishmentSubscriptionStore, BillingEntryPoint } from '@coaster/establishment-subscription';
 import {
   ClockState,
   EstablishmentId,
@@ -102,7 +102,7 @@ const buildFixture = async (role: EstablishmentRole): Promise<ComponentFixture<D
         },
       },
       { provide: CurrentEstablishmentStore, useValue: currentEstablishmentStoreMock },
-      { provide: PlanDialogService, useValue: { open: vi.fn() } },
+      { provide: BillingEntryPoint, useValue: { open: vi.fn() } },
       { provide: ActionFeedback, useValue: { success: vi.fn(), error: vi.fn() } },
     ],
   }).compileComponents();

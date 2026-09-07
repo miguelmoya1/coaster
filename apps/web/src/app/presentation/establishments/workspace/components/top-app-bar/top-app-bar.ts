@@ -9,7 +9,7 @@ import type { EstablishmentId } from '@coaster/common';
 import { ErrorCodes, EstablishmentPermission } from '@coaster/common';
 import { ActionFeedback, ApiError, Auth, CurrentUser } from '@coaster/core';
 import { MyMemberStore } from '@coaster/establishment-members';
-import { BillingAction, EstablishmentSubscriptionStore, PlanDialogService } from '@coaster/establishment-subscription';
+import { BillingAction, EstablishmentSubscriptionStore, BillingEntryPoint } from '@coaster/establishment-subscription';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Spinner } from '../../../../components/spinner/spinner';
 import { AiAssistantTrigger } from '../ai-assistant/ai-assistant-trigger';
@@ -89,7 +89,7 @@ import { AvatarBadge } from '../avatar-badge/avatar-badge';
           </a>
         }
 
-        @if (canManageBilling() && showBillingAction()) {
+        @if (canManageBilling()) {
           @if (billingAction() === BillingAction.MANAGE) {
             <button
               mat-menu-item
@@ -156,7 +156,7 @@ export class TopAppBar {
   readonly #router = inject(Router);
   readonly #translate = inject(TranslateService);
   readonly #actionFeedback = inject(ActionFeedback);
-  readonly #planDialogService = inject(PlanDialogService);
+  readonly #billingEntryPoint = inject(BillingEntryPoint);
 
   readonly currentLang = this.#translate.currentLang;
   readonly isAdmin = this.#currentUser.isAdmin;
@@ -169,7 +169,6 @@ export class TopAppBar {
   readonly subscription = computed(() => this.#establishmentSubscriptionStore.subscription.value());
   readonly billingAction = this.#establishmentSubscriptionStore.billingAction;
   readonly isOpeningBillingPortal = this.#establishmentSubscriptionStore.isOpeningBillingPortal;
-  readonly showBillingAction = this.#establishmentSubscriptionStore.showBillingAction;
   readonly BillingAction = BillingAction;
 
   readonly isProActive = computed(() => {
@@ -276,6 +275,6 @@ export class TopAppBar {
   }
 
   activatePro(): void {
-    this.#planDialogService.open(this.establishmentId());
+    this.#billingEntryPoint.open(this.establishmentId());
   }
 }
