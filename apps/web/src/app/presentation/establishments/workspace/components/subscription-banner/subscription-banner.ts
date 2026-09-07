@@ -1,9 +1,10 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { EstablishmentSubscriptionStore, BillingAction, BillingEntryPoint } from '@coaster/establishment-subscription';
-import { ErrorCodes, type EstablishmentId } from '@coaster/common';
+import { ErrorCodes, EstablishmentPermission, type EstablishmentId } from '@coaster/common';
 import { ActionFeedback, ApiError } from '@coaster/core';
+import { MyMemberStore } from '@coaster/establishment-members';
 import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
@@ -15,10 +16,12 @@ import { TranslatePipe } from '@ngx-translate/core';
         <div class="flex items-center gap-2.5 min-w-0">
           <mat-icon class="text-secondary shrink-0 text-base sm:text-lg">lock</mat-icon>
           <span class="truncate sm:whitespace-normal">
-            {{ 'billing.banner.read_only' | translate }}
+            {{ (canManageBilling() ? 'billing.banner.read_only' : 'billing.banner.read_only_staff') | translate }}
           </span>
         </div>
-        @if (subStore.billingAction() === BillingAction.ACTIVATE) {
+        @if (!canManageBilling()) {
+          <!-- Sin permiso de facturación no se enseña ninguna puerta: acabaría en un 403. -->
+        } @else if (subStore.billingAction() === BillingAction.ACTIVATE) {
           <button
             type="button"
             mat-flat-button
@@ -45,6 +48,7 @@ import { TranslatePipe } from '@ngx-translate/core';
           <mat-icon class="text-secondary shrink-0 text-base sm:text-lg">credit_card_off</mat-icon>
           <span class="truncate sm:whitespace-normal">{{ 'billing.banner.payment_failed' | translate }}</span>
         </div>
+        @if (canManageBilling()) {
         <button
           type="button"
           mat-flat-button
@@ -55,6 +59,7 @@ import { TranslatePipe } from '@ngx-translate/core';
         >
           {{ 'billing.banner.update_card' | translate }}
         </button>
+        }
       } @else {
         <div class="flex items-center gap-2.5 min-w-0">
           <mat-icon class="text-primary shrink-0 text-base sm:text-lg">timer</mat-icon>
@@ -94,6 +99,11 @@ export class SubscriptionBanner {
   protected readonly BillingAction = BillingAction;
 
   readonly #actionFeedback = inject(ActionFeedback);
+  readonly #myMemberStore = inject(MyMemberStore);
+
+  protected readonly canManageBilling = computed(() =>
+    this.#myMemberStore.hasPermission(EstablishmentPermission.ESTABLISHMENT_MANAGE_BILLING),
+  );
 
   protected async manageBilling(): Promise<void> {
     try {

@@ -599,7 +599,8 @@
       "trial_expiring_other": "Quedan {{days}} días de prueba. ¡Suscríbete para mantener tus funciones activas!",
       "view_plans": "Ver Planes",
       "payment_failed": "No hemos podido cobrar tu suscripción. Sigues trabajando con normalidad mientras lo reintentamos, pero conviene revisar la tarjeta.",
-      "update_card": "Revisar tarjeta"
+      "update_card": "Revisar tarjeta",
+      "read_only_staff": "La suscripción de este establecimiento ha caducado. Avisa al propietario para reactivarla."
     },
     "status": {
       "active": "Activa",
@@ -630,7 +631,8 @@
       "breakdown_within": "Precio fijo: hasta {{included}} empleados. A partir de ahí, {{each}} al mes por cada uno.",
       "breakdown_over": "{{base}} por los primeros {{included}} + {{extra}} × {{each}} por los que pasan de ahí.",
       "tax_note": "IVA aparte. Si cambia tu equipo, la diferencia se ajusta en la factura siguiente."
-    }
+    },
+    "locked_ask_owner": "La suscripción ha caducado y solo el propietario puede reactivarla. Avísale para volver a trabajar con normalidad."
   },
   "landing": {
     "nav": {

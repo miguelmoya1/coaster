@@ -1,11 +1,11 @@
-import { Component, inject, output, signal } from '@angular/core';
+import { Component, computed, inject, output, signal } from '@angular/core';
 import { email, form, FormField, FormRoot, maxLength, minLength, required } from '@angular/forms/signals';
 import { MatButton } from '@angular/material/button';
 import type { EstablishmentRole as EstablishmentRoleType, InviteEstablishmentMemberDto } from '@coaster/common';
-import { EstablishmentRole } from '@coaster/common';
+import { EstablishmentPermission, EstablishmentRole } from '@coaster/common';
 import { handleErrorFormField } from '@coaster/core';
 import { EstablishmentSubscriptionStore } from '@coaster/establishment-subscription';
-import { MembersStore } from '@coaster/establishment-members';
+import { MembersStore, MyMemberStore } from '@coaster/establishment-members';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Field } from '../../../../../../components/field/field';
 import { CoasterInput } from '../../../../../../components/field/input.directive';
@@ -93,7 +93,15 @@ export class InviteMemberForm {
   readonly #membersStore = inject(MembersStore);
   readonly #subscriptionStore = inject(EstablishmentSubscriptionStore);
 
-  protected readonly extraSeat = this.#subscriptionStore.extraSeatNotice;
+  readonly #myMemberStore = inject(MyMemberStore);
+
+  // Un encargado puede invitar pero no facturar, así que el importe no es asunto suyo:
+  // lo ve quien lo va a pagar.
+  protected readonly extraSeat = computed(() =>
+    this.#myMemberStore.hasPermission(EstablishmentPermission.ESTABLISHMENT_MANAGE_BILLING)
+      ? this.#subscriptionStore.extraSeatNotice()
+      : undefined,
+  );
 
   protected readonly assignableRoles = Object.values(EstablishmentRole);
   protected readonly selectedRole = signal<EstablishmentRoleType>(EstablishmentRole.STAFF);

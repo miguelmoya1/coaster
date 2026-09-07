@@ -599,7 +599,8 @@
       "trial_expiring_other": "{{days}} trial days remaining. Subscribe to keep your features active!",
       "view_plans": "View Plans",
       "payment_failed": "We could not charge your subscription. You can keep working while we retry, but your card needs a look.",
-      "update_card": "Update card"
+      "update_card": "Update card",
+      "read_only_staff": "This establishment's subscription has lapsed. Ask the owner to reactivate it."
     },
     "status": {
       "active": "Active",
@@ -630,7 +631,8 @@
       "breakdown_within": "Flat price up to {{included}} employees. Past that, {{each}} a month each.",
       "breakdown_over": "{{base}} for the first {{included}} + {{extra}} × {{each}} for the ones beyond.",
       "tax_note": "VAT on top. If your team changes, the difference is settled on the next invoice."
-    }
+    },
+    "locked_ask_owner": "The subscription has lapsed and only the owner can reactivate it. Let them know so you can get back to work."
   },
   "landing": {
     "nav": {

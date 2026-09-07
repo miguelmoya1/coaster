@@ -26,13 +26,17 @@ describe('Staff', () => {
     remove: vi.fn(),
   };
 
+  const canManageBilling = signal(true);
+
   const myMemberStoreMock = {
     myMember: {
       value: signal(undefined),
       hasValue: signal(true),
     },
     isOwner: signal(false),
-    hasPermission: vi.fn().mockReturnValue(false),
+    hasPermission: vi.fn((permission: string) =>
+      permission === 'establishment:manage-billing' ? canManageBilling() : false,
+    ),
   };
 
   const confirmationDialogMock = {
@@ -60,6 +64,7 @@ describe('Staff', () => {
 
   beforeEach(async () => {
     billedSeats.set(undefined);
+    canManageBilling.set(true);
 
     await TestBed.configureTestingModule({
       imports: [Staff],
@@ -193,6 +198,25 @@ describe('Staff', () => {
 
       expect(confirmationDialogMock.confirm).toHaveBeenCalled();
       expect(membersStoreMock.remove).toHaveBeenCalledWith('m1');
+    });
+  });
+
+  describe('the seat counter and who may see it', () => {
+    it('should stay hidden from anyone who cannot manage billing, since it shows the monthly cost', async () => {
+      canManageBilling.set(false);
+      billedSeats.set({
+        used: 4,
+        billed: 4,
+        included: 10,
+        basePriceCents: 1999,
+        extraPriceCents: 200,
+        extraSeats: 0,
+        monthlyTotalCents: 1999,
+      });
+      await fixture.whenStable();
+
+      expect(component['seats']()).toBeUndefined();
+      expect(fixture.nativeElement.textContent).not.toContain('members.staff.seats_used');
     });
   });
 });

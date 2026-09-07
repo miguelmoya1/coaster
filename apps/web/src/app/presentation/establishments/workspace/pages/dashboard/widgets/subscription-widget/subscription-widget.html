@@ -31,7 +31,8 @@
         </div>
       </div>
 
-      <div class="flex items-center gap-2 self-start sm:self-center shrink-0 flex-wrap">
+      @if (canManageBilling()) {
+        <div class="flex items-center gap-2 self-start sm:self-center shrink-0 flex-wrap">
         @if (billingAction() === BillingAction.MANAGE) {
           <button
             mat-button
@@ -59,6 +60,7 @@
           </button>
         }
       </div>
+      }
     </div>
   </mat-card>
 </section>

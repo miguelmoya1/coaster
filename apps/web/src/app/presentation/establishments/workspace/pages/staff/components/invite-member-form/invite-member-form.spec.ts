@@ -2,6 +2,7 @@ import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Realtime } from '@coaster/core';
 import { EstablishmentSubscriptionStore } from '@coaster/establishment-subscription';
+import { MyMemberStore } from '@coaster/establishment-members';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { InviteMemberForm } from './invite-member-form';
@@ -10,18 +11,21 @@ describe('InviteMemberForm', () => {
   let component: InviteMemberForm;
   let fixture: ComponentFixture<InviteMemberForm>;
 
+  const canManageBilling = signal(true);
   const extraSeatNotice = signal<
     { used: number; billed: number; included: number; basePriceCents: number; extraPriceCents: number } | undefined
   >(undefined);
 
   beforeEach(async () => {
     extraSeatNotice.set(undefined);
+    canManageBilling.set(true);
 
     await TestBed.configureTestingModule({
       imports: [InviteMemberForm],
       providers: [
         provideTranslateService(),
         { provide: EstablishmentSubscriptionStore, useValue: { extraSeatNotice } },
+        { provide: MyMemberStore, useValue: { hasPermission: () => canManageBilling() } },
         {
           provide: Realtime,
           useValue: {
@@ -92,6 +96,26 @@ describe('InviteMemberForm', () => {
       cancelButton.click();
 
       expect(spy).toHaveBeenCalled();
+    });
+  });
+
+  describe('who gets told about the money', () => {
+    const overAllowance = { used: 10, billed: 10, included: 10, basePriceCents: 1999, extraPriceCents: 200 };
+
+    it('should not tell a manager what the hire costs, since they cannot pay it', () => {
+      canManageBilling.set(false);
+      extraSeatNotice.set(overAllowance);
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.textContent).not.toContain('members.invite.extra_seat');
+    });
+
+    it('should still tell the owner, who is the one billed for it', () => {
+      canManageBilling.set(true);
+      extraSeatNotice.set(overAllowance);
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.textContent).toContain('members.invite.extra_seat');
     });
   });
 });

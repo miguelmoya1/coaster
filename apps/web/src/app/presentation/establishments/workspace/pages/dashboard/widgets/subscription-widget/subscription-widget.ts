@@ -3,9 +3,10 @@ import { MatButton } from '@angular/material/button';
 import { MatCard } from '@angular/material/card';
 import { MatIcon } from '@angular/material/icon';
 import type { EstablishmentId } from '@coaster/common';
-import { ErrorCodes } from '@coaster/common';
+import { ErrorCodes, EstablishmentPermission } from '@coaster/common';
 import { BillingAction, EstablishmentSubscriptionStore, BillingEntryPoint } from '@coaster/establishment-subscription';
 import { ActionFeedback, ApiError } from '@coaster/core';
+import { MyMemberStore } from '@coaster/establishment-members';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Spinner } from '../../../../../../components/spinner/spinner';
 
@@ -21,6 +22,11 @@ export class SubscriptionWidget {
   readonly #establishmentSubscriptionStore = inject(EstablishmentSubscriptionStore);
   readonly #billingEntryPoint = inject(BillingEntryPoint);
   readonly #actionFeedback = inject(ActionFeedback);
+  readonly #myMemberStore = inject(MyMemberStore);
+
+  readonly canManageBilling = computed(() =>
+    this.#myMemberStore.hasPermission(EstablishmentPermission.ESTABLISHMENT_MANAGE_BILLING),
+  );
 
   readonly subscription = computed(() => this.#establishmentSubscriptionStore.subscription.value());
   readonly billingAction = this.#establishmentSubscriptionStore.billingAction;

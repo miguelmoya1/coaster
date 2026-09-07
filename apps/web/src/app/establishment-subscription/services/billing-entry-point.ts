@@ -1,7 +1,8 @@
 import { inject, inputBinding, outputBinding, Service, signal } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { EstablishmentId, ErrorCodes, SubscriptionPlan } from '@coaster/common';
+import { EstablishmentId, ErrorCodes, EstablishmentPermission, SubscriptionPlan } from '@coaster/common';
 import { ApiError, Toast } from '@coaster/core';
+import { MyMemberStore } from '@coaster/establishment-members';
 import { SelectPlanDialog } from '../dialogs/select-plan-dialog/select-plan-dialog';
 import { BillingAction, EstablishmentSubscriptionStore } from '../store/establishment-subscription.store';
 
@@ -13,9 +14,18 @@ export class BillingEntryPoint {
   readonly #dialog = inject(MatDialog);
   readonly #establishmentSubscriptionStore = inject(EstablishmentSubscriptionStore);
   readonly #toast = inject(Toast);
+  readonly #myMemberStore = inject(MyMemberStore);
   #openDialogRef: MatDialogRef<SelectPlanDialog> | null = null;
 
   public open(establishmentId: EstablishmentId): void {
+    // Solo el propietario puede pagar: la API exige establishment:manage-billing en checkout y
+    // en el portal. A quien no lo tiene se le cuenta qué pasa, no se le enseña una puerta que
+    // termina en un 403.
+    if (!this.#myMemberStore.hasPermission(EstablishmentPermission.ESTABLISHMENT_MANAGE_BILLING)) {
+      this.#toast.show('billing.locked_ask_owner', 'info', 5000);
+      return;
+    }
+
     if (this.#establishmentSubscriptionStore.billingAction() === BillingAction.MANAGE) {
       void this.#openBillingPortal();
       return;

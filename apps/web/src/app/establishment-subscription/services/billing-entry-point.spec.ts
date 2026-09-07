@@ -5,6 +5,7 @@ import type { EstablishmentId } from '@coaster/common';
 import { Subject } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Toast } from '@coaster/core';
+import { MyMemberStore } from '@coaster/establishment-members';
 import { EstablishmentSubscriptionStore } from '../store/establishment-subscription.store';
 import { BillingEntryPoint } from './billing-entry-point';
 
@@ -16,6 +17,8 @@ describe('BillingEntryPoint', () => {
     createCustomerPortalSession: ReturnType<typeof vi.fn>;
   };
   let dialogMock: { open: ReturnType<typeof vi.fn> };
+  let toastMock: { error: ReturnType<typeof vi.fn>; show: ReturnType<typeof vi.fn> };
+  let myMemberMock: { hasPermission: ReturnType<typeof vi.fn> };
   let afterClosed$: Subject<unknown>;
 
   const establishmentId = 'establishment-1' as EstablishmentId;
@@ -31,6 +34,9 @@ describe('BillingEntryPoint', () => {
       }),
     };
 
+    toastMock = { error: vi.fn(), show: vi.fn() };
+    myMemberMock = { hasPermission: vi.fn().mockReturnValue(true) };
+
     storeMock = {
       billingAction: signal('ACTIVATE'),
       createCheckoutSession: vi.fn(),
@@ -42,7 +48,8 @@ describe('BillingEntryPoint', () => {
         provideZonelessChangeDetection(),
         { provide: MatDialog, useValue: dialogMock },
         { provide: EstablishmentSubscriptionStore, useValue: storeMock },
-        { provide: Toast, useValue: { error: vi.fn() } },
+        { provide: Toast, useValue: toastMock },
+        { provide: MyMemberStore, useValue: myMemberMock },
       ],
     });
 
@@ -89,6 +96,27 @@ describe('BillingEntryPoint', () => {
       service.open(establishmentId);
 
       expect(dialogMock.open).toHaveBeenCalled();
+      expect(storeMock.createCustomerPortalSession).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('someone who cannot pay', () => {
+    it('should be told what happened instead of being shown a door that 403s', () => {
+      myMemberMock.hasPermission.mockReturnValue(false);
+
+      service.open(establishmentId);
+
+      expect(dialogMock.open).not.toHaveBeenCalled();
+      expect(storeMock.createCustomerPortalSession).not.toHaveBeenCalled();
+      expect(toastMock.show).toHaveBeenCalledWith('billing.locked_ask_owner', 'info', 5000);
+    });
+
+    it('should not even reach the portal when the venue has a live subscription', () => {
+      myMemberMock.hasPermission.mockReturnValue(false);
+      storeMock.billingAction.set('MANAGE');
+
+      service.open(establishmentId);
+
       expect(storeMock.createCustomerPortalSession).not.toHaveBeenCalled();
     });
   });

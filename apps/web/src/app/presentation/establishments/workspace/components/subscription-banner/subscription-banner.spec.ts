@@ -2,6 +2,7 @@ import { computed, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { EstablishmentSubscriptionStore, BillingEntryPoint } from '@coaster/establishment-subscription';
 import type { EstablishmentId } from '@coaster/common';
+import { MyMemberStore } from '@coaster/establishment-members';
 import { provideTranslateService, TranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SubscriptionBanner } from './subscription-banner';
@@ -9,6 +10,7 @@ import { SubscriptionBanner } from './subscription-banner';
 describe('SubscriptionBanner', () => {
   let fixture: ComponentFixture<SubscriptionBanner>;
   const isReadOnlySignal = signal(false);
+  const canManageBilling = signal(true);
   const paymentNeedsAttentionSignal = signal(false);
   const isTrialExpiringSoonSignal = signal(false);
   const trialDaysRemainingSignal = signal(2);
@@ -16,6 +18,7 @@ describe('SubscriptionBanner', () => {
 
   beforeEach(() => {
     isReadOnlySignal.set(false);
+    canManageBilling.set(true);
     paymentNeedsAttentionSignal.set(false);
     isTrialExpiringSoonSignal.set(false);
     trialDaysRemainingSignal.set(2);
@@ -25,6 +28,7 @@ describe('SubscriptionBanner', () => {
       imports: [SubscriptionBanner],
       providers: [
         provideTranslateService(),
+        { provide: MyMemberStore, useValue: { hasPermission: () => canManageBilling() } },
         {
           provide: EstablishmentSubscriptionStore,
           useValue: {
