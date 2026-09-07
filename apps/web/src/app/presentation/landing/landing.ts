@@ -41,7 +41,7 @@ const EXTRA_SEAT_PRICE_CENTS = 200;
       <div class="mx-auto max-w-6xl px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between gap-4">
         <a routerLink="/" class="flex items-center gap-2.5 min-w-0">
           <img
-            src="logo-256.webp"
+            src="logo.webp"
             alt=""
             width="36"
             height="36"
