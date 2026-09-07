@@ -24,7 +24,7 @@ export class StripeClient {
     }
 
     this.#stripe = new Stripe(apiKey, {
-      apiVersion: '2026-06-24.dahlia',
+      apiVersion: '2026-08-26.dahlia',
     });
     this.#logger.debug('Stripe SDK client initialized successfully');
 
