@@ -1,51 +1,62 @@
-<h2 mat-dialog-title class="text-xl font-bold text-on-surface">
-  {{ 'onboarding.title' | translate: { name: data.establishmentName } }}
+<h2 mat-dialog-title class="text-xl font-bold text-on-surface flex items-center gap-2">
+  <mat-icon class="text-primary text-2xl">storefront</mat-icon>
+  <span>{{ 'onboarding.title' | translate: { name: data.establishmentName } }}</span>
 </h2>
 
 <mat-dialog-content class="flex flex-col gap-4">
-  <p class="text-sm text-on-surface-variant">{{ 'onboarding.subtitle' | translate }}</p>
+  <p class="text-sm text-on-surface-variant leading-relaxed">
+    {{ 'onboarding.subtitle' | translate }}
+  </p>
 
-  @if (step() === 'type') {
-    <p class="font-bold text-on-surface">{{ 'onboarding.question_type' | translate }}</p>
+  <p class="font-bold text-on-surface text-sm">
+    {{ 'onboarding.question_import' | translate }}
+  </p>
 
-    <div class="flex flex-col gap-2">
-      @for (type of types; track type.key) {
-        <button
-          type="button"
-          class="flex items-start gap-3 text-left p-4 rounded-2xl bg-surface-container border border-outline-variant/20 hover:border-primary transition-colors disabled:opacity-50"
-          [disabled]="isSaving()"
-          (click)="choose(type)"
-        >
-          <mat-icon class="text-primary shrink-0">storefront</mat-icon>
-          <span class="min-w-0">
-            <span class="block font-bold text-on-surface">{{ type.labelKey | translate }}</span>
-            <span class="block text-sm text-on-surface-variant">{{ type.descriptionKey | translate }}</span>
+  <div class="flex flex-col gap-3">
+    <button
+      type="button"
+      class="group relative flex items-start gap-4 p-4 rounded-2xl bg-surface-container border-2 border-primary/40 hover:border-primary transition-all text-left disabled:opacity-50 disabled:pointer-events-none cursor-pointer"
+      [disabled]="isSaving()"
+      (click)="finish(true)"
+    >
+      <div class="p-2.5 rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors shrink-0">
+        <mat-icon class="block">restaurant_menu</mat-icon>
+      </div>
+      <div class="min-w-0 flex-1">
+        <div class="flex items-center gap-2">
+          <span class="block font-bold text-on-surface">{{ 'onboarding.import_starter_title' | translate }}</span>
+          <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+            {{ 'onboarding.recommended' | translate }}
           </span>
-        </button>
-      }
-    </div>
-  } @else {
-    <p class="font-bold text-on-surface">{{ 'onboarding.question_import' | translate }}</p>
+        </div>
+        <span class="block text-xs text-on-surface-variant mt-1 leading-relaxed">
+          {{ 'onboarding.import_starter_desc' | translate }}
+        </span>
+      </div>
+    </button>
 
-    <div class="flex flex-col gap-2">
-      <button mat-flat-button [disabled]="isSaving()" (click)="finish(true)">
-        {{ 'onboarding.import_yes' | translate }}
-      </button>
-      <button mat-button [disabled]="isSaving()" (click)="finish(false)">
-        {{ 'onboarding.import_no' | translate }}
-      </button>
+    <button
+      type="button"
+      class="group flex items-start gap-4 p-4 rounded-2xl bg-surface-container border border-outline-variant/20 hover:border-outline-variant transition-all text-left disabled:opacity-50 disabled:pointer-events-none cursor-pointer"
+      [disabled]="isSaving()"
+      (click)="finish(false)"
+    >
+      <div class="p-2.5 rounded-xl bg-surface-container-high text-on-surface-variant group-hover:text-on-surface transition-colors shrink-0">
+        <mat-icon class="block">edit_note</mat-icon>
+      </div>
+      <div class="min-w-0 flex-1">
+        <span class="block font-bold text-on-surface">{{ 'onboarding.start_scratch_title' | translate }}</span>
+        <span class="block text-xs text-on-surface-variant mt-1 leading-relaxed">
+          {{ 'onboarding.start_scratch_desc' | translate }}
+        </span>
+      </div>
+    </button>
+  </div>
+
+  @if (isSaving()) {
+    <div class="flex items-center justify-center gap-3 py-2 text-sm text-on-surface-variant animate-in fade-in duration-200">
+      <coaster-spinner [diameter]="24" />
+      <span>{{ 'onboarding.configuring' | translate }}</span>
     </div>
   }
 </mat-dialog-content>
-
-@if (step() === 'catalogue' || isSaving()) {
-  <mat-dialog-actions class="flex items-center gap-3">
-    @if (step() === 'catalogue' && !isSaving()) {
-      <button mat-button class="mr-auto" (click)="back()">{{ 'onboarding.back' | translate }}</button>
-    }
-
-    @if (isSaving()) {
-      <coaster-spinner class="ml-auto" [diameter]="24" />
-    }
-  </mat-dialog-actions>
-}

@@ -170,19 +170,15 @@
     "mark_sold_out_desc": "When a product runs out of stock it shows crossed out on the public menu. Checked when the page is opened, not when it was published."
   },
   "onboarding": {
-    "title": "Welcome to {{ name }}",
-    "subtitle": "Two quick questions and you are set.",
-    "question_type": "What kind of business is this?",
-    "type_hospitality": "Bar, restaurant or cafe",
-    "type_hospitality_desc": "Orders, inventory and time tracking.",
-    "type_retail": "Shop or retail",
-    "type_retail_desc": "Inventory and time tracking.",
-    "type_other": "Office or something else",
-    "type_other_desc": "Time tracking only.",
-    "question_import": "Shall we load a catalogue to start from?",
-    "import_yes": "Yes, load the standard catalogue",
-    "import_no": "No, I will build my own",
-    "back": "Back"
+    "title": "Welcome to {{ name }}!",
+    "subtitle": "Your bar & restaurant workspace is ready. To get off to a good start, let's set up your initial menu.",
+    "question_import": "How would you like to start your menu?",
+    "import_starter_title": "Load standard menu",
+    "import_starter_desc": "Includes common categories and items (coffee, beer, soft drinks, wine, tapas and food) with prices to get started immediately.",
+    "start_scratch_title": "Start from scratch",
+    "start_scratch_desc": "Begin with an empty menu and configure your own categories and products manually.",
+    "recommended": "Recommended",
+    "configuring": "Setting up your establishment..."
   },
   "common": {
     "accept": "Accept",

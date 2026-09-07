@@ -170,19 +170,15 @@
     "mark_sold_out_desc": "Cuando un producto se queda sin stock, aparece tachado en la carta pública. Se comprueba al abrirla, no al publicar."
   },
   "onboarding": {
-    "title": "Bienvenido a {{ name }}",
-    "subtitle": "Dos preguntas rápidas y lo dejamos listo.",
-    "question_type": "¿Qué tipo de negocio es?",
-    "type_hospitality": "Bar, restaurante o cafetería",
-    "type_hospitality_desc": "Comandas, inventario y control horario.",
-    "type_retail": "Tienda o comercio",
-    "type_retail_desc": "Inventario y control horario.",
-    "type_other": "Oficina u otro",
-    "type_other_desc": "Solo control horario.",
-    "question_import": "¿Cargamos un catálogo para empezar?",
-    "import_yes": "Sí, cargar catálogo estándar",
-    "import_no": "No, lo creo yo",
-    "back": "Atrás"
+    "title": "¡Bienvenido a {{ name }}!",
+    "subtitle": "Tu espacio de bar y restaurante está listo. Para empezar con buen pie, te sugerimos preparar tu carta inicial.",
+    "question_import": "¿Cómo deseas comenzar tu carta?",
+    "import_starter_title": "Cargar carta estándar",
+    "import_starter_desc": "Incluye productos y categorías habituales (cafés, cervezas, refrescos, vinos, tapas y raciones) con precios para empezar de inmediato.",
+    "start_scratch_title": "Empezar desde cero",
+    "start_scratch_desc": "Comenzar con la carta vacía y configurar tus propias categorías y productos manualmente.",
+    "recommended": "Recomendado",
+    "configuring": "Configurando tu establecimiento..."
   },
   "common": {
     "accept": "Aceptar",
