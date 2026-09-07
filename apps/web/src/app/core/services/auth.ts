@@ -1,6 +1,5 @@
 import { computed, inject, InjectionToken, Service, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { environment } from '@coaster/env';
 import { Language } from '@ngx-translate/core';
 import {
   AuthError,
@@ -114,7 +113,7 @@ export class Auth {
       }
     });
 
-    if (typeof window !== 'undefined' && !environment.production) {
+    if (typeof ngDevMode !== 'undefined' && ngDevMode && typeof window !== 'undefined') {
       (window as unknown as { __TEST_LOGIN__: (token: string, targetRoute: string) => Promise<void> }).__TEST_LOGIN__ =
         async (token = 'fake-jwt-token', targetRoute = '/establishments') => {
           this.#isTestMode = true;
