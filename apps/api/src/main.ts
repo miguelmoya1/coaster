@@ -28,7 +28,8 @@ async function bootstrap() {
   const isProduction = process.env.NODE_ENV === 'production';
 
   const proxyHops = Number(process.env.TRUST_PROXY_HOPS ?? 1);
-  const trustProxy = Number.isFinite(proxyHops) && proxyHops > 0 ? proxyHops : false;
+  const hops = Number.isFinite(proxyHops) && proxyHops > 0 ? proxyHops : 0;
+  const trustProxy = hops > 0 ? (_address: string, hop: number) => hop < hops : false;
 
   const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter({ trustProxy }), {
     logger: isProduction ? ['error', 'warn'] : ['log', 'error', 'warn', 'debug', 'verbose'],

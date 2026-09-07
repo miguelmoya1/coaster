@@ -38,15 +38,15 @@
     "angular-eslint": "22.3.0",
     "dotenv": "^17.4.2",
     "eslint": "^10.10.0",
-    "jsdom": "^29.1.1",
+    "jsdom": "^30.0.1",
     "playwright-ng-schematics": "^22.1.2",
     "postcss": "^8.5.28",
     "prettier": "^3.9.6",
     "sass": "^1.104.0",
     "tailwindcss": "^4.3.3",
-    "typescript": "~6.0.3",
+    "typescript": "^6.0.3",
     "typescript-eslint": "8.69.0",
-    "vitest": "^4.1.10"
+    "vitest": "^5.0.0"
   },
   "scripts": {
     "prebuild": "npm run build -w @coaster/common && node set-env.ts",

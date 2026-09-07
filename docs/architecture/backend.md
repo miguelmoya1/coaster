@@ -150,6 +150,11 @@ right number it lands on the address the proxy appended. Trusting more hops than
 them, with `trustProxy: true` — hands it the leftmost entry, which the caller writes themselves:
 rotating that header per request makes the rate limit disappear entirely.
 
+Fastify 5.12 stopped accepting a number here: a hop count cannot validate the immediate peer, so it
+answers "trust nobody" and `req.ip` becomes the proxy — one shared rate-limit bucket for everybody.
+The count is expressed as a function instead, `(_address, hop) => hop < hops`, which walks the same
+way on 5.11 and on 5.12. Do not put a number back.
+
 To check the number is right against a deployed API, hammer it with a rotating header and look for
 `429`. If every response is identical, there is one more hop than you think:
 
