@@ -26,9 +26,6 @@
   --color-border-ghost: #484847;
   --color-border-strong: #767575;
 
-  /* La barra de navegación y el botón de añadir son dos elementos fixed sin padre
-     común, así que la única forma de que queden alineados en la misma fila es que
-     los dos calculen su sitio desde la misma caja. Estas cuatro medidas son esa caja. */
   --bottom-bar-width: min(calc(100vw - 2rem), 28rem);
   --bottom-bar-inset: calc(1rem + env(safe-area-inset-bottom));
   --bottom-bar-gap: 0.75rem;

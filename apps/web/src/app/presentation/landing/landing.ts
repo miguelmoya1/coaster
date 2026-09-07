@@ -40,11 +40,14 @@ const EXTRA_SEAT_PRICE_CENTS = 200;
     <header class="sticky top-0 z-50 backdrop-blur-xl bg-surface/80 border-b border-white/10">
       <div class="mx-auto max-w-6xl px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between gap-4">
         <a routerLink="/" class="flex items-center gap-2.5 min-w-0">
-          <span
-            class="h-9 w-9 shrink-0 rounded-xl bg-linear-to-tr from-primary to-secondary text-black grid place-items-center font-black text-lg"
-          >
-            C
-          </span>
+          <img
+            src="logo-256.webp"
+            alt=""
+            width="36"
+            height="36"
+            fetchpriority="high"
+            class="h-9 w-9 shrink-0"
+          />
           <span class="font-black tracking-tight text-xl sm:text-2xl truncate">Coaster</span>
         </a>
 
