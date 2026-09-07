@@ -88,8 +88,6 @@ export default class Staff {
   );
   protected readonly totalMembers = computed(() => this.members()?.length ?? 0);
 
-  // El contador dice lo que cuesta el mes, así que es información de facturación:
-  // solo lo ve quien puede facturar.
   protected readonly seats = computed(() => {
     if (!this.#myMemberStore.hasPermission(EstablishmentPermission.ESTABLISHMENT_MANAGE_BILLING)) {
       return undefined;

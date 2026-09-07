@@ -98,8 +98,6 @@ export class EstablishmentSubscriptionStore {
       if (!sub.currentPeriodEnd) return true;
       return new Date() > new Date(sub.currentPeriodEnd);
     }
-    // PAST_DUE no bloquea: Stripe sigue reintentando el cobro y el local sigue trabajando.
-    // Se avisa con paymentNeedsAttention, no cortándole el TPV. Lo espeja SubscriptionActiveGuard.
     if (sub.status === SubscriptionStatus.PAST_DUE) {
       return false;
     }

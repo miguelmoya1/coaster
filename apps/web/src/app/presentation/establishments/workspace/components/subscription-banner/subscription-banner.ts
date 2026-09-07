@@ -20,7 +20,6 @@ import { TranslatePipe } from '@ngx-translate/core';
           </span>
         </div>
         @if (!canManageBilling()) {
-          <!-- Sin permiso de facturación no se enseña ninguna puerta: acabaría en un 403. -->
         } @else if (subStore.billingAction() === BillingAction.ACTIVATE) {
           <button
             type="button"

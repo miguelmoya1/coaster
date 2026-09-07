@@ -92,13 +92,6 @@ export class SubscriptionActiveGuard implements CanActivate {
     );
   }
 
-  // Stripe es la verdad, la fila es una copia. Cuando la copia dice que no y hay una
-  // suscripción a la que preguntar, se pregunta: un webhook perdido no puede dejar sin
-  // trabajar a alguien que está pagando. Sin stripeSubscriptionId no hay a quién preguntar,
-  // así que un establecimiento gratuito nunca llega a llamar a Stripe.
-  //
-  // Quién sabe preguntar vive fuera de core, así que llega por token. Si nadie lo registra,
-  // el guardia se comporta como antes de existir esto en vez de reventar.
   async #healFromStripe(establishmentId: string, stale: SubscriptionState | null): Promise<SubscriptionState | null> {
     if (!stale?.stripeSubscriptionId) {
       return stale;
@@ -125,9 +118,6 @@ export class SubscriptionActiveGuard implements CanActivate {
       return true;
     }
 
-    // Stripe reintenta el cobro unas dos semanas antes de rendirse. Cortarle el TPV a un bar
-    // el primer día por una tarjeta caducada le hace mucho más daño que el importe de la cuota,
-    // así que se bloquea cuando Stripe lo da por perdido: UNPAID, o cancelada y sin periodo.
     if (subscription.status === DbSubscriptionStatus.PAST_DUE) {
       return true;
     }

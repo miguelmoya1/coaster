@@ -95,8 +95,6 @@ export class InviteMemberForm {
 
   readonly #myMemberStore = inject(MyMemberStore);
 
-  // Un encargado puede invitar pero no facturar, así que el importe no es asunto suyo:
-  // lo ve quien lo va a pagar.
   protected readonly extraSeat = computed(() =>
     this.#myMemberStore.hasPermission(EstablishmentPermission.ESTABLISHMENT_MANAGE_BILLING)
       ? this.#subscriptionStore.extraSeatNotice()

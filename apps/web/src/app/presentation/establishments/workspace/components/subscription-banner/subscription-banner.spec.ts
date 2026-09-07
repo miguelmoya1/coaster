@@ -42,7 +42,6 @@ describe('SubscriptionBanner', () => {
               () => isReadOnlySignal() || paymentNeedsAttentionSignal() || isTrialExpiringSoonSignal(),
             ),
             billingAction: signal('ACTIVATE'),
-            isOpeningBillingPortal: signal(false),
           },
         },
         {

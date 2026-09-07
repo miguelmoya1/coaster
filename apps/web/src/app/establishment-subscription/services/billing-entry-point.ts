@@ -6,9 +6,6 @@ import { MyMemberStore } from '@coaster/establishment-members';
 import { SelectPlanDialog } from '../dialogs/select-plan-dialog/select-plan-dialog';
 import { BillingAction, EstablishmentSubscriptionStore } from '../store/establishment-subscription.store';
 
-// La única puerta a facturación. La directiva de bloqueo, el interceptor del 402, el banner,
-// el panel y el menú entran todos por aquí, así que la decisión de a dónde llevar vive aquí y
-// solo aquí: mientras exista una suscripción en Stripe, checkout la rechaza y el sitio es el portal.
 @Service()
 export class BillingEntryPoint {
   readonly #dialog = inject(MatDialog);
@@ -18,9 +15,6 @@ export class BillingEntryPoint {
   #openDialogRef: MatDialogRef<SelectPlanDialog> | null = null;
 
   public open(establishmentId: EstablishmentId): void {
-    // Solo el propietario puede pagar: la API exige establishment:manage-billing en checkout y
-    // en el portal. A quien no lo tiene se le cuenta qué pasa, no se le enseña una puerta que
-    // termina en un 403.
     if (!this.#myMemberStore.hasPermission(EstablishmentPermission.ESTABLISHMENT_MANAGE_BILLING)) {
       this.#toast.show('billing.locked_ask_owner', 'info', 5000);
       return;

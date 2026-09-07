@@ -29,8 +29,6 @@ export class FindEstablishmentSubscriptionHandler implements IQueryHandler<
       return EstablishmentSubscriptionMapper.toFreeDefault(establishmentId);
     }
 
-    // Lo mismo que hace SubscriptionActiveGuard antes de negar una escritura, pero al leer:
-    // si no, la pantalla enseñaría un local bloqueado que en realidad sí deja trabajar.
     if (this.#looksLapsed(subscription)) {
       await this._refresher.refresh(establishmentId);
       subscription = (await this._readRepo.findByEstablishmentId(establishmentId)) ?? subscription;
