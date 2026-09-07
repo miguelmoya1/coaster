@@ -17,8 +17,8 @@ export class DeleteOrderHandler implements ICommandHandler<DeleteOrderCommand, v
   ) {}
 
   async execute(command: DeleteOrderCommand): Promise<void> {
-    const order = await this.readRepo.findById(command.orderId);
-    if (!order || order.establishmentId !== command.establishmentId) {
+    const order = await this.readRepo.findOwnedById(command.orderId, command.establishmentId);
+    if (!order) {
       throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
     }
 

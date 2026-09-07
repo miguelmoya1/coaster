@@ -1,6 +1,6 @@
 import { inject, inputBinding, outputBinding, Service, signal } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { EstablishmentId, ErrorCodes, EstablishmentPermission, SubscriptionPlan } from '@coaster/common';
+import { ErrorCodes, EstablishmentId, EstablishmentPermission, SubscriptionPlan } from '@coaster/common';
 import { ApiError, Toast } from '@coaster/core';
 import { MyMemberStore } from '@coaster/establishment-members';
 import { SelectPlanDialog } from '../dialogs/select-plan-dialog/select-plan-dialog';
@@ -67,6 +67,10 @@ export class BillingEntryPoint {
   }
 
   async #openBillingPortal(): Promise<void> {
+    if (this.#establishmentSubscriptionStore.isOpeningBillingPortal()) {
+      return;
+    }
+
     try {
       const portalUrl = await this.#establishmentSubscriptionStore.createCustomerPortalSession();
 

@@ -20,8 +20,8 @@ export class UpdateOrderNotesHandler implements ICommandHandler<UpdateOrderNotes
   async execute(command: UpdateOrderNotesCommand): Promise<void> {
     this.#logger.debug(`Executing updateOrderNotes...`);
 
-    const order = await this.readRepo.findById(command.orderId);
-    if (!order || order.establishmentId !== command.establishmentId) {
+    const order = await this.readRepo.findOwnedById(command.orderId, command.establishmentId);
+    if (!order) {
       throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
     }
 

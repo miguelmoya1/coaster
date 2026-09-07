@@ -1,17 +1,18 @@
-import { ALLERGENS, asCategoryId, DEFAULT_TAX_RATE, grossFromNet, toBasisPoints, toPercentage } from '@coaster/common';
 import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { form, FormField, FormRoot, max, maxLength, min, minLength, required } from '@angular/forms/signals';
 import { MatButton } from '@angular/material/button';
 import type { Category, UpdateProductDto } from '@coaster/common';
+import { ALLERGENS, asCategoryId, DEFAULT_TAX_RATE, grossFromNet, toBasisPoints, toPercentage } from '@coaster/common';
 import { handleErrorFormField } from '@coaster/core';
 import { Product, ProductsStore } from '@coaster/products';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ChipSelect } from '../../../../../../components/chip-select/chip-select';
-import { NumberInput } from '../../../../../../components/number-input/number-input';
-import { PricePipe } from '../../../../pipes/price/price';
 import { Field } from '../../../../../../components/field/field';
+import { FormErrors } from '../../../../../../components/field/form-errors';
 import { CoasterInput } from '../../../../../../components/field/input.directive';
 import { IconPicker } from '../../../../../../components/icon-picker/icon-picker';
+import { NumberInput } from '../../../../../../components/number-input/number-input';
+import { PricePipe } from '../../../../pipes/price/price';
 
 @Component({
   selector: 'coaster-edit-product-form',
@@ -26,6 +27,7 @@ import { IconPicker } from '../../../../../../components/icon-picker/icon-picker
     TranslatePipe,
     Field,
     CoasterInput,
+    FormErrors,
   ],
   host: {
     class: 'block px-6 pb-6 pt-2',
@@ -87,13 +89,7 @@ import { IconPicker } from '../../../../../../components/icon-picker/icon-picker
           [hint]="'inventory.allergens_hint' | translate"
         />
 
-        @if (form().errors().length > 0) {
-          <div class="flex flex-col gap-1 mt-1 ml-1" role="alert">
-            @for (error of form().errors(); track error) {
-              <span class="text-error text-xs font-medium">{{ error.message || error.kind | translate: error }}</span>
-            }
-          </div>
-        }
+        <coaster-form-errors [errors]="form().errors()" />
 
         <div class="flex justify-end mt-4 gap-2">
           <button

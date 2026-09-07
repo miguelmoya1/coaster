@@ -20,9 +20,9 @@ export class RemoveOrderItemHandler implements ICommandHandler<RemoveOrderItemCo
   async execute(command: RemoveOrderItemCommand): Promise<void> {
     this.#logger.debug(`Executing removeOrderItem...`);
 
-    const order = await this.readRepo.findById(command.orderId);
+    const order = await this.readRepo.findOwnedById(command.orderId, command.establishmentId);
 
-    if (!order || order.establishmentId !== command.establishmentId) {
+    if (!order) {
       throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
     }
 

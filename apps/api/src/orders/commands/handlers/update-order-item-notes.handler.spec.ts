@@ -40,6 +40,7 @@ describe('UpdateOrderItemNotesHandler', () => {
 
   const repository = {
     findById: vi.fn(),
+    findOwnedById: vi.fn(),
     updateOrderItemNotes: vi.fn(),
   };
   const eventBus = { publish: vi.fn() };
@@ -49,7 +50,7 @@ describe('UpdateOrderItemNotesHandler', () => {
 
   beforeEach(async () => {
     vi.clearAllMocks();
-    repository.findById.mockResolvedValue(openOrder);
+    repository.findOwnedById.mockResolvedValue(openOrder);
     repository.updateOrderItemNotes.mockResolvedValue(openOrder);
 
     const module: TestingModule = await Test.createTestingModule({
@@ -82,14 +83,14 @@ describe('UpdateOrderItemNotesHandler', () => {
     expect(repository.updateOrderItemNotes).not.toHaveBeenCalled();
   });
 
-  it('should refuse an order from another establishment', async () => {
-    repository.findById.mockResolvedValue({ ...openOrder, establishmentId: 'establishment-2' });
+  it('should look the order up scoped to its establishment, so another one cannot be reached', async () => {
+    await run('sin hielo');
 
-    await expect(run('sin hielo')).rejects.toThrow(ErrorCodes.ORDER_NOT_FOUND);
+    expect(repository.findOwnedById).toHaveBeenCalledWith(openOrder.id, openOrder.establishmentId);
   });
 
   it('should refuse to touch a closed order', async () => {
-    repository.findById.mockResolvedValue({ ...openOrder, status: OrderStatus.CLOSED });
+    repository.findOwnedById.mockResolvedValue({ ...openOrder, status: OrderStatus.CLOSED });
 
     await expect(run('sin hielo')).rejects.toThrow(ErrorCodes.ORDER_NOT_OPEN);
     expect(repository.updateOrderItemNotes).not.toHaveBeenCalled();

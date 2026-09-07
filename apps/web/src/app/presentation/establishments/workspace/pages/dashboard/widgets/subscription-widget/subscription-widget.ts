@@ -3,10 +3,9 @@ import { MatButton } from '@angular/material/button';
 import { MatCard } from '@angular/material/card';
 import { MatIcon } from '@angular/material/icon';
 import type { EstablishmentId } from '@coaster/common';
-import { ErrorCodes, EstablishmentPermission } from '@coaster/common';
-import { BillingAction, EstablishmentSubscriptionStore, BillingEntryPoint } from '@coaster/establishment-subscription';
-import { ActionFeedback, ApiError } from '@coaster/core';
+import { EstablishmentPermission } from '@coaster/common';
 import { MyMemberStore } from '@coaster/establishment-members';
+import { BillingAction, BillingEntryPoint, EstablishmentSubscriptionStore } from '@coaster/establishment-subscription';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Spinner } from '../../../../../../components/spinner/spinner';
 
@@ -21,7 +20,6 @@ export class SubscriptionWidget {
 
   readonly #establishmentSubscriptionStore = inject(EstablishmentSubscriptionStore);
   readonly #billingEntryPoint = inject(BillingEntryPoint);
-  readonly #actionFeedback = inject(ActionFeedback);
   readonly #myMemberStore = inject(MyMemberStore);
 
   readonly canManageBilling = computed(() =>
@@ -123,26 +121,7 @@ export class SubscriptionWidget {
     }
   });
 
-  async manageBilling(): Promise<void> {
-    if (this.isOpeningBillingPortal()) {
-      return;
-    }
-
-    try {
-      const portalUrl = await this.#establishmentSubscriptionStore.createCustomerPortalSession();
-      if (portalUrl) {
-        window.location.assign(portalUrl);
-      } else {
-        this.#actionFeedback.error(ErrorCodes.STRIPE_BILLING_PORTAL_FAILED);
-      }
-    } catch (error) {
-      if (!(error instanceof ApiError)) {
-        this.#actionFeedback.error(ErrorCodes.STRIPE_BILLING_PORTAL_FAILED);
-      }
-    }
-  }
-
-  activatePro(): void {
+  openBilling(): void {
     this.#billingEntryPoint.open(this.establishmentId());
   }
 }

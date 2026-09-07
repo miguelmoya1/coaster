@@ -4,16 +4,17 @@ import { MatButton } from '@angular/material/button';
 import type { EstablishmentRole as EstablishmentRoleType, InviteEstablishmentMemberDto } from '@coaster/common';
 import { EstablishmentPermission, EstablishmentRole } from '@coaster/common';
 import { handleErrorFormField } from '@coaster/core';
-import { EstablishmentSubscriptionStore } from '@coaster/establishment-subscription';
 import { MembersStore, MyMemberStore } from '@coaster/establishment-members';
+import { EstablishmentSubscriptionStore } from '@coaster/establishment-subscription';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Field } from '../../../../../../components/field/field';
+import { FormErrors } from '../../../../../../components/field/form-errors';
 import { CoasterInput } from '../../../../../../components/field/input.directive';
 import { PricePipe } from '../../../../pipes/price/price';
 
 @Component({
   selector: 'coaster-invite-member-form',
-  imports: [FormRoot, FormField, MatButton, TranslatePipe, Field, CoasterInput, PricePipe],
+  imports: [FormRoot, FormField, MatButton, TranslatePipe, Field, CoasterInput, PricePipe, FormErrors],
   template: `
     <form [formRoot]="form">
       <div class="flex flex-col gap-2 mb-6">
@@ -53,20 +54,13 @@ import { PricePipe } from '../../../../pipes/price/price';
         <p class="flex items-start gap-2 mt-4 p-3 rounded-2xl bg-primary/5 text-xs text-on-surface-variant">
           <span>
             {{
-              'members.invite.extra_seat'
-                | translate: { included: seat.included, price: seat.extraPriceCents | price }
+              'members.invite.extra_seat' | translate: { included: seat.included, price: seat.extraPriceCents | price }
             }}
           </span>
         </p>
       }
 
-      @if (form().errors().length > 0) {
-        <div class="flex flex-col gap-1 mt-1 ml-1" role="alert">
-          @for (error of form().errors(); track error) {
-            <span class="text-error text-xs font-medium">{{ error.message || error.kind | translate: error }}</span>
-          }
-        </div>
-      }
+      <coaster-form-errors [errors]="form().errors()" />
 
       <div class="flex justify-end mt-4 gap-2">
         <button

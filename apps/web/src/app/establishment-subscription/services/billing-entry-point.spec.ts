@@ -13,6 +13,7 @@ describe('BillingEntryPoint', () => {
   let service: BillingEntryPoint;
   let storeMock: {
     billingAction: ReturnType<typeof signal<string>>;
+    isOpeningBillingPortal: ReturnType<typeof signal<boolean>>;
     createCheckoutSession: ReturnType<typeof vi.fn>;
     createCustomerPortalSession: ReturnType<typeof vi.fn>;
   };
@@ -39,6 +40,7 @@ describe('BillingEntryPoint', () => {
 
     storeMock = {
       billingAction: signal('ACTIVATE'),
+      isOpeningBillingPortal: signal(false),
       createCheckoutSession: vi.fn(),
       createCustomerPortalSession: vi.fn().mockResolvedValue('https://portal.stripe.com'),
     };

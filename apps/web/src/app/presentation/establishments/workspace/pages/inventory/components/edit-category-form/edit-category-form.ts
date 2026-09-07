@@ -3,16 +3,17 @@ import { form, FormField, FormRoot, max, maxLength, min, minLength, required } f
 import { MatButton } from '@angular/material/button';
 import { CategoriesStore } from '@coaster/categories';
 import type { Category } from '@coaster/common';
+import { toBasisPoints, toPercentage } from '@coaster/common';
 import { handleErrorFormField } from '@coaster/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Field } from '../../../../../../components/field/field';
+import { FormErrors } from '../../../../../../components/field/form-errors';
 import { CoasterInput } from '../../../../../../components/field/input.directive';
 import { IconPicker } from '../../../../../../components/icon-picker/icon-picker';
-import { toBasisPoints, toPercentage } from '@coaster/common';
 
 @Component({
   selector: 'coaster-edit-category-form',
-  imports: [FormRoot, FormField, MatButton, TranslatePipe, IconPicker, Field, CoasterInput],
+  imports: [FormRoot, FormField, MatButton, TranslatePipe, IconPicker, Field, CoasterInput, FormErrors],
   host: {
     class: 'block px-6 pb-6 pt-2',
   },
@@ -41,13 +42,7 @@ import { toBasisPoints, toPercentage } from '@coaster/common';
           <input coasterInput type="number" step="0.5" [formField]="form.taxRatePercent" />
         </coaster-field>
 
-        @if (form().errors().length > 0) {
-          <div class="flex flex-col gap-1 mt-1 ml-1" role="alert">
-            @for (error of form().errors(); track error) {
-              <span class="text-error text-xs font-medium">{{ error.message || error.kind | translate: error }}</span>
-            }
-          </div>
-        }
+        <coaster-form-errors [errors]="form().errors()" />
 
         <div class="flex justify-end mt-4 gap-2">
           <button

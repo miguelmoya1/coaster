@@ -6,10 +6,10 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbar } from '@angular/material/toolbar';
 import { Router, RouterLink } from '@angular/router';
 import type { EstablishmentId } from '@coaster/common';
-import { ErrorCodes, EstablishmentPermission } from '@coaster/common';
-import { ActionFeedback, ApiError, Auth, CurrentUser } from '@coaster/core';
+import { EstablishmentPermission } from '@coaster/common';
+import { Auth, CurrentUser } from '@coaster/core';
 import { MyMemberStore } from '@coaster/establishment-members';
-import { BillingAction, EstablishmentSubscriptionStore, BillingEntryPoint } from '@coaster/establishment-subscription';
+import { BillingAction, BillingEntryPoint, EstablishmentSubscriptionStore } from '@coaster/establishment-subscription';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Spinner } from '../../../../components/spinner/spinner';
 import { AiAssistantTrigger } from '../ai-assistant/ai-assistant-trigger';
@@ -95,7 +95,7 @@ import { AvatarBadge } from '../avatar-badge/avatar-badge';
               mat-menu-item
               [disabled]="isOpeningBillingPortal()"
               [attr.aria-busy]="isOpeningBillingPortal()"
-              (click)="manageBilling(); menuTrigger.closeMenu()"
+              (click)="openBilling(); menuTrigger.closeMenu()"
             >
               @if (isOpeningBillingPortal()) {
                 <coaster-spinner />
@@ -105,7 +105,7 @@ import { AvatarBadge } from '../avatar-badge/avatar-badge';
               <span>{{ 'billing.manage_billing' | translate }}</span>
             </button>
           } @else {
-            <button mat-menu-item (click)="activatePro(); menuTrigger.closeMenu()">
+            <button mat-menu-item (click)="openBilling(); menuTrigger.closeMenu()">
               <mat-icon>rocket_launch</mat-icon>
               <span>{{ 'billing.activate_pro_title' | translate }}</span>
             </button>
@@ -155,7 +155,6 @@ export class TopAppBar {
   readonly #establishmentSubscriptionStore = inject(EstablishmentSubscriptionStore);
   readonly #router = inject(Router);
   readonly #translate = inject(TranslateService);
-  readonly #actionFeedback = inject(ActionFeedback);
   readonly #billingEntryPoint = inject(BillingEntryPoint);
 
   readonly currentLang = this.#translate.currentLang;
@@ -254,27 +253,7 @@ export class TopAppBar {
     await this.#router.navigate(['/login'], { replaceUrl: true });
   }
 
-  async manageBilling(): Promise<void> {
-    if (this.isOpeningBillingPortal()) {
-      return;
-    }
-
-    try {
-      const portalUrl = await this.#establishmentSubscriptionStore.createCustomerPortalSession();
-
-      if (portalUrl) {
-        window.location.assign(portalUrl);
-      } else {
-        this.#actionFeedback.error(ErrorCodes.STRIPE_BILLING_PORTAL_FAILED);
-      }
-    } catch (error) {
-      if (!(error instanceof ApiError)) {
-        this.#actionFeedback.error(ErrorCodes.STRIPE_BILLING_PORTAL_FAILED);
-      }
-    }
-  }
-
-  activatePro(): void {
+  openBilling(): void {
     this.#billingEntryPoint.open(this.establishmentId());
   }
 }
