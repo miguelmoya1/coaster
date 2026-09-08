@@ -20,7 +20,7 @@
     "@vercel/speed-insights": "^2.0.0",
     "date-fns": "^4.4.0",
     "firebase": "^12.18.0",
-    "marked": "^18.0.11",
+    "marked": "^18.0.12",
     "qrcode-generator": "^2.0.4",
     "rxjs": "~7.8.2",
     "tslib": "^2.8.1"
@@ -28,14 +28,14 @@
   "devDependencies": {
     "@analogjs/vite-plugin-angular": "^2.7.1",
     "@analogjs/vitest-angular": "^2.7.1",
-    "@angular-eslint/builder": "22.4.0",
+    "@angular-eslint/builder": "22.5.0",
     "@angular/build": "22.1.7",
     "@angular/cli": "22.1.7",
     "@angular/compiler-cli": "22.1.5",
     "@eslint/js": "^10.0.1",
     "@playwright/test": "1.63.0",
     "@tailwindcss/postcss": "^4.3.3",
-    "angular-eslint": "22.4.0",
+    "angular-eslint": "22.5.0",
     "dotenv": "^17.4.2",
     "eslint": "^10.10.0",
     "jsdom": "^30.0.1",
@@ -45,7 +45,7 @@
     "sass": "^1.104.0",
     "tailwindcss": "^4.3.3",
     "typescript": "^6.0.3",
-    "typescript-eslint": "8.69.0",
+    "typescript-eslint": "8.70.0",
     "vitest": "^5.0.0"
   },
   "scripts": {
