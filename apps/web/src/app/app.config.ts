@@ -18,7 +18,9 @@ import {
   unauthorizedInterceptor,
   urlInterceptor,
   VirtualKeyboard,
+  AppUpdate,
 } from '@coaster/core';
+import { provideServiceWorker } from '@angular/service-worker';
 import { provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import { initializeApp } from 'firebase/app';
@@ -41,6 +43,11 @@ export const appConfig: ApplicationConfig = {
     },
     provideBrowserGlobalErrorListeners(),
     provideAppInitializer(() => inject(VirtualKeyboard).watch()),
+    provideAppInitializer(() => inject(AppUpdate).watch()),
+    provideServiceWorker('ngsw-worker.js', {
+      enabled: environment.production,
+      registrationStrategy: 'registerWhenStable:30000',
+    }),
     provideZonelessChangeDetection(),
     provideHttpClient(
       withInterceptors([urlInterceptor, idTokenInterceptor, errorInterceptor, unauthorizedInterceptor]),

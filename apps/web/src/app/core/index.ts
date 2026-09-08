@@ -9,6 +9,7 @@ export * from './mappers/common.mapper';
 export * from './mappers/user.mapper';
 export * from './tokens/paywall-handler.token';
 export * from './services/action-feedback';
+export * from './services/app-update';
 export * from './services/auth';
 export * from './services/current-user';
 export * from './services/date-formatter';

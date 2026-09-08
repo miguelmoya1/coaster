@@ -1031,5 +1031,9 @@
       "empty": "No icon matches",
       "more": "Showing {{shown}} of {{total}}. Refine the search."
     }
+  },
+  "app": {
+    "update_ready": "A new version of Coaster is available.",
+    "update_reload": "Reload"
   }
 }
