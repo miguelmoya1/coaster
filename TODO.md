@@ -24,9 +24,9 @@ desplegar, y solo entonces apagar Firebase.
 2. ~~Poner `GOOGLE_CLIENT_ID`.~~ **Hecho** en los dos servicios de Cloud Run y en los dos proyectos
    de Vercel. En Vercel es variable **de compilación**, así que el botón no aparece hasta el
    siguiente despliegue.
-3. ~~Decidir el remitente de los correos.~~ **Hecho:** `EMAIL_FROM` apunta a
-   `Coaster <coaster@miguelmo.dev>` en los dos servicios, que es el dominio que sí está verificado
-   en Resend. Se cambia cuando se compre el dominio definitivo, sin desplegar.
+3. ~~Decidir el remitente de los correos.~~ **Hecho:** con `coaster.business` ya verificado en
+   Resend, `EMAIL_FROM` vuelve a `Coaster <hello@coaster.business>`, que es el valor que el código
+   trae por defecto. Los comandos están en la sección de Resend, más abajo.
 4. **Desplegar a `dev`.** Las migraciones se aplican solas en el despliegue.
 5. **Entrar en beta con Google** y comprobar que caes en tu usuario de siempre, con tus
    establecimientos. Es lo que confirma que la correspondencia por correo verificado funcionó.
@@ -108,9 +108,8 @@ El `EmailService` **ya no se traga los errores**, que era lo que tenía que camb
 él colgara una recuperación de contraseña: donde alguien está esperando el correo el fallo se ve, y
 donde el correo es solo un aviso se registra y la operación sigue.
 
-Queda una cosa **fuera** del repositorio: **confirmar que `coaster.business` está verificado** en la
-cuenta de Resend que usa producción. Está apuntado más abajo como sospecha y ahora es bloqueante —
-aunque al menos ya no falla en silencio.
+`coaster.business` quedó **verificado en Resend** el 10 de septiembre de 2026, así que el remitente
+vuelve a `hello@coaster.business`; el detalle y los comandos están más abajo.
 
 ### Los invitados
 
@@ -269,10 +268,11 @@ los dos Cloud Run, la service account de CI y los buckets — incluido el que ah
 
 ## Correo: dominio propio
 
-**Los dos envían desde `miguelmo.dev`**: Fichit como `fichit@miguelmo.dev` y Coaster como
-`coaster@miguelmo.dev`. Es a propósito, para no pagar otro dominio de correo todavía.
+Coaster ya envía desde el suyo, `hello@coaster.business`, desde que el dominio quedó verificado en
+Resend el 10 de septiembre de 2026. **Fichit sigue en `fichit@miguelmo.dev`** a propósito, para no
+pagar otro dominio de correo todavía.
 
-Cuando lo tengas, hay que tocar **dos sitios**:
+Cada uno se cambia en **un sitio distinto**:
 
 | Dónde   | Qué                | Cómo                                                           |
 | :------ | :----------------- | :------------------------------------------------------------- |
@@ -282,20 +282,28 @@ Cuando lo tengas, hay que tocar **dos sitios**:
 Desde el 9 de septiembre de 2026 los dos son variables de entorno: la cadena a fuego que había en
 `email.service.ts` se fue con el frente 3.
 
-## Resend: se envía desde `miguelmo.dev`, y es a propósito
+## Resend: `coaster.business` verificado, y el remitente vuelve a casa
 
-**Comprobado el 10 de septiembre de 2026** contra las claves reales de los dos servicios de Cloud
-Run: las dos cuentas ven **solo `miguelmo.dev`**. `coaster.business` no está verificado en ninguna.
+**El 10 de septiembre de 2026**, comprobando contra las claves reales de los dos servicios de Cloud
+Run, las dos cuentas veían **solo `miguelmo.dev`**: `coaster.business` no estaba verificado en
+ninguna, y por eso **las invitaciones de producción estaban fallando en silencio** —el código viejo
+se tragaba el error de Resend—. Se tapó apuntando `EMAIL_FROM` a `Coaster <coaster@miguelmo.dev>`.
 
-Eso no es un descuido: es la decisión de Miguel de no pagar otro dominio de correo todavía. Así que
-`EMAIL_FROM` está puesto en los dos servicios a **`Coaster <coaster@miguelmo.dev>`**, siguiendo la
-misma convención que Fichit con `fichit@miguelmo.dev`. Cuando se compre el dominio definitivo se
-cambia la variable y ya está, sin desplegar.
+Ese mismo día Miguel verificó `coaster.business` en Resend, con el «auto configure» que detecta que
+el DNS está en Vercel e importa los registros de golpe. Comprobado contra la API: **`verified`, en
+`eu-west-1`**, en la misma cuenta que usan beta y producción. Así que el remitente puede volver al
+valor que el código ya trae por defecto, `Coaster <hello@coaster.business>`:
 
-Lo que sí era un problema y ha quedado arreglado por el camino: hasta hoy se enviaba desde
-`hello@coaster.business`, que Resend rechaza porque el dominio no está verificado, y **las
-invitaciones de producción estaban fallando en silencio** porque el código viejo se tragaba el
-error. Ahora el remitente es válido y, si algún día vuelve a fallar, se ve.
+```sh
+gcloud run services update api-beta --region europe-west1 \
+  --update-env-vars 'EMAIL_FROM=Coaster <hello@coaster.business>'
+gcloud run services update api-new  --region europe-west1 \
+  --update-env-vars 'EMAIL_FROM=Coaster <hello@coaster.business>'
+```
+
+`EMAIL_FROM` podría incluso borrarse, porque `DEFAULT_FROM` en `email.service.ts` ya es ese valor;
+se deja explícito para que la configuración del servicio se lea sola. Y el `EmailService` ya no se
+traga los errores, así que si el remitente dejara de ser válido se vería en vez de perderse.
 
 ## Rotar lo que pasó por el chat
 
