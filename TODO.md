@@ -213,23 +213,15 @@ DATABASE_URL='<la de beta>' node apps/api/scripts/set-password.mjs tu@correo.com
 
 Nada de esto rompe nada hoy, y ninguno es urgente. Están en el orden en que yo los haría.
 
-**El hash de la contraseña viaja a Redis sin necesidad.** `AccessTokenService.resolve` cachea la
-fila entera de `User`, y ahí va `passwordHash`. No es un agujero —el login lee de la base, no de la
-caché— pero es material de credenciales sentado ocho horas en un sitio que no es Postgres. Se
-arregla con un `select` en esa consulta; lo que hay que mirar antes es que `DbUserWithPreferences`
-se usa en varios sitios y cambiar su forma toca el mapper.
+**`FRONTEND_URL` de producción apunta al ápex** y hay que cambiarla a mano, porque los permisos
+de este entorno no me dejan tocar la variable de producción. Los enlaces de los correos salen como
+`https://coaster.business/...`, el ápex responde `307` a `www` y llegan igual, pero con un salto de
+más. La misma variable la usan las URLs de retorno de Stripe, que se quedan igual de válidas:
 
-**El JWT de la impresora se firma y se verifica a mano en los dos lados**: `printer-token.service.ts`
-con `createHmac` y `printer-service/internal/middleware/jwt.go` con `crypto/hmac`. Funciona y el
-formato es JWT estándar, así que se puede cambiar por lados: `jose` en TypeScript —ya es
-dependencia— y `golang-jwt` en Go. No es urgente, pero es el único trozo de criptografía a mano que
-queda en el repositorio, y es un contrato entre dos lenguajes, que es justo donde duele
-equivocarse.
-
-**`FRONTEND_URL` de producción apunta al ápex.** Los enlaces de los correos salen como
-`https://coaster.business/...` y el ápex responde `307` a `www`, así que llegan. Es un salto de más
-que se quita poniendo `https://www.coaster.business` en la variable; ojo que esa misma variable la
-usan las URLs de retorno de Stripe.
+```sh
+gcloud run services update api-new --region europe-west1 \
+  --update-env-vars FRONTEND_URL=https://www.coaster.business
+```
 
 **Poder reenviar una invitación desde la lista de personal.** Si Resend rechaza el envío, la
 invitación queda creada y el correo no sale; hoy no hay forma de reintentarlo desde la aplicación.
