@@ -1,16 +1,16 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Resend } from 'resend';
+import { EmailKind, renderEmail } from './templates/emails';
 
-import * as Handlebars from 'handlebars';
-import { InviteEmailTemplate, InviteEmailTranslations } from './templates/invite-email.template';
+export const EMAIL_FROM = 'EMAIL_FROM';
 
-const renderInvite = Handlebars.compile(InviteEmailTemplate);
+const DEFAULT_FROM = 'Coaster <hello@coaster.business>';
 
 @Injectable()
 export class EmailService {
-  #resend: Resend;
-  #logger = new Logger(EmailService.name);
+  readonly #resend: Resend;
+  readonly #logger = new Logger(EmailService.name);
 
   constructor(private readonly _configService: ConfigService) {
     this.#resend = new Resend(this._configService.get<string>('RESEND_API_KEY') || 're_123_dummy');
@@ -20,27 +20,50 @@ export class EmailService {
     return (this._configService.get<string>('FRONTEND_URL') || 'http://localhost:4200').replace(/\/+$/, '');
   }
 
-  async sendInviteEmail(to: string, establishmentName: string, inviterName: string, lang = 'es') {
-    try {
-      const translations = InviteEmailTranslations[lang] || InviteEmailTranslations['es'];
+  private get from(): string {
+    return this._configService.get<string>(EMAIL_FROM) || DEFAULT_FROM;
+  }
 
-      const html = renderInvite({
-        ...translations,
-        lang,
-        establishmentName,
-        inviterName,
-        loginUrl: `${this.frontendUrl}/login`,
-      });
+  public async sendInvite(
+    to: string,
+    invite: { establishmentName: string; inviterName: string; token: string },
+    lang = 'es',
+  ): Promise<void> {
+    await this.#send(to, 'invite', lang, `${this.frontendUrl}/invite/${invite.token}`, {
+      establishmentName: invite.establishmentName,
+      inviterName: invite.inviterName,
+    });
+  }
 
-      await this.#resend.emails.send({
-        from: 'Coaster <hello@coaster.business>',
-        to,
-        subject: translations.subject,
-        html,
-      });
-      this.#logger.debug('Invite email sent successfully');
-    } catch (error) {
-      this.#logger.error('Failed to send invite email', error);
+  public async sendEmailVerification(to: string, name: string, token: string, lang = 'es'): Promise<void> {
+    await this.#send(to, 'verifyEmail', lang, `${this.frontendUrl}/verify-email/${token}`, { name });
+  }
+
+  public async sendPasswordReset(to: string, name: string, token: string, lang = 'es'): Promise<void> {
+    await this.#send(to, 'resetPassword', lang, `${this.frontendUrl}/reset-password/${token}`, { name });
+  }
+
+  public async sendPasswordChanged(to: string, name: string, lang = 'es'): Promise<void> {
+    await this.#send(to, 'passwordChanged', lang, `${this.frontendUrl}/forgot-password`, { name });
+  }
+
+  async #send(
+    to: string,
+    kind: EmailKind,
+    lang: string,
+    actionUrl: string,
+    values: Record<string, string>,
+  ): Promise<void> {
+    const { subject, html } = renderEmail(kind, lang, actionUrl, values);
+
+    const { error } = await this.#resend.emails.send({ from: this.from, to, subject, html });
+
+    if (error) {
+      this.#logger.error(`Resend refused the ${kind} email to ${to}: ${error.message}`);
+
+      throw new Error(`Could not send the ${kind} email`);
     }
+
+    this.#logger.debug(`Sent the ${kind} email to ${to}`);
   }
 }

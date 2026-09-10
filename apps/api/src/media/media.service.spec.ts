@@ -8,8 +8,12 @@ const { getSignedUrl, file } = vi.hoisted(() => {
   return { getSignedUrl, file: vi.fn((path: string) => ({ path, getSignedUrl })) };
 });
 
-vi.mock('firebase-admin/storage', () => ({
-  getStorage: () => ({ bucket: () => ({ file }) }),
+vi.mock('@google-cloud/storage', () => ({
+  Storage: class {
+    bucket() {
+      return { file };
+    }
+  },
 }));
 
 describe('MediaService', () => {

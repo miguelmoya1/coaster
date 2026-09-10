@@ -12,8 +12,7 @@ import type { EstablishmentId } from '@coaster/common';
 import type { PaywallHandler } from '@coaster/core';
 import {
   errorInterceptor,
-  FIREBASE_AUTH,
-  idTokenInterceptor,
+  accessTokenInterceptor,
   PAYWALL_HANDLER,
   unauthorizedInterceptor,
   urlInterceptor,
@@ -23,8 +22,6 @@ import {
 import { provideServiceWorker } from '@angular/service-worker';
 import { provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
-import { initializeApp } from 'firebase/app';
-import { connectAuthEmulator, getAuth } from 'firebase/auth';
 import { environment } from '../environments/environment';
 import { appRoutes } from './app.routes';
 
@@ -50,7 +47,7 @@ export const appConfig: ApplicationConfig = {
     }),
     provideZonelessChangeDetection(),
     provideHttpClient(
-      withInterceptors([urlInterceptor, idTokenInterceptor, errorInterceptor, unauthorizedInterceptor]),
+      withInterceptors([urlInterceptor, accessTokenInterceptor, errorInterceptor, unauthorizedInterceptor]),
     ),
     provideRouter(
       appRoutes,
@@ -64,25 +61,5 @@ export const appConfig: ApplicationConfig = {
         prefix: environment.defaultLanguagePath,
       }),
     }),
-    {
-      provide: FIREBASE_AUTH,
-      useFactory: () => {
-        const app = initializeApp({
-          apiKey: environment.firebase.apiKey,
-          authDomain: environment.firebase.authDomain,
-          projectId: environment.firebase.projectId,
-          storageBucket: environment.firebase.storageBucket,
-          messagingSenderId: environment.firebase.messagingSenderId,
-          appId: environment.firebase.appId,
-        });
-        const auth = getAuth(app);
-
-        if (environment.useEmulators) {
-          connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true });
-        }
-
-        return auth;
-      },
-    },
   ],
 };

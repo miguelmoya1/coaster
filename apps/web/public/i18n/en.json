@@ -21,6 +21,12 @@
   "STRIPE_WEBHOOK_SECRET_NOT_CONFIGURED": "Billing verification is not configured.",
   "STRIPE_WEBHOOK_SIGNATURE_INVALID": "The billing event signature is invalid.",
   "STRIPE_WEBHOOK_SIGNATURE_MISSING": "The billing event signature is missing.",
+  "GOOGLE_SIGN_IN_UNAVAILABLE": "Signing in with Google is unavailable right now. Use your password or try again later.",
+  "INVALID_TOKEN": "This link no longer works. It may have expired, or been used already. Ask for a new one.",
+  "PASSWORD_ALREADY_SET": "This account already has a password. Enter the current one to change it.",
+  "IDENTITY_NOT_LINKED": "That account is not linked.",
+  "LAST_WAY_IN": "It is your only way in. Set a password before unlinking it.",
+  "SESSION_EXPIRED": "Your session has expired. Please sign in again.",
   "SUBSCRIPTION_EXPIRED": "Your trial or subscription has ended. Activate Coaster Pro to continue.",
   "email": "Please enter a valid email.",
   "EXCHANGE_ALREADY_PENDING": "This shift already has a pending exchange request.",
@@ -120,13 +126,57 @@
     "usage_low": "{{ remaining }} messages left this month"
   },
   "auth": {
+    "or": "or",
+    "google_unconfigured": "GOOGLE_CLIENT_ID is missing: the Google button stays hidden until it is set.",
+    "fields": {
+      "name": "Name",
+      "name_placeholder": "Your name",
+      "email": "Email",
+      "email_placeholder": "you@email.com",
+      "password": "Password",
+      "password_placeholder": "Your password",
+      "password_hint": "Eight characters minimum",
+      "new_password": "New password"
+    },
     "login": {
-      "brand": "COASTER",
-      "google_button": "Login with Google",
-      "heading": "Secure Access",
-      "subtitle": "Access your Coaster dashboard.",
-      "tagline": "Intelligent platform for modern establishment management"
-    }
+      "heading": "Sign in to Coaster",
+      "subtitle": "Your tables, your shifts and your pantry, wherever you are.",
+      "submit": "Sign in",
+      "forgot": "Forgotten your password?",
+      "no_account": "No account yet?",
+      "create": "Create one"
+    },
+    "register": {
+      "heading": "Create your account",
+      "subtitle": "A couple of details and you are ready to start.",
+      "submit": "Create account",
+      "have_account": "Already have an account?",
+      "sign_in": "Sign in"
+    },
+    "forgot": {
+      "heading": "Forgotten your password?",
+      "subtitle": "We will email you a link to choose another one.",
+      "submit": "Send the link",
+      "sent": "If that address has an account, the link is on its way. Check your spam folder too.",
+      "back": "Back to signing in"
+    },
+    "reset": {
+      "heading": "Choose a password",
+      "subtitle": "Saving it will close every session that is open.",
+      "submit": "Save and sign in"
+    },
+    "verify": {
+      "heading": "Confirm your email",
+      "done": "Done, your email is confirmed.",
+      "continue": "Continue"
+    },
+    "invite": {
+      "heading": "You have been invited to Coaster",
+      "submit": "Create my password and enter",
+      "already": "This account already exists. Sign in as usual and you will see the new venue."
+    },
+    "banner": "Confirm your email so you are not locked out if you forget your password.",
+    "banner_action": "Confirm"
   },
   "establishments": {
     "create": {
@@ -1035,5 +1085,29 @@
   "app": {
     "update_ready": "A new version of Coaster is available.",
     "update_reload": "Reload"
+  },
+  "account": {
+    "heading": "Your account",
+    "subtitle": "How you sign in to Coaster.",
+    "back": "Back to my venues",
+    "email": {
+      "heading": "Email address",
+      "verified": "Confirmed",
+      "unverified": "Not confirmed. Confirm it so you can recover the account if you lose your password.",
+      "send": "Email me the link",
+      "sent": "Link sent. Check your spam folder too."
+    },
+    "password": {
+      "set": "Set a password",
+      "change": "Change your password",
+      "current": "Current password",
+      "saved": "Password saved. Every other session was closed."
+    },
+    "identities": {
+      "heading": "Linked accounts",
+      "none": "You have no linked accounts.",
+      "unlink": "Unlink",
+      "google": "Google"
+    }
   }
 }

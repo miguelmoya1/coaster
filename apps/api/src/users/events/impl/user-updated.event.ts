@@ -1,8 +1,5 @@
 import type { UserId } from '@coaster/common';
 
 export class UserUpdatedEvent {
-  constructor(
-    public readonly userId: UserId,
-    public readonly firebaseUid: string | null,
-  ) {}
+  constructor(public readonly userId: UserId) {}
 }

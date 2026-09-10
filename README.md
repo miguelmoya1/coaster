@@ -114,13 +114,15 @@ does not depend on the invoice being paid. Full detail in
 
 ## 🛠️ The Golden Stack (Architecture)
 
-- **Monorepo Strategy:** npm workspaces — `apps/{api,web,printer-service,firebase}` and
+- **Monorepo Strategy:** npm workspaces — `apps/{api,web,printer-service}` and
   `packages/common`, which holds everything both sides must agree on (the permission table, the
   pricing engine, the error codes).
 - **Backend:** NestJS 11 on Fastify, CQRS + Prisma 7 over PostgreSQL.
 - **Frontend:** Angular 22 — standalone, signals, zoneless — with Material and Tailwind CSS v4.
-- **Identity:** Firebase Auth. There is no `Account` table on purpose: `User.firebaseUid` is the
-  Firebase UID, so adding a provider is a setting rather than a migration.
+- **Identity:** our own. Password on `User`, external providers in `AuthIdentity`, sessions in
+  `AuthSession`: a short access token in memory and a rotating refresh cookie that slides thirty days
+  from its last use, so nobody who keeps using the app is ever asked to sign in again.
+- **Storage:** signed v4 upload URLs straight to Cloud Storage, so an image never passes through the API.
 - **Realtime and cache:** Server-Sent Events over an optional Redis bus.
 - **Billing:** Stripe Checkout, Customer Portal and webhooks.
 - **Assistant:** the Vercel AI SDK against the AI Gateway, calling CQRS commands as tools.
@@ -135,8 +137,8 @@ Architecture notes live in [`docs/`](docs/README.md).
 
 ## 🚀 Getting Started & Running Tasks
 
-The repository is an npm workspace containing the API, web application, shared TypeScript package,
-Firebase emulator, and printer service.
+The repository is an npm workspace containing the API, web application, shared TypeScript package
+and printer service.
 
 ### Run the Dev Servers
 
@@ -148,13 +150,13 @@ The simplest thing that works is to run all of it in containers:
 docker compose up
 ```
 
-That brings up Postgres, Redis, the Firebase emulator, the API on `:3000`, the web app on `:4200`
-and the Stripe CLI forwarding webhooks. To run an application on the host instead, start the
+That brings up Postgres, Redis, the API on `:3000`, the web app on `:4200` and the Stripe CLI
+forwarding webhooks. To run an application on the host instead, start the
 infrastructure it needs and then the app:
 
 ```sh
 # Start local infrastructure
-docker compose up db redis firebase
+docker compose up db redis
 
 # Run the Backend API
 npm run dev:api
@@ -182,21 +184,21 @@ starts a `stripe` service that does it, or run it yourself — see
 Six container traps, all of which look like broken code. Check
 `docker compose logs web` first: a failed build leaves the browser on the last good bundle.
 
-| Symptom                                                                                               | Cause                                                                                                                                                                                                           | Fix                                                                                                                                                                                                                                                                                                                         |
-| ----------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| The UI ignores your change                                                                            | The `ng serve` watcher kept stale contents after a file was added or deleted                                                                                                                                    | `docker compose restart web`                                                                                                                                                                                                                                                                                                |
-| `does not provide an export named '...'`                                                              | A stale pre-bundle of `@coaster/common`. Fixed at the root: `angular.json` now excludes it from the dev server's `prebundle`, so it is compiled with the app and picks changes up on the spot                   | If it ever returns, the cache is stale: `docker compose exec web rm -rf /app/apps/web/.angular/cache && docker compose restart web`. Delete it **from inside the container** — removing it from the host while the container holds it open detaches the bind mount, and everything you do afterwards on the host is ignored |
-| Google sign-in opens and closes, and `window.__TEST_LOGIN__` is gone                                  | `src/environments/environment.ts` is generated by `set-env.ts`, and a `PRODUCTION=true` build leaves it that way. The dev server then runs against the real Firebase project with no emulator and no test hooks | `cd apps/web && node set-env.ts && docker compose restart web`. Any of `npm run dev`, `start` or `test` regenerates it too — it is only a production **build** that leaves it behind                                                                                                                                        |
-| `Cannot find module '@nestjs/...'`                                                                    | `node_modules` are anonymous volumes, so a host install is invisible inside                                                                                                                                     | `docker compose exec api npm install`                                                                                                                                                                                                                                                                                       |
-| The API container dies on `failed to load file`                                                       | Same watcher trap as the web one: swc keeps compiling paths that a rename or a delete moved out from under it                                                                                                   | `docker compose restart api`                                                                                                                                                                                                                                                                                                |
-| Tests fail on `RangeError: Offset is outside the bounds of the DataView` inside `@prisma/param-graph` | The Prisma client was generated by the container, whose `node_modules` drifted from the host's, and the unit tests run on the **host**                                                                          | `cd apps/api && npx prisma generate` — `npm run db:generate` deliberately runs inside the container, for the container                                                                                                                                                                                                      |
+| Symptom                                                                                               | Cause                                                                                                                                                                                         | Fix                                                                                                                                                                                                                                                                                                                         |
+| ----------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| The UI ignores your change                                                                            | The `ng serve` watcher kept stale contents after a file was added or deleted                                                                                                                  | `docker compose restart web`                                                                                                                                                                                                                                                                                                |
+| `does not provide an export named '...'`                                                              | A stale pre-bundle of `@coaster/common`. Fixed at the root: `angular.json` now excludes it from the dev server's `prebundle`, so it is compiled with the app and picks changes up on the spot | If it ever returns, the cache is stale: `docker compose exec web rm -rf /app/apps/web/.angular/cache && docker compose restart web`. Delete it **from inside the container** — removing it from the host while the container holds it open detaches the bind mount, and everything you do afterwards on the host is ignored |
+| The dev server talks to the deployed API instead of the local one                                     | `src/environments/environment.ts` is generated by `set-env.ts`, and a `PRODUCTION=true` build leaves it pointing at production                                                                | `cd apps/web && node set-env.ts && docker compose restart web`. Any of `npm run dev`, `start` or `test` regenerates it too — it is only a production **build** that leaves it behind                                                                                                                                        |
+| `Cannot find module '@nestjs/...'`                                                                    | `node_modules` are anonymous volumes, so a host install is invisible inside                                                                                                                   | `docker compose exec api npm install`                                                                                                                                                                                                                                                                                       |
+| The API container dies on `failed to load file`                                                       | Same watcher trap as the web one: swc keeps compiling paths that a rename or a delete moved out from under it                                                                                 | `docker compose restart api`                                                                                                                                                                                                                                                                                                |
+| Tests fail on `RangeError: Offset is outside the bounds of the DataView` inside `@prisma/param-graph` | The Prisma client was generated by the container, whose `node_modules` drifted from the host's, and the unit tests run on the **host**                                                        | `cd apps/api && npx prisma generate` — `npm run db:generate` deliberately runs inside the container, for the container                                                                                                                                                                                                      |
 
-Signing in stops working after the Firebase emulator restarts, because it keeps no accounts: the next
-sign-in gets a new id, and `SyncUserHandler` refuses to move an email onto a different account. Clear
-the stored id once so the next sign-in claims it again:
+Locked out of an account with no password on it — an invitation nobody has claimed, or a record that
+predates passwords? Set one directly:
 
 ```sh
-docker compose exec db psql -U admin -d coaster -c "UPDATE \"User\" SET \"firebaseUid\" = NULL WHERE email = 'you@example.com'"
+DATABASE_URL=postgres://admin:admin@localhost:5432/coaster \
+  node apps/api/scripts/set-password.mjs you@example.com a-good-enough-password
 ```
 
 After changing `packages/common`, rebuild it and restart the API — both apps consume its `dist`, not

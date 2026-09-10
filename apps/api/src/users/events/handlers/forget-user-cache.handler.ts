@@ -12,12 +12,6 @@ export class ForgetUserCacheHandler implements IEventHandler<UserUpdatedEvent> {
   async handle(event: UserUpdatedEvent) {
     this.#logger.debug(`Catching UserUpdatedEvent for userId=${event.userId}...`);
 
-    const keys = [CacheKeys.userRole(event.userId)];
-
-    if (event.firebaseUid) {
-      keys.push(CacheKeys.userByFirebaseUid(event.firebaseUid));
-    }
-
-    await this._cache.forget(...keys);
+    await this._cache.forget(CacheKeys.userRole(event.userId), CacheKeys.user(event.userId));
   }
 }

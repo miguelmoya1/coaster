@@ -1,5 +1,5 @@
 import { asEstablishmentId, asOrderId, asOrderItemId, asTableId, asUserId } from '@coaster/common';
-import { FirebaseAuthGuard } from '@coaster/auth';
+import { AuthGuard } from '@coaster/auth';
 import type { Order, User } from '@coaster/common';
 import { OrderStatus, PaymentMethod } from '@coaster/common';
 import { EstablishmentModulesGuard, EstablishmentPermissionsGuard } from '@coaster/core';
@@ -43,7 +43,7 @@ describe('OrdersController', () => {
         { provide: QueryBus, useValue: mockQueryBus },
       ],
     })
-      .overrideGuard(FirebaseAuthGuard)
+      .overrideGuard(AuthGuard)
       .useValue(mockGuard)
       .overrideGuard(EstablishmentPermissionsGuard)
       .useValue(mockGuard)

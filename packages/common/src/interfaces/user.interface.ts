@@ -11,13 +11,7 @@ export interface User {
   photoUrl?: string;
   role: Role;
   language: string;
-}
-
-export interface CreateUserDto {
-  name: string;
-  email: string;
-  photoUrl?: string;
-  firebaseUid?: string;
+  emailVerified: boolean;
 }
 
 export interface UpdateUserDto {

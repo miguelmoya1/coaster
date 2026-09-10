@@ -4,7 +4,7 @@ import { ModuleRef, Reflector } from '@nestjs/core';
 import { DbRole, DbSubscriptionStatus } from '../../db';
 import { isManualGrantActive } from '../../permissions/manual-grant';
 import { SecurityRepository, SubscriptionState } from '../data-access/security.repository';
-import { FirebaseTokenService } from '../services/firebase-token.service';
+import { AccessTokenService } from '../services/access-token.service';
 import { SKIP_SUBSCRIPTION_CHECK_KEY } from '../decorators/skip-subscription-check.decorator';
 import { SUBSCRIPTION_REFRESHER, SubscriptionRefresher } from '../tokens/subscription-refresher.token';
 
@@ -34,7 +34,7 @@ export class SubscriptionActiveGuard implements CanActivate {
   constructor(
     private readonly _reflector: Reflector,
     private readonly _securityRepository: SecurityRepository,
-    private readonly _tokens: FirebaseTokenService,
+    private readonly _tokens: AccessTokenService,
     private readonly _moduleRef: ModuleRef,
   ) {}
 

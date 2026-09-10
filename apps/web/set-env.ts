@@ -15,26 +15,14 @@ if (process.env.PRODUCTION === undefined) {
   console.warn('⚠️  PRODUCTION is not set; building as development. Set it to "true" for a release bundle.');
 }
 
-if (process.env.PRODUCTION === 'true' && process.env.USE_EMULATORS === 'true') {
-  throw new Error('USE_EMULATORS is on in a production build: the app would talk to the Firebase emulator.');
-}
-
 const envConfig: Environment = {
   production: process.env.PRODUCTION === 'true',
-  useEmulators: process.env.USE_EMULATORS === 'true',
   defaultLanguage: process.env.DEFAULT_LANGUAGE || 'en',
   defaultLanguagePath: process.env.DEFAULT_LANGUAGE_PATH || './i18n/',
-  firebase: {
-    apiKey: process.env.FIREBASE_API_KEY || '',
-    authDomain: process.env.FIREBASE_AUTH_DOMAIN || 'coaster-437f2.firebaseapp.com',
-    projectId: process.env.FIREBASE_PROJECT_ID || 'coaster-437f2',
-    storageBucket: process.env.FIREBASE_STORAGE_BUCKET || 'coaster-437f2.firebasestorage.app',
-    messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID || '774617138158',
-    appId: process.env.FIREBASE_APP_ID || '1:774617138158:web:5be3f0bc2147226ac684ff',
-  },
   apiUrl:
     process.env.API_URL ||
     (process.env.PRODUCTION === 'true' ? 'https://api.coaster.business' : 'http://localhost:3000'),
+  googleClientId: process.env.GOOGLE_CLIENT_ID || '',
 };
 
 const objectString = JSON.stringify(envConfig, null, 2).replace(/"([^"]+)":/g, '$1:');
@@ -56,6 +44,8 @@ const allowIndexing = process.env.ALLOW_INDEXING !== 'false';
 
 writeFileSync(join(here, 'public/robots.txt'), `User-agent: *\n${allowIndexing ? 'Allow' : 'Disallow'}: /\n`);
 
-console.log(
-  `✅ environment.ts generado estricto. Prod: ${envConfig.production}, Emuladores: ${envConfig.useEmulators}, Indexable: ${allowIndexing}`,
-);
+if (!envConfig.googleClientId) {
+  console.warn('⚠️  GOOGLE_CLIENT_ID is not set; the app builds without the Google sign-in button.');
+}
+
+console.log(`✅ environment.ts generado estricto. Prod: ${envConfig.production}, Indexable: ${allowIndexing}`);

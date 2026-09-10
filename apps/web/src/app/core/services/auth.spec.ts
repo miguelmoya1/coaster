@@ -1,186 +1,170 @@
-import '@angular/compiler';
 import { TestBed } from '@angular/core/testing';
+import { asUserId, Role, type AuthSession } from '@coaster/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { AccountExistsWithDifferentProviderError, Auth, FIREBASE_AUTH } from './auth';
 import { AuthRepository } from '../data-access/auth-repository';
-import { User, Auth as FirebaseAuth, signInWithPopup } from 'firebase/auth';
+import { Auth } from './auth';
 
-vi.mock('firebase/auth', () => {
-  return {
-    onAuthStateChanged: vi.fn((auth, next) => {
-      if (auth && typeof auth.onAuthStateChanged === 'function') {
-        return auth.onAuthStateChanged(next);
-      }
-      next(null);
-      return () => undefined;
-    }),
-    onIdTokenChanged: vi.fn((auth, next) => {
-      if (auth && typeof auth.onIdTokenChanged === 'function') {
-        return auth.onIdTokenChanged(next);
-      }
-      const mockUser = {
-        getIdToken: async () => 'mock-id-token',
-      };
-      next(mockUser);
-      return () => undefined;
-    }),
-    signOut: vi.fn((auth) => {
-      if (auth && typeof auth.signOut === 'function') {
-        return auth.signOut();
-      }
-      return Promise.resolve();
-    }),
-    signInWithPopup: vi.fn(),
-    GoogleAuthProvider: class {
-      providerId = 'google.com';
-    },
-    OAuthProvider: class {
-      static credentialFromError = vi.fn(() => null);
-      providerId: string;
-      constructor(providerId: string) {
-        this.providerId = providerId;
-      }
-    },
-  };
-});
-
-vi.mock('@firebase/auth', () => {
-  return {
-    onAuthStateChanged: vi.fn((auth, next) => {
-      if (auth && typeof auth.onAuthStateChanged === 'function') {
-        return auth.onAuthStateChanged(next);
-      }
-      next(null);
-      return () => undefined;
-    }),
-    onIdTokenChanged: vi.fn((auth, next) => {
-      if (auth && typeof auth.onIdTokenChanged === 'function') {
-        return auth.onIdTokenChanged(next);
-      }
-      const mockUser = {
-        getIdToken: async () => 'mock-id-token',
-      };
-      next(mockUser);
-      return () => undefined;
-    }),
-    signOut: vi.fn((auth) => {
-      if (auth && typeof auth.signOut === 'function') {
-        return auth.signOut();
-      }
-      return Promise.resolve();
-    }),
-    signInWithPopup: vi.fn(),
-    GoogleAuthProvider: class {
-      providerId = 'google.com';
-    },
-    OAuthProvider: class {
-      static credentialFromError = vi.fn(() => null);
-      providerId: string;
-      constructor(providerId: string) {
-        this.providerId = providerId;
-      }
-    },
-  };
+const session = (accessToken = 'an-access-token'): AuthSession => ({
+  accessToken,
+  expiresIn: 900,
+  user: {
+    id: asUserId('user-1'),
+    email: 'someone@coaster.test',
+    name: 'Someone',
+    active: true,
+    role: Role.USER,
+    language: 'es',
+    emailVerified: true,
+  },
 });
 
 describe('Auth', () => {
   let service: Auth;
-  const authRepoMock = { syncUser: vi.fn().mockResolvedValue(undefined) };
 
-  let firebaseAuthMock: Partial<FirebaseAuth>;
+  const repo = {
+    register: vi.fn(),
+    login: vi.fn(),
+    refresh: vi.fn(),
+    logout: vi.fn(),
+  };
 
   beforeEach(() => {
-    firebaseAuthMock = {
-      app: {} as never,
-      onAuthStateChanged: (next: (user: User | null) => void) => {
-        next(null);
-        return () => undefined;
-      },
-      onIdTokenChanged: (next: (user: User | null) => void) => {
-        const mockUser = {
-          getIdToken: async () => 'mock-id-token',
-        } as unknown as User;
-        next(mockUser);
-        return () => undefined;
-      },
-      signOut: vi.fn(),
-    } as unknown as FirebaseAuth;
+    vi.clearAllMocks();
 
     TestBed.configureTestingModule({
-      providers: [
-        { provide: FIREBASE_AUTH, useValue: firebaseAuthMock as FirebaseAuth },
-        { provide: AuthRepository, useValue: authRepoMock },
-      ],
+      providers: [{ provide: AuthRepository, useValue: repo }],
     });
+
     service = TestBed.inject(Auth);
   });
 
-  it('should be created', () => {
-    expect(service).toBeTruthy();
+  it('should start out not knowing whether there is a session', () => {
+    expect(service.isAuthLoaded()).toBe(false);
+    expect(service.isAuthenticated()).toBe(false);
+    expect(service.accessToken()).toBeNull();
   });
 
-  describe('signals', () => {
-    it('isAuthLoaded should be false initially if authState is null', () => {
-      expect(typeof service.isAuthLoaded()).toBe('boolean');
+  describe('ensureRestored', () => {
+    it('should pick the session back up from the cookie', async () => {
+      repo.refresh.mockResolvedValue(session());
+
+      await service.ensureRestored();
+
+      expect(service.isAuthLoaded()).toBe(true);
+      expect(service.isAuthenticated()).toBe(true);
+      expect(service.accessToken()).toBe('an-access-token');
+      expect(service.currentUser()?.email).toBe('someone@coaster.test');
     });
 
-    it('isAuthenticated should be a boolean', () => {
-      expect(typeof service.isAuthenticated()).toBe('boolean');
+    it('should settle on no session when the cookie is gone', async () => {
+      repo.refresh.mockRejectedValue(new Error('401'));
+
+      await service.ensureRestored();
+
+      expect(service.isAuthLoaded()).toBe(true);
+      expect(service.isAuthenticated()).toBe(false);
     });
 
-    it('userProfile should be null if not authenticated', () => {
-      expect(service.userProfile()).toBeNull();
+    it('should only ask the server once, however many callers there are', async () => {
+      repo.refresh.mockResolvedValue(session());
+
+      await Promise.all([service.ensureRestored(), service.ensureRestored(), service.ensureRestored()]);
+
+      expect(repo.refresh).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not ask again once the answer is known', async () => {
+      repo.refresh.mockResolvedValue(session());
+
+      await service.ensureRestored();
+      await service.ensureRestored();
+
+      expect(repo.refresh).toHaveBeenCalledTimes(1);
     });
   });
 
-  describe('login', () => {
-    const popup = vi.mocked(signInWithPopup);
+  describe('refresh', () => {
+    it('should hand every caller in flight the same answer, with one call behind it', async () => {
+      repo.refresh.mockResolvedValue(session('a-fresh-token'));
 
-    beforeEach(() => {
-      popup.mockReset();
-      authRepoMock.syncUser.mockClear();
-      popup.mockResolvedValue({
-        user: { getIdToken: async () => 'provider-id-token' },
-      } as never);
+      const answers = await Promise.all([service.refresh(), service.refresh()]);
+
+      expect(answers).toEqual(['a-fresh-token', 'a-fresh-token']);
+      expect(repo.refresh).toHaveBeenCalledTimes(1);
     });
 
-    it.each([
-      ['google', 'google.com'],
-      ['apple', 'apple.com'],
-      ['microsoft', 'microsoft.com'],
-    ] as const)('should open the popup for %s and sync the resulting token', async (provider, providerId) => {
-      await service.login(provider);
+    it('should ask again on a later refresh, rather than caching the first answer forever', async () => {
+      repo.refresh.mockResolvedValue(session('first'));
+      await service.refresh();
 
-      expect(popup).toHaveBeenCalledWith(firebaseAuthMock, expect.objectContaining({ providerId }));
-      expect(authRepoMock.syncUser).toHaveBeenCalledWith('provider-id-token');
+      repo.refresh.mockResolvedValue(session('second'));
+
+      await expect(service.refresh()).resolves.toBe('second');
+      expect(service.accessToken()).toBe('second');
     });
 
-    it('should not sync anything when the popup fails', async () => {
-      popup.mockRejectedValueOnce(new Error('popup closed'));
+    it('should answer null and drop the session when the refresh is refused', async () => {
+      repo.refresh.mockResolvedValue(session());
+      await service.refresh();
 
-      await expect(service.login('apple')).rejects.toThrow('popup closed');
-      expect(authRepoMock.syncUser).not.toHaveBeenCalled();
+      repo.refresh.mockRejectedValue(new Error('401'));
+
+      await expect(service.refresh()).resolves.toBeNull();
+      expect(service.isAuthenticated()).toBe(false);
     });
+  });
 
-    it('should surface a typed error when the email already belongs to another provider', async () => {
-      popup.mockRejectedValueOnce({
-        code: 'auth/account-exists-with-different-credential',
-        customData: { email: 'owner@establishment.com' },
+  describe('login and register', () => {
+    it('should hold on to the session a login returns', async () => {
+      repo.login.mockResolvedValue(session());
+
+      await service.login({ email: 'someone@coaster.test', password: 'a-good-enough-password' });
+
+      expect(repo.login).toHaveBeenCalledWith({
+        email: 'someone@coaster.test',
+        password: 'a-good-enough-password',
       });
-
-      await expect(service.login('microsoft')).rejects.toBeInstanceOf(AccountExistsWithDifferentProviderError);
-      expect(authRepoMock.syncUser).not.toHaveBeenCalled();
+      expect(service.isAuthenticated()).toBe(true);
     });
 
-    it('should carry the email on the typed error so the caller can offer linking', async () => {
-      popup.mockRejectedValueOnce({
-        code: 'auth/account-exists-with-different-credential',
-        customData: { email: 'owner@establishment.com' },
-      });
+    it('should leave the session alone when the login is refused', async () => {
+      repo.login.mockRejectedValue(new Error('401'));
 
-      const error = await service.login('apple').catch((thrown) => thrown);
+      await expect(service.login({ email: 'someone@coaster.test', password: 'not-the-password' })).rejects.toThrow();
 
-      expect(error).toMatchObject({ email: 'owner@establishment.com' });
+      expect(service.isAuthenticated()).toBe(false);
+    });
+
+    it('should hold on to the session a registration returns', async () => {
+      repo.register.mockResolvedValue(session());
+
+      await service.register({ email: 'someone@coaster.test', password: 'a-good-enough-password', name: 'Someone' });
+
+      expect(service.isAuthenticated()).toBe(true);
+    });
+  });
+
+  describe('logout', () => {
+    beforeEach(async () => {
+      repo.refresh.mockResolvedValue(session());
+      await service.ensureRestored();
+    });
+
+    it('should drop the session', async () => {
+      repo.logout.mockResolvedValue(undefined);
+
+      await service.logout();
+
+      expect(service.isAuthenticated()).toBe(false);
+      expect(service.accessToken()).toBeNull();
+    });
+
+    it('should drop the session even when the server never answered', async () => {
+      repo.logout.mockRejectedValue(new Error('network'));
+
+      await expect(service.logout()).rejects.toThrow();
+
+      expect(service.isAuthenticated()).toBe(false);
     });
   });
 });

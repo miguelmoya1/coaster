@@ -14,6 +14,7 @@ export const UsersMapper = {
       active: dbUser.active,
       role: dbUser.role,
       language: dbUser.preferences?.language ?? 'es',
+      emailVerified: dbUser.emailVerifiedAt !== null,
     };
   },
 

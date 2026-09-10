@@ -1,4 +1,4 @@
-import { FirebaseAuthGuard } from '@coaster/auth';
+import { AuthGuard } from '@coaster/auth';
 import type { EstablishmentId, EstablishmentStats } from '@coaster/common';
 import { EstablishmentPermission } from '@coaster/common';
 import { EstablishmentPermissions, EstablishmentPermissionsGuard, EstablishmentPermissionsOf } from '@coaster/core';
@@ -7,7 +7,7 @@ import { QueryBus } from '@nestjs/cqrs';
 import { GetEstablishmentStatsQuery } from '../queries/impl/get-establishment-stats.query';
 
 @Controller('establishments/:establishmentId/stats')
-@UseGuards(FirebaseAuthGuard, EstablishmentPermissionsGuard)
+@UseGuards(AuthGuard, EstablishmentPermissionsGuard)
 export class StatsController {
   constructor(private readonly _queryBus: QueryBus) {}
 

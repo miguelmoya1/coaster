@@ -1,4 +1,4 @@
-import { FirebaseAuthGuard } from '@coaster/auth';
+import { AuthGuard } from '@coaster/auth';
 import { asEstablishmentId, asUserId } from '@coaster/common';
 import { EstablishmentPermissionsGuard } from '@coaster/core';
 import { DbRole } from '@coaster/core/db';
@@ -28,7 +28,7 @@ describe('EstablishmentsController', () => {
         { provide: QueryBus, useValue: mockQueryBus },
       ],
     })
-      .overrideGuard(FirebaseAuthGuard)
+      .overrideGuard(AuthGuard)
       .useValue(mockGuard)
       .overrideGuard(EstablishmentPermissionsGuard)
       .useValue(mockGuard)
@@ -48,6 +48,7 @@ describe('EstablishmentsController', () => {
       active: true,
       role: 'USER' as DbRole,
       language: 'es',
+      emailVerified: true,
     };
     const dto = { name: 'El Establishment' };
 
@@ -65,6 +66,7 @@ describe('EstablishmentsController', () => {
       active: true,
       role: 'USER' as DbRole,
       language: 'es',
+      emailVerified: true,
     };
 
     await controller.getEstablishments(user);

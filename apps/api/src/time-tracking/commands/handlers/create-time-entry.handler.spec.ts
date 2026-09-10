@@ -21,6 +21,7 @@ const actor: User = {
   active: true,
   role: Role.USER,
   language: 'es',
+      emailVerified: true,
 };
 const member = { userId: 'user-1', userName: 'Luis', userEmail: 'luis@establishment.com', active: true };
 

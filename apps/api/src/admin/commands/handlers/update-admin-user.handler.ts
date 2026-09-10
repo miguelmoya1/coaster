@@ -41,12 +41,12 @@ export class UpdateAdminUserHandler implements ICommandHandler<UpdateAdminUserCo
       return;
     }
 
-    const updated = await this._writeRepo.updateUser(userId, {
+    await this._writeRepo.updateUser(userId, {
       role: dto.role ? (dto.role as DbRole) : undefined,
       active: dto.active,
     });
 
-    this._eventBus.publish(new UserUpdatedEvent(userId, updated.firebaseUid));
+    this._eventBus.publish(new UserUpdatedEvent(userId));
 
     if (dto.role && dto.role !== user.role) {
       this._eventBus.publish(

@@ -28,6 +28,7 @@ describe('GetEstablishmentsForUserHandler', () => {
       active: true,
       role: DbRole.USER,
       language: 'es',
+      emailVerified: true,
     };
     repository.findByUserId.mockResolvedValue([]);
 

@@ -1,4 +1,4 @@
-import { FirebaseAuthGuard, OptionalFirebaseAuthGuard } from '@coaster/auth';
+import { AuthGuard, OptionalAuthGuard } from '@coaster/auth';
 import { asUserId } from '@coaster/common';
 import { CanActivate } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
@@ -20,9 +20,9 @@ describe('UsersController', () => {
       controllers: [UsersController],
       providers: [{ provide: CommandBus, useValue: mockCommandBus }],
     })
-      .overrideGuard(FirebaseAuthGuard)
+      .overrideGuard(AuthGuard)
       .useValue(mockGuard)
-      .overrideGuard(OptionalFirebaseAuthGuard)
+      .overrideGuard(OptionalAuthGuard)
       .useValue(mockGuard)
       .compile();
 
@@ -38,6 +38,7 @@ describe('UsersController', () => {
       active: true,
       role: 'USER' as const,
       language: 'es',
+      emailVerified: true,
     };
     const result = controller.findMe(user);
     expect(result?.id).toBe(user.id);
@@ -56,6 +57,7 @@ describe('UsersController', () => {
       active: true,
       role: 'USER' as const,
       language: 'es',
+      emailVerified: true,
     };
     const dto = { name: 'New Name' };
     commandBus.execute.mockResolvedValue(undefined);

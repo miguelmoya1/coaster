@@ -1,4 +1,4 @@
-import { CurrentUser, FirebaseAuthGuard } from '@coaster/auth';
+import { CurrentUser, AuthGuard } from '@coaster/auth';
 import type { EstablishmentId, Order, OrderAdjustmentId, OrderId, OrderItemId, User } from '@coaster/common';
 import { EstablishmentModule, EstablishmentPermission, OrderStatus } from '@coaster/common';
 import {
@@ -39,7 +39,7 @@ import { OrdersMapper } from '../mappers/orders.mapper';
 import { GetOrderByIdQuery, GetOrdersByEstablishmentIdQuery, GetOrdersByDateQuery } from '../queries';
 
 @Controller('establishments/:establishmentId/orders')
-@UseGuards(FirebaseAuthGuard, EstablishmentPermissionsGuard, EstablishmentModulesGuard)
+@UseGuards(AuthGuard, EstablishmentPermissionsGuard, EstablishmentModulesGuard)
 @RequiresModule(EstablishmentModule.ORDERS)
 export class OrdersController {
   constructor(

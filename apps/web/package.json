@@ -20,7 +20,6 @@
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
     "date-fns": "^4.4.0",
-    "firebase": "^12.18.0",
     "marked": "^18.0.12",
     "qrcode-generator": "^2.0.4",
     "rxjs": "~7.8.2",

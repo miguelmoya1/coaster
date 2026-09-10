@@ -28,6 +28,9 @@ export type DbUserMinAggregateOutputType = {
   id: string | null
   email: string | null
   firebaseUid: string | null
+  passwordHash: string | null
+  passwordUpdatedAt: Date | null
+  emailVerifiedAt: Date | null
   name: string | null
   photoUrl: string | null
   active: boolean | null
@@ -40,6 +43,9 @@ export type DbUserMaxAggregateOutputType = {
   id: string | null
   email: string | null
   firebaseUid: string | null
+  passwordHash: string | null
+  passwordUpdatedAt: Date | null
+  emailVerifiedAt: Date | null
   name: string | null
   photoUrl: string | null
   active: boolean | null
@@ -52,6 +58,9 @@ export type DbUserCountAggregateOutputType = {
   id: number
   email: number
   firebaseUid: number
+  passwordHash: number
+  passwordUpdatedAt: number
+  emailVerifiedAt: number
   name: number
   photoUrl: number
   active: number
@@ -66,6 +75,9 @@ export type DbUserMinAggregateInputType = {
   id?: true
   email?: true
   firebaseUid?: true
+  passwordHash?: true
+  passwordUpdatedAt?: true
+  emailVerifiedAt?: true
   name?: true
   photoUrl?: true
   active?: true
@@ -78,6 +90,9 @@ export type DbUserMaxAggregateInputType = {
   id?: true
   email?: true
   firebaseUid?: true
+  passwordHash?: true
+  passwordUpdatedAt?: true
+  emailVerifiedAt?: true
   name?: true
   photoUrl?: true
   active?: true
@@ -90,6 +105,9 @@ export type DbUserCountAggregateInputType = {
   id?: true
   email?: true
   firebaseUid?: true
+  passwordHash?: true
+  passwordUpdatedAt?: true
+  emailVerifiedAt?: true
   name?: true
   photoUrl?: true
   active?: true
@@ -175,6 +193,9 @@ export type DbUserGroupByOutputType = {
   id: string
   email: string
   firebaseUid: string | null
+  passwordHash: string | null
+  passwordUpdatedAt: Date | null
+  emailVerifiedAt: Date | null
   name: string
   photoUrl: string | null
   active: boolean
@@ -208,6 +229,9 @@ export type DbUserWhereInput = {
   id?: Prisma.StringFilter<"DbUser"> | string
   email?: Prisma.StringFilter<"DbUser"> | string
   firebaseUid?: Prisma.StringNullableFilter<"DbUser"> | string | null
+  passwordHash?: Prisma.StringNullableFilter<"DbUser"> | string | null
+  passwordUpdatedAt?: Prisma.DateTimeNullableFilter<"DbUser"> | Date | string | null
+  emailVerifiedAt?: Prisma.DateTimeNullableFilter<"DbUser"> | Date | string | null
   name?: Prisma.StringFilter<"DbUser"> | string
   photoUrl?: Prisma.StringNullableFilter<"DbUser"> | string | null
   active?: Prisma.BoolFilter<"DbUser"> | boolean
@@ -225,12 +249,18 @@ export type DbUserWhereInput = {
   createdOrders?: Prisma.DbOrderListRelationFilter
   betaInvites?: Prisma.DbBetaTesterListRelationFilter
   orderAudits?: Prisma.DbOrderAuditLogListRelationFilter
+  identities?: Prisma.DbAuthIdentityListRelationFilter
+  sessions?: Prisma.DbAuthSessionListRelationFilter
+  authTokens?: Prisma.DbAuthTokenListRelationFilter
 }
 
 export type DbUserOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   email?: Prisma.SortOrder
   firebaseUid?: Prisma.SortOrderInput | Prisma.SortOrder
+  passwordHash?: Prisma.SortOrderInput | Prisma.SortOrder
+  passwordUpdatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  emailVerifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   name?: Prisma.SortOrder
   photoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   active?: Prisma.SortOrder
@@ -248,6 +278,9 @@ export type DbUserOrderByWithRelationInput = {
   createdOrders?: Prisma.DbOrderOrderByRelationAggregateInput
   betaInvites?: Prisma.DbBetaTesterOrderByRelationAggregateInput
   orderAudits?: Prisma.DbOrderAuditLogOrderByRelationAggregateInput
+  identities?: Prisma.DbAuthIdentityOrderByRelationAggregateInput
+  sessions?: Prisma.DbAuthSessionOrderByRelationAggregateInput
+  authTokens?: Prisma.DbAuthTokenOrderByRelationAggregateInput
 }
 
 export type DbUserWhereUniqueInput = Prisma.AtLeast<{
@@ -257,6 +290,9 @@ export type DbUserWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.DbUserWhereInput | Prisma.DbUserWhereInput[]
   OR?: Prisma.DbUserWhereInput[]
   NOT?: Prisma.DbUserWhereInput | Prisma.DbUserWhereInput[]
+  passwordHash?: Prisma.StringNullableFilter<"DbUser"> | string | null
+  passwordUpdatedAt?: Prisma.DateTimeNullableFilter<"DbUser"> | Date | string | null
+  emailVerifiedAt?: Prisma.DateTimeNullableFilter<"DbUser"> | Date | string | null
   name?: Prisma.StringFilter<"DbUser"> | string
   photoUrl?: Prisma.StringNullableFilter<"DbUser"> | string | null
   active?: Prisma.BoolFilter<"DbUser"> | boolean
@@ -274,12 +310,18 @@ export type DbUserWhereUniqueInput = Prisma.AtLeast<{
   createdOrders?: Prisma.DbOrderListRelationFilter
   betaInvites?: Prisma.DbBetaTesterListRelationFilter
   orderAudits?: Prisma.DbOrderAuditLogListRelationFilter
+  identities?: Prisma.DbAuthIdentityListRelationFilter
+  sessions?: Prisma.DbAuthSessionListRelationFilter
+  authTokens?: Prisma.DbAuthTokenListRelationFilter
 }, "id" | "email" | "firebaseUid">
 
 export type DbUserOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   email?: Prisma.SortOrder
   firebaseUid?: Prisma.SortOrderInput | Prisma.SortOrder
+  passwordHash?: Prisma.SortOrderInput | Prisma.SortOrder
+  passwordUpdatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  emailVerifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   name?: Prisma.SortOrder
   photoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   active?: Prisma.SortOrder
@@ -298,6 +340,9 @@ export type DbUserScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"DbUser"> | string
   email?: Prisma.StringWithAggregatesFilter<"DbUser"> | string
   firebaseUid?: Prisma.StringNullableWithAggregatesFilter<"DbUser"> | string | null
+  passwordHash?: Prisma.StringNullableWithAggregatesFilter<"DbUser"> | string | null
+  passwordUpdatedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"DbUser"> | Date | string | null
+  emailVerifiedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"DbUser"> | Date | string | null
   name?: Prisma.StringWithAggregatesFilter<"DbUser"> | string
   photoUrl?: Prisma.StringNullableWithAggregatesFilter<"DbUser"> | string | null
   active?: Prisma.BoolWithAggregatesFilter<"DbUser"> | boolean
@@ -310,6 +355,9 @@ export type DbUserCreateInput = {
   id?: string
   email: string
   firebaseUid?: string | null
+  passwordHash?: string | null
+  passwordUpdatedAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
   name: string
   photoUrl?: string | null
   active?: boolean
@@ -327,12 +375,18 @@ export type DbUserCreateInput = {
   createdOrders?: Prisma.DbOrderCreateNestedManyWithoutCreatedByInput
   betaInvites?: Prisma.DbBetaTesterCreateNestedManyWithoutInvitedByInput
   orderAudits?: Prisma.DbOrderAuditLogCreateNestedManyWithoutActorInput
+  identities?: Prisma.DbAuthIdentityCreateNestedManyWithoutUserInput
+  sessions?: Prisma.DbAuthSessionCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.DbAuthTokenCreateNestedManyWithoutUserInput
 }
 
 export type DbUserUncheckedCreateInput = {
   id?: string
   email: string
   firebaseUid?: string | null
+  passwordHash?: string | null
+  passwordUpdatedAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
   name: string
   photoUrl?: string | null
   active?: boolean
@@ -350,12 +404,18 @@ export type DbUserUncheckedCreateInput = {
   createdOrders?: Prisma.DbOrderUncheckedCreateNestedManyWithoutCreatedByInput
   betaInvites?: Prisma.DbBetaTesterUncheckedCreateNestedManyWithoutInvitedByInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedCreateNestedManyWithoutActorInput
+  identities?: Prisma.DbAuthIdentityUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.DbAuthSessionUncheckedCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.DbAuthTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type DbUserUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -373,12 +433,18 @@ export type DbUserUpdateInput = {
   createdOrders?: Prisma.DbOrderUpdateManyWithoutCreatedByNestedInput
   betaInvites?: Prisma.DbBetaTesterUpdateManyWithoutInvitedByNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUpdateManyWithoutActorNestedInput
+  identities?: Prisma.DbAuthIdentityUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.DbAuthSessionUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.DbAuthTokenUpdateManyWithoutUserNestedInput
 }
 
 export type DbUserUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -396,12 +462,18 @@ export type DbUserUncheckedUpdateInput = {
   createdOrders?: Prisma.DbOrderUncheckedUpdateManyWithoutCreatedByNestedInput
   betaInvites?: Prisma.DbBetaTesterUncheckedUpdateManyWithoutInvitedByNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  identities?: Prisma.DbAuthIdentityUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.DbAuthSessionUncheckedUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.DbAuthTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type DbUserCreateManyInput = {
   id?: string
   email: string
   firebaseUid?: string | null
+  passwordHash?: string | null
+  passwordUpdatedAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
   name: string
   photoUrl?: string | null
   active?: boolean
@@ -414,6 +486,9 @@ export type DbUserUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -426,6 +501,9 @@ export type DbUserUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -438,6 +516,9 @@ export type DbUserCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   email?: Prisma.SortOrder
   firebaseUid?: Prisma.SortOrder
+  passwordHash?: Prisma.SortOrder
+  passwordUpdatedAt?: Prisma.SortOrder
+  emailVerifiedAt?: Prisma.SortOrder
   name?: Prisma.SortOrder
   photoUrl?: Prisma.SortOrder
   active?: Prisma.SortOrder
@@ -450,6 +531,9 @@ export type DbUserMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   email?: Prisma.SortOrder
   firebaseUid?: Prisma.SortOrder
+  passwordHash?: Prisma.SortOrder
+  passwordUpdatedAt?: Prisma.SortOrder
+  emailVerifiedAt?: Prisma.SortOrder
   name?: Prisma.SortOrder
   photoUrl?: Prisma.SortOrder
   active?: Prisma.SortOrder
@@ -462,6 +546,9 @@ export type DbUserMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   email?: Prisma.SortOrder
   firebaseUid?: Prisma.SortOrder
+  passwordHash?: Prisma.SortOrder
+  passwordUpdatedAt?: Prisma.SortOrder
+  emailVerifiedAt?: Prisma.SortOrder
   name?: Prisma.SortOrder
   photoUrl?: Prisma.SortOrder
   active?: Prisma.SortOrder
@@ -470,14 +557,18 @@ export type DbUserMinOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
 }
 
+export type DbUserScalarRelationFilter = {
+  is?: Prisma.DbUserWhereInput
+  isNot?: Prisma.DbUserWhereInput
+}
+
 export type DbUserNullableScalarRelationFilter = {
   is?: Prisma.DbUserWhereInput | null
   isNot?: Prisma.DbUserWhereInput | null
 }
 
-export type DbUserScalarRelationFilter = {
-  is?: Prisma.DbUserWhereInput
-  isNot?: Prisma.DbUserWhereInput
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
 }
 
 export type BoolFieldUpdateOperationsInput = {
@@ -486,6 +577,48 @@ export type BoolFieldUpdateOperationsInput = {
 
 export type EnumDbRoleFieldUpdateOperationsInput = {
   set?: $Enums.DbRole
+}
+
+export type DbUserCreateNestedOneWithoutIdentitiesInput = {
+  create?: Prisma.XOR<Prisma.DbUserCreateWithoutIdentitiesInput, Prisma.DbUserUncheckedCreateWithoutIdentitiesInput>
+  connectOrCreate?: Prisma.DbUserCreateOrConnectWithoutIdentitiesInput
+  connect?: Prisma.DbUserWhereUniqueInput
+}
+
+export type DbUserUpdateOneRequiredWithoutIdentitiesNestedInput = {
+  create?: Prisma.XOR<Prisma.DbUserCreateWithoutIdentitiesInput, Prisma.DbUserUncheckedCreateWithoutIdentitiesInput>
+  connectOrCreate?: Prisma.DbUserCreateOrConnectWithoutIdentitiesInput
+  upsert?: Prisma.DbUserUpsertWithoutIdentitiesInput
+  connect?: Prisma.DbUserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.DbUserUpdateToOneWithWhereWithoutIdentitiesInput, Prisma.DbUserUpdateWithoutIdentitiesInput>, Prisma.DbUserUncheckedUpdateWithoutIdentitiesInput>
+}
+
+export type DbUserCreateNestedOneWithoutSessionsInput = {
+  create?: Prisma.XOR<Prisma.DbUserCreateWithoutSessionsInput, Prisma.DbUserUncheckedCreateWithoutSessionsInput>
+  connectOrCreate?: Prisma.DbUserCreateOrConnectWithoutSessionsInput
+  connect?: Prisma.DbUserWhereUniqueInput
+}
+
+export type DbUserUpdateOneRequiredWithoutSessionsNestedInput = {
+  create?: Prisma.XOR<Prisma.DbUserCreateWithoutSessionsInput, Prisma.DbUserUncheckedCreateWithoutSessionsInput>
+  connectOrCreate?: Prisma.DbUserCreateOrConnectWithoutSessionsInput
+  upsert?: Prisma.DbUserUpsertWithoutSessionsInput
+  connect?: Prisma.DbUserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.DbUserUpdateToOneWithWhereWithoutSessionsInput, Prisma.DbUserUpdateWithoutSessionsInput>, Prisma.DbUserUncheckedUpdateWithoutSessionsInput>
+}
+
+export type DbUserCreateNestedOneWithoutAuthTokensInput = {
+  create?: Prisma.XOR<Prisma.DbUserCreateWithoutAuthTokensInput, Prisma.DbUserUncheckedCreateWithoutAuthTokensInput>
+  connectOrCreate?: Prisma.DbUserCreateOrConnectWithoutAuthTokensInput
+  connect?: Prisma.DbUserWhereUniqueInput
+}
+
+export type DbUserUpdateOneRequiredWithoutAuthTokensNestedInput = {
+  create?: Prisma.XOR<Prisma.DbUserCreateWithoutAuthTokensInput, Prisma.DbUserUncheckedCreateWithoutAuthTokensInput>
+  connectOrCreate?: Prisma.DbUserCreateOrConnectWithoutAuthTokensInput
+  upsert?: Prisma.DbUserUpsertWithoutAuthTokensInput
+  connect?: Prisma.DbUserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.DbUserUpdateToOneWithWhereWithoutAuthTokensInput, Prisma.DbUserUpdateWithoutAuthTokensInput>, Prisma.DbUserUncheckedUpdateWithoutAuthTokensInput>
 }
 
 export type DbUserCreateNestedOneWithoutBetaInvitesInput = {
@@ -648,10 +781,397 @@ export type DbUserUpdateOneRequiredWithoutOrderAuditsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.DbUserUpdateToOneWithWhereWithoutOrderAuditsInput, Prisma.DbUserUpdateWithoutOrderAuditsInput>, Prisma.DbUserUncheckedUpdateWithoutOrderAuditsInput>
 }
 
+export type DbUserCreateWithoutIdentitiesInput = {
+  id?: string
+  email: string
+  firebaseUid?: string | null
+  passwordHash?: string | null
+  passwordUpdatedAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
+  name: string
+  photoUrl?: string | null
+  active?: boolean
+  role?: $Enums.DbRole
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  preferences?: Prisma.DbUserPreferencesCreateNestedOneWithoutUserInput
+  memberships?: Prisma.DbEstablishmentMemberCreateNestedManyWithoutUserInput
+  shifts?: Prisma.DbShiftCreateNestedManyWithoutUserInput
+  shiftRequests?: Prisma.DbShiftExchangeCreateNestedManyWithoutRequesterInput
+  shiftApprovals?: Prisma.DbShiftExchangeCreateNestedManyWithoutTargetInput
+  auditLogs?: Prisma.DbAdminAuditLogCreateNestedManyWithoutActorInput
+  timeEntries?: Prisma.DbTimeEntryCreateNestedManyWithoutUserInput
+  timeEntryEdits?: Prisma.DbTimeEntryCreateNestedManyWithoutActorInput
+  createdOrders?: Prisma.DbOrderCreateNestedManyWithoutCreatedByInput
+  betaInvites?: Prisma.DbBetaTesterCreateNestedManyWithoutInvitedByInput
+  orderAudits?: Prisma.DbOrderAuditLogCreateNestedManyWithoutActorInput
+  sessions?: Prisma.DbAuthSessionCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.DbAuthTokenCreateNestedManyWithoutUserInput
+}
+
+export type DbUserUncheckedCreateWithoutIdentitiesInput = {
+  id?: string
+  email: string
+  firebaseUid?: string | null
+  passwordHash?: string | null
+  passwordUpdatedAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
+  name: string
+  photoUrl?: string | null
+  active?: boolean
+  role?: $Enums.DbRole
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  preferences?: Prisma.DbUserPreferencesUncheckedCreateNestedOneWithoutUserInput
+  memberships?: Prisma.DbEstablishmentMemberUncheckedCreateNestedManyWithoutUserInput
+  shifts?: Prisma.DbShiftUncheckedCreateNestedManyWithoutUserInput
+  shiftRequests?: Prisma.DbShiftExchangeUncheckedCreateNestedManyWithoutRequesterInput
+  shiftApprovals?: Prisma.DbShiftExchangeUncheckedCreateNestedManyWithoutTargetInput
+  auditLogs?: Prisma.DbAdminAuditLogUncheckedCreateNestedManyWithoutActorInput
+  timeEntries?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutUserInput
+  timeEntryEdits?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutActorInput
+  createdOrders?: Prisma.DbOrderUncheckedCreateNestedManyWithoutCreatedByInput
+  betaInvites?: Prisma.DbBetaTesterUncheckedCreateNestedManyWithoutInvitedByInput
+  orderAudits?: Prisma.DbOrderAuditLogUncheckedCreateNestedManyWithoutActorInput
+  sessions?: Prisma.DbAuthSessionUncheckedCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.DbAuthTokenUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type DbUserCreateOrConnectWithoutIdentitiesInput = {
+  where: Prisma.DbUserWhereUniqueInput
+  create: Prisma.XOR<Prisma.DbUserCreateWithoutIdentitiesInput, Prisma.DbUserUncheckedCreateWithoutIdentitiesInput>
+}
+
+export type DbUserUpsertWithoutIdentitiesInput = {
+  update: Prisma.XOR<Prisma.DbUserUpdateWithoutIdentitiesInput, Prisma.DbUserUncheckedUpdateWithoutIdentitiesInput>
+  create: Prisma.XOR<Prisma.DbUserCreateWithoutIdentitiesInput, Prisma.DbUserUncheckedCreateWithoutIdentitiesInput>
+  where?: Prisma.DbUserWhereInput
+}
+
+export type DbUserUpdateToOneWithWhereWithoutIdentitiesInput = {
+  where?: Prisma.DbUserWhereInput
+  data: Prisma.XOR<Prisma.DbUserUpdateWithoutIdentitiesInput, Prisma.DbUserUncheckedUpdateWithoutIdentitiesInput>
+}
+
+export type DbUserUpdateWithoutIdentitiesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  role?: Prisma.EnumDbRoleFieldUpdateOperationsInput | $Enums.DbRole
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferences?: Prisma.DbUserPreferencesUpdateOneWithoutUserNestedInput
+  memberships?: Prisma.DbEstablishmentMemberUpdateManyWithoutUserNestedInput
+  shifts?: Prisma.DbShiftUpdateManyWithoutUserNestedInput
+  shiftRequests?: Prisma.DbShiftExchangeUpdateManyWithoutRequesterNestedInput
+  shiftApprovals?: Prisma.DbShiftExchangeUpdateManyWithoutTargetNestedInput
+  auditLogs?: Prisma.DbAdminAuditLogUpdateManyWithoutActorNestedInput
+  timeEntries?: Prisma.DbTimeEntryUpdateManyWithoutUserNestedInput
+  timeEntryEdits?: Prisma.DbTimeEntryUpdateManyWithoutActorNestedInput
+  createdOrders?: Prisma.DbOrderUpdateManyWithoutCreatedByNestedInput
+  betaInvites?: Prisma.DbBetaTesterUpdateManyWithoutInvitedByNestedInput
+  orderAudits?: Prisma.DbOrderAuditLogUpdateManyWithoutActorNestedInput
+  sessions?: Prisma.DbAuthSessionUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.DbAuthTokenUpdateManyWithoutUserNestedInput
+}
+
+export type DbUserUncheckedUpdateWithoutIdentitiesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  role?: Prisma.EnumDbRoleFieldUpdateOperationsInput | $Enums.DbRole
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferences?: Prisma.DbUserPreferencesUncheckedUpdateOneWithoutUserNestedInput
+  memberships?: Prisma.DbEstablishmentMemberUncheckedUpdateManyWithoutUserNestedInput
+  shifts?: Prisma.DbShiftUncheckedUpdateManyWithoutUserNestedInput
+  shiftRequests?: Prisma.DbShiftExchangeUncheckedUpdateManyWithoutRequesterNestedInput
+  shiftApprovals?: Prisma.DbShiftExchangeUncheckedUpdateManyWithoutTargetNestedInput
+  auditLogs?: Prisma.DbAdminAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  timeEntries?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutUserNestedInput
+  timeEntryEdits?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutActorNestedInput
+  createdOrders?: Prisma.DbOrderUncheckedUpdateManyWithoutCreatedByNestedInput
+  betaInvites?: Prisma.DbBetaTesterUncheckedUpdateManyWithoutInvitedByNestedInput
+  orderAudits?: Prisma.DbOrderAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  sessions?: Prisma.DbAuthSessionUncheckedUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.DbAuthTokenUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type DbUserCreateWithoutSessionsInput = {
+  id?: string
+  email: string
+  firebaseUid?: string | null
+  passwordHash?: string | null
+  passwordUpdatedAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
+  name: string
+  photoUrl?: string | null
+  active?: boolean
+  role?: $Enums.DbRole
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  preferences?: Prisma.DbUserPreferencesCreateNestedOneWithoutUserInput
+  memberships?: Prisma.DbEstablishmentMemberCreateNestedManyWithoutUserInput
+  shifts?: Prisma.DbShiftCreateNestedManyWithoutUserInput
+  shiftRequests?: Prisma.DbShiftExchangeCreateNestedManyWithoutRequesterInput
+  shiftApprovals?: Prisma.DbShiftExchangeCreateNestedManyWithoutTargetInput
+  auditLogs?: Prisma.DbAdminAuditLogCreateNestedManyWithoutActorInput
+  timeEntries?: Prisma.DbTimeEntryCreateNestedManyWithoutUserInput
+  timeEntryEdits?: Prisma.DbTimeEntryCreateNestedManyWithoutActorInput
+  createdOrders?: Prisma.DbOrderCreateNestedManyWithoutCreatedByInput
+  betaInvites?: Prisma.DbBetaTesterCreateNestedManyWithoutInvitedByInput
+  orderAudits?: Prisma.DbOrderAuditLogCreateNestedManyWithoutActorInput
+  identities?: Prisma.DbAuthIdentityCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.DbAuthTokenCreateNestedManyWithoutUserInput
+}
+
+export type DbUserUncheckedCreateWithoutSessionsInput = {
+  id?: string
+  email: string
+  firebaseUid?: string | null
+  passwordHash?: string | null
+  passwordUpdatedAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
+  name: string
+  photoUrl?: string | null
+  active?: boolean
+  role?: $Enums.DbRole
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  preferences?: Prisma.DbUserPreferencesUncheckedCreateNestedOneWithoutUserInput
+  memberships?: Prisma.DbEstablishmentMemberUncheckedCreateNestedManyWithoutUserInput
+  shifts?: Prisma.DbShiftUncheckedCreateNestedManyWithoutUserInput
+  shiftRequests?: Prisma.DbShiftExchangeUncheckedCreateNestedManyWithoutRequesterInput
+  shiftApprovals?: Prisma.DbShiftExchangeUncheckedCreateNestedManyWithoutTargetInput
+  auditLogs?: Prisma.DbAdminAuditLogUncheckedCreateNestedManyWithoutActorInput
+  timeEntries?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutUserInput
+  timeEntryEdits?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutActorInput
+  createdOrders?: Prisma.DbOrderUncheckedCreateNestedManyWithoutCreatedByInput
+  betaInvites?: Prisma.DbBetaTesterUncheckedCreateNestedManyWithoutInvitedByInput
+  orderAudits?: Prisma.DbOrderAuditLogUncheckedCreateNestedManyWithoutActorInput
+  identities?: Prisma.DbAuthIdentityUncheckedCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.DbAuthTokenUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type DbUserCreateOrConnectWithoutSessionsInput = {
+  where: Prisma.DbUserWhereUniqueInput
+  create: Prisma.XOR<Prisma.DbUserCreateWithoutSessionsInput, Prisma.DbUserUncheckedCreateWithoutSessionsInput>
+}
+
+export type DbUserUpsertWithoutSessionsInput = {
+  update: Prisma.XOR<Prisma.DbUserUpdateWithoutSessionsInput, Prisma.DbUserUncheckedUpdateWithoutSessionsInput>
+  create: Prisma.XOR<Prisma.DbUserCreateWithoutSessionsInput, Prisma.DbUserUncheckedCreateWithoutSessionsInput>
+  where?: Prisma.DbUserWhereInput
+}
+
+export type DbUserUpdateToOneWithWhereWithoutSessionsInput = {
+  where?: Prisma.DbUserWhereInput
+  data: Prisma.XOR<Prisma.DbUserUpdateWithoutSessionsInput, Prisma.DbUserUncheckedUpdateWithoutSessionsInput>
+}
+
+export type DbUserUpdateWithoutSessionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  role?: Prisma.EnumDbRoleFieldUpdateOperationsInput | $Enums.DbRole
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferences?: Prisma.DbUserPreferencesUpdateOneWithoutUserNestedInput
+  memberships?: Prisma.DbEstablishmentMemberUpdateManyWithoutUserNestedInput
+  shifts?: Prisma.DbShiftUpdateManyWithoutUserNestedInput
+  shiftRequests?: Prisma.DbShiftExchangeUpdateManyWithoutRequesterNestedInput
+  shiftApprovals?: Prisma.DbShiftExchangeUpdateManyWithoutTargetNestedInput
+  auditLogs?: Prisma.DbAdminAuditLogUpdateManyWithoutActorNestedInput
+  timeEntries?: Prisma.DbTimeEntryUpdateManyWithoutUserNestedInput
+  timeEntryEdits?: Prisma.DbTimeEntryUpdateManyWithoutActorNestedInput
+  createdOrders?: Prisma.DbOrderUpdateManyWithoutCreatedByNestedInput
+  betaInvites?: Prisma.DbBetaTesterUpdateManyWithoutInvitedByNestedInput
+  orderAudits?: Prisma.DbOrderAuditLogUpdateManyWithoutActorNestedInput
+  identities?: Prisma.DbAuthIdentityUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.DbAuthTokenUpdateManyWithoutUserNestedInput
+}
+
+export type DbUserUncheckedUpdateWithoutSessionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  role?: Prisma.EnumDbRoleFieldUpdateOperationsInput | $Enums.DbRole
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferences?: Prisma.DbUserPreferencesUncheckedUpdateOneWithoutUserNestedInput
+  memberships?: Prisma.DbEstablishmentMemberUncheckedUpdateManyWithoutUserNestedInput
+  shifts?: Prisma.DbShiftUncheckedUpdateManyWithoutUserNestedInput
+  shiftRequests?: Prisma.DbShiftExchangeUncheckedUpdateManyWithoutRequesterNestedInput
+  shiftApprovals?: Prisma.DbShiftExchangeUncheckedUpdateManyWithoutTargetNestedInput
+  auditLogs?: Prisma.DbAdminAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  timeEntries?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutUserNestedInput
+  timeEntryEdits?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutActorNestedInput
+  createdOrders?: Prisma.DbOrderUncheckedUpdateManyWithoutCreatedByNestedInput
+  betaInvites?: Prisma.DbBetaTesterUncheckedUpdateManyWithoutInvitedByNestedInput
+  orderAudits?: Prisma.DbOrderAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  identities?: Prisma.DbAuthIdentityUncheckedUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.DbAuthTokenUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type DbUserCreateWithoutAuthTokensInput = {
+  id?: string
+  email: string
+  firebaseUid?: string | null
+  passwordHash?: string | null
+  passwordUpdatedAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
+  name: string
+  photoUrl?: string | null
+  active?: boolean
+  role?: $Enums.DbRole
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  preferences?: Prisma.DbUserPreferencesCreateNestedOneWithoutUserInput
+  memberships?: Prisma.DbEstablishmentMemberCreateNestedManyWithoutUserInput
+  shifts?: Prisma.DbShiftCreateNestedManyWithoutUserInput
+  shiftRequests?: Prisma.DbShiftExchangeCreateNestedManyWithoutRequesterInput
+  shiftApprovals?: Prisma.DbShiftExchangeCreateNestedManyWithoutTargetInput
+  auditLogs?: Prisma.DbAdminAuditLogCreateNestedManyWithoutActorInput
+  timeEntries?: Prisma.DbTimeEntryCreateNestedManyWithoutUserInput
+  timeEntryEdits?: Prisma.DbTimeEntryCreateNestedManyWithoutActorInput
+  createdOrders?: Prisma.DbOrderCreateNestedManyWithoutCreatedByInput
+  betaInvites?: Prisma.DbBetaTesterCreateNestedManyWithoutInvitedByInput
+  orderAudits?: Prisma.DbOrderAuditLogCreateNestedManyWithoutActorInput
+  identities?: Prisma.DbAuthIdentityCreateNestedManyWithoutUserInput
+  sessions?: Prisma.DbAuthSessionCreateNestedManyWithoutUserInput
+}
+
+export type DbUserUncheckedCreateWithoutAuthTokensInput = {
+  id?: string
+  email: string
+  firebaseUid?: string | null
+  passwordHash?: string | null
+  passwordUpdatedAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
+  name: string
+  photoUrl?: string | null
+  active?: boolean
+  role?: $Enums.DbRole
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  preferences?: Prisma.DbUserPreferencesUncheckedCreateNestedOneWithoutUserInput
+  memberships?: Prisma.DbEstablishmentMemberUncheckedCreateNestedManyWithoutUserInput
+  shifts?: Prisma.DbShiftUncheckedCreateNestedManyWithoutUserInput
+  shiftRequests?: Prisma.DbShiftExchangeUncheckedCreateNestedManyWithoutRequesterInput
+  shiftApprovals?: Prisma.DbShiftExchangeUncheckedCreateNestedManyWithoutTargetInput
+  auditLogs?: Prisma.DbAdminAuditLogUncheckedCreateNestedManyWithoutActorInput
+  timeEntries?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutUserInput
+  timeEntryEdits?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutActorInput
+  createdOrders?: Prisma.DbOrderUncheckedCreateNestedManyWithoutCreatedByInput
+  betaInvites?: Prisma.DbBetaTesterUncheckedCreateNestedManyWithoutInvitedByInput
+  orderAudits?: Prisma.DbOrderAuditLogUncheckedCreateNestedManyWithoutActorInput
+  identities?: Prisma.DbAuthIdentityUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.DbAuthSessionUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type DbUserCreateOrConnectWithoutAuthTokensInput = {
+  where: Prisma.DbUserWhereUniqueInput
+  create: Prisma.XOR<Prisma.DbUserCreateWithoutAuthTokensInput, Prisma.DbUserUncheckedCreateWithoutAuthTokensInput>
+}
+
+export type DbUserUpsertWithoutAuthTokensInput = {
+  update: Prisma.XOR<Prisma.DbUserUpdateWithoutAuthTokensInput, Prisma.DbUserUncheckedUpdateWithoutAuthTokensInput>
+  create: Prisma.XOR<Prisma.DbUserCreateWithoutAuthTokensInput, Prisma.DbUserUncheckedCreateWithoutAuthTokensInput>
+  where?: Prisma.DbUserWhereInput
+}
+
+export type DbUserUpdateToOneWithWhereWithoutAuthTokensInput = {
+  where?: Prisma.DbUserWhereInput
+  data: Prisma.XOR<Prisma.DbUserUpdateWithoutAuthTokensInput, Prisma.DbUserUncheckedUpdateWithoutAuthTokensInput>
+}
+
+export type DbUserUpdateWithoutAuthTokensInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  role?: Prisma.EnumDbRoleFieldUpdateOperationsInput | $Enums.DbRole
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferences?: Prisma.DbUserPreferencesUpdateOneWithoutUserNestedInput
+  memberships?: Prisma.DbEstablishmentMemberUpdateManyWithoutUserNestedInput
+  shifts?: Prisma.DbShiftUpdateManyWithoutUserNestedInput
+  shiftRequests?: Prisma.DbShiftExchangeUpdateManyWithoutRequesterNestedInput
+  shiftApprovals?: Prisma.DbShiftExchangeUpdateManyWithoutTargetNestedInput
+  auditLogs?: Prisma.DbAdminAuditLogUpdateManyWithoutActorNestedInput
+  timeEntries?: Prisma.DbTimeEntryUpdateManyWithoutUserNestedInput
+  timeEntryEdits?: Prisma.DbTimeEntryUpdateManyWithoutActorNestedInput
+  createdOrders?: Prisma.DbOrderUpdateManyWithoutCreatedByNestedInput
+  betaInvites?: Prisma.DbBetaTesterUpdateManyWithoutInvitedByNestedInput
+  orderAudits?: Prisma.DbOrderAuditLogUpdateManyWithoutActorNestedInput
+  identities?: Prisma.DbAuthIdentityUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.DbAuthSessionUpdateManyWithoutUserNestedInput
+}
+
+export type DbUserUncheckedUpdateWithoutAuthTokensInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  role?: Prisma.EnumDbRoleFieldUpdateOperationsInput | $Enums.DbRole
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferences?: Prisma.DbUserPreferencesUncheckedUpdateOneWithoutUserNestedInput
+  memberships?: Prisma.DbEstablishmentMemberUncheckedUpdateManyWithoutUserNestedInput
+  shifts?: Prisma.DbShiftUncheckedUpdateManyWithoutUserNestedInput
+  shiftRequests?: Prisma.DbShiftExchangeUncheckedUpdateManyWithoutRequesterNestedInput
+  shiftApprovals?: Prisma.DbShiftExchangeUncheckedUpdateManyWithoutTargetNestedInput
+  auditLogs?: Prisma.DbAdminAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  timeEntries?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutUserNestedInput
+  timeEntryEdits?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutActorNestedInput
+  createdOrders?: Prisma.DbOrderUncheckedUpdateManyWithoutCreatedByNestedInput
+  betaInvites?: Prisma.DbBetaTesterUncheckedUpdateManyWithoutInvitedByNestedInput
+  orderAudits?: Prisma.DbOrderAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  identities?: Prisma.DbAuthIdentityUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.DbAuthSessionUncheckedUpdateManyWithoutUserNestedInput
+}
+
 export type DbUserCreateWithoutBetaInvitesInput = {
   id?: string
   email: string
   firebaseUid?: string | null
+  passwordHash?: string | null
+  passwordUpdatedAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
   name: string
   photoUrl?: string | null
   active?: boolean
@@ -668,12 +1188,18 @@ export type DbUserCreateWithoutBetaInvitesInput = {
   timeEntryEdits?: Prisma.DbTimeEntryCreateNestedManyWithoutActorInput
   createdOrders?: Prisma.DbOrderCreateNestedManyWithoutCreatedByInput
   orderAudits?: Prisma.DbOrderAuditLogCreateNestedManyWithoutActorInput
+  identities?: Prisma.DbAuthIdentityCreateNestedManyWithoutUserInput
+  sessions?: Prisma.DbAuthSessionCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.DbAuthTokenCreateNestedManyWithoutUserInput
 }
 
 export type DbUserUncheckedCreateWithoutBetaInvitesInput = {
   id?: string
   email: string
   firebaseUid?: string | null
+  passwordHash?: string | null
+  passwordUpdatedAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
   name: string
   photoUrl?: string | null
   active?: boolean
@@ -690,6 +1216,9 @@ export type DbUserUncheckedCreateWithoutBetaInvitesInput = {
   timeEntryEdits?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutActorInput
   createdOrders?: Prisma.DbOrderUncheckedCreateNestedManyWithoutCreatedByInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedCreateNestedManyWithoutActorInput
+  identities?: Prisma.DbAuthIdentityUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.DbAuthSessionUncheckedCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.DbAuthTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type DbUserCreateOrConnectWithoutBetaInvitesInput = {
@@ -712,6 +1241,9 @@ export type DbUserUpdateWithoutBetaInvitesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -728,12 +1260,18 @@ export type DbUserUpdateWithoutBetaInvitesInput = {
   timeEntryEdits?: Prisma.DbTimeEntryUpdateManyWithoutActorNestedInput
   createdOrders?: Prisma.DbOrderUpdateManyWithoutCreatedByNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUpdateManyWithoutActorNestedInput
+  identities?: Prisma.DbAuthIdentityUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.DbAuthSessionUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.DbAuthTokenUpdateManyWithoutUserNestedInput
 }
 
 export type DbUserUncheckedUpdateWithoutBetaInvitesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -750,12 +1288,18 @@ export type DbUserUncheckedUpdateWithoutBetaInvitesInput = {
   timeEntryEdits?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutActorNestedInput
   createdOrders?: Prisma.DbOrderUncheckedUpdateManyWithoutCreatedByNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  identities?: Prisma.DbAuthIdentityUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.DbAuthSessionUncheckedUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.DbAuthTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type DbUserCreateWithoutPreferencesInput = {
   id?: string
   email: string
   firebaseUid?: string | null
+  passwordHash?: string | null
+  passwordUpdatedAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
   name: string
   photoUrl?: string | null
   active?: boolean
@@ -772,12 +1316,18 @@ export type DbUserCreateWithoutPreferencesInput = {
   createdOrders?: Prisma.DbOrderCreateNestedManyWithoutCreatedByInput
   betaInvites?: Prisma.DbBetaTesterCreateNestedManyWithoutInvitedByInput
   orderAudits?: Prisma.DbOrderAuditLogCreateNestedManyWithoutActorInput
+  identities?: Prisma.DbAuthIdentityCreateNestedManyWithoutUserInput
+  sessions?: Prisma.DbAuthSessionCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.DbAuthTokenCreateNestedManyWithoutUserInput
 }
 
 export type DbUserUncheckedCreateWithoutPreferencesInput = {
   id?: string
   email: string
   firebaseUid?: string | null
+  passwordHash?: string | null
+  passwordUpdatedAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
   name: string
   photoUrl?: string | null
   active?: boolean
@@ -794,6 +1344,9 @@ export type DbUserUncheckedCreateWithoutPreferencesInput = {
   createdOrders?: Prisma.DbOrderUncheckedCreateNestedManyWithoutCreatedByInput
   betaInvites?: Prisma.DbBetaTesterUncheckedCreateNestedManyWithoutInvitedByInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedCreateNestedManyWithoutActorInput
+  identities?: Prisma.DbAuthIdentityUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.DbAuthSessionUncheckedCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.DbAuthTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type DbUserCreateOrConnectWithoutPreferencesInput = {
@@ -816,6 +1369,9 @@ export type DbUserUpdateWithoutPreferencesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -832,12 +1388,18 @@ export type DbUserUpdateWithoutPreferencesInput = {
   createdOrders?: Prisma.DbOrderUpdateManyWithoutCreatedByNestedInput
   betaInvites?: Prisma.DbBetaTesterUpdateManyWithoutInvitedByNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUpdateManyWithoutActorNestedInput
+  identities?: Prisma.DbAuthIdentityUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.DbAuthSessionUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.DbAuthTokenUpdateManyWithoutUserNestedInput
 }
 
 export type DbUserUncheckedUpdateWithoutPreferencesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -854,12 +1416,18 @@ export type DbUserUncheckedUpdateWithoutPreferencesInput = {
   createdOrders?: Prisma.DbOrderUncheckedUpdateManyWithoutCreatedByNestedInput
   betaInvites?: Prisma.DbBetaTesterUncheckedUpdateManyWithoutInvitedByNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  identities?: Prisma.DbAuthIdentityUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.DbAuthSessionUncheckedUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.DbAuthTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type DbUserCreateWithoutMembershipsInput = {
   id?: string
   email: string
   firebaseUid?: string | null
+  passwordHash?: string | null
+  passwordUpdatedAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
   name: string
   photoUrl?: string | null
   active?: boolean
@@ -876,12 +1444,18 @@ export type DbUserCreateWithoutMembershipsInput = {
   createdOrders?: Prisma.DbOrderCreateNestedManyWithoutCreatedByInput
   betaInvites?: Prisma.DbBetaTesterCreateNestedManyWithoutInvitedByInput
   orderAudits?: Prisma.DbOrderAuditLogCreateNestedManyWithoutActorInput
+  identities?: Prisma.DbAuthIdentityCreateNestedManyWithoutUserInput
+  sessions?: Prisma.DbAuthSessionCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.DbAuthTokenCreateNestedManyWithoutUserInput
 }
 
 export type DbUserUncheckedCreateWithoutMembershipsInput = {
   id?: string
   email: string
   firebaseUid?: string | null
+  passwordHash?: string | null
+  passwordUpdatedAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
   name: string
   photoUrl?: string | null
   active?: boolean
@@ -898,6 +1472,9 @@ export type DbUserUncheckedCreateWithoutMembershipsInput = {
   createdOrders?: Prisma.DbOrderUncheckedCreateNestedManyWithoutCreatedByInput
   betaInvites?: Prisma.DbBetaTesterUncheckedCreateNestedManyWithoutInvitedByInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedCreateNestedManyWithoutActorInput
+  identities?: Prisma.DbAuthIdentityUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.DbAuthSessionUncheckedCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.DbAuthTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type DbUserCreateOrConnectWithoutMembershipsInput = {
@@ -920,6 +1497,9 @@ export type DbUserUpdateWithoutMembershipsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -936,12 +1516,18 @@ export type DbUserUpdateWithoutMembershipsInput = {
   createdOrders?: Prisma.DbOrderUpdateManyWithoutCreatedByNestedInput
   betaInvites?: Prisma.DbBetaTesterUpdateManyWithoutInvitedByNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUpdateManyWithoutActorNestedInput
+  identities?: Prisma.DbAuthIdentityUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.DbAuthSessionUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.DbAuthTokenUpdateManyWithoutUserNestedInput
 }
 
 export type DbUserUncheckedUpdateWithoutMembershipsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -958,12 +1544,18 @@ export type DbUserUncheckedUpdateWithoutMembershipsInput = {
   createdOrders?: Prisma.DbOrderUncheckedUpdateManyWithoutCreatedByNestedInput
   betaInvites?: Prisma.DbBetaTesterUncheckedUpdateManyWithoutInvitedByNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  identities?: Prisma.DbAuthIdentityUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.DbAuthSessionUncheckedUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.DbAuthTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type DbUserCreateWithoutShiftsInput = {
   id?: string
   email: string
   firebaseUid?: string | null
+  passwordHash?: string | null
+  passwordUpdatedAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
   name: string
   photoUrl?: string | null
   active?: boolean
@@ -980,12 +1572,18 @@ export type DbUserCreateWithoutShiftsInput = {
   createdOrders?: Prisma.DbOrderCreateNestedManyWithoutCreatedByInput
   betaInvites?: Prisma.DbBetaTesterCreateNestedManyWithoutInvitedByInput
   orderAudits?: Prisma.DbOrderAuditLogCreateNestedManyWithoutActorInput
+  identities?: Prisma.DbAuthIdentityCreateNestedManyWithoutUserInput
+  sessions?: Prisma.DbAuthSessionCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.DbAuthTokenCreateNestedManyWithoutUserInput
 }
 
 export type DbUserUncheckedCreateWithoutShiftsInput = {
   id?: string
   email: string
   firebaseUid?: string | null
+  passwordHash?: string | null
+  passwordUpdatedAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
   name: string
   photoUrl?: string | null
   active?: boolean
@@ -1002,6 +1600,9 @@ export type DbUserUncheckedCreateWithoutShiftsInput = {
   createdOrders?: Prisma.DbOrderUncheckedCreateNestedManyWithoutCreatedByInput
   betaInvites?: Prisma.DbBetaTesterUncheckedCreateNestedManyWithoutInvitedByInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedCreateNestedManyWithoutActorInput
+  identities?: Prisma.DbAuthIdentityUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.DbAuthSessionUncheckedCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.DbAuthTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type DbUserCreateOrConnectWithoutShiftsInput = {
@@ -1024,6 +1625,9 @@ export type DbUserUpdateWithoutShiftsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1040,12 +1644,18 @@ export type DbUserUpdateWithoutShiftsInput = {
   createdOrders?: Prisma.DbOrderUpdateManyWithoutCreatedByNestedInput
   betaInvites?: Prisma.DbBetaTesterUpdateManyWithoutInvitedByNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUpdateManyWithoutActorNestedInput
+  identities?: Prisma.DbAuthIdentityUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.DbAuthSessionUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.DbAuthTokenUpdateManyWithoutUserNestedInput
 }
 
 export type DbUserUncheckedUpdateWithoutShiftsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1062,12 +1672,18 @@ export type DbUserUncheckedUpdateWithoutShiftsInput = {
   createdOrders?: Prisma.DbOrderUncheckedUpdateManyWithoutCreatedByNestedInput
   betaInvites?: Prisma.DbBetaTesterUncheckedUpdateManyWithoutInvitedByNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  identities?: Prisma.DbAuthIdentityUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.DbAuthSessionUncheckedUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.DbAuthTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type DbUserCreateWithoutShiftRequestsInput = {
   id?: string
   email: string
   firebaseUid?: string | null
+  passwordHash?: string | null
+  passwordUpdatedAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
   name: string
   photoUrl?: string | null
   active?: boolean
@@ -1084,12 +1700,18 @@ export type DbUserCreateWithoutShiftRequestsInput = {
   createdOrders?: Prisma.DbOrderCreateNestedManyWithoutCreatedByInput
   betaInvites?: Prisma.DbBetaTesterCreateNestedManyWithoutInvitedByInput
   orderAudits?: Prisma.DbOrderAuditLogCreateNestedManyWithoutActorInput
+  identities?: Prisma.DbAuthIdentityCreateNestedManyWithoutUserInput
+  sessions?: Prisma.DbAuthSessionCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.DbAuthTokenCreateNestedManyWithoutUserInput
 }
 
 export type DbUserUncheckedCreateWithoutShiftRequestsInput = {
   id?: string
   email: string
   firebaseUid?: string | null
+  passwordHash?: string | null
+  passwordUpdatedAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
   name: string
   photoUrl?: string | null
   active?: boolean
@@ -1106,6 +1728,9 @@ export type DbUserUncheckedCreateWithoutShiftRequestsInput = {
   createdOrders?: Prisma.DbOrderUncheckedCreateNestedManyWithoutCreatedByInput
   betaInvites?: Prisma.DbBetaTesterUncheckedCreateNestedManyWithoutInvitedByInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedCreateNestedManyWithoutActorInput
+  identities?: Prisma.DbAuthIdentityUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.DbAuthSessionUncheckedCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.DbAuthTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type DbUserCreateOrConnectWithoutShiftRequestsInput = {
@@ -1117,6 +1742,9 @@ export type DbUserCreateWithoutShiftApprovalsInput = {
   id?: string
   email: string
   firebaseUid?: string | null
+  passwordHash?: string | null
+  passwordUpdatedAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
   name: string
   photoUrl?: string | null
   active?: boolean
@@ -1133,12 +1761,18 @@ export type DbUserCreateWithoutShiftApprovalsInput = {
   createdOrders?: Prisma.DbOrderCreateNestedManyWithoutCreatedByInput
   betaInvites?: Prisma.DbBetaTesterCreateNestedManyWithoutInvitedByInput
   orderAudits?: Prisma.DbOrderAuditLogCreateNestedManyWithoutActorInput
+  identities?: Prisma.DbAuthIdentityCreateNestedManyWithoutUserInput
+  sessions?: Prisma.DbAuthSessionCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.DbAuthTokenCreateNestedManyWithoutUserInput
 }
 
 export type DbUserUncheckedCreateWithoutShiftApprovalsInput = {
   id?: string
   email: string
   firebaseUid?: string | null
+  passwordHash?: string | null
+  passwordUpdatedAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
   name: string
   photoUrl?: string | null
   active?: boolean
@@ -1155,6 +1789,9 @@ export type DbUserUncheckedCreateWithoutShiftApprovalsInput = {
   createdOrders?: Prisma.DbOrderUncheckedCreateNestedManyWithoutCreatedByInput
   betaInvites?: Prisma.DbBetaTesterUncheckedCreateNestedManyWithoutInvitedByInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedCreateNestedManyWithoutActorInput
+  identities?: Prisma.DbAuthIdentityUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.DbAuthSessionUncheckedCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.DbAuthTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type DbUserCreateOrConnectWithoutShiftApprovalsInput = {
@@ -1177,6 +1814,9 @@ export type DbUserUpdateWithoutShiftRequestsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1193,12 +1833,18 @@ export type DbUserUpdateWithoutShiftRequestsInput = {
   createdOrders?: Prisma.DbOrderUpdateManyWithoutCreatedByNestedInput
   betaInvites?: Prisma.DbBetaTesterUpdateManyWithoutInvitedByNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUpdateManyWithoutActorNestedInput
+  identities?: Prisma.DbAuthIdentityUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.DbAuthSessionUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.DbAuthTokenUpdateManyWithoutUserNestedInput
 }
 
 export type DbUserUncheckedUpdateWithoutShiftRequestsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1215,6 +1861,9 @@ export type DbUserUncheckedUpdateWithoutShiftRequestsInput = {
   createdOrders?: Prisma.DbOrderUncheckedUpdateManyWithoutCreatedByNestedInput
   betaInvites?: Prisma.DbBetaTesterUncheckedUpdateManyWithoutInvitedByNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  identities?: Prisma.DbAuthIdentityUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.DbAuthSessionUncheckedUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.DbAuthTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type DbUserUpsertWithoutShiftApprovalsInput = {
@@ -1232,6 +1881,9 @@ export type DbUserUpdateWithoutShiftApprovalsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1248,12 +1900,18 @@ export type DbUserUpdateWithoutShiftApprovalsInput = {
   createdOrders?: Prisma.DbOrderUpdateManyWithoutCreatedByNestedInput
   betaInvites?: Prisma.DbBetaTesterUpdateManyWithoutInvitedByNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUpdateManyWithoutActorNestedInput
+  identities?: Prisma.DbAuthIdentityUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.DbAuthSessionUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.DbAuthTokenUpdateManyWithoutUserNestedInput
 }
 
 export type DbUserUncheckedUpdateWithoutShiftApprovalsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1270,12 +1928,18 @@ export type DbUserUncheckedUpdateWithoutShiftApprovalsInput = {
   createdOrders?: Prisma.DbOrderUncheckedUpdateManyWithoutCreatedByNestedInput
   betaInvites?: Prisma.DbBetaTesterUncheckedUpdateManyWithoutInvitedByNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  identities?: Prisma.DbAuthIdentityUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.DbAuthSessionUncheckedUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.DbAuthTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type DbUserCreateWithoutCreatedOrdersInput = {
   id?: string
   email: string
   firebaseUid?: string | null
+  passwordHash?: string | null
+  passwordUpdatedAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
   name: string
   photoUrl?: string | null
   active?: boolean
@@ -1292,12 +1956,18 @@ export type DbUserCreateWithoutCreatedOrdersInput = {
   timeEntryEdits?: Prisma.DbTimeEntryCreateNestedManyWithoutActorInput
   betaInvites?: Prisma.DbBetaTesterCreateNestedManyWithoutInvitedByInput
   orderAudits?: Prisma.DbOrderAuditLogCreateNestedManyWithoutActorInput
+  identities?: Prisma.DbAuthIdentityCreateNestedManyWithoutUserInput
+  sessions?: Prisma.DbAuthSessionCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.DbAuthTokenCreateNestedManyWithoutUserInput
 }
 
 export type DbUserUncheckedCreateWithoutCreatedOrdersInput = {
   id?: string
   email: string
   firebaseUid?: string | null
+  passwordHash?: string | null
+  passwordUpdatedAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
   name: string
   photoUrl?: string | null
   active?: boolean
@@ -1314,6 +1984,9 @@ export type DbUserUncheckedCreateWithoutCreatedOrdersInput = {
   timeEntryEdits?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutActorInput
   betaInvites?: Prisma.DbBetaTesterUncheckedCreateNestedManyWithoutInvitedByInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedCreateNestedManyWithoutActorInput
+  identities?: Prisma.DbAuthIdentityUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.DbAuthSessionUncheckedCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.DbAuthTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type DbUserCreateOrConnectWithoutCreatedOrdersInput = {
@@ -1336,6 +2009,9 @@ export type DbUserUpdateWithoutCreatedOrdersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1352,12 +2028,18 @@ export type DbUserUpdateWithoutCreatedOrdersInput = {
   timeEntryEdits?: Prisma.DbTimeEntryUpdateManyWithoutActorNestedInput
   betaInvites?: Prisma.DbBetaTesterUpdateManyWithoutInvitedByNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUpdateManyWithoutActorNestedInput
+  identities?: Prisma.DbAuthIdentityUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.DbAuthSessionUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.DbAuthTokenUpdateManyWithoutUserNestedInput
 }
 
 export type DbUserUncheckedUpdateWithoutCreatedOrdersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1374,12 +2056,18 @@ export type DbUserUncheckedUpdateWithoutCreatedOrdersInput = {
   timeEntryEdits?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutActorNestedInput
   betaInvites?: Prisma.DbBetaTesterUncheckedUpdateManyWithoutInvitedByNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  identities?: Prisma.DbAuthIdentityUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.DbAuthSessionUncheckedUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.DbAuthTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type DbUserCreateWithoutTimeEntriesInput = {
   id?: string
   email: string
   firebaseUid?: string | null
+  passwordHash?: string | null
+  passwordUpdatedAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
   name: string
   photoUrl?: string | null
   active?: boolean
@@ -1396,12 +2084,18 @@ export type DbUserCreateWithoutTimeEntriesInput = {
   createdOrders?: Prisma.DbOrderCreateNestedManyWithoutCreatedByInput
   betaInvites?: Prisma.DbBetaTesterCreateNestedManyWithoutInvitedByInput
   orderAudits?: Prisma.DbOrderAuditLogCreateNestedManyWithoutActorInput
+  identities?: Prisma.DbAuthIdentityCreateNestedManyWithoutUserInput
+  sessions?: Prisma.DbAuthSessionCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.DbAuthTokenCreateNestedManyWithoutUserInput
 }
 
 export type DbUserUncheckedCreateWithoutTimeEntriesInput = {
   id?: string
   email: string
   firebaseUid?: string | null
+  passwordHash?: string | null
+  passwordUpdatedAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
   name: string
   photoUrl?: string | null
   active?: boolean
@@ -1418,6 +2112,9 @@ export type DbUserUncheckedCreateWithoutTimeEntriesInput = {
   createdOrders?: Prisma.DbOrderUncheckedCreateNestedManyWithoutCreatedByInput
   betaInvites?: Prisma.DbBetaTesterUncheckedCreateNestedManyWithoutInvitedByInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedCreateNestedManyWithoutActorInput
+  identities?: Prisma.DbAuthIdentityUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.DbAuthSessionUncheckedCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.DbAuthTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type DbUserCreateOrConnectWithoutTimeEntriesInput = {
@@ -1429,6 +2126,9 @@ export type DbUserCreateWithoutTimeEntryEditsInput = {
   id?: string
   email: string
   firebaseUid?: string | null
+  passwordHash?: string | null
+  passwordUpdatedAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
   name: string
   photoUrl?: string | null
   active?: boolean
@@ -1445,12 +2145,18 @@ export type DbUserCreateWithoutTimeEntryEditsInput = {
   createdOrders?: Prisma.DbOrderCreateNestedManyWithoutCreatedByInput
   betaInvites?: Prisma.DbBetaTesterCreateNestedManyWithoutInvitedByInput
   orderAudits?: Prisma.DbOrderAuditLogCreateNestedManyWithoutActorInput
+  identities?: Prisma.DbAuthIdentityCreateNestedManyWithoutUserInput
+  sessions?: Prisma.DbAuthSessionCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.DbAuthTokenCreateNestedManyWithoutUserInput
 }
 
 export type DbUserUncheckedCreateWithoutTimeEntryEditsInput = {
   id?: string
   email: string
   firebaseUid?: string | null
+  passwordHash?: string | null
+  passwordUpdatedAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
   name: string
   photoUrl?: string | null
   active?: boolean
@@ -1467,6 +2173,9 @@ export type DbUserUncheckedCreateWithoutTimeEntryEditsInput = {
   createdOrders?: Prisma.DbOrderUncheckedCreateNestedManyWithoutCreatedByInput
   betaInvites?: Prisma.DbBetaTesterUncheckedCreateNestedManyWithoutInvitedByInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedCreateNestedManyWithoutActorInput
+  identities?: Prisma.DbAuthIdentityUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.DbAuthSessionUncheckedCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.DbAuthTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type DbUserCreateOrConnectWithoutTimeEntryEditsInput = {
@@ -1489,6 +2198,9 @@ export type DbUserUpdateWithoutTimeEntriesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1505,12 +2217,18 @@ export type DbUserUpdateWithoutTimeEntriesInput = {
   createdOrders?: Prisma.DbOrderUpdateManyWithoutCreatedByNestedInput
   betaInvites?: Prisma.DbBetaTesterUpdateManyWithoutInvitedByNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUpdateManyWithoutActorNestedInput
+  identities?: Prisma.DbAuthIdentityUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.DbAuthSessionUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.DbAuthTokenUpdateManyWithoutUserNestedInput
 }
 
 export type DbUserUncheckedUpdateWithoutTimeEntriesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1527,6 +2245,9 @@ export type DbUserUncheckedUpdateWithoutTimeEntriesInput = {
   createdOrders?: Prisma.DbOrderUncheckedUpdateManyWithoutCreatedByNestedInput
   betaInvites?: Prisma.DbBetaTesterUncheckedUpdateManyWithoutInvitedByNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  identities?: Prisma.DbAuthIdentityUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.DbAuthSessionUncheckedUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.DbAuthTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type DbUserUpsertWithoutTimeEntryEditsInput = {
@@ -1544,6 +2265,9 @@ export type DbUserUpdateWithoutTimeEntryEditsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1560,12 +2284,18 @@ export type DbUserUpdateWithoutTimeEntryEditsInput = {
   createdOrders?: Prisma.DbOrderUpdateManyWithoutCreatedByNestedInput
   betaInvites?: Prisma.DbBetaTesterUpdateManyWithoutInvitedByNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUpdateManyWithoutActorNestedInput
+  identities?: Prisma.DbAuthIdentityUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.DbAuthSessionUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.DbAuthTokenUpdateManyWithoutUserNestedInput
 }
 
 export type DbUserUncheckedUpdateWithoutTimeEntryEditsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1582,12 +2312,18 @@ export type DbUserUncheckedUpdateWithoutTimeEntryEditsInput = {
   createdOrders?: Prisma.DbOrderUncheckedUpdateManyWithoutCreatedByNestedInput
   betaInvites?: Prisma.DbBetaTesterUncheckedUpdateManyWithoutInvitedByNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  identities?: Prisma.DbAuthIdentityUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.DbAuthSessionUncheckedUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.DbAuthTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type DbUserCreateWithoutAuditLogsInput = {
   id?: string
   email: string
   firebaseUid?: string | null
+  passwordHash?: string | null
+  passwordUpdatedAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
   name: string
   photoUrl?: string | null
   active?: boolean
@@ -1604,12 +2340,18 @@ export type DbUserCreateWithoutAuditLogsInput = {
   createdOrders?: Prisma.DbOrderCreateNestedManyWithoutCreatedByInput
   betaInvites?: Prisma.DbBetaTesterCreateNestedManyWithoutInvitedByInput
   orderAudits?: Prisma.DbOrderAuditLogCreateNestedManyWithoutActorInput
+  identities?: Prisma.DbAuthIdentityCreateNestedManyWithoutUserInput
+  sessions?: Prisma.DbAuthSessionCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.DbAuthTokenCreateNestedManyWithoutUserInput
 }
 
 export type DbUserUncheckedCreateWithoutAuditLogsInput = {
   id?: string
   email: string
   firebaseUid?: string | null
+  passwordHash?: string | null
+  passwordUpdatedAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
   name: string
   photoUrl?: string | null
   active?: boolean
@@ -1626,6 +2368,9 @@ export type DbUserUncheckedCreateWithoutAuditLogsInput = {
   createdOrders?: Prisma.DbOrderUncheckedCreateNestedManyWithoutCreatedByInput
   betaInvites?: Prisma.DbBetaTesterUncheckedCreateNestedManyWithoutInvitedByInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedCreateNestedManyWithoutActorInput
+  identities?: Prisma.DbAuthIdentityUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.DbAuthSessionUncheckedCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.DbAuthTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type DbUserCreateOrConnectWithoutAuditLogsInput = {
@@ -1648,6 +2393,9 @@ export type DbUserUpdateWithoutAuditLogsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1664,12 +2412,18 @@ export type DbUserUpdateWithoutAuditLogsInput = {
   createdOrders?: Prisma.DbOrderUpdateManyWithoutCreatedByNestedInput
   betaInvites?: Prisma.DbBetaTesterUpdateManyWithoutInvitedByNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUpdateManyWithoutActorNestedInput
+  identities?: Prisma.DbAuthIdentityUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.DbAuthSessionUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.DbAuthTokenUpdateManyWithoutUserNestedInput
 }
 
 export type DbUserUncheckedUpdateWithoutAuditLogsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1686,12 +2440,18 @@ export type DbUserUncheckedUpdateWithoutAuditLogsInput = {
   createdOrders?: Prisma.DbOrderUncheckedUpdateManyWithoutCreatedByNestedInput
   betaInvites?: Prisma.DbBetaTesterUncheckedUpdateManyWithoutInvitedByNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  identities?: Prisma.DbAuthIdentityUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.DbAuthSessionUncheckedUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.DbAuthTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type DbUserCreateWithoutOrderAuditsInput = {
   id?: string
   email: string
   firebaseUid?: string | null
+  passwordHash?: string | null
+  passwordUpdatedAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
   name: string
   photoUrl?: string | null
   active?: boolean
@@ -1708,12 +2468,18 @@ export type DbUserCreateWithoutOrderAuditsInput = {
   timeEntryEdits?: Prisma.DbTimeEntryCreateNestedManyWithoutActorInput
   createdOrders?: Prisma.DbOrderCreateNestedManyWithoutCreatedByInput
   betaInvites?: Prisma.DbBetaTesterCreateNestedManyWithoutInvitedByInput
+  identities?: Prisma.DbAuthIdentityCreateNestedManyWithoutUserInput
+  sessions?: Prisma.DbAuthSessionCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.DbAuthTokenCreateNestedManyWithoutUserInput
 }
 
 export type DbUserUncheckedCreateWithoutOrderAuditsInput = {
   id?: string
   email: string
   firebaseUid?: string | null
+  passwordHash?: string | null
+  passwordUpdatedAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
   name: string
   photoUrl?: string | null
   active?: boolean
@@ -1730,6 +2496,9 @@ export type DbUserUncheckedCreateWithoutOrderAuditsInput = {
   timeEntryEdits?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutActorInput
   createdOrders?: Prisma.DbOrderUncheckedCreateNestedManyWithoutCreatedByInput
   betaInvites?: Prisma.DbBetaTesterUncheckedCreateNestedManyWithoutInvitedByInput
+  identities?: Prisma.DbAuthIdentityUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.DbAuthSessionUncheckedCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.DbAuthTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type DbUserCreateOrConnectWithoutOrderAuditsInput = {
@@ -1752,6 +2521,9 @@ export type DbUserUpdateWithoutOrderAuditsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1768,12 +2540,18 @@ export type DbUserUpdateWithoutOrderAuditsInput = {
   timeEntryEdits?: Prisma.DbTimeEntryUpdateManyWithoutActorNestedInput
   createdOrders?: Prisma.DbOrderUpdateManyWithoutCreatedByNestedInput
   betaInvites?: Prisma.DbBetaTesterUpdateManyWithoutInvitedByNestedInput
+  identities?: Prisma.DbAuthIdentityUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.DbAuthSessionUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.DbAuthTokenUpdateManyWithoutUserNestedInput
 }
 
 export type DbUserUncheckedUpdateWithoutOrderAuditsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1790,6 +2568,9 @@ export type DbUserUncheckedUpdateWithoutOrderAuditsInput = {
   timeEntryEdits?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutActorNestedInput
   createdOrders?: Prisma.DbOrderUncheckedUpdateManyWithoutCreatedByNestedInput
   betaInvites?: Prisma.DbBetaTesterUncheckedUpdateManyWithoutInvitedByNestedInput
+  identities?: Prisma.DbAuthIdentityUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.DbAuthSessionUncheckedUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.DbAuthTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -1808,6 +2589,9 @@ export type DbUserCountOutputType = {
   createdOrders: number
   betaInvites: number
   orderAudits: number
+  identities: number
+  sessions: number
+  authTokens: number
 }
 
 export type DbUserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1821,6 +2605,9 @@ export type DbUserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions
   createdOrders?: boolean | DbUserCountOutputTypeCountCreatedOrdersArgs
   betaInvites?: boolean | DbUserCountOutputTypeCountBetaInvitesArgs
   orderAudits?: boolean | DbUserCountOutputTypeCountOrderAuditsArgs
+  identities?: boolean | DbUserCountOutputTypeCountIdentitiesArgs
+  sessions?: boolean | DbUserCountOutputTypeCountSessionsArgs
+  authTokens?: boolean | DbUserCountOutputTypeCountAuthTokensArgs
 }
 
 /**
@@ -1903,11 +2690,35 @@ export type DbUserCountOutputTypeCountOrderAuditsArgs<ExtArgs extends runtime.Ty
   where?: Prisma.DbOrderAuditLogWhereInput
 }
 
+/**
+ * DbUserCountOutputType without action
+ */
+export type DbUserCountOutputTypeCountIdentitiesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.DbAuthIdentityWhereInput
+}
+
+/**
+ * DbUserCountOutputType without action
+ */
+export type DbUserCountOutputTypeCountSessionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.DbAuthSessionWhereInput
+}
+
+/**
+ * DbUserCountOutputType without action
+ */
+export type DbUserCountOutputTypeCountAuthTokensArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.DbAuthTokenWhereInput
+}
+
 
 export type DbUserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   email?: boolean
   firebaseUid?: boolean
+  passwordHash?: boolean
+  passwordUpdatedAt?: boolean
+  emailVerifiedAt?: boolean
   name?: boolean
   photoUrl?: boolean
   active?: boolean
@@ -1925,6 +2736,9 @@ export type DbUserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   createdOrders?: boolean | Prisma.DbUser$createdOrdersArgs<ExtArgs>
   betaInvites?: boolean | Prisma.DbUser$betaInvitesArgs<ExtArgs>
   orderAudits?: boolean | Prisma.DbUser$orderAuditsArgs<ExtArgs>
+  identities?: boolean | Prisma.DbUser$identitiesArgs<ExtArgs>
+  sessions?: boolean | Prisma.DbUser$sessionsArgs<ExtArgs>
+  authTokens?: boolean | Prisma.DbUser$authTokensArgs<ExtArgs>
   _count?: boolean | Prisma.DbUserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["dbUser"]>
 
@@ -1932,6 +2746,9 @@ export type DbUserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   id?: boolean
   email?: boolean
   firebaseUid?: boolean
+  passwordHash?: boolean
+  passwordUpdatedAt?: boolean
+  emailVerifiedAt?: boolean
   name?: boolean
   photoUrl?: boolean
   active?: boolean
@@ -1944,6 +2761,9 @@ export type DbUserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   id?: boolean
   email?: boolean
   firebaseUid?: boolean
+  passwordHash?: boolean
+  passwordUpdatedAt?: boolean
+  emailVerifiedAt?: boolean
   name?: boolean
   photoUrl?: boolean
   active?: boolean
@@ -1956,6 +2776,9 @@ export type DbUserSelectScalar = {
   id?: boolean
   email?: boolean
   firebaseUid?: boolean
+  passwordHash?: boolean
+  passwordUpdatedAt?: boolean
+  emailVerifiedAt?: boolean
   name?: boolean
   photoUrl?: boolean
   active?: boolean
@@ -1964,7 +2787,7 @@ export type DbUserSelectScalar = {
   updatedAt?: boolean
 }
 
-export type DbUserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "firebaseUid" | "name" | "photoUrl" | "active" | "role" | "createdAt" | "updatedAt", ExtArgs["result"]["dbUser"]>
+export type DbUserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "firebaseUid" | "passwordHash" | "passwordUpdatedAt" | "emailVerifiedAt" | "name" | "photoUrl" | "active" | "role" | "createdAt" | "updatedAt", ExtArgs["result"]["dbUser"]>
 export type DbUserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   preferences?: boolean | Prisma.DbUser$preferencesArgs<ExtArgs>
   memberships?: boolean | Prisma.DbUser$membershipsArgs<ExtArgs>
@@ -1977,6 +2800,9 @@ export type DbUserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   createdOrders?: boolean | Prisma.DbUser$createdOrdersArgs<ExtArgs>
   betaInvites?: boolean | Prisma.DbUser$betaInvitesArgs<ExtArgs>
   orderAudits?: boolean | Prisma.DbUser$orderAuditsArgs<ExtArgs>
+  identities?: boolean | Prisma.DbUser$identitiesArgs<ExtArgs>
+  sessions?: boolean | Prisma.DbUser$sessionsArgs<ExtArgs>
+  authTokens?: boolean | Prisma.DbUser$authTokensArgs<ExtArgs>
   _count?: boolean | Prisma.DbUserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type DbUserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1996,11 +2822,17 @@ export type $DbUserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     createdOrders: Prisma.$DbOrderPayload<ExtArgs>[]
     betaInvites: Prisma.$DbBetaTesterPayload<ExtArgs>[]
     orderAudits: Prisma.$DbOrderAuditLogPayload<ExtArgs>[]
+    identities: Prisma.$DbAuthIdentityPayload<ExtArgs>[]
+    sessions: Prisma.$DbAuthSessionPayload<ExtArgs>[]
+    authTokens: Prisma.$DbAuthTokenPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     email: string
     firebaseUid: string | null
+    passwordHash: string | null
+    passwordUpdatedAt: Date | null
+    emailVerifiedAt: Date | null
     name: string
     photoUrl: string | null
     active: boolean
@@ -2412,6 +3244,9 @@ export interface Prisma__DbUserClient<T, Null = never, ExtArgs extends runtime.T
   createdOrders<T extends Prisma.DbUser$createdOrdersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbUser$createdOrdersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DbOrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   betaInvites<T extends Prisma.DbUser$betaInvitesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbUser$betaInvitesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DbBetaTesterPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   orderAudits<T extends Prisma.DbUser$orderAuditsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbUser$orderAuditsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DbOrderAuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  identities<T extends Prisma.DbUser$identitiesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbUser$identitiesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DbAuthIdentityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  sessions<T extends Prisma.DbUser$sessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbUser$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DbAuthSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  authTokens<T extends Prisma.DbUser$authTokensArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbUser$authTokensArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DbAuthTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2444,6 +3279,9 @@ export interface DbUserFieldRefs {
   readonly id: Prisma.FieldRef<"DbUser", 'String'>
   readonly email: Prisma.FieldRef<"DbUser", 'String'>
   readonly firebaseUid: Prisma.FieldRef<"DbUser", 'String'>
+  readonly passwordHash: Prisma.FieldRef<"DbUser", 'String'>
+  readonly passwordUpdatedAt: Prisma.FieldRef<"DbUser", 'DateTime'>
+  readonly emailVerifiedAt: Prisma.FieldRef<"DbUser", 'DateTime'>
   readonly name: Prisma.FieldRef<"DbUser", 'String'>
   readonly photoUrl: Prisma.FieldRef<"DbUser", 'String'>
   readonly active: Prisma.FieldRef<"DbUser", 'Boolean'>
@@ -3099,6 +3937,78 @@ export type DbUser$orderAuditsArgs<ExtArgs extends runtime.Types.Extensions.Inte
   take?: number
   skip?: number
   distinct?: Prisma.DbOrderAuditLogScalarFieldEnum | Prisma.DbOrderAuditLogScalarFieldEnum[]
+}
+
+/**
+ * DbUser.identities
+ */
+export type DbUser$identitiesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the DbAuthIdentity
+   */
+  select?: Prisma.DbAuthIdentitySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the DbAuthIdentity
+   */
+  omit?: Prisma.DbAuthIdentityOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DbAuthIdentityInclude<ExtArgs> | null
+  where?: Prisma.DbAuthIdentityWhereInput
+  orderBy?: Prisma.DbAuthIdentityOrderByWithRelationInput | Prisma.DbAuthIdentityOrderByWithRelationInput[]
+  cursor?: Prisma.DbAuthIdentityWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.DbAuthIdentityScalarFieldEnum | Prisma.DbAuthIdentityScalarFieldEnum[]
+}
+
+/**
+ * DbUser.sessions
+ */
+export type DbUser$sessionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the DbAuthSession
+   */
+  select?: Prisma.DbAuthSessionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the DbAuthSession
+   */
+  omit?: Prisma.DbAuthSessionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DbAuthSessionInclude<ExtArgs> | null
+  where?: Prisma.DbAuthSessionWhereInput
+  orderBy?: Prisma.DbAuthSessionOrderByWithRelationInput | Prisma.DbAuthSessionOrderByWithRelationInput[]
+  cursor?: Prisma.DbAuthSessionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.DbAuthSessionScalarFieldEnum | Prisma.DbAuthSessionScalarFieldEnum[]
+}
+
+/**
+ * DbUser.authTokens
+ */
+export type DbUser$authTokensArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the DbAuthToken
+   */
+  select?: Prisma.DbAuthTokenSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the DbAuthToken
+   */
+  omit?: Prisma.DbAuthTokenOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DbAuthTokenInclude<ExtArgs> | null
+  where?: Prisma.DbAuthTokenWhereInput
+  orderBy?: Prisma.DbAuthTokenOrderByWithRelationInput | Prisma.DbAuthTokenOrderByWithRelationInput[]
+  cursor?: Prisma.DbAuthTokenWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.DbAuthTokenScalarFieldEnum | Prisma.DbAuthTokenScalarFieldEnum[]
 }
 
 /**

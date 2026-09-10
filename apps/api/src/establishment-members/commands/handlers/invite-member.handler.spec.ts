@@ -42,6 +42,7 @@ describe('InviteMemberHandler', () => {
     active: true,
     role: asRole('USER'),
     language: 'en',
+      emailVerified: true,
   };
 
   it('should publish InviteMemberRequestedEvent when member is not registered', async () => {

@@ -6,23 +6,13 @@ export async function loginAsTestUser(
   targetRoute: string = '/establishments',
   beforeLoad?: (page: Page) => Promise<void>,
 ) {
-  // Setup API mocks first so signInWithCustomToken intercepts work
+  // The session comes from the mocked /auth/refresh, so the guard restores it like it would in production
   await setupMockApi(page);
 
   // Anything the test needs to override has to land after the defaults and before the app loads
   await beforeLoad?.(page);
 
-  // Go to the home page or login page to ensure the angular app is loaded
-  await page.goto('/login');
+  await page.goto(targetRoute);
 
-  // Wait for the Angular app to initialize the Auth service
-  await page.waitForFunction(() => (window as any).__TEST_LOGIN__ !== undefined);
-
-  // Trigger the fake login and let it navigate using Angular Router
-  await page.evaluate(async (route) => {
-    await (window as any).__TEST_LOGIN__('fake-jwt-token', route);
-  }, targetRoute);
-
-  // Wait until Angular finishes navigation
   await page.waitForURL(`**${targetRoute}**`);
 }

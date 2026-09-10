@@ -50,6 +50,21 @@ export type DbOrderAdjustment = Prisma.DbOrderAdjustmentModel
  */
 export type DbUser = Prisma.DbUserModel
 /**
+ * Model DbAuthIdentity
+ * 
+ */
+export type DbAuthIdentity = Prisma.DbAuthIdentityModel
+/**
+ * Model DbAuthSession
+ * 
+ */
+export type DbAuthSession = Prisma.DbAuthSessionModel
+/**
+ * Model DbAuthToken
+ * 
+ */
+export type DbAuthToken = Prisma.DbAuthTokenModel
+/**
  * Model DbBetaTester
  * 
  */

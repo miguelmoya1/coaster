@@ -53,6 +53,9 @@ export const AnyNull = runtime.AnyNull
 export const ModelName = {
   DbOrderAdjustment: 'DbOrderAdjustment',
   DbUser: 'DbUser',
+  DbAuthIdentity: 'DbAuthIdentity',
+  DbAuthSession: 'DbAuthSession',
+  DbAuthToken: 'DbAuthToken',
   DbBetaTester: 'DbBetaTester',
   DbEstablishment: 'DbEstablishment',
   DbEstablishmentSettings: 'DbEstablishmentSettings',
@@ -114,6 +117,9 @@ export const DbUserScalarFieldEnum = {
   id: 'id',
   email: 'email',
   firebaseUid: 'firebaseUid',
+  passwordHash: 'passwordHash',
+  passwordUpdatedAt: 'passwordUpdatedAt',
+  emailVerifiedAt: 'emailVerifiedAt',
   name: 'name',
   photoUrl: 'photoUrl',
   active: 'active',
@@ -123,6 +129,49 @@ export const DbUserScalarFieldEnum = {
 } as const
 
 export type DbUserScalarFieldEnum = (typeof DbUserScalarFieldEnum)[keyof typeof DbUserScalarFieldEnum]
+
+
+export const DbAuthIdentityScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  provider: 'provider',
+  subject: 'subject',
+  email: 'email',
+  createdAt: 'createdAt',
+  lastLoginAt: 'lastLoginAt'
+} as const
+
+export type DbAuthIdentityScalarFieldEnum = (typeof DbAuthIdentityScalarFieldEnum)[keyof typeof DbAuthIdentityScalarFieldEnum]
+
+
+export const DbAuthSessionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  tokenHash: 'tokenHash',
+  familyId: 'familyId',
+  userAgent: 'userAgent',
+  ip: 'ip',
+  createdAt: 'createdAt',
+  lastUsedAt: 'lastUsedAt',
+  expiresAt: 'expiresAt',
+  rotatedAt: 'rotatedAt',
+  revokedAt: 'revokedAt'
+} as const
+
+export type DbAuthSessionScalarFieldEnum = (typeof DbAuthSessionScalarFieldEnum)[keyof typeof DbAuthSessionScalarFieldEnum]
+
+
+export const DbAuthTokenScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  purpose: 'purpose',
+  tokenHash: 'tokenHash',
+  createdAt: 'createdAt',
+  expiresAt: 'expiresAt',
+  usedAt: 'usedAt'
+} as const
+
+export type DbAuthTokenScalarFieldEnum = (typeof DbAuthTokenScalarFieldEnum)[keyof typeof DbAuthTokenScalarFieldEnum]
 
 
 export const DbBetaTesterScalarFieldEnum = {

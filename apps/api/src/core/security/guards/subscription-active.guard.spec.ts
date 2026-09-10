@@ -4,13 +4,9 @@ import { passThroughCache } from '../../../../test/utils/passthrough-cache';
 import { DbRole, DbSubscriptionStatus } from '../../db';
 import { SecurityRepository } from '../data-access/security.repository';
 import { SubscriptionActiveGuard } from './subscription-active.guard';
-import { FirebaseTokenService } from '../services/firebase-token.service';
+import { AccessTokenService } from '../services/access-token.service';
 
-const verifyIdToken = vi.fn();
-
-vi.mock('firebase-admin/auth', () => ({
-  getAuth: () => ({ verifyIdToken: (token: string) => verifyIdToken(token) }),
-}));
+const TEST_SECRET = 'a-secret-only-the-suite-knows';
 
 describe('SubscriptionActiveGuard', () => {
   let guard: SubscriptionActiveGuard;
@@ -20,6 +16,7 @@ describe('SubscriptionActiveGuard', () => {
     dbEstablishmentSubscription: { findUnique: ReturnType<typeof vi.fn>; update: ReturnType<typeof vi.fn> };
   };
   let refresher: { refresh: ReturnType<typeof vi.fn> };
+  let tokens: AccessTokenService;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -35,10 +32,12 @@ describe('SubscriptionActiveGuard', () => {
 
     refresher = { refresh: vi.fn().mockResolvedValue(null) };
 
+    tokens = new AccessTokenService(dbService as any, passThroughCache, { get: () => TEST_SECRET } as any);
+
     guard = new SubscriptionActiveGuard(
       reflector as any,
       new SecurityRepository(dbService as any, passThroughCache),
-      new FirebaseTokenService(dbService as any, passThroughCache),
+      tokens,
       { get: () => refresher } as any,
     );
   });
@@ -271,22 +270,20 @@ describe('SubscriptionActiveGuard', () => {
 
   describe('platform admins, identified without the auth guard having run', () => {
     it('should let an admin through on a lapsed establishment using only the bearer token', async () => {
-      const context = createRealRequestContext('token-admin');
+      const context = createRealRequestContext(await tokens.sign('user-admin', 'session-1'));
       dbService.dbEstablishmentSubscription.findUnique.mockResolvedValue(expiredSubscription);
-      verifyIdToken.mockResolvedValue({ sub: 'uid-admin' });
       dbService.dbUser.findUnique.mockResolvedValue({ role: DbRole.ADMIN });
 
       await expect(guard.canActivate(context)).resolves.toBe(true);
       expect(dbService.dbUser.findUnique).toHaveBeenCalledWith({
-        where: { firebaseUid: 'uid-admin' },
+        where: { id: 'user-admin' },
         include: { preferences: true },
       });
     });
 
     it('should still block a regular user carrying a valid token', async () => {
-      const context = createRealRequestContext('token-user');
+      const context = createRealRequestContext(await tokens.sign('user-1', 'session-1'));
       dbService.dbEstablishmentSubscription.findUnique.mockResolvedValue(expiredSubscription);
-      verifyIdToken.mockResolvedValue({ sub: 'uid-user' });
       dbService.dbUser.findUnique.mockResolvedValue({ role: DbRole.USER });
 
       await expect(guard.canActivate(context)).rejects.toThrow(HttpException);
@@ -295,7 +292,6 @@ describe('SubscriptionActiveGuard', () => {
     it('should block, not crash, when the token cannot be verified', async () => {
       const context = createRealRequestContext('rubbish');
       dbService.dbEstablishmentSubscription.findUnique.mockResolvedValue(expiredSubscription);
-      verifyIdToken.mockRejectedValue(new Error('invalid token'));
 
       await expect(guard.canActivate(context)).rejects.toThrow(HttpException);
     });
@@ -305,11 +301,11 @@ describe('SubscriptionActiveGuard', () => {
       dbService.dbEstablishmentSubscription.findUnique.mockResolvedValue(expiredSubscription);
 
       await expect(guard.canActivate(context)).rejects.toThrow(HttpException);
-      expect(verifyIdToken).not.toHaveBeenCalled();
+      expect(dbService.dbUser.findUnique).not.toHaveBeenCalled();
     });
 
     it('should not spend a token verification or a user lookup on an establishment that is up to date', async () => {
-      const context = createRealRequestContext('token-admin');
+      const context = createRealRequestContext(await tokens.sign('user-admin', 'session-1'));
       dbService.dbEstablishmentSubscription.findUnique.mockResolvedValue({
         status: DbSubscriptionStatus.ACTIVE,
         stripeSubscriptionId: 'sub_123',
@@ -318,7 +314,6 @@ describe('SubscriptionActiveGuard', () => {
       });
 
       await expect(guard.canActivate(context)).resolves.toBe(true);
-      expect(verifyIdToken).not.toHaveBeenCalled();
       expect(dbService.dbUser.findUnique).not.toHaveBeenCalled();
     });
   });

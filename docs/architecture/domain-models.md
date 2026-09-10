@@ -46,10 +46,22 @@ soft delete — the guards, the AI handler and the members list all filter on it
 
 ## Accounts
 
-There is **no `Account` table, on purpose**. `User.firebaseUid` is the Firebase UID, and Firebase is
-the account layer: adding a sign-in provider is a Firebase setting, not a migration. `User` rows can
-exist before their owner has ever signed in — that is how an invitation works — and the claim rules
-are in [access model](permissions.md).
+A person is one `User` row, and everything they can sign in with hangs off it. The password lives on
+`User` itself — `passwordHash`, `passwordUpdatedAt` — because there is one per person, and a row for
+it would be mostly empty columns. External providers live in `AuthIdentity`, one row per linked
+account, unique on `(provider, subject)`: that is the table a second provider needs, not a
+migration on `User`.
+
+`AuthSession` is one open session — a refresh token, stored only as a hash, with the `familyId` that
+ties a rotation chain together and the `rotatedAt` / `revokedAt` pair that tells a tab race apart
+from a replay. The reasoning is in [backend](backend.md#authentication).
+
+`AuthToken` is every link that arrives by email — confirming an address, resetting a password,
+claiming an invitation — told apart by `purpose` and stored as a hash like the sessions are. One
+table rather than three, because they differ only in how long they live.
+
+`User` rows can exist before their owner has ever signed in — that is how an invitation works — and
+the claim rules are in [access model](permissions.md).
 
 `UserPreferences` holds the interface language, one row per user.
 

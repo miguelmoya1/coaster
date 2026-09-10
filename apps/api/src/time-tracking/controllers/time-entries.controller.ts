@@ -1,4 +1,4 @@
-import { CurrentUser, FirebaseAuthGuard } from '@coaster/auth';
+import { CurrentUser, AuthGuard } from '@coaster/auth';
 import type {
   EstablishmentId,
   TimeEntry,
@@ -28,7 +28,7 @@ import { GetWorkdaysQuery } from '../queries/impl/get-workdays.query';
 import { toTimeSheetCsv } from '../utils/time-sheet-csv';
 
 @Controller('establishments/:establishmentId/time-entries')
-@UseGuards(FirebaseAuthGuard, EstablishmentPermissionsGuard)
+@UseGuards(AuthGuard, EstablishmentPermissionsGuard)
 export class TimeEntriesController {
   constructor(
     private readonly _queryBus: QueryBus,

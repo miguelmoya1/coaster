@@ -21,6 +21,12 @@
   "STRIPE_WEBHOOK_SECRET_NOT_CONFIGURED": "La verificación de facturación no está configurada.",
   "STRIPE_WEBHOOK_SIGNATURE_INVALID": "La firma del evento de facturación no es válida.",
   "STRIPE_WEBHOOK_SIGNATURE_MISSING": "Falta la firma del evento de facturación.",
+  "GOOGLE_SIGN_IN_UNAVAILABLE": "Ahora mismo no se puede entrar con Google. Usa tu contraseña o inténtalo más tarde.",
+  "INVALID_TOKEN": "Este enlace ya no vale. Puede que haya caducado o que ya lo hayas usado. Pide uno nuevo.",
+  "PASSWORD_ALREADY_SET": "Esta cuenta ya tiene contraseña. Escribe la actual para cambiarla.",
+  "IDENTITY_NOT_LINKED": "Esa cuenta no está vinculada.",
+  "LAST_WAY_IN": "Es tu única forma de entrar. Pon una contraseña antes de desvincularla.",
+  "SESSION_EXPIRED": "Tu sesión ha caducado. Vuelve a entrar.",
   "SUBSCRIPTION_EXPIRED": "Tu prueba o suscripción ha finalizado. Activa Coaster Pro para continuar.",
   "email": "Introduce un email válido.",
   "EXCHANGE_ALREADY_PENDING": "Este turno ya tiene una solicitud de intercambio pendiente.",
@@ -120,13 +126,57 @@
     "usage_low": "Te quedan {{ remaining }} mensajes este mes"
   },
   "auth": {
+    "or": "o",
+    "google_unconfigured": "Falta GOOGLE_CLIENT_ID: el botón de Google no aparece hasta que se configure.",
+    "fields": {
+      "name": "Nombre",
+      "name_placeholder": "Cómo te llamas",
+      "email": "Correo electrónico",
+      "email_placeholder": "tu@correo.com",
+      "password": "Contraseña",
+      "password_placeholder": "Tu contraseña",
+      "password_hint": "Ocho caracteres como mínimo",
+      "new_password": "Contraseña nueva"
+    },
     "login": {
-      "brand": "COASTER",
-      "google_button": "Iniciar sesión con Google",
-      "heading": "Acceso Seguro",
-      "subtitle": "Accede a tu panel de control de Coaster.",
-      "tagline": "Plataforma inteligente para la gestión moderna de establecimientos"
-    }
+      "heading": "Entra en Coaster",
+      "subtitle": "Tus mesas, tus turnos y tu despensa, desde donde estés.",
+      "submit": "Entrar",
+      "forgot": "¿Has olvidado la contraseña?",
+      "no_account": "¿Todavía no tienes cuenta?",
+      "create": "Crear una"
+    },
+    "register": {
+      "heading": "Crea tu cuenta",
+      "subtitle": "Un par de datos y ya puedes empezar.",
+      "submit": "Crear cuenta",
+      "have_account": "¿Ya tienes cuenta?",
+      "sign_in": "Entrar"
+    },
+    "forgot": {
+      "heading": "¿Has olvidado la contraseña?",
+      "subtitle": "Te mandamos un enlace para elegir otra.",
+      "submit": "Enviar el enlace",
+      "sent": "Si esa dirección tiene cuenta, el enlace ya va de camino. Mira también en spam.",
+      "back": "Volver a entrar"
+    },
+    "reset": {
+      "heading": "Elige una contraseña",
+      "subtitle": "Al guardarla se cerrarán todas las sesiones abiertas.",
+      "submit": "Guardar y entrar"
+    },
+    "verify": {
+      "heading": "Confirmar el correo",
+      "done": "Listo, tu correo queda confirmado.",
+      "continue": "Continuar"
+    },
+    "invite": {
+      "heading": "Te han invitado a Coaster",
+      "submit": "Crear mi contraseña y entrar",
+      "already": "Esta cuenta ya existe. Entra como siempre y verás el establecimiento nuevo."
+    },
+    "banner": "Confirma tu correo para no quedarte fuera si olvidas la contraseña.",
+    "banner_action": "Confirmar"
   },
   "establishments": {
     "create": {
@@ -1035,5 +1085,29 @@
   "app": {
     "update_ready": "Hay una versión nueva de Coaster.",
     "update_reload": "Recargar"
+  },
+  "account": {
+    "heading": "Tu cuenta",
+    "subtitle": "Cómo entras en Coaster.",
+    "back": "Volver a mis establecimientos",
+    "email": {
+      "heading": "Correo electrónico",
+      "verified": "Confirmado",
+      "unverified": "Sin confirmar. Confírmalo para poder recuperar la cuenta si pierdes la contraseña.",
+      "send": "Enviarme el enlace",
+      "sent": "Enlace enviado. Mira también en spam."
+    },
+    "password": {
+      "set": "Poner una contraseña",
+      "change": "Cambiar la contraseña",
+      "current": "Contraseña actual",
+      "saved": "Contraseña guardada. Las demás sesiones se han cerrado."
+    },
+    "identities": {
+      "heading": "Cuentas vinculadas",
+      "none": "No tienes ninguna cuenta vinculada.",
+      "unlink": "Desvincular",
+      "google": "Google"
+    }
   }
 }

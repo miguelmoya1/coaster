@@ -28,6 +28,7 @@ describe('CreateEstablishmentHandler', () => {
       active: true,
       role: DbRole.USER,
       language: 'es',
+      emailVerified: true,
     };
     const dto = { name: 'New Establishment' };
     repository.create.mockResolvedValue({
@@ -51,6 +52,7 @@ describe('CreateEstablishmentHandler', () => {
       active: true,
       role: DbRole.USER,
       language: 'en',
+      emailVerified: true,
     };
 
     await handler.execute(new CreateEstablishmentCommand({ name: 'Second' }, user));
@@ -66,6 +68,7 @@ describe('CreateEstablishmentHandler', () => {
       active: true,
       role: DbRole.USER,
       language: 'de',
+      emailVerified: true,
     };
 
     await handler.execute(new CreateEstablishmentCommand({ name: 'Third' }, user));

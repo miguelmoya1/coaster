@@ -8,25 +8,33 @@ import Login from './login';
 describe('Login', () => {
   let component: Login;
   let fixture: ComponentFixture<Login>;
-  const authMock = {
-    login: vi.fn().mockResolvedValue({}),
+
+  const authMock = { login: vi.fn() };
+  let navigate: ReturnType<typeof vi.spyOn>;
+
+  const type = (testId: string, value: string) => {
+    const input: HTMLInputElement = fixture.nativeElement.querySelector(`[data-testid="${testId}"]`);
+    input.value = value;
+    input.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
   };
-  const routerMock = {
-    navigate: vi.fn().mockResolvedValue(true),
+
+  const fillIn = (email: string, password: string) => {
+    type('email-input', email);
+    type('password-input', password);
   };
+
+  const submit = () => (fixture.nativeElement.querySelector('[data-testid="login-btn"]') as HTMLButtonElement).click();
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Login],
-      providers: [
-        provideTranslateService(),
-        provideRouter([]),
-        { provide: Auth, useValue: authMock },
-        { provide: Router, useValue: routerMock },
-      ],
+      providers: [provideTranslateService(), provideRouter([]), { provide: Auth, useValue: authMock }],
     }).compileComponents();
 
     vi.clearAllMocks();
+    authMock.login.mockResolvedValue(undefined);
+    navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
 
     fixture = TestBed.createComponent(Login);
     component = fixture.componentInstance;
@@ -38,52 +46,64 @@ describe('Login', () => {
   });
 
   describe('rendering', () => {
-    it('should show section title', () => {
-      const sectionTitle = fixture.nativeElement.querySelector('.heading-1');
-      expect(sectionTitle).toBeTruthy();
+    it('should show the card with an email and a password field', () => {
+      expect(fixture.nativeElement.querySelector('[data-testid="login-card"]')).toBeTruthy();
+      expect(fixture.nativeElement.querySelector('[data-testid="email-input"]')).toBeTruthy();
+      expect(fixture.nativeElement.querySelector('[data-testid="password-input"]')).toBeTruthy();
     });
 
-    it('should show status card', () => {
-      const statusCard = fixture.nativeElement.querySelector('mat-card');
-      expect(statusCard).toBeTruthy();
+    it('should offer a way to create an account', () => {
+      expect(fixture.nativeElement.querySelector('[data-testid="register-link"]')).toBeTruthy();
     });
 
-    it('should show login heading', () => {
-      const heading = fixture.nativeElement.querySelector('h2.heading-2');
-      expect(heading).toBeTruthy();
-    });
+    it('should ask the browser for the saved password rather than a new one', () => {
+      const password = fixture.nativeElement.querySelector('[data-testid="password-input"]');
 
-    it('should show login button', () => {
-      const button = fixture.nativeElement.querySelector('button[mat-flat-button]');
-      expect(button).toBeTruthy();
+      expect(password.getAttribute('type')).toBe('password');
+      expect(password.getAttribute('autocomplete')).toBe('current-password');
     });
   });
 
-  describe('actions', () => {
-    it('should call auth.login with the chosen provider on signIn', async () => {
-      await component.signIn('google');
+  describe('submitting', () => {
+    it('should refuse to send an empty form', async () => {
+      submit();
+      await fixture.whenStable();
 
-      expect(authMock.login).toHaveBeenCalledWith('google');
+      expect(authMock.login).not.toHaveBeenCalled();
     });
 
-    it('should navigate to /establishments/select after successful signIn', async () => {
-      await component.signIn('google');
+    it('should refuse an address that is not an address', async () => {
+      fillIn('not-an-address', 'a-good-enough-password');
 
-      expect(routerMock.navigate).toHaveBeenCalledWith(['/establishments/select']);
+      submit();
+      await fixture.whenStable();
+
+      expect(authMock.login).not.toHaveBeenCalled();
     });
 
-    it('should set isLoading to false after signIn completes', async () => {
-      await component.signIn('google');
+    it('should sign in and go to the establishment picker', async () => {
+      fillIn('someone@coaster.test', 'a-good-enough-password');
 
-      expect(component['isLoading']()).toBe(false);
+      submit();
+      await fixture.whenStable();
+
+      expect(authMock.login).toHaveBeenCalledWith({
+        email: 'someone@coaster.test',
+        password: 'a-good-enough-password',
+      });
+      expect(navigate).toHaveBeenCalledWith(['/establishments/select']);
     });
 
-    it('should set isLoading to false even if login fails', async () => {
-      authMock.login.mockRejectedValueOnce(new Error('fail'));
+    it('should stay on the page and say so when the credentials are refused', async () => {
+      authMock.login.mockRejectedValue(new Error('INVALID_CREDENTIALS'));
+      fillIn('someone@coaster.test', 'not-the-password');
 
-      await component.signIn('google').catch(() => undefined);
+      submit();
+      await fixture.whenStable();
+      fixture.detectChanges();
 
-      expect(component['isLoading']()).toBe(false);
+      expect(navigate).not.toHaveBeenCalled();
+      expect(fixture.nativeElement.querySelector('[role="alert"]')).toBeTruthy();
     });
   });
 });

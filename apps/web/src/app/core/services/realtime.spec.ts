@@ -23,7 +23,7 @@ describe('Realtime', () => {
   let service: Realtime;
   let fetchMock: ReturnType<typeof vi.fn>;
   let consoleError: ReturnType<typeof vi.spyOn>;
-  const idToken = signal<string | null | undefined>(undefined);
+  const accessToken = signal<string | null | undefined>(undefined);
 
   const settle = async () => {
     for (let turn = 0; turn < 8; turn++) {
@@ -43,14 +43,14 @@ describe('Realtime', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    idToken.set(undefined);
+    accessToken.set(undefined);
     consoleError = vi.spyOn(console, 'error').mockReturnValue(undefined);
 
     fetchMock = vi.fn();
     vi.stubGlobal('fetch', fetchMock);
 
     TestBed.configureTestingModule({
-      providers: [provideZonelessChangeDetection(), { provide: Auth, useValue: { idToken: idToken.asReadonly() } }],
+      providers: [provideZonelessChangeDetection(), { provide: Auth, useValue: { accessToken: accessToken.asReadonly() } }],
     });
 
     service = TestBed.inject(Realtime);
@@ -70,7 +70,7 @@ describe('Realtime', () => {
   });
 
   it('should not open a stream before the workspace asks for an establishment', async () => {
-    idToken.set('token-123');
+    accessToken.set('token-123');
     await settle();
 
     expect(fetchMock).not.toHaveBeenCalled();
@@ -80,7 +80,7 @@ describe('Realtime', () => {
     answerWith(openStream());
 
     service.watch('establishment-1');
-    idToken.set('token-123');
+    accessToken.set('token-123');
     await settle();
 
     expect(fetchMock).toHaveBeenCalledWith(
@@ -95,7 +95,7 @@ describe('Realtime', () => {
     answerWith(stream);
 
     service.watch('establishment-1');
-    idToken.set('token-123');
+    accessToken.set('token-123');
     await settle();
 
     stream.push('event: orderCreated\ndata: {"id":"order-1"}\n\n');
@@ -109,7 +109,7 @@ describe('Realtime', () => {
     answerWith(stream);
 
     service.watch('establishment-1');
-    idToken.set('token-123');
+    accessToken.set('token-123');
     await settle();
 
     stream.push(': ping\n\n');
@@ -124,7 +124,7 @@ describe('Realtime', () => {
     answerWith(stream);
 
     service.watch('establishment-1');
-    idToken.set('token-123');
+    accessToken.set('token-123');
     await settle();
 
     expect(() => stream.push('event: somethingElse\ndata: {}\n\n')).not.toThrow();
@@ -138,7 +138,7 @@ describe('Realtime', () => {
     answerWith(first);
 
     service.watch('establishment-1');
-    idToken.set('token-123');
+    accessToken.set('token-123');
     await settle();
 
     first.push('id: 1700000000000\nevent: orderCreated\ndata: {"id":"order-1"}\n\n');
@@ -158,7 +158,7 @@ describe('Realtime', () => {
     answerWith(openStream());
 
     service.watch('establishment-1');
-    idToken.set('token-123');
+    accessToken.set('token-123');
     await settle();
 
     expect((fetchMock.mock.calls[0][1] as RequestInit).headers).not.toHaveProperty('Last-Event-ID');
@@ -169,7 +169,7 @@ describe('Realtime', () => {
     answerWith(first);
 
     service.watch('establishment-1');
-    idToken.set('token-123');
+    accessToken.set('token-123');
     await settle();
 
     first.push('id: 1700000000000\nevent: orderCreated\ndata: {"id":"order-1"}\n\n');
@@ -188,7 +188,7 @@ describe('Realtime', () => {
     answerWith(openStream(), 403);
 
     service.watch('establishment-1');
-    idToken.set('token-123');
+    accessToken.set('token-123');
     await settle();
 
     expect(consoleError).toHaveBeenCalled();
@@ -201,7 +201,7 @@ describe('Realtime', () => {
     answerWith(stream);
 
     service.watch('establishment-1');
-    idToken.set('token-123');
+    accessToken.set('token-123');
     await settle();
 
     stream.finish();
@@ -215,7 +215,7 @@ describe('Realtime', () => {
     answerWith(stream);
 
     service.watch('establishment-1');
-    idToken.set('token-123');
+    accessToken.set('token-123');
     await settle();
 
     const signalPassed = (fetchMock.mock.calls[0][1] as RequestInit).signal;
@@ -232,10 +232,10 @@ describe('Realtime', () => {
     answerWith(stream);
 
     service.watch('establishment-1');
-    idToken.set('token-123');
+    accessToken.set('token-123');
     await settle();
 
-    idToken.set(null);
+    accessToken.set(null);
     await settle();
 
     const signalPassed = (fetchMock.mock.calls[0][1] as RequestInit).signal;
@@ -249,10 +249,10 @@ describe('Realtime', () => {
     answerWith(stream);
 
     service.watch('establishment-1');
-    idToken.set('token-123');
+    accessToken.set('token-123');
     await settle();
 
-    idToken.set('token-456');
+    accessToken.set('token-456');
     await settle();
 
     const signalPassed = (fetchMock.mock.calls[0][1] as RequestInit).signal;
@@ -266,7 +266,7 @@ describe('Realtime', () => {
     answerWith(openStream());
 
     service.watch('establishment-1');
-    idToken.set('token-123');
+    accessToken.set('token-123');
     await settle();
 
     answerWith(openStream());

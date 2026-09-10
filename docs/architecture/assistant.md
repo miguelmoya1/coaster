@@ -31,7 +31,7 @@ Three consequences:
 - The prompt is not a security boundary. It is told what the caller may do — `getRolePermissions`
   fills that section — but only so it can decline gracefully. The refusal is in the runner.
 
-The controller sits behind `FirebaseAuthGuard` and `EstablishmentPermissionsGuard` like everything
+The controller sits behind `AuthGuard` and `EstablishmentPermissionsGuard` like everything
 else, so membership is settled before the model is reached, and a platform `ADMIN` gets the same
 `OWNER` treatment they get everywhere.
 

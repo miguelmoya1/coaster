@@ -178,6 +178,22 @@ export const DbAdjustmentTarget = {
 export type DbAdjustmentTarget = (typeof DbAdjustmentTarget)[keyof typeof DbAdjustmentTarget]
 
 
+export const DbAuthProvider = {
+  GOOGLE: 'GOOGLE'
+} as const
+
+export type DbAuthProvider = (typeof DbAuthProvider)[keyof typeof DbAuthProvider]
+
+
+export const DbAuthTokenPurpose = {
+  EMAIL_VERIFICATION: 'EMAIL_VERIFICATION',
+  PASSWORD_RESET: 'PASSWORD_RESET',
+  INVITE: 'INVITE'
+} as const
+
+export type DbAuthTokenPurpose = (typeof DbAuthTokenPurpose)[keyof typeof DbAuthTokenPurpose]
+
+
 export const DbPrintJobStatus = {
   PENDING: 'PENDING',
   PRINTING: 'PRINTING',

@@ -36,6 +36,6 @@ export class UpdateUserHandler implements ICommandHandler<UpdateUserCommand, voi
       updateUserDto.language,
     );
 
-    this.eventBus.publish(new UserUpdatedEvent(id, userExists.firebaseUid));
+    this.eventBus.publish(new UserUpdatedEvent(id));
   }
 }

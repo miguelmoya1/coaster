@@ -1,6 +1,6 @@
 import { HttpClient, httpResource } from '@angular/common/http';
 import { computed, effect, inject, Service } from '@angular/core';
-import { Role, type User } from '@coaster/common';
+import { Role } from '@coaster/common';
 import { TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { userMapper } from '../mappers/user.mapper';
@@ -59,21 +59,4 @@ export class CurrentUser {
     this.#current.reload();
   }
 
-  public async syncUser(user: User) {
-    if (this.#checkIfUserNeedToUpdate(user)) {
-      await firstValueFrom(this.#http.patch<void>(this.#routes.me, user));
-    }
-
-    return user;
-  }
-
-  #checkIfUserNeedToUpdate(user: User) {
-    const firebaseProfile = this.#auth.userProfile();
-
-    if (!firebaseProfile) {
-      return false;
-    }
-
-    return user.name !== firebaseProfile.name || user.photoUrl !== firebaseProfile.photo;
-  }
 }

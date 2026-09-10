@@ -45,7 +45,7 @@ export class AiVoiceRepository {
     messages: AiMessage[] | undefined,
     onDelta: (delta: string) => void,
   ): Promise<AiResponse> {
-    const token = this.#auth.idToken();
+    const token = this.#auth.accessToken();
 
     const response = await fetch(`${environment.apiUrl}/${API_VERSION}/establishments/${establishmentId}/ai/stream`, {
       method: 'POST',

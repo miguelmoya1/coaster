@@ -97,13 +97,13 @@ Decides whether the establishment's service is live. It lets through, in this or
 If nothing applies it answers **402** with `SUBSCRIPTION_EXPIRED` and the front end opens the plan
 dialog.
 
-Because this guard runs before `FirebaseAuthGuard`, at step 7 there is no `request.user` yet: it
-resolves identity by reading the bearer token itself, through `FirebaseTokenService`. It only does
+Because this guard runs before `AuthGuard`, at step 7 there is no `request.user` yet: it
+resolves identity by reading the bearer token itself, through `AccessTokenService`. It only does
 so once it has already decided to reject, so a normal request never pays that cost.
 
-### 2. `FirebaseAuthGuard` — identity
+### 2. `AuthGuard` — identity
 
-Verifies the token with Firebase, finds the local user by `firebaseUid` and **rejects when
+Verifies our own access token, finds the local user by id and **rejects when
 `user.active` is `false`**. That check is what makes the backoffice deactivate button real; without
 it a deactivated user kept full access. The realtime stream is a `GET` behind this same guard, so
 the rule reaches it without a second implementation.
@@ -216,11 +216,10 @@ counterweight to an admin being able to step over every barrier above.
 ## Account identity
 
 A user record can exist before its owner ever signs in — that is how invitations work: the invite
-creates a user by email with no `firebaseUid`, and the invited person claims it when they first sign
-in with Google.
+creates a user by email with no password and no linked provider, and the invited person claims it
+the first time they get in.
 
-Claiming is the sensitive step, so it has two conditions. The token must vouch for the address
-(`email_verified`), and the account must not already be linked to a different sign-in
-(`firebaseUid === null`). Without the first, enabling any provider that does not verify emails would
-turn account takeover into a sign-up form; without the second, a second Google account on the same
-address would silently take the record over.
+Claiming is the sensitive step, so registration refuses outright any address that already has a
+record, invited or not: without that, anybody could take over a pending invitation by filling in the
+sign-up form with somebody else's address. Claiming an invitation goes through the emailed token
+instead, which is the only thing that proves the address belongs to whoever is holding it.

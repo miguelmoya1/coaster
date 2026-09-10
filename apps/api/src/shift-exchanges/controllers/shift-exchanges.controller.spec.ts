@@ -1,4 +1,4 @@
-import { FirebaseAuthGuard } from '@coaster/auth';
+import { AuthGuard } from '@coaster/auth';
 import { asEstablishmentId, asShiftExchangeId, asShiftId, asUserId } from '@coaster/common';
 import { EstablishmentPermissionsGuard } from '@coaster/core';
 import { DbRole } from '@coaster/core/db';
@@ -28,7 +28,7 @@ describe('ShiftExchangesController', () => {
         { provide: QueryBus, useValue: mockQueryBus },
       ],
     })
-      .overrideGuard(FirebaseAuthGuard)
+      .overrideGuard(AuthGuard)
       .useValue(mockGuard)
       .overrideGuard(EstablishmentPermissionsGuard)
       .useValue(mockGuard)
@@ -56,6 +56,7 @@ describe('ShiftExchangesController', () => {
       active: true,
       role: 'USER' as DbRole,
       language: 'es',
+      emailVerified: true,
     };
     const dto = { targetId: asUserId('user-2') };
 
@@ -73,6 +74,7 @@ describe('ShiftExchangesController', () => {
       active: true,
       role: 'USER' as DbRole,
       language: 'es',
+      emailVerified: true,
     };
 
     await controller.acceptExchange(asEstablishmentId('establishment-1'), asShiftExchangeId('exch-1'), user);
@@ -89,6 +91,7 @@ describe('ShiftExchangesController', () => {
       active: true,
       role: 'USER' as DbRole,
       language: 'es',
+      emailVerified: true,
     };
 
     await controller.deleteExchange(asEstablishmentId('establishment-1'), asShiftExchangeId('exch-1'), user);

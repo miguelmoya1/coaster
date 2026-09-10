@@ -1,4 +1,4 @@
-import { CurrentUser, FirebaseAuthGuard } from '@coaster/auth';
+import { CurrentUser, AuthGuard } from '@coaster/auth';
 import type {
   AdminEstablishmentDetail,
   AdminEstablishmentSummary,
@@ -27,7 +27,7 @@ import { GetAdminEstablishmentDetailQuery, ListAdminEstablishmentsQuery } from '
 
 @Controller('admin/establishments')
 @Admin()
-@UseGuards(FirebaseAuthGuard, AdminGuard)
+@UseGuards(AuthGuard, AdminGuard)
 @SkipSubscriptionCheck()
 export class AdminEstablishmentsController {
   constructor(

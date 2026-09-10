@@ -1,8 +1,15 @@
 import { EstablishmentRole, Role, SubscriptionPlan, SubscriptionStatus } from '@coaster/common';
-import { Page } from '@playwright/test';
+import { Page, Route } from '@playwright/test';
 
 // Base API url to mock
 const API_BASE = 'http://localhost:3000/api/v1';
+
+// The session calls travel with credentials, and a browser refuses those against a wildcard origin.
+// Answering with the caller's own origin is what the API does, so the mocks have to do it too.
+const corsHeaders = (route: Route) => ({
+  'Access-Control-Allow-Origin': route.request().headers()['origin'] ?? 'http://localhost:4200',
+  'Access-Control-Allow-Credentials': 'true',
+});
 
 /**
  * Setup global API mocks for the application.
@@ -14,9 +21,9 @@ export async function setupMockApi(page: Page) {
       await route.fulfill({
         status: 204,
         headers: {
-          'Access-Control-Allow-Origin': '*',
+          ...corsHeaders(route),
           'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Client-Version, X-Firebase-Locale',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
         },
       });
     } else {
@@ -24,70 +31,18 @@ export async function setupMockApi(page: Page) {
     }
   });
 
-  // Mock Firebase Auth Emulator initialization and token endpoints
-  const authEmulatorBase = '**/identitytoolkit.googleapis.com/v1';
-
-  await page.route(`${authEmulatorBase}/accounts:signInWithCustomToken?key=*`, async (route) => {
-    if (route.request().method() === 'OPTIONS') {
-      await route.fulfill({
-        status: 204,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Client-Version, X-Firebase-Locale',
-        },
-      });
-      return;
-    }
-    await route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      headers: { 'Access-Control-Allow-Origin': '*' },
-      body: JSON.stringify({
-        idToken: 'fake-jwt-token',
-        refreshToken: 'fake-refresh-token',
-        expiresIn: '3600',
-        localId: 'test-user-123',
-        isNewUser: false,
-      }),
-    });
-  });
-
-  await page.route('**/securetoken.googleapis.com/v1/token?key=*', async (route) => {
-    await route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify({
-        access_token: 'fake-jwt-token',
-        expires_in: '3600',
-        token_type: 'Bearer',
-        refresh_token: 'fake-refresh-token',
-        id_token: 'fake-jwt-token',
-        user_id: 'test-user-123',
-        project_id: 'coaster-437f2',
-      }),
-    });
-  });
-
-  await page.route(`${authEmulatorBase}/accounts:lookup?key=*`, async (route) => {
-    await route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify({
-        users: [
-          {
-            localId: 'test-user-123',
-            email: 'test@example.com',
-            emailVerified: true,
-            displayName: 'Test User',
-            providerUserInfo: [{ providerId: 'google.com', displayName: 'Test User', email: 'test@example.com' }],
-            photoUrl: '',
-            lastLoginAt: Date.now().toString(),
-            createdAt: Date.now().toString(),
-          },
-        ],
-      }),
-    });
+  // The app asks for a session before the first guarded navigation; this is what stands in for it.
+  await mockApiResponse(page, '/auth/refresh', 'POST', {
+    accessToken: 'fake-access-token',
+    expiresIn: 900,
+    user: {
+      id: 'test-user-123',
+      email: 'test@example.com',
+      name: 'Test User',
+      role: Role.ADMIN,
+      active: true,
+      language: 'es',
+    },
   });
 
   // Mock backend profile
@@ -109,7 +64,7 @@ export async function setupMockApi(page: Page) {
       await route.fulfill({
         status: 204,
         headers: {
-          'Access-Control-Allow-Origin': '*',
+          ...corsHeaders(route),
           'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
           'Access-Control-Allow-Headers': 'Content-Type, Authorization',
         },
@@ -118,7 +73,7 @@ export async function setupMockApi(page: Page) {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        headers: { 'Access-Control-Allow-Origin': '*' },
+        headers: corsHeaders(route),
         body: JSON.stringify({
           establishmentId: route.request().url().split('/establishments/')[1].split('/')[0],
           modules: ['TIME_TRACKING', 'ORDERS', 'INVENTORY'],
@@ -135,7 +90,7 @@ export async function setupMockApi(page: Page) {
       await route.fulfill({
         status: 204,
         headers: {
-          'Access-Control-Allow-Origin': '*',
+          ...corsHeaders(route),
           'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
           'Access-Control-Allow-Headers': 'Content-Type, Authorization',
         },
@@ -144,7 +99,7 @@ export async function setupMockApi(page: Page) {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        headers: { 'Access-Control-Allow-Origin': '*' },
+        headers: corsHeaders(route),
         body: JSON.stringify({
           id: 'member-123',
           userId: 'test-user-123',
@@ -167,7 +122,7 @@ export async function setupMockApi(page: Page) {
       await route.fulfill({
         status: 204,
         headers: {
-          'Access-Control-Allow-Origin': '*',
+          ...corsHeaders(route),
           'Access-Control-Allow-Methods': 'GET, OPTIONS',
           'Access-Control-Allow-Headers': 'Content-Type, Authorization',
         },
@@ -176,7 +131,7 @@ export async function setupMockApi(page: Page) {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        headers: { 'Access-Control-Allow-Origin': '*' },
+        headers: corsHeaders(route),
         body: JSON.stringify([]),
       });
     } else {
@@ -189,7 +144,7 @@ export async function setupMockApi(page: Page) {
       await route.fulfill({
         status: 204,
         headers: {
-          'Access-Control-Allow-Origin': '*',
+          ...corsHeaders(route),
           'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
           'Access-Control-Allow-Headers': 'Content-Type, Authorization',
         },
@@ -199,7 +154,7 @@ export async function setupMockApi(page: Page) {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        headers: { 'Access-Control-Allow-Origin': '*' },
+        headers: corsHeaders(route),
         body: JSON.stringify({
           id: 'sub-123',
           establishmentId: 'establishment-123',
@@ -225,7 +180,7 @@ export async function setupMockApi(page: Page) {
       await route.fulfill({
         status: 204,
         headers: {
-          'Access-Control-Allow-Origin': '*',
+          ...corsHeaders(route),
           'Access-Control-Allow-Methods': 'GET, OPTIONS',
           'Access-Control-Allow-Headers': 'Content-Type, Authorization',
         },
@@ -234,7 +189,7 @@ export async function setupMockApi(page: Page) {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        headers: { 'Access-Control-Allow-Origin': '*' },
+        headers: corsHeaders(route),
         body: JSON.stringify({ used: 3, billed: 3, included: 10, basePriceCents: 1999, extraPriceCents: 200 }),
       });
     } else {
@@ -257,7 +212,7 @@ export async function mockMyMemberRole(page: Page, role: EstablishmentRole) {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
-      headers: { 'Access-Control-Allow-Origin': '*' },
+      headers: corsHeaders(route),
       body: JSON.stringify({
         id: 'member-123',
         userId: 'test-user-123',
@@ -284,7 +239,7 @@ export async function mockApiResponse(page: Page, path: string, method: string, 
         await route.fulfill({
           status: 204,
           headers: {
-            'Access-Control-Allow-Origin': '*',
+            ...corsHeaders(route),
             'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
             'Access-Control-Allow-Headers': 'Content-Type, Authorization',
           },
@@ -295,9 +250,7 @@ export async function mockApiResponse(page: Page, path: string, method: string, 
         await route.fulfill({
           status,
           contentType: 'application/json',
-          headers: {
-            'Access-Control-Allow-Origin': '*',
-          },
+          headers: corsHeaders(route),
           body: JSON.stringify(response),
         });
       } else {

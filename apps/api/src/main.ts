@@ -1,4 +1,5 @@
 import compression from '@fastify/compress';
+import cookie from '@fastify/cookie';
 import helmet from '@fastify/helmet';
 import fastifyStatic from '@fastify/static';
 import {
@@ -13,17 +14,10 @@ import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import fastifyRawBody from 'fastify-raw-body';
-import { getApps, initializeApp } from 'firebase-admin/app';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
   const startInstant = Temporal.Now.instant();
-
-  if (getApps().length === 0) {
-    initializeApp({
-      projectId: process.env.GCLOUD_PROJECT || 'coaster-437f2',
-    });
-  }
 
   const isProduction = process.env.NODE_ENV === 'production';
 
@@ -42,6 +36,8 @@ async function bootstrap() {
     type: VersioningType.URI,
     defaultVersion: '1',
   });
+
+  await app.register(cookie);
 
   await app.register(helmet);
 

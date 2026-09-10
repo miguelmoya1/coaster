@@ -30,6 +30,7 @@ export * from './interfaces/ai.interface';
 export * from './interfaces/establishment-member.interface';
 export * from './interfaces/establishment.interface';
 export * from './interfaces/establishment-subscription.interface';
+export * from './interfaces/auth.interface';
 export * from './interfaces/billing.interface';
 export * from './interfaces/catalogue.interface';
 export * from './interfaces/brand.type';

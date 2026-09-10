@@ -9,14 +9,14 @@ The architecture — modules, aliases, layering, the guards, the runtime — is 
 
 ## Running it
 
-The API is meant to run in its container, alongside the database and the Firebase emulator:
+The API is meant to run in its container, alongside the database:
 
 ```bash
-docker compose up db firebase api
+docker compose up db api
 ```
 
 `npm run dev:api` from the repository root starts it on the host instead, in which case
-`DATABASE_URL` and `FIREBASE_AUTH_EMULATOR_HOST` have to point somewhere real.
+`DATABASE_URL` has to point somewhere real.
 
 Swagger is at `http://localhost:3000/api/docs`, **outside production only**. Every route is under
 `/api/v1`.
@@ -49,21 +49,23 @@ written in raw SQL (the append-only triggers on `TimeEntry`, the partial unique 
 travels in git nor enters the image. Production reads real environment variables — see
 [production and beta](../../docs/operations/environments.md).
 
-| Variable                                                         | Needed for                                                          |
-| ---------------------------------------------------------------- | ------------------------------------------------------------------- |
-| `DATABASE_URL`                                                   | Everything                                                          |
-| `FIREBASE_AUTH_EMULATOR_HOST`                                    | Local sign-in against the emulator                                  |
-| `FRONTEND_URL`                                                   | Stripe return URLs and invitation links                             |
-| `PUBLIC_URL`                                                     | Where printer bridges download updates from                         |
-| `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_PRO` | Billing                                                             |
-| `RESEND_API_KEY`                                                 | Invitation emails                                                   |
-| `PRINTER_JWT_SECRET`                                             | The LAN printing fallback                                           |
-| `MEDIA_BUCKET`                                                   | Signed upload URLs for product images                               |
-| `AI_GATEWAY_API_KEY`                                             | The assistant (read by the AI SDK, not by our code)                 |
-| `REDIS_URL`                                                      | Optional — unset means no cache and no shared realtime bus          |
-| `CORS_ORIGINS`                                                   | Browser origins allowed to call the API; fails closed in production |
-| `TRUST_PROXY_HOPS`                                               | Defaults to `1` (Cloud Run); `compose.yaml` sets `0`                |
-| `BETA_ALLOWLIST_ENABLED`                                         | Closes sign-up to the `BetaTester` allowlist                        |
+| Variable                                                         | Needed for                                                                     |
+| ---------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| `DATABASE_URL`                                                   | Everything                                                                     |
+| `AUTH_JWT_SECRET`                                                | Signing access tokens; the API refuses to start without it                     |
+| `GOOGLE_CLIENT_ID`                                               | Signing in with Google; unset, that route answers 503 and the button is hidden |
+| `FRONTEND_URL`                                                   | Stripe return URLs and invitation links                                        |
+| `PUBLIC_URL`                                                     | Where printer bridges download updates from                                    |
+| `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_PRO` | Billing                                                                        |
+| `RESEND_API_KEY`                                                 | Invitations, confirmations and password resets                                 |
+| `EMAIL_FROM`                                                     | The sender; defaults to `Coaster <hello@coaster.business>`                     |
+| `PRINTER_JWT_SECRET`                                             | The LAN printing fallback                                                      |
+| `MEDIA_BUCKET`                                                   | Signed upload URLs for product images                                          |
+| `AI_GATEWAY_API_KEY`                                             | The assistant (read by the AI SDK, not by our code)                            |
+| `REDIS_URL`                                                      | Optional — unset means no cache and no shared realtime bus                     |
+| `CORS_ORIGINS`                                                   | Browser origins allowed to call the API; fails closed in production            |
+| `TRUST_PROXY_HOPS`                                               | Defaults to `1` (Cloud Run); `compose.yaml` sets `0`                           |
+| `BETA_ALLOWLIST_ENABLED`                                         | Closes sign-up to the `BetaTester` allowlist                                   |
 
 Migrations are **not** run by the image. Apply them with `prisma migrate deploy` before or during
 the release.

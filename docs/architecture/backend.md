@@ -54,12 +54,89 @@ it becomes an error.
 
 ### Authentication
 
-`FirebaseTokenService` (in `core/security`) is the single place that verifies a Firebase ID token
-and loads the matching local user. `JwtStrategy` (HTTP) and `SubscriptionActiveGuard` both go
-through it, and each keeps its own post-conditions — active user, platform role, verified email.
-Before it existed, the same verify-and-look-up pair was written out in four places.
+`AccessTokenService` (in `core/security`) is the single place that verifies an access token and
+loads the matching local user. `AuthGuard` (HTTP) and `SubscriptionActiveGuard` both go through it,
+and each keeps its own post-conditions — active user, platform role. Before it existed, the same
+verify-and-look-up pair was written out in four places.
 
-The realtime stream adds nothing to this. It is a `GET` like any other, so `FirebaseAuthGuard` and
+The access token is a JWT of our own, signed with `AUTH_JWT_SECRET`, alive for fifteen minutes and
+carrying the user id and the session id. Nobody is asked to sign in again when it expires: the
+browser holds a refresh token in an `httpOnly` cookie on `.coaster.business`, and `POST
+/auth/refresh` trades it for a new pair. That cookie slides — thirty days from its **last use**, not
+from the sign-in — so an account used weekly never sees the login page.
+
+Rotation is what makes the cookie safe to keep that long. Every refresh revokes the token it was
+given and issues a new one in the same **family**, so a refresh token replayed later is proof
+somebody copied it, and the whole family is dropped. Two tabs refreshing at the same moment would
+look exactly like that replay, so a token rotated less than thirty seconds ago is let through
+instead. A logout is not a race and is not forgiven: it sets `revokedAt`, which the refresh refuses
+before it ever looks at the grace window. That is why `AuthSession` carries `rotatedAt` and
+`revokedAt` as separate columns.
+
+### Signing in with Google
+
+`GoogleTokenService` verifies the identity token the browser gets from Google Identity Services:
+`RS256` against Google's published keys, `aud` equal to `GOOGLE_CLIENT_ID`, a Google issuer, an
+expiry in the future and an address Google says it verified. Anything else is refused. The keys are
+read once and kept in memory, and a token naming a key Google does not publish cannot make the API
+fetch them again more than once a minute — otherwise a stream of forged `kid`s would be a way to
+make us hammer Google.
+
+There is no `GOOGLE_CLIENT_ID` in development by default, and that is not a failure: the API answers
+`503 GOOGLE_SIGN_IN_UNAVAILABLE` and the web app renders no button at all, rather than offering
+something that cannot work.
+
+Three things can happen when a verified Google identity arrives:
+
+- **The identity is already linked.** Sign in, and stamp `lastLoginAt`.
+- **The address has an account.** Link the identity to it. This is the path every account that
+  predates our own sign-in takes, and the one an invitation takes: the record exists, the person
+  proves the address, they get in.
+- **Nobody has that address.** Open an account, already verified, with the identity attached.
+
+The second case has a sharp edge. Registration does not verify the address, so somebody could sign
+up with an address that is not theirs. When Google later proves that address belongs to someone
+else, the password on the record was set by a person who never showed they owned the mailbox: it is
+dropped, along with every session it opened. An address that had already been verified keeps its
+password, so nobody who legitimately set one loses it.
+
+Signing in never rewrites the account's email. The identity is keyed on Google's `sub`, which does
+not move, and changing the address of an account is a deliberate act rather than a side effect of
+arriving.
+
+### Links that arrive by email
+
+`AuthToken` is one table for three jobs, told apart by `purpose`: confirming an address, choosing a
+new password, and claiming an invitation. They only differ in how long they live — an hour, a day, a
+week — which is a lookup table, not a branch.
+
+Three rules hold for all of them, and they are what makes a link safe to put in an email:
+
+- **Only the hash is stored.** A leaked database backup hands nobody a working link.
+- **Issuing burns the previous one.** Asking for a second reset link kills the first, so an old
+  email left in an inbox stops working the moment a newer one is sent.
+- **Spending is a compare-and-swap.** `UPDATE … WHERE usedAt IS NULL` returning one row is what
+  authorises the change, so two clicks arriving together cannot both win.
+
+A link that reaches an inbox is proof the address belongs to whoever opened it, so redeeming a reset
+or an invitation also marks the address verified. A reset closes **every** session, because the
+password it replaces may be in the wrong hands. Setting a password from the account page closes
+every session **but the one doing it** — that is what the `sid` claim in the access token is for.
+
+### What email failures do, and do not, take down
+
+Sending goes through `AUTH_MAILER`, a token declared in `core` and implemented by the email module.
+The direction matters: `email` may depend on `auth`, never the reverse, or the two barrels form a
+require-time cycle. It also lets the e2e suite swap in a mailbox and follow the links it captures,
+which is how the recovery flows are tested end to end without sending anything.
+
+Where the person is waiting on the email, a failure to send is an error they see: `forgot-password`
+and the verification request both fail loudly rather than answering 204 to somebody who will then
+wait forever for a message that never left. Where the email is a **notice** — the warning that a
+password changed — the send is best-effort and only logged, because the password has already
+changed and refusing to say so would not undo it.
+
+The realtime stream adds nothing to this. It is a `GET` like any other, so `AuthGuard` and
 `EstablishmentPermissionsGuard` decide who may open it; there is no second authentication path to
 keep in step with this one.
 
@@ -91,7 +168,7 @@ Two things are worth knowing before reading any guard:
   runs this way.
 - **`SecurityRepository` is the only place that caches.** Every read on the authenticated preamble —
   role, membership, module list, subscription row — is a `remember` there, and
-  `FirebaseTokenService` caches the user lookup behind `CurrentUser`. Nothing else in the codebase
+  `AccessTokenService` caches the user lookup behind `CurrentUser`. Nothing else in the codebase
   touches the cache to read; a handful of event handlers touch it to `forget`.
 
 ### Rate limiting

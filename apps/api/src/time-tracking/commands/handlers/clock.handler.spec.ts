@@ -22,6 +22,7 @@ const actor: User = {
   active: true,
   role: Role.USER,
   language: 'es',
+      emailVerified: true,
 };
 
 const row = (overrides: Record<string, unknown> = {}) => ({

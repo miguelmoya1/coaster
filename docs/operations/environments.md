@@ -1,7 +1,7 @@
 # Production and beta
 
 Two environments run the same code from two branches. `main` is production, `dev` is beta. They
-share one GCP project, one Artifact Registry image and one Firebase project; everything else is
+share one GCP project and one Artifact Registry image; everything else is
 duplicated, and the things that **must** be duplicated are listed below with the reason.
 
 |                    | Production                          | Beta                                             |
@@ -12,7 +12,6 @@ duplicated, and the things that **must** be duplicated are listed below with the
 | Cloud Run service  | `api-new` · `europe-west1`          | `api-beta` · `europe-west1`                      |
 | Migration job      | `api-migrate` · `europe-southwest1` | `api-migrate-beta` · `europe-southwest1`         |
 | Database           | its own Neon project                | its own Neon project                             |
-| Firebase           | `coaster-437f2`                     | `coaster-437f2` — the same one                   |
 | Stripe             | live keys                           | test keys                                        |
 | GitHub environment | `api-production`                    | `api-beta`                                       |
 | Search engines     | indexed                             | `ALLOW_INDEXING=false`                           |
@@ -35,18 +34,18 @@ environment that was never configured cannot half-deploy anything.
 
 **What lives where:**
 
-| Value                                                                                                 | Where it is set                  | Why there                                                        |
-| ----------------------------------------------------------------------------------------------------- | -------------------------------- | ---------------------------------------------------------------- |
-| `GCP_SERVICE_NAME`, `GCP_JOB_NAME`, `PUBLIC_URL`                                                      | GitHub environment **variables** | CI needs them to know what it is deploying                       |
-| `DATABASE_URL`                                                                                        | GitHub environment **secret**    | CI hands it to the migration job; the service holds its own copy |
-| `FRONTEND_URL`, `STRIPE_*`, `RESEND_API_KEY`, `REDIS_URL`, `CORS_ORIGINS`, `BETA_ALLOWLIST_ENABLED` … | The Cloud Run service            | Runtime configuration, never needed to build or release          |
-| `PRODUCTION`, `API_URL`, `FIREBASE_*`, `ALLOW_INDEXING`                                               | Vercel project                   | Baked into the bundle at build time by `set-env.ts`              |
+| Value                                                                                                                                        | Where it is set                  | Why there                                                        |
+| -------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- | ---------------------------------------------------------------- |
+| `GCP_SERVICE_NAME`, `GCP_JOB_NAME`, `PUBLIC_URL`                                                                                             | GitHub environment **variables** | CI needs them to know what it is deploying                       |
+| `DATABASE_URL`                                                                                                                               | GitHub environment **secret**    | CI hands it to the migration job; the service holds its own copy |
+| `FRONTEND_URL`, `STRIPE_*`, `RESEND_API_KEY`, `REDIS_URL`, `CORS_ORIGINS`, `AUTH_JWT_SECRET`, `GOOGLE_CLIENT_ID`, `BETA_ALLOWLIST_ENABLED` … | The Cloud Run service            | Runtime configuration, never needed to build or release          |
+| `PRODUCTION`, `API_URL`, `GOOGLE_CLIENT_ID`, `ALLOW_INDEXING`                                                                                | Vercel project                   | Baked into the bundle at build time by `set-env.ts`              |
 
 ## What the two environments must never share
 
-**The cache.** Cache keys carry no environment. `user:firebase:{uid}` is the _same key_ in both,
-because both trust the same Firebase project — one Redis between them and a beta request can be
-served a production user row, whose ids belong to a database beta has never seen. Beta gets its own
+**The cache.** Cache keys carry no environment. `user:{id}` is the _same key_ in both, so one Redis
+between them and a beta request can be served a production user row, whose ids belong to a database
+beta has never seen. Beta gets its own
 Redis, or none: with `REDIS_URL` unset it simply reads Postgres, which is what the whole application
 did until recently. See [the shared cache](redis.md).
 
@@ -63,13 +62,33 @@ and the signing secret that endpoint gives you. A beta checkout must not be able
 origin would let a beta build drive production's API with a production token, which is the one
 crossing this whole page exists to prevent.
 
-**`RESEND_API_KEY`.** Invitations from beta are real emails to real people. A separate key keeps the
+**`EMAIL_FROM`.** The sender, `Coaster <hello@coaster.business>` unless set. It used to be a string
+in the code; a domain change is now a variable, not a deploy.
+
+**`RESEND_API_KEY`.** Invitations, confirmations and password resets from beta are real emails to
+real people. A separate key keeps the
 quota and the audit trail separate, and lets you revoke beta without touching production. The link
 in the email follows `FRONTEND_URL`, so it lands in the environment that sent it.
 
-Firebase is deliberately shared: the API only calls `verifyIdToken`, it never creates or deletes an
-account, so beta cannot damage a production login. One Google account, two environments, two
-separate `User` rows.
+**`GOOGLE_CLIENT_ID`.** The OAuth web client the browser signs against, and the `aud` the API
+demands. The same one in both environments — it is not a secret, it ships in the bundle — but its
+**authorized JavaScript origins** must list every origin that will use it: `https://www.coaster.business`,
+`https://beta.coaster.business` and `http://localhost:4200`. No redirect URIs: the identity-token
+flow does not use any. Unset, the API answers `503` and the web app hides the button, so a missing
+client id is visible rather than silent — outside a production build the login page says as much
+where the button would be. In local containers it travels through `compose.yaml` from the shell or a
+`.env` at the repository root.
+
+**`AUTH_JWT_SECRET`.** It signs the access tokens. Shared, a token minted by beta would be accepted
+by production for a user id that means something else there. Generate one per environment with
+`node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`. Rotating it signs
+everybody out, which is the point.
+
+The refresh cookie carries **no `Domain`**, which is what keeps the two apart without a setting to
+forget. It is set by the API and only ever travels back to the API, so a host-only cookie on
+`api.coaster.business` is enough — and `www` reaching `api` is same-site, so `SameSite=Lax` still
+sends it. Given a shared `.coaster.business` instead, beta and production would write the same
+cookie name over each other and sign the same person out on every switch.
 
 ## Setting beta up from scratch
 
@@ -132,7 +151,7 @@ Migrations run themselves on every deploy, from the same image that is about to 
 
 ### 4. The Cloud Run service and its migration job
 
-Beta copies production's shape — same service account, so signed upload URLs and Firebase Admin work
+Beta copies production's shape — same service account, so signed upload URLs and Cloud Storage work
 without a single new IAM binding — and starts on production's current image, which the first `dev`
 push replaces.
 
@@ -233,34 +252,28 @@ Copy the existing project's Root Directory, Build Command, Install Command and N
 — the monorepo installs from the root through npm workspaces, and a project configured differently
 will build something subtly different. Then set, in its **Production** environment:
 
-| Variable                       | Value                               |
-| ------------------------------ | ----------------------------------- |
-| `PRODUCTION`                   | `true`                              |
-| `USE_EMULATORS`                | `false`                             |
-| `API_URL`                      | `https://api.beta.coaster.business` |
-| `ALLOW_INDEXING`               | `false`                             |
-| `DEFAULT_LANGUAGE`             | same as production                  |
-| `FIREBASE_API_KEY` and friends | same as production                  |
+| Variable           | Value                               |
+| ------------------ | ----------------------------------- |
+| `PRODUCTION`       | `true`                              |
+| `API_URL`          | `https://api.beta.coaster.business` |
+| `GOOGLE_CLIENT_ID` | same as production                  |
+| `ALLOW_INDEXING`   | `false`                             |
+| `DEFAULT_LANGUAGE` | same as production                  |
 
-`PRODUCTION=true` is what keeps the `__TEST_LOGIN__` backdoor out of the bundle; beta is a real
-build for real people, not a development one. `ALLOW_INDEXING=false` makes `set-env.ts` write a
+`PRODUCTION=true` is what makes it a real build for real people rather than a development one.
+`ALLOW_INDEXING=false` makes `set-env.ts` write a
 `robots.txt` that disallows everything — beta serves the same landing page and the same public menus
 as production, and two of each in the index is one too many.
 
 Finally point `beta.coaster.business` at this project.
 
-### 7. Firebase
-
-Add `beta.coaster.business` to **Authentication → Settings → Authorized domains**. Without it Google
-sign-in fails on beta with `auth/unauthorized-domain` and nothing else in the app works.
-
-### 8. Stripe
+### 7. Stripe
 
 In **test mode**: a webhook endpoint on `https://api.beta.coaster.business/api/v1/stripe/webhook`
 with the same events as production, and a test price for the Pro plan. The endpoint's signing secret
 is `STRIPE_WEBHOOK_SECRET`; without it every webhook is rejected and no subscription ever activates.
 
-### 9. Your first login
+### 8. Your first login
 
 The beta database is empty and `Role` defaults to `USER`, so the backoffice is closed to you until
 you say otherwise. Log in once so the row exists, then:
@@ -269,7 +282,7 @@ you say otherwise. Log in once so the row exists, then:
 UPDATE "User" SET role = 'ADMIN' WHERE email = 'you@example.com';
 ```
 
-### 10. Close the door
+### 9. Close the door
 
 Beta runs Stripe in test mode, so an open beta is the product for free. Add your own address to the
 allowlist first — otherwise the switch locks you out of your own environment as soon as you sign in
@@ -303,6 +316,8 @@ curl -s https://beta.coaster.business/robots.txt
 # Disallow: /
 ```
 
-Then log in on `beta.coaster.business`. If Google sign-in fails, the domain is missing from
-Firebase's authorized list; if the login succeeds and every request comes back 401, the API is
-verifying tokens against a different project than the bundle is signing them with.
+Then log in on `beta.coaster.business`. If the login succeeds and every request comes back 401, the
+service is missing `AUTH_JWT_SECRET` or holds a different one than the token was signed with. If the
+login succeeds but a reload lands back on the login page, the refresh cookie is not reaching the
+API: check that `CORS_ORIGINS` names beta's exact origin, since a credentialed request is refused
+against a wildcard.

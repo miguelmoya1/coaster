@@ -30,7 +30,6 @@ export class UserWriteRepository {
     return this.db.dbUser.upsert({
       where: { email },
       update: {
-        firebaseUid: data.firebaseUid,
         name: data.name,
         photoUrl: data.photoUrl,
         active: data.active,

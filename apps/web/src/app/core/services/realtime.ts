@@ -13,7 +13,7 @@ const STABLE_STREAM_MS = 10_000;
 @Service()
 export class Realtime implements OnDestroy {
   readonly #auth = inject(Auth);
-  readonly #hasSession = computed(() => Boolean(this.#auth.idToken()));
+  readonly #hasSession = computed(() => Boolean(this.#auth.accessToken()));
   readonly #establishmentId = signal<string | null>(null);
   readonly #connected = signal(false);
   readonly connected = this.#connected.asReadonly();
@@ -118,7 +118,7 @@ export class Realtime implements OnDestroy {
   }
 
   async #stream(establishmentId: string): Promise<boolean> {
-    const token = untracked(this.#auth.idToken);
+    const token = untracked(this.#auth.accessToken);
 
     if (!token) {
       return false;

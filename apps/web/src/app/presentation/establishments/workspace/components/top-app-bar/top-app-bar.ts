@@ -82,6 +82,11 @@ import { AvatarBadge } from '../avatar-badge/avatar-badge';
           <span>{{ 'common.change_establishment' | translate }}</span>
         </a>
 
+        <a mat-menu-item routerLink="/account" data-testid="account-link">
+          <mat-icon>account_circle</mat-icon>
+          <span>{{ 'account.heading' | translate }}</span>
+        </a>
+
         @if (canManageSettings()) {
           <a mat-menu-item [routerLink]="['/establishments', establishmentId(), 'settings']">
             <mat-icon>tune</mat-icon>

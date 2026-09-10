@@ -36,8 +36,18 @@ docker compose up web
 `src/environments/environment.ts` from environment variables — the file is gitignored, and an unset
 `PRODUCTION` warns and falls back to development so a fresh checkout works with no `.env`.
 
-`PRODUCTION=true` with `USE_EMULATORS=true` is refused outright: it builds a bundle that looks like
-production and talks to the Firebase emulator.
+Without `GOOGLE_CLIENT_ID` the build warns and ships no Google button — the rest of the app works,
+and the API answers that route with a `503` rather than pretending. Outside a production build the
+page says so where the button would be, so a missing client id reads as a setting nobody filled in
+rather than a feature that vanished.
+
+In containers the value comes from the shell or from a `.env` next to `compose.yaml`, which passes
+it to both services:
+
+```sh
+echo "GOOGLE_CLIENT_ID=<the web client id>" >> .env
+docker compose up -d --force-recreate web api
+```
 
 ## Commands
 
