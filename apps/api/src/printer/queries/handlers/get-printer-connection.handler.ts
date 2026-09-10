@@ -23,7 +23,7 @@ export class GetPrinterConnectionHandler implements IQueryHandler<
       throw new NotFoundException(ErrorCodes.PRINTER_NOT_CONNECTED);
     }
 
-    const token = this.tokenService.generateToken(query.establishmentId);
+    const token = await this.tokenService.generateToken(query.establishmentId);
 
     return {
       ipAddress: config.ipAddress,
