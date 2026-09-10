@@ -22,8 +22,10 @@ export class AuthIdentityRepository {
   }
 
   public async link(userId: string, provider: DbAuthProvider, subject: string, email: string) {
-    await this.db.dbAuthIdentity.create({
-      data: { userId, provider, subject, email, lastLoginAt: new Date() },
+    await this.db.dbAuthIdentity.upsert({
+      where: { provider_userId: { provider, userId } },
+      create: { userId, provider, subject, email, lastLoginAt: new Date() },
+      update: { subject, email, lastLoginAt: new Date() },
     });
   }
 }

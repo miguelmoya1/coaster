@@ -134,6 +134,28 @@ describe('AuthController Google sign-in (e2e)', () => {
       .expect(401);
   });
 
+  it('should follow the same person to a new Google account on the same verified address', async () => {
+    const user = await testSetup.prisma.dbUser.create({
+      data: {
+        email: EMAIL,
+        name: 'Alguien',
+        emailVerifiedAt: new Date(),
+        identities: {
+          create: { provider: 'GOOGLE', subject: 'un-sub-anterior', email: EMAIL },
+        },
+      },
+    });
+
+    const response = await signIn().expect(200);
+
+    expect(response.body.user.id).toBe(user.id);
+
+    const identities = await testSetup.prisma.dbAuthIdentity.findMany({ where: { userId: user.id } });
+
+    expect(identities).toHaveLength(1);
+    expect(identities[0].subject).toBe(SUBJECT);
+  });
+
   it('should refuse a token minted for another client', async () => {
     await signIn(googleToken({ aud: 'somebody-else.apps.googleusercontent.com' })).expect(401);
   });
