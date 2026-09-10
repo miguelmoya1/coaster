@@ -4,6 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Auth } from '../services/auth';
+import { Toast } from '../services/toast';
 import { unauthorizedInterceptor } from './unauthorized-interceptor';
 
 describe('unauthorizedInterceptor', () => {
@@ -12,10 +13,12 @@ describe('unauthorizedInterceptor', () => {
 
   const authMock = { refresh: vi.fn() };
   const routerMock = { navigate: vi.fn() };
+  const toastMock = { error: vi.fn(), success: vi.fn() };
 
   beforeEach(() => {
     authMock.refresh.mockReset();
     routerMock.navigate.mockReset();
+    toastMock.error.mockReset();
 
     TestBed.configureTestingModule({
       providers: [
@@ -23,6 +26,7 @@ describe('unauthorizedInterceptor', () => {
         provideHttpClientTesting(),
         { provide: Auth, useValue: authMock },
         { provide: Router, useValue: routerMock },
+        { provide: Toast, useValue: toastMock },
       ],
     });
 
@@ -61,6 +65,32 @@ describe('unauthorizedInterceptor', () => {
 
     expect((await failure).status).toBe(401);
     expect(routerMock.navigate).toHaveBeenCalledWith(['/login'], { replaceUrl: true });
+  });
+
+  it('should say why it sent the person back, instead of bouncing them in silence', async () => {
+    authMock.refresh.mockResolvedValue(null);
+
+    const failure = failureOf(firstResponse(httpClient));
+
+    httpMock.expectOne('/test').flush('Unauthorized', { status: 401, statusText: 'Unauthorized' });
+
+    await failure;
+
+    expect(toastMock.error).toHaveBeenCalledWith('SESSION_EXPIRED');
+  });
+
+  it('should say nothing when the refresh rescues the request', async () => {
+    authMock.refresh.mockResolvedValue('a-fresh-token');
+
+    const response = firstResponse(httpClient);
+
+    httpMock.expectOne('/test').flush('Unauthorized', { status: 401, statusText: 'Unauthorized' });
+    await Promise.resolve();
+    httpMock.expectOne('/test').flush({ ok: true });
+
+    await response;
+
+    expect(toastMock.error).not.toHaveBeenCalled();
   });
 
   it('should not try to refresh when the call that failed was the refresh itself', async () => {
