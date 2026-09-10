@@ -1,5 +1,5 @@
 import type { User } from '@coaster/common';
-import { AccessTokenService, DbUserWithPreferences, UsersMapper } from '@coaster/core';
+import { AccessTokenService, DbUserWithoutPassword, UsersMapper } from '@coaster/core';
 import { Injectable } from '@nestjs/common';
 import { AuthSessionRepository } from '../data-access/auth-session.repository';
 import { hashRefreshToken, newFamilyId, newRefreshToken, refreshExpiryFrom } from '../domain/session';
@@ -23,7 +23,7 @@ export class SessionService {
     private readonly _tokens: AccessTokenService,
   ) {}
 
-  public async issue(user: DbUserWithPreferences, origin: SessionOrigin): Promise<IssuedSession> {
+  public async issue(user: DbUserWithoutPassword, origin: SessionOrigin): Promise<IssuedSession> {
     await this._sessions.pruneExpiredOf(user.id);
 
     const refreshToken = newRefreshToken();
@@ -42,7 +42,7 @@ export class SessionService {
   public async rotate(
     currentId: string,
     familyId: string,
-    user: DbUserWithPreferences,
+    user: DbUserWithoutPassword,
     origin: SessionOrigin,
   ): Promise<IssuedSession> {
     const refreshToken = newRefreshToken();
@@ -75,7 +75,7 @@ export class SessionService {
   }
 
   async #issued(
-    user: DbUserWithPreferences,
+    user: DbUserWithoutPassword,
     sessionId: string,
     refreshToken: string,
     expiresAt: Date,

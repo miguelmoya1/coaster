@@ -278,6 +278,7 @@ describe('SubscriptionActiveGuard', () => {
       expect(dbService.dbUser.findUnique).toHaveBeenCalledWith({
         where: { id: 'user-admin' },
         include: { preferences: true },
+        omit: { passwordHash: true },
       });
     });
 

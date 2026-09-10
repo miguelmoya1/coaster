@@ -4,8 +4,10 @@ import type { DbUser, DbUserPreferences } from '@coaster/core/db';
 
 export type DbUserWithPreferences = DbUser & { preferences: DbUserPreferences | null };
 
+export type DbUserWithoutPassword = Omit<DbUserWithPreferences, 'passwordHash'>;
+
 export const UsersMapper = {
-  toDomain(dbUser: DbUserWithPreferences): User {
+  toDomain(dbUser: DbUserWithoutPassword): User {
     return {
       id: asUserId(dbUser.id),
       email: dbUser.email,

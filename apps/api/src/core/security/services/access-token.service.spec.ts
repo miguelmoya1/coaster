@@ -94,8 +94,18 @@ describe('AccessTokenService', () => {
     const caller = await service.resolve(await service.sign('user-1', 'session-1'));
 
     expect(cache.remember).toHaveBeenCalledWith('user:user-1', expect.any(Function));
-    expect(db.dbUser.findUnique).toHaveBeenCalledWith({ where: { id: 'user-1' }, include: { preferences: true } });
+    expect(db.dbUser.findUnique).toHaveBeenCalledWith({
+      where: { id: 'user-1' },
+      include: { preferences: true },
+      omit: { passwordHash: true },
+    });
     expect(caller?.user).toBe(userRow);
+  });
+
+  it('should never ask for the password hash, because this row ends up in Redis', async () => {
+    await service.resolve(await service.sign('user-1', 'session-1'));
+
+    expect(db.dbUser.findUnique).toHaveBeenCalledWith(expect.objectContaining({ omit: { passwordHash: true } }));
   });
 
   it('should not go near the database when the token does not verify', async () => {

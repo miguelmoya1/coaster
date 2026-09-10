@@ -4,7 +4,7 @@ import { jwtVerify, SignJWT } from 'jose';
 import { CacheKeys } from '../../cache/cache-keys';
 import { CacheService } from '../../cache/cache.service';
 import { DbService } from '../../db';
-import type { DbUserWithPreferences } from '../../mappers/users.mapper';
+import type { DbUserWithoutPassword } from '../../mappers/users.mapper';
 
 export const AUTH_JWT_SECRET = 'AUTH_JWT_SECRET';
 
@@ -23,7 +23,7 @@ export interface AccessTokenClaims {
 
 export interface VerifiedCaller {
   claims: AccessTokenClaims;
-  user: DbUserWithPreferences | null;
+  user: DbUserWithoutPassword | null;
 }
 
 export const stripBearer = (value: string | undefined | null): string | null => {
@@ -99,6 +99,7 @@ export class AccessTokenService {
       this._db.dbUser.findUnique({
         where: { id: claims.sub },
         include: { preferences: true },
+        omit: { passwordHash: true },
       }),
     );
 
