@@ -5,6 +5,7 @@ import { Router, RouterLink } from '@angular/router';
 import { Auth, handleErrorFormField } from '@coaster/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Field } from '../../../components/field/field';
+import { PasswordReveal } from '../../../components/password-reveal/password-reveal';
 import { FormErrors } from '../../../components/field/form-errors';
 import { CoasterInput } from '../../../components/field/input.directive';
 import { Spinner } from '../../../components/spinner/spinner';
@@ -26,6 +27,7 @@ const PASSWORD_MAX_LENGTH = 128;
     Field,
     FormErrors,
     CoasterInput,
+    PasswordReveal,
     GoogleButton,
     RouterLink,
   ],
@@ -59,19 +61,18 @@ const PASSWORD_MAX_LENGTH = 128;
           />
         </coaster-field>
 
-        <coaster-field
-          [label]="'auth.fields.password' | translate"
-          [hint]="'auth.fields.password_hint' | translate"
-        >
-          <input
-            coasterInput
-            type="password"
-            autocomplete="new-password"
-            enterkeyhint="send"
-            data-testid="password-input"
-            [formField]="registerForm.password"
-            [placeholder]="'auth.fields.password_placeholder' | translate"
-          />
+        <coaster-field [label]="'auth.fields.password' | translate" [hint]="'auth.fields.password_hint' | translate">
+          <coaster-password-reveal>
+            <input
+              coasterInput
+              type="password"
+              autocomplete="new-password"
+              enterkeyhint="send"
+              data-testid="password-input"
+              [formField]="registerForm.password"
+              [placeholder]="'auth.fields.password_placeholder' | translate"
+            />
+          </coaster-password-reveal>
         </coaster-field>
 
         <coaster-form-errors [errors]="registerForm().errors()" />

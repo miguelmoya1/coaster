@@ -136,7 +136,9 @@
       "password": "Contraseña",
       "password_placeholder": "Tu contraseña",
       "password_hint": "Ocho caracteres como mínimo",
-      "new_password": "Contraseña nueva"
+      "new_password": "Contraseña nueva",
+      "password_show": "Mostrar la contraseña",
+      "password_hide": "Ocultar la contraseña"
     },
     "login": {
       "heading": "Entra en Coaster",
@@ -1101,7 +1103,9 @@
       "set": "Poner una contraseña",
       "change": "Cambiar la contraseña",
       "current": "Contraseña actual",
-      "saved": "Contraseña guardada. Las demás sesiones se han cerrado."
+      "saved": "Contraseña guardada. Las demás sesiones se han cerrado.",
+      "none_yet": "Aún no tienes contraseña: entras solo con Google. Pon una y podrás entrar de las dos formas.",
+      "closes_others": "Al guardar se cierran las demás sesiones abiertas. Esta se queda."
     },
     "identities": {
       "heading": "Cuentas vinculadas",

@@ -136,7 +136,9 @@
       "password": "Password",
       "password_placeholder": "Your password",
       "password_hint": "Eight characters minimum",
-      "new_password": "New password"
+      "new_password": "New password",
+      "password_show": "Show the password",
+      "password_hide": "Hide the password"
     },
     "login": {
       "heading": "Sign in to Coaster",
@@ -1101,7 +1103,9 @@
       "set": "Set a password",
       "change": "Change your password",
       "current": "Current password",
-      "saved": "Password saved. Every other session was closed."
+      "saved": "Password saved. Every other session was closed.",
+      "none_yet": "You have no password yet: you sign in with Google only. Set one and either way will work.",
+      "closes_others": "Saving closes every other open session. This one stays."
     },
     "identities": {
       "heading": "Linked accounts",

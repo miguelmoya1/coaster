@@ -17,15 +17,16 @@ desplegar, y solo entonces apagar Firebase.
 
 ### Los pasos que quedan, en orden
 
-1. **Crear el cliente OAuth de tipo Web** en Google Cloud →
-   <https://console.cloud.google.com/auth/clients/create?project=coaster-437f2>. Orígenes:
-   `https://www.coaster.business`, `https://beta.coaster.business`, `http://localhost:4200`.
-   **Ninguna URI de redirección.** La pantalla de consentimiento probablemente ya esté rellena, la
-   dejó Firebase.
-2. **Poner `GOOGLE_CLIENT_ID`** en los dos servicios de Cloud Run y en los dos proyectos de Vercel.
-   El mismo en los cuatro: no es un secreto, viaja en el bundle.
-3. **Decidir el remitente de los correos**, porque `coaster.business` no está verificado en Resend
-   (ver más abajo): o se verifica el dominio, o `EMAIL_FROM` apunta a `miguelmo.dev` mientras tanto.
+1. ~~Crear el cliente OAuth de tipo Web.~~ **Hecho.** El cliente es
+   `774617138158-913akavif3caajj8b79vgjfd9011acov`. **El secreto del cliente no se usa en ninguna
+   parte**: el flujo de token de identidad no lo necesita, solo lo pediría el flujo de código de
+   autorización, que se descartó a propósito. No lo pongas en ninguna variable.
+2. ~~Poner `GOOGLE_CLIENT_ID`.~~ **Hecho** en los dos servicios de Cloud Run y en los dos proyectos
+   de Vercel. En Vercel es variable **de compilación**, así que el botón no aparece hasta el
+   siguiente despliegue.
+3. ~~Decidir el remitente de los correos.~~ **Hecho:** `EMAIL_FROM` apunta a
+   `Coaster <coaster@miguelmo.dev>` en los dos servicios, que es el dominio que sí está verificado
+   en Resend. Se cambia cuando se compre el dominio definitivo, sin desplegar.
 4. **Desplegar a `dev`.** Las migraciones se aplican solas en el despliegue.
 5. **Entrar en beta con Google** y comprobar que caes en tu usuario de siempre, con tus
    establecimientos. Es lo que confirma que la correspondencia por correo verificado funcionó.
@@ -258,8 +259,8 @@ los dos Cloud Run, la service account de CI y los buckets — incluido el que ah
 
 ## Correo: dominio propio
 
-**Ahora mismo Fichit envía desde `fichit@miguelmo.dev`** y Coaster desde
-`hello@coaster.business`. Es un apaño hasta comprar el dominio definitivo.
+**Los dos envían desde `miguelmo.dev`**: Fichit como `fichit@miguelmo.dev` y Coaster como
+`coaster@miguelmo.dev`. Es a propósito, para no pagar otro dominio de correo todavía.
 
 Cuando lo tengas, hay que tocar **dos sitios**:
 
@@ -271,26 +272,20 @@ Cuando lo tengas, hay que tocar **dos sitios**:
 Desde el 9 de septiembre de 2026 los dos son variables de entorno: la cadena a fuego que había en
 `email.service.ts` se fue con el frente 3.
 
-## Resend: `coaster.business` no está verificado en ninguna cuenta
+## Resend: se envía desde `miguelmo.dev`, y es a propósito
 
 **Comprobado el 10 de septiembre de 2026** contra las claves reales de los dos servicios de Cloud
-Run: `api-new` y `api-beta` ven **solo `miguelmo.dev`**. `coaster.business` no aparece en ninguna de
-las dos.
+Run: las dos cuentas ven **solo `miguelmo.dev`**. `coaster.business` no está verificado en ninguna.
 
-Consecuencia, y no es teórica: **las invitaciones de producción están fallando ahora mismo**. Se
-envían desde `hello@coaster.business`, Resend rechaza el remitente porque el dominio no está
-verificado, y el código viejo se tragaba el error. Nadie se ha enterado porque nadie ha mirado.
+Eso no es un descuido: es la decisión de Miguel de no pagar otro dominio de correo todavía. Así que
+`EMAIL_FROM` está puesto en los dos servicios a **`Coaster <coaster@miguelmo.dev>`**, siguiendo la
+misma convención que Fichit con `fichit@miguelmo.dev`. Cuando se compre el dominio definitivo se
+cambia la variable y ya está, sin desplegar.
 
-Con el frente 3 ya no se traga nada, así que en cuanto despliegues **lo verás** — y de ese mismo
-servicio cuelga ahora la recuperación de contraseña, que es lo que no puede fallar. Hay dos salidas:
-
-- **La buena:** verificar `coaster.business` en la cuenta de Resend de producción. Los registros DNS
-  van en Vercel, que es donde vive el DNS del dominio (`vercel dns add …`).
-- **El puente:** poner `EMAIL_FROM` a una dirección de `miguelmo.dev`, que sí está verificado. Es
-  una variable de entorno, sin desplegar, y funciona en el acto. A cambio, tus clientes reciben las
-  invitaciones desde un dominio que no es el del producto — decisión de producto, no técnica.
-
-En local ya está puesto el puente, para que los correos de desarrollo salgan de verdad.
+Lo que sí era un problema y ha quedado arreglado por el camino: hasta hoy se enviaba desde
+`hello@coaster.business`, que Resend rechaza porque el dominio no está verificado, y **las
+invitaciones de producción estaban fallando en silencio** porque el código viejo se tragaba el
+error. Ahora el remitente es válido y, si algún día vuelve a fallar, se ve.
 
 ## Rotar lo que pasó por el chat
 

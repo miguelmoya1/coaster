@@ -5,6 +5,7 @@ import { Router, RouterLink } from '@angular/router';
 import { Auth, handleErrorFormField } from '@coaster/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Field } from '../../../components/field/field';
+import { PasswordReveal } from '../../../components/password-reveal/password-reveal';
 import { FormErrors } from '../../../components/field/form-errors';
 import { CoasterInput } from '../../../components/field/input.directive';
 import { Spinner } from '../../../components/spinner/spinner';
@@ -23,6 +24,7 @@ import { GoogleButton } from '../../components/google-button';
     Field,
     FormErrors,
     CoasterInput,
+    PasswordReveal,
     GoogleButton,
     RouterLink,
   ],
@@ -47,15 +49,17 @@ import { GoogleButton } from '../../components/google-button';
 
         <div class="flex flex-col gap-1.5">
           <coaster-field [label]="'auth.fields.password' | translate">
-            <input
-              coasterInput
-              type="password"
-              autocomplete="current-password"
-              enterkeyhint="send"
-              data-testid="password-input"
-              [formField]="loginForm.password"
-              [placeholder]="'auth.fields.password_placeholder' | translate"
-            />
+            <coaster-password-reveal>
+              <input
+                coasterInput
+                type="password"
+                autocomplete="current-password"
+                enterkeyhint="send"
+                data-testid="password-input"
+                [formField]="loginForm.password"
+                [placeholder]="'auth.fields.password_placeholder' | translate"
+              />
+            </coaster-password-reveal>
           </coaster-field>
 
           <a

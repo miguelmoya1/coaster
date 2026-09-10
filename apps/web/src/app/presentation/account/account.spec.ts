@@ -95,18 +95,51 @@ describe('Account', () => {
       expect(repo.setPassword).toHaveBeenCalledWith('una-nueva-buena', 'la-de-siempre');
     });
 
+    it('should not let the form be sent without the current one, rather than let the API refuse it', async () => {
+      await render();
+
+      type('new-password-input', 'una-nueva-buena');
+
+      expect(at('password-btn').disabled).toBe(true);
+
+      at('password-btn').click();
+      await fixture.whenStable();
+
+      expect(repo.setPassword).not.toHaveBeenCalled();
+    });
+
+    it('should leave the form clean after saving, with no error where the success was', async () => {
+      await render();
+
+      type('current-password-input', 'la-de-siempre');
+      type('new-password-input', 'una-nueva-buena');
+      at('password-btn').click();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(at('new-password-input').value).toBe('');
+      expect(fixture.nativeElement.querySelector('[role="alert"]')).toBeFalsy();
+    });
+
     it('should ask for nothing else when there is none yet', async () => {
       repo.account.mockResolvedValue(summary({ hasPassword: false }));
 
       await render();
 
       expect(at('current-password-input')).toBeFalsy();
+      expect(fixture.nativeElement.textContent).toContain('account.password.none_yet');
 
       type('new-password-input', 'una-nueva-buena');
       at('password-btn').click();
       await fixture.whenStable();
 
       expect(repo.setPassword).toHaveBeenCalledWith('una-nueva-buena', undefined);
+    });
+
+    it('should offer to reveal what is typed in every password field', async () => {
+      await render();
+
+      expect(fixture.nativeElement.querySelectorAll('[data-testid="password-reveal-btn"]')).toHaveLength(2);
     });
 
     it('should refuse one shorter than eight characters', async () => {

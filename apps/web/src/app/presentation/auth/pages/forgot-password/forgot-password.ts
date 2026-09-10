@@ -12,7 +12,18 @@ import { AuthCard } from '../../components/auth-card';
 
 @Component({
   selector: 'coaster-forgot-password',
-  imports: [AuthCard, Spinner, MatButton, TranslatePipe, FormRoot, FormField, Field, FormErrors, CoasterInput, RouterLink],
+  imports: [
+    AuthCard,
+    Spinner,
+    MatButton,
+    TranslatePipe,
+    FormRoot,
+    FormField,
+    Field,
+    FormErrors,
+    CoasterInput,
+    RouterLink,
+  ],
   template: `
     <coaster-auth-card
       testId="forgot-password-card"
