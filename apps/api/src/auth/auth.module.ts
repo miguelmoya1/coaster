@@ -21,6 +21,7 @@ import { AuthGuard } from './guards/auth.guard';
 import { OptionalAuthGuard } from './guards/optional-auth.guard';
 import { GetAccountHandler } from './queries/handlers/get-account.handler';
 import { GetInviteHandler } from './queries/handlers/get-invite.handler';
+import { GetPasswordResetHandler } from './queries/handlers/get-password-reset.handler';
 import { GoogleTokenService } from './services/google-token.service';
 import { SessionService } from './services/session.service';
 
@@ -38,7 +39,7 @@ const CommandHandlers = [
   UnlinkIdentityHandler,
 ];
 
-const QueryHandlers = [GetInviteHandler, GetAccountHandler];
+const QueryHandlers = [GetInviteHandler, GetPasswordResetHandler, GetAccountHandler];
 
 @Global()
 @Module({

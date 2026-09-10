@@ -107,7 +107,7 @@ describe('AccountController (e2e)', () => {
       expect(await testSetup.prisma.dbAuthIdentity.count({ where: { userId: user.id } })).toBe(0);
     });
 
-    it('should refuse to leave somebody with no way back in', async () => {
+    it('should refuse to leave somebody with no way back in, whatever the interface offers', async () => {
       const user = await seedAccount();
       await linkGoogle(user.id);
 

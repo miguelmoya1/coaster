@@ -10,6 +10,7 @@ import { PasswordReveal } from '../../../components/password-reveal/password-rev
 import { FormErrors } from '../../../components/field/form-errors';
 import { CoasterInput } from '../../../components/field/input.directive';
 import { Spinner } from '../../../components/spinner/spinner';
+import { UsernameHint } from '../../../components/username-hint/username-hint';
 import { AuthCard } from '../../components/auth-card';
 import { GoogleButton } from '../../components/google-button';
 
@@ -29,6 +30,7 @@ const PASSWORD_MAX_LENGTH = 128;
     FormErrors,
     CoasterInput,
     PasswordReveal,
+    UsernameHint,
     GoogleButton,
     RouterLink,
   ],
@@ -49,6 +51,7 @@ const PASSWORD_MAX_LENGTH = 128;
           </p>
         } @else {
           <form [formRoot]="inviteForm" class="flex flex-col gap-5">
+            <coaster-username-hint [email]="summary.email" />
             <coaster-field
               [label]="'auth.fields.password' | translate"
               [hint]="'auth.fields.password_hint' | translate"

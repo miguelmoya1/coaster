@@ -24,8 +24,9 @@ import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { TokenDto } from './dto/token.dto';
 import { TokenWithPasswordDto } from './dto/token-with-password.dto';
-import { GetInviteQuery } from './queries';
+import { GetInviteQuery, GetPasswordResetQuery } from './queries';
 import type { InviteSummary } from './queries/handlers/get-invite.handler';
+import type { PasswordResetSummary } from './queries/handlers/get-password-reset.handler';
 import { AuthGuard } from './guards/auth.guard';
 import { IssuedSession, SessionOrigin, SessionService } from './services/session.service';
 
@@ -139,6 +140,15 @@ export class AuthController {
     );
 
     return this.#respond(reply, issued);
+  }
+
+  @Get('reset-password/:token')
+  @Throttle({ default: { ttl: seconds(60), limit: 20 } })
+  @ApiOperation({ summary: 'Tells the reset page which address the link belongs to' })
+  @ApiResponse({ status: 200, description: 'The address, so a password manager knows what it is updating' })
+  @ApiResponse({ status: 400, description: 'The link has expired or was used already' })
+  async passwordReset(@Param('token') token: string): Promise<PasswordResetSummary> {
+    return this.queryBus.execute<GetPasswordResetQuery, PasswordResetSummary>(new GetPasswordResetQuery(token));
   }
 
   @Post('verify-email')

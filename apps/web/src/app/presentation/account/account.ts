@@ -11,6 +11,7 @@ import { FormErrors } from '../components/field/form-errors';
 import { CoasterInput } from '../components/field/input.directive';
 import { PasswordReveal } from '../components/password-reveal/password-reveal';
 import { Spinner } from '../components/spinner/spinner';
+import { UsernameHint } from '../components/username-hint/username-hint';
 
 const PASSWORD_MIN_LENGTH = 8;
 const PASSWORD_MAX_LENGTH = 128;
@@ -28,6 +29,7 @@ const PASSWORD_MAX_LENGTH = 128;
     FormErrors,
     CoasterInput,
     PasswordReveal,
+    UsernameHint,
     RouterLink,
   ],
   host: { class: 'block min-h-dvh bg-background' },
@@ -99,6 +101,12 @@ const PASSWORD_MAX_LENGTH = 128;
             >
               <h2 class="text-on-surface text-base font-semibold">{{ 'account.identities.heading' | translate }}</h2>
 
+              @if (isOnlyWayIn(summary)) {
+                <p class="text-on-surface-variant text-sm" data-testid="only-way-in">
+                  {{ 'account.identities.only_way_in' | translate }}
+                </p>
+              }
+
               @if (summary.identities.length === 0) {
                 <p class="text-on-surface-variant text-sm" data-testid="no-identities">
                   {{ 'account.identities.none' | translate }}
@@ -129,7 +137,7 @@ const PASSWORD_MAX_LENGTH = 128;
                       type="button"
                       class="text-error! shrink-0 rounded-full"
                       [attr.data-testid]="'unlink-' + identity.provider"
-                      [disabled]="unlinking()"
+                      [disabled]="unlinking() || isOnlyWayIn(summary)"
                       (click)="unlink(identity.provider)"
                     >
                       {{ 'account.identities.unlink' | translate }}
@@ -152,6 +160,7 @@ const PASSWORD_MAX_LENGTH = 128;
             }
 
             <form [formRoot]="passwordForm" class="flex flex-col gap-4">
+              <coaster-username-hint [email]="summary.email" />
               @if (summary.hasPassword) {
                 <coaster-field [label]="'account.password.current' | translate">
                   <coaster-password-reveal>
@@ -252,6 +261,10 @@ export default class Account {
       },
     },
   );
+
+  protected isOnlyWayIn(summary: AccountSummary): boolean {
+    return !summary.hasPassword && summary.identities.length === 1;
+  }
 
   protected async requestVerification(): Promise<void> {
     this.sending.set(true);

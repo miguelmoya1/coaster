@@ -108,6 +108,12 @@ describe('Account', () => {
       expect(repo.setPassword).not.toHaveBeenCalled();
     });
 
+    it('should tell the browser which account the password belongs to', async () => {
+      await render();
+
+      expect(at('username-hint').value).toBe('alguien@coaster.test');
+    });
+
     it('should leave the form clean after saving, with no error where the success was', async () => {
       await render();
 
@@ -177,6 +183,22 @@ describe('Account', () => {
 
       expect(repo.unlink).toHaveBeenCalledWith('GOOGLE');
       expect(repo.account).toHaveBeenCalledTimes(2);
+    });
+
+    it('should refuse to offer unlinking when it is the only way in', async () => {
+      repo.account.mockResolvedValue(summary({ hasPassword: false }));
+
+      await render();
+
+      expect(at('unlink-GOOGLE').disabled).toBe(true);
+      expect(at('only-way-in')).toBeTruthy();
+    });
+
+    it('should offer it once there is a password to fall back on', async () => {
+      await render();
+
+      expect(at('unlink-GOOGLE').disabled).toBe(false);
+      expect(at('only-way-in')).toBeFalsy();
     });
 
     it('should say plainly when there are none', async () => {

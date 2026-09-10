@@ -1111,7 +1111,8 @@
       "heading": "Cuentas vinculadas",
       "none": "No tienes ninguna cuenta vinculada.",
       "unlink": "Desvincular",
-      "google": "Google"
+      "google": "Google",
+      "only_way_in": "Es tu única forma de entrar. Pon una contraseña y entonces podrás desvincularla."
     }
   }
 }

@@ -1111,7 +1111,8 @@
       "heading": "Linked accounts",
       "none": "You have no linked accounts.",
       "unlink": "Unlink",
-      "google": "Google"
+      "google": "Google",
+      "only_way_in": "It is your only way in. Set a password and then you can unlink it."
     }
   }
 }

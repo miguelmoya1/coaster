@@ -6,6 +6,10 @@ export interface AuthSession {
   expiresIn: number;
 }
 
+export interface PasswordResetSummary {
+  email: string;
+}
+
 export interface InviteSummary {
   email: string;
   name: string;

@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
-import type { AuthSession, InviteSummary } from '@coaster/common';
+import type { AuthSession, InviteSummary, PasswordResetSummary } from '@coaster/common';
 import { firstValueFrom } from 'rxjs';
 
 export interface Credentials {
@@ -49,6 +49,10 @@ export class AuthRepository {
 
   public forgotPassword(email: string): Promise<void> {
     return firstValueFrom(this.#http.post<void>(this.routes.forgotPassword, { email }));
+  }
+
+  public passwordReset(token: string): Promise<PasswordResetSummary> {
+    return firstValueFrom(this.#http.get<PasswordResetSummary>(`${this.routes.resetPassword}/${token}`));
   }
 
   public resetPassword(token: string, password: string): Promise<AuthSession> {

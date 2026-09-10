@@ -95,6 +95,21 @@ describe('Account recovery (e2e)', () => {
       await request(server()).post('/api/auth/reset-password').send({ token, password: 'otra-mas' }).expect(400);
     });
 
+    it('should name the address the link belongs to, so a password manager knows what it updates', async () => {
+      await seedAccount();
+      await forgot().expect(204);
+
+      const token = testSetup.mailbox.lastOf('resetPassword')!.token!;
+
+      const response = await request(server()).get(`/api/auth/reset-password/${token}`).expect(200);
+
+      expect(response.body).toEqual({ email: EMAIL });
+    });
+
+    it('should name nothing for a link nobody issued', async () => {
+      await request(server()).get('/api/auth/reset-password/un-token-inventado').expect(400);
+    });
+
     it('should refuse a link nobody issued', async () => {
       await request(server())
         .post('/api/auth/reset-password')
