@@ -6,6 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { AuthIdentityRepository } from '../../data-access/auth-identity.repository';
 import { AuthSessionRepository } from '../../data-access/auth-session.repository';
+import { AuthUserRepository } from '../../data-access/auth-user.repository';
 import { GoogleIdentity, GoogleTokenService } from '../../services/google-token.service';
 import { IssuedSession, SessionService } from '../../services/session.service';
 import { LoginWithGoogleCommand } from '../impl/login-with-google.command';
@@ -19,6 +20,7 @@ export class LoginWithGoogleHandler implements ICommandHandler<LoginWithGoogleCo
     private readonly _google: GoogleTokenService,
     private readonly _identities: AuthIdentityRepository,
     private readonly _sessions: AuthSessionRepository,
+    private readonly _users: AuthUserRepository,
     private readonly _session: SessionService,
     private readonly _config: ConfigService,
   ) {}
@@ -92,14 +94,10 @@ export class LoginWithGoogleHandler implements ICommandHandler<LoginWithGoogleCo
 
     await this._identities.link(user.id, DbAuthProvider.GOOGLE, identity.subject, identity.email);
 
-    return this._db.dbUser.update({
-      where: { id: user.id },
-      data: {
-        emailVerifiedAt: user.emailVerifiedAt ?? new Date(),
-        ...(passwordNobodyProved && { passwordHash: null, passwordUpdatedAt: null }),
-        ...(user.photoUrl === null && identity.picture ? { photoUrl: identity.picture } : {}),
-      },
-      include: { preferences: true },
+    return this._users.update(user.id, {
+      emailVerifiedAt: user.emailVerifiedAt ?? new Date(),
+      ...(passwordNobodyProved && { passwordHash: null, passwordUpdatedAt: null }),
+      ...(user.photoUrl === null && identity.picture ? { photoUrl: identity.picture } : {}),
     });
   }
 

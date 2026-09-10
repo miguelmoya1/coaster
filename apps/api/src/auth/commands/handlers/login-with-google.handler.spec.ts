@@ -28,6 +28,7 @@ describe('LoginWithGoogleHandler', () => {
   let google: any;
   let identities: any;
   let sessions: any;
+  let users: any;
   let session: any;
   let config: any;
   let handler: LoginWithGoogleHandler;
@@ -48,10 +49,13 @@ describe('LoginWithGoogleHandler', () => {
     google = { configured: true, verify: vi.fn().mockResolvedValue(GOOGLE) };
     identities = { findUserBySubject: vi.fn().mockResolvedValue(null), touch: vi.fn(), link: vi.fn() };
     sessions = { revokeEverySessionOf: vi.fn() };
+    users = {
+      update: vi.fn().mockImplementation((_id: string, data: any) => Promise.resolve(account(data))),
+    };
     session = { issue: vi.fn().mockResolvedValue({ accessToken: 'fresh' }) };
     config = { get: vi.fn().mockReturnValue('false') };
 
-    handler = new LoginWithGoogleHandler(db, google, identities, sessions, session, config);
+    handler = new LoginWithGoogleHandler(db, google, identities, sessions, users, session, config);
   });
 
   const signIn = () => handler.execute(new LoginWithGoogleCommand('a-google-credential', ORIGIN));
@@ -90,7 +94,7 @@ describe('LoginWithGoogleHandler', () => {
 
       await signIn();
 
-      expect(db.dbUser.update.mock.calls[0][0].data).not.toHaveProperty('passwordHash');
+      expect(users.update.mock.calls[0][1]).not.toHaveProperty('passwordHash');
       expect(sessions.revokeEverySessionOf).not.toHaveBeenCalled();
     });
 
@@ -99,8 +103,17 @@ describe('LoginWithGoogleHandler', () => {
 
       await signIn();
 
-      expect(db.dbUser.update.mock.calls[0][0].data).toMatchObject({ passwordHash: null, passwordUpdatedAt: null });
+      expect(users.update.mock.calls[0][1]).toMatchObject({ passwordHash: null, passwordUpdatedAt: null });
       expect(sessions.revokeEverySessionOf).toHaveBeenCalledWith('user-1');
+    });
+
+    it('should write through the repository that clears the cache, not straight to the table', async () => {
+      db.dbUser.findUnique.mockResolvedValue(account({ emailVerifiedAt: null }));
+
+      await signIn();
+
+      expect(users.update).toHaveBeenCalled();
+      expect(db.dbUser.update).not.toHaveBeenCalled();
     });
 
     it('should mark the address verified once Google has vouched for it', async () => {
@@ -108,7 +121,7 @@ describe('LoginWithGoogleHandler', () => {
 
       await signIn();
 
-      expect(db.dbUser.update.mock.calls[0][0].data.emailVerifiedAt).toBeInstanceOf(Date);
+      expect(users.update.mock.calls[0][1].emailVerifiedAt).toBeInstanceOf(Date);
     });
 
     it('should take the photo from Google only when the record has none', async () => {
@@ -116,7 +129,7 @@ describe('LoginWithGoogleHandler', () => {
 
       await signIn();
 
-      expect(db.dbUser.update.mock.calls[0][0].data).not.toHaveProperty('photoUrl');
+      expect(users.update.mock.calls[0][1]).not.toHaveProperty('photoUrl');
     });
 
     it('should refuse a deactivated account', async () => {
