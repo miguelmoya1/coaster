@@ -9,7 +9,13 @@ import type { Environment } from './src/environments/environment.interface';
 // fichero acabó commiteado porque el .gitignore que lo tapa vive en apps/web.
 const here = import.meta.dirname;
 
+// Dos ficheros, y el orden importa: dotenv no pisa lo que ya está puesto, así que
+// apps/web/.env manda y la raíz es el respaldo. La raíz existe porque es el que lee
+// docker compose; sin leerla aquí, un `npm test` en el anfitrión regeneraría este
+// fichero sin las variables que sí tiene el contenedor, y se las pisaría por el
+// volumen montado.
 config({ path: join(here, '.env') });
+config({ path: join(here, '..', '..', '.env') });
 
 if (process.env.PRODUCTION === undefined) {
   console.warn('⚠️  PRODUCTION is not set; building as development. Set it to "true" for a release bundle.');
@@ -45,7 +51,10 @@ const allowIndexing = process.env.ALLOW_INDEXING !== 'false';
 writeFileSync(join(here, 'public/robots.txt'), `User-agent: *\n${allowIndexing ? 'Allow' : 'Disallow'}: /\n`);
 
 if (!envConfig.googleClientId) {
-  console.warn('⚠️  GOOGLE_CLIENT_ID is not set; the app builds without the Google sign-in button.');
+  console.warn(
+    '⚠️  GOOGLE_CLIENT_ID is not set in apps/web/.env nor in the repository root .env; ' +
+      'the app builds without the Google sign-in button.',
+  );
 }
 
 console.log(`✅ environment.ts generado estricto. Prod: ${envConfig.production}, Indexable: ${allowIndexing}`);

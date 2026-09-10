@@ -77,7 +77,9 @@ demands. The same one in both environments — it is not a secret, it ships in t
 flow does not use any. Unset, the API answers `503` and the web app hides the button, so a missing
 client id is visible rather than silent — outside a production build the login page says as much
 where the button would be. In local containers it travels through `compose.yaml` from the shell or a
-`.env` at the repository root.
+`.env` at the repository root, which `set-env.ts` also reads — both sides must see the same value,
+because the generated `environment.ts` lives in the bind-mounted repository and whoever ran
+`set-env.ts` last wins.
 
 **`AUTH_JWT_SECRET`.** It signs the access tokens. Shared, a token minted by beta would be accepted
 by production for a user id that means something else there. Generate one per environment with
