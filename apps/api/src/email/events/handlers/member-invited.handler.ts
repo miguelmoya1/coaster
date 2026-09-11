@@ -1,16 +1,16 @@
 import { AuthTokenRepository } from '@coaster/auth';
-import { MemberInvitedEvent } from '@coaster/establishment-members';
+import { AUTH_MAILER, type AuthMailer } from '@coaster/core';
 import { DbAuthTokenPurpose } from '@coaster/core/db';
-import { Logger } from '@nestjs/common';
+import { MemberInvitedEvent } from '@coaster/establishment-members';
+import { Inject, Logger } from '@nestjs/common';
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
-import { EmailService } from '../../email.service';
 
 @EventsHandler(MemberInvitedEvent)
 export class MemberInvitedHandler implements IEventHandler<MemberInvitedEvent> {
   readonly #logger = new Logger(MemberInvitedHandler.name);
 
   constructor(
-    private readonly _emailService: EmailService,
+    @Inject(AUTH_MAILER) private readonly _mailer: AuthMailer,
     private readonly _tokens: AuthTokenRepository,
   ) {}
 
@@ -21,7 +21,7 @@ export class MemberInvitedHandler implements IEventHandler<MemberInvitedEvent> {
     try {
       const token = await this._tokens.issue(userId, DbAuthTokenPurpose.INVITE);
 
-      await this._emailService.sendInvite(email, { establishmentName, inviterName, token }, inviterLanguage);
+      await this._mailer.sendInvite(email, { establishmentName, inviterName, token }, inviterLanguage);
     } catch (error) {
       this.#logger.error(`The invitation to ${email} for ${establishmentName} never left: ${(error as Error).message}`);
     }
