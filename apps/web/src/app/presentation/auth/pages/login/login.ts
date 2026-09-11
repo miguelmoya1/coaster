@@ -1,97 +1,133 @@
 import { Component, inject, signal } from '@angular/core';
+import { email, form, FormField, FormRoot, required } from '@angular/forms/signals';
 import { MatButton } from '@angular/material/button';
-import {
-  MatCard,
-  MatCardActions,
-  MatCardContent,
-  MatCardHeader,
-  MatCardSubtitle,
-  MatCardTitle,
-} from '@angular/material/card';
-import { Router } from '@angular/router';
-import { Auth, SignInProvider } from '@coaster/core';
+import { Router, RouterLink } from '@angular/router';
+import { Auth, handleErrorFormField } from '@coaster/core';
 import { TranslatePipe } from '@ngx-translate/core';
+import { Field } from '../../../components/field/field';
+import { PasswordReveal } from '../../../components/password-reveal/password-reveal';
+import { FormErrors } from '../../../components/field/form-errors';
+import { CoasterInput } from '../../../components/field/input.directive';
 import { Spinner } from '../../../components/spinner/spinner';
-import { PageContainer } from '../../../components/page-container/page-container';
+import { AuthCard } from '../../components/auth-card';
+import { GoogleButton } from '../../components/google-button';
 
 @Component({
   selector: 'coaster-login',
   imports: [
+    AuthCard,
     Spinner,
-    MatCard,
-    MatCardContent,
-    MatCardHeader,
-    MatCardTitle,
-    MatCardSubtitle,
-    MatCardActions,
-    TranslatePipe,
     MatButton,
-    PageContainer,
+    TranslatePipe,
+    FormRoot,
+    FormField,
+    Field,
+    FormErrors,
+    CoasterInput,
+    PasswordReveal,
+    GoogleButton,
+    RouterLink,
   ],
-  host: {
-    class: 'min-h-screen w-full flex flex-col justify-center items-center bg-background',
-  },
   template: `
-    <coaster-page-container>
-      <div class="flex flex-col items-center justify-center min-h-[80vh]">
-        <div class="flex flex-col gap-2 text-center mb-6">
-          <h1 class="heading-1 font-extrabold text-primary text-3xl sm:text-4xl tracking-tight">
-            {{ 'auth.login.brand' | translate }}
-          </h1>
-          <p class="text-on-surface-variant text-sm sm:text-base">{{ 'auth.login.tagline' | translate }}</p>
+    <coaster-auth-card
+      testId="login-card"
+      [heading]="'auth.login.heading' | translate"
+      [subtitle]="'auth.login.subtitle' | translate"
+    >
+      <form [formRoot]="loginForm" class="flex flex-col gap-5">
+        <coaster-field [label]="'auth.fields.email' | translate">
+          <input
+            coasterInput
+            type="email"
+            autocomplete="email"
+            enterkeyhint="next"
+            data-testid="email-input"
+            [formField]="loginForm.email"
+            [placeholder]="'auth.fields.email_placeholder' | translate"
+          />
+        </coaster-field>
+
+        <div class="flex flex-col gap-1.5">
+          <coaster-field [label]="'auth.fields.password' | translate">
+            <coaster-password-reveal>
+              <input
+                coasterInput
+                type="password"
+                autocomplete="current-password"
+                enterkeyhint="send"
+                data-testid="password-input"
+                [formField]="loginForm.password"
+                [placeholder]="'auth.fields.password_placeholder' | translate"
+              />
+            </coaster-password-reveal>
+          </coaster-field>
+
+          <a
+            routerLink="/forgot-password"
+            data-testid="forgot-link"
+            class="text-on-surface-variant hover:text-primary self-end text-xs transition-colors"
+          >
+            {{ 'auth.login.forgot' | translate }}
+          </a>
         </div>
 
-        <mat-card
-          data-testid="login-card"
-          class="relative overflow-hidden w-full p-6 sm:p-8 shadow-xl rounded-3xl border border-outline-variant/30"
+        <coaster-form-errors [errors]="loginForm().errors()" />
+
+        <button
+          mat-flat-button
+          type="submit"
+          data-testid="login-btn"
+          class="h-12 w-full gap-2 rounded-full text-base font-medium whitespace-nowrap"
+          [disabled]="loginForm().submitting() || loginForm().invalid()"
         >
-          <div class="absolute top-0 left-0 w-full h-1.5 bg-primary"></div>
+          @if (loginForm().submitting()) {
+            <coaster-spinner />
+          }
+          {{ 'auth.login.submit' | translate }}
+        </button>
+      </form>
 
-          <mat-card-header class="flex flex-col items-center justify-center text-center pb-4">
-            <h2 mat-card-title class="heading-2 mb-1 w-full text-center text-xl font-bold">
-              {{ 'auth.login.heading' | translate }}
-            </h2>
-            <p mat-card-subtitle class="text-on-surface-variant text-sm w-full text-center">
-              {{ 'auth.login.subtitle' | translate }}
-            </p>
-          </mat-card-header>
+      <coaster-google-button class="mt-6" (signedIn)="enter()" />
 
-          <mat-card-content class="flex flex-col items-center justify-center py-4"> </mat-card-content>
-
-          <mat-card-actions align="end" class="w-full pt-2">
-            <button
-              mat-flat-button
-              (click)="signIn('google')"
-              [disabled]="isLoading()"
-              data-testid="google-signin-btn"
-              class="w-full py-4 text-base font-medium rounded-full gap-2 whitespace-nowrap"
-            >
-              @if (isLoading()) {
-                <coaster-spinner />
-              }
-              {{ 'auth.login.google_button' | translate }}
-            </button>
-          </mat-card-actions>
-        </mat-card>
-      </div>
-    </coaster-page-container>
+      <p footer class="text-on-surface-variant">
+        {{ 'auth.login.no_account' | translate }}
+        <a routerLink="/register" data-testid="register-link" class="text-primary font-medium hover:underline">
+          {{ 'auth.login.create' | translate }}
+        </a>
+      </p>
+    </coaster-auth-card>
   `,
 })
 export default class Login {
   readonly #auth = inject(Auth);
   readonly #router = inject(Router);
 
-  protected readonly isLoading = signal(false);
+  protected readonly formModel = signal({ email: '', password: '' });
 
-  public async signIn(provider: SignInProvider) {
-    this.isLoading.set(true);
-
-    const user = await this.#auth.login(provider).catch(() => null);
-
-    this.isLoading.set(false);
-
-    if (user) {
-      await this.#router.navigate(['/establishments/select']);
-    }
+  protected async enter(): Promise<void> {
+    await this.#router.navigate(['/establishments/select']);
   }
+
+  readonly loginForm = form(
+    this.formModel,
+    (credentials) => {
+      required(credentials.email);
+      email(credentials.email);
+      required(credentials.password);
+    },
+    {
+      submission: {
+        action: async (form) => {
+          try {
+            await this.#auth.login(form().value());
+            await this.enter();
+
+            return null;
+          } catch (error) {
+            return handleErrorFormField(error);
+          }
+        },
+      },
+    },
+  );
 }

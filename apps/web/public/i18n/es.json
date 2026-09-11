@@ -21,6 +21,12 @@
   "STRIPE_WEBHOOK_SECRET_NOT_CONFIGURED": "La verificación de facturación no está configurada.",
   "STRIPE_WEBHOOK_SIGNATURE_INVALID": "La firma del evento de facturación no es válida.",
   "STRIPE_WEBHOOK_SIGNATURE_MISSING": "Falta la firma del evento de facturación.",
+  "GOOGLE_SIGN_IN_UNAVAILABLE": "Ahora mismo no se puede entrar con Google. Usa tu contraseña o inténtalo más tarde.",
+  "INVALID_TOKEN": "Este enlace ya no vale. Puede que haya caducado o que ya lo hayas usado. Pide uno nuevo.",
+  "PASSWORD_ALREADY_SET": "Esta cuenta ya tiene contraseña. Escribe la actual para cambiarla.",
+  "IDENTITY_NOT_LINKED": "Esa cuenta no está vinculada.",
+  "LAST_WAY_IN": "Es tu única forma de entrar. Pon una contraseña antes de desvincularla.",
+  "SESSION_EXPIRED": "Tu sesión ha caducado. Vuelve a entrar.",
   "SUBSCRIPTION_EXPIRED": "Tu prueba o suscripción ha finalizado. Activa Coaster Pro para continuar.",
   "email": "Introduce un email válido.",
   "EXCHANGE_ALREADY_PENDING": "Este turno ya tiene una solicitud de intercambio pendiente.",
@@ -120,13 +126,59 @@
     "usage_low": "Te quedan {{ remaining }} mensajes este mes"
   },
   "auth": {
+    "or": "o",
+    "google_unconfigured": "Falta GOOGLE_CLIENT_ID: el botón de Google no aparece hasta que se configure.",
+    "fields": {
+      "name": "Nombre",
+      "name_placeholder": "Cómo te llamas",
+      "email": "Correo electrónico",
+      "email_placeholder": "tu@correo.com",
+      "password": "Contraseña",
+      "password_placeholder": "Tu contraseña",
+      "password_hint": "Ocho caracteres como mínimo",
+      "new_password": "Contraseña nueva",
+      "password_show": "Mostrar la contraseña",
+      "password_hide": "Ocultar la contraseña"
+    },
     "login": {
-      "brand": "COASTER",
-      "google_button": "Iniciar sesión con Google",
-      "heading": "Acceso Seguro",
-      "subtitle": "Accede a tu panel de control de Coaster.",
-      "tagline": "Plataforma inteligente para la gestión moderna de establecimientos"
-    }
+      "heading": "Entra en Coaster",
+      "subtitle": "Tus mesas, tus turnos y tu despensa, desde donde estés.",
+      "submit": "Entrar",
+      "forgot": "¿Has olvidado la contraseña?",
+      "no_account": "¿Todavía no tienes cuenta?",
+      "create": "Crear una"
+    },
+    "register": {
+      "heading": "Crea tu cuenta",
+      "subtitle": "Un par de datos y ya puedes empezar.",
+      "submit": "Crear cuenta",
+      "have_account": "¿Ya tienes cuenta?",
+      "sign_in": "Entrar"
+    },
+    "forgot": {
+      "heading": "¿Has olvidado la contraseña?",
+      "subtitle": "Te mandamos un enlace para elegir otra.",
+      "submit": "Enviar el enlace",
+      "sent": "Si esa dirección tiene cuenta, el enlace ya va de camino. Mira también en spam.",
+      "back": "Volver a entrar"
+    },
+    "reset": {
+      "heading": "Elige una contraseña",
+      "subtitle": "Al guardarla se cerrarán todas las sesiones abiertas.",
+      "submit": "Guardar y entrar"
+    },
+    "verify": {
+      "heading": "Confirmar el correo",
+      "done": "Listo, tu correo queda confirmado.",
+      "continue": "Continuar"
+    },
+    "invite": {
+      "heading": "Te han invitado a Coaster",
+      "submit": "Crear mi contraseña y entrar",
+      "already": "Esta cuenta ya existe. Entra como siempre y verás el establecimiento nuevo."
+    },
+    "banner": "Confirma tu correo para no quedarte fuera si olvidas la contraseña.",
+    "banner_action": "Confirmar"
   },
   "establishments": {
     "create": {
@@ -170,19 +222,15 @@
     "mark_sold_out_desc": "Cuando un producto se queda sin stock, aparece tachado en la carta pública. Se comprueba al abrirla, no al publicar."
   },
   "onboarding": {
-    "title": "Bienvenido a {{ name }}",
-    "subtitle": "Dos preguntas rápidas y lo dejamos listo.",
-    "question_type": "¿Qué tipo de negocio es?",
-    "type_hospitality": "Bar, restaurante o cafetería",
-    "type_hospitality_desc": "Comandas, inventario y control horario.",
-    "type_retail": "Tienda o comercio",
-    "type_retail_desc": "Inventario y control horario.",
-    "type_other": "Oficina u otro",
-    "type_other_desc": "Solo control horario.",
-    "question_import": "¿Cargamos un catálogo para empezar?",
-    "import_yes": "Sí, cargar catálogo estándar",
-    "import_no": "No, lo creo yo",
-    "back": "Atrás"
+    "title": "¡Bienvenido a {{ name }}!",
+    "subtitle": "Tu espacio de bar y restaurante está listo. Para empezar con buen pie, te sugerimos preparar tu carta inicial.",
+    "question_import": "¿Cómo deseas comenzar tu carta?",
+    "import_starter_title": "Cargar carta estándar",
+    "import_starter_desc": "Incluye productos y categorías habituales (cafés, cervezas, refrescos, vinos, tapas y raciones) con precios para empezar de inmediato.",
+    "start_scratch_title": "Empezar desde cero",
+    "start_scratch_desc": "Comenzar con la carta vacía y configurar tus propias categorías y productos manualmente.",
+    "recommended": "Recomendado",
+    "configuring": "Configurando tu establecimiento..."
   },
   "common": {
     "accept": "Aceptar",
@@ -597,7 +645,10 @@
       "activate_pro": "Activar Plan Premium",
       "trial_expiring_one": "Queda 1 día de prueba. ¡Suscríbete para mantener tus funciones activas!",
       "trial_expiring_other": "Quedan {{days}} días de prueba. ¡Suscríbete para mantener tus funciones activas!",
-      "view_plans": "Ver Planes"
+      "view_plans": "Ver Planes",
+      "payment_failed": "No hemos podido cobrar tu suscripción. Sigues trabajando con normalidad mientras lo reintentamos, pero conviene revisar la tarjeta.",
+      "update_card": "Revisar tarjeta",
+      "read_only_staff": "La suscripción de este establecimiento ha caducado. Avisa al propietario para reactivarla."
     },
     "status": {
       "active": "Activa",
@@ -628,83 +679,127 @@
       "breakdown_within": "Precio fijo: hasta {{included}} empleados. A partir de ahí, {{each}} al mes por cada uno.",
       "breakdown_over": "{{base}} por los primeros {{included}} + {{extra}} × {{each}} por los que pasan de ahí.",
       "tax_note": "IVA aparte. Si cambia tu equipo, la diferencia se ajusta en la factura siguiente."
-    }
+    },
+    "locked_ask_owner": "La suscripción ha caducado y solo el propietario puede reactivarla. Avísale para volver a trabajar con normalidad."
   },
   "landing": {
     "nav": {
-      "what_it_is": "Qué es",
       "modules": "Módulos",
+      "advantages": "Ventajas",
+      "how_it_is": "Cómo funciona",
       "pricing": "Precios",
-      "try_free": "Entrar"
+      "faq": "Preguntas frecuentes",
+      "try_free": "Probar gratis"
     },
     "hero": {
-      "badge": "Control horario obligatorio · Art. 34.9 ET",
-      "title_main": "El registro horario que la ley te exige,",
-      "title_gradient": "y solo lo demás que necesites",
-      "subtitle": "Toda empresa está obligada a registrar la jornada de su plantilla. Coaster lo resuelve para cualquier negocio y, si además llevas un bar o una tienda, le añades comandas e inventario. Nada más.",
+      "badge": "Cumplimiento legal Art. 34.9 ET · TPV y Comandas en la nube",
+      "title_main": "El control horario que te exige la ley,",
+      "title_gradient": "y el TPV ágil que tu equipo sí querrá usar",
+      "subtitle": "Centraliza el registro de jornada legal con trazabilidad para inspecciones, la gestión de mesas con comandas rápidas y el control de stock en tiempo real. Sin aparatos caros ni permanencias: funciona en cualquier móvil, tablet o PC.",
       "cta_primary": "Probar 14 días gratis",
-      "cta_secondary": "Ver precios",
+      "cta_secondary": "Ver precios y cálculo",
       "badge_no_card": "Sin tarjeta",
-      "badge_quick_setup": "Listo en 2 minutos"
+      "badge_quick_setup": "Listo en 2 minutos",
+      "badge_cancel": "Cancela cuando quieras"
+    },
+    "highlights": {
+      "legal_title": "100% legal y trazable",
+      "legal_desc": "Fichajes inalterables y exportación oficial en 1 clic para cualquier inspección de trabajo.",
+      "hardware_title": "Sin comprar hardware",
+      "hardware_desc": "Aprovecha los móviles y tablets que ya tienes. Sin aparatos propietarios ni cuotas de renting.",
+      "speed_title": "Ágil en horas punta",
+      "speed_desc": "Comandas directas a barra y cocina, división rápida de cuentas y cobro sin errores.",
+      "modular_title": "Pagas solo lo que usas",
+      "modular_desc": "¿Solo necesitas control horario? Apagas comandas e inventario y solo ves fichajes."
     },
     "modules": {
-      "tag": "Módulos",
-      "title": "Enciendes lo que usas",
-      "subtitle": "Al crear tu establecimiento eliges qué necesitas. Lo que no enciendas no aparece: ni en el menú, ni en la aplicación.",
-      "time_tracking_title": "Control horario",
-      "time_tracking_desc": "Fichajes y cuadrante. Registro inalterable, correcciones que dejan rastro y exportación en CSV para una inspección de trabajo. Siempre activo, porque es una obligación legal.",
+      "tag": "Módulos a tu medida",
+      "title": "Enciendes solo lo que necesitas",
+      "subtitle": "Al crear tu establecimiento eliges qué módulos activar. Lo que no actives no aparece ni estorba en la aplicación.",
+      "time_tracking_title": "Control horario y cuadrantes",
+      "time_tracking_desc": "Fichajes rápidos desde el móvil de cada empleado. Registro inalterable, control de horas ordinarias y extras, y exportación en CSV lista para presentar ante la Inspección de Trabajo.",
       "time_tracking_tag": "Siempre incluido",
-      "orders_title": "Comandas",
-      "orders_desc": "Mesas, pedidos y cobros línea a línea. Efectivo, tarjeta o dividido, con propinas y descuentos, y el ticket impreso en la barra o la cocina.",
+      "orders_title": "Comandas y TPV táctil",
+      "orders_desc": "Gestión visual de mesas, pedidos y cobros. Efectivo, tarjeta o cuenta dividida con propinas y descuentos. Envío de comandas e impresión de tickets en barra y cocina.",
       "orders_tag": "Hostelería",
-      "inventory_title": "Inventario",
-      "inventory_desc": "Catálogo con fotos, stock a la vista y aviso cuando algo baja del mínimo. Empieza con un catálogo cargado o crea el tuyo.",
+      "inventory_title": "Inventario y carta viva",
+      "inventory_desc": "Catálogo visual con fotos, control de existencias en tiempo real y aviso automático cuando un producto baja del mínimo para no quedarte desabastecido.",
       "inventory_tag": "Hostelería y comercio"
+    },
+    "comparison": {
+      "tag": "¿Por qué Coaster?",
+      "title": "La forma moderna de gestionar tu negocio",
+      "subtitle": "Compara el modelo tradicional con la agilidad de una herramienta pensada para tu día a día.",
+      "col_traditional": "Método tradicional",
+      "col_coaster": "Con Coaster",
+      "trad_1": "TPVs aparatosos de renting con cuotas altas y permanencia",
+      "coaster_1": "Cero euros en aparatos: usa los móviles y tablets de tu equipo",
+      "trad_2": "Hojas de papel para fichar que no cumplen la trazabilidad legal",
+      "coaster_2": "Registro digital inalterable con informe oficial en 1 clic",
+      "trad_3": "Sistemas complejos que requieren semanas de formación al personal",
+      "coaster_3": "Tan intuitivo que cualquier camarero aprende a usarlo en 5 minutos",
+      "trad_4": "Si dejas el software, pierdes tu histórico y tus datos de clientes",
+      "coaster_4": "Tus datos son siempre tuyos: acceso de consulta garantizado aunque pauses"
     },
     "how": {
       "tag": "Cómo funciona",
-      "title": "Tres pasos y estás dentro",
-      "step1_title": "Crea tu establecimiento",
-      "step1_desc": "Entra con Google y ponle nombre. No hace falta tarjeta.",
-      "step2_title": "Dinos qué eres",
-      "step2_desc": "Bar, tienda u oficina. Encendemos los módulos que te tocan y te dejamos cambiarlos cuando quieras.",
-      "step3_title": "Invita a tu equipo",
-      "step3_desc": "Cada persona ficha desde su móvil y tú ves la jornada real contra el cuadrante."
+      "title": "Listo para trabajar en tres sencillos pasos",
+      "step1_title": "Crea tu cuenta en 1 minuto",
+      "step1_desc": "Entra con tu cuenta de Google. No te pediremos ninguna tarjeta de crédito.",
+      "step2_title": "Elige qué necesitas",
+      "step2_desc": "Bar, tienda u oficina. Encendemos los módulos necesarios y los ajustas cuando quieras.",
+      "step3_title": "Invita a tu equipo y empieza",
+      "step3_desc": "Cada persona ficha o atiende desde su móvil, y tú supervisas todo desde el panel central."
     },
     "pricing": {
-      "tag": "Precios",
+      "tag": "Precios transparentes",
       "title": "Pruébalo 14 días. Sin tarjeta.",
-      "subtitle": "Un solo plan, con todo incluido. Precio fijo hasta 10 empleados; si sois más, lo sabes de antemano.",
+      "subtitle": "Un solo plan con todas las funciones incluidas. Sin sorpresas, costes de alta ni ataduras.",
       "trial_badge": "14 días gratis",
-      "trial_title": "Prueba completa",
-      "trial_desc": "Desde el minuto uno tienes todo: control horario, comandas e inventario. No pedimos tarjeta para empezar.",
+      "trial_title": "Prueba completa sin compromiso",
+      "trial_desc": "Desde el primer minuto tienes acceso a todo: control horario, comandas e inventario sin restricciones.",
       "then": "Después",
       "price": "19,99 €",
       "period": "/ mes",
       "tax": "+ IVA",
       "price_note": "por establecimiento, sin permanencia",
-      "feature1": "Control horario con exportación para inspección",
-      "feature2": "Comandas, cobros e impresión sin límite",
-      "feature3": "Inventario con alertas de stock",
-      "feature4": "Sin tope de empleados: 10 incluidos y 2 € al mes por cada uno más",
-      "cta": "Empezar los 14 días",
-      "note": "Cancela cuando quieras. Si dejas de pagar no borramos nada: mantienes el acceso para consultar tu historial y tus registros de jornada.",
-      "included_seats": "Hasta 10 empleados incluidos en ese precio",
-      "extra_title": "¿Sois más de 10?",
-      "extra_desc": "Cada empleado a partir del undécimo suma 2 € al mes. Nunca se bloquea nada: das de alta a quien necesites y ves lo que sube antes de confirmarlo.",
+      "feature1": "Control horario legal con exportación para Inspección de Trabajo",
+      "feature2": "Comandas, cobros e impresión de tickets sin límites",
+      "feature3": "Inventario en tiempo real con alertas de stock mínimo",
+      "feature4": "10 empleados incluidos (luego solo 2 € al mes por cada uno adicional)",
+      "cta": "Empezar los 14 días gratis",
+      "note": "Cancela cuando quieras con un solo clic. Si decides pausar, no borramos nada: mantienes acceso de lectura a todo tu histórico y registros legales.",
+      "included_seats": "Hasta 10 empleados incluidos en la tarifa base",
+      "extra_title": "¿Sois más de 10 personas?",
+      "extra_desc": "Cada empleado a partir del undécimo suma solo 2 € al mes. Nunca se bloquea nada: das de alta a quien necesites con total transparencia.",
       "extra_table_caption": "Cuota mensual según el número de empleados",
       "extra_col_staff": "Empleados",
       "extra_col_price": "Al mes",
       "extra_row_staff": "{{count}} empleados",
-      "extra_note": "Importes sin IVA. Cuenta el personal dado de alta en la aplicación, incluido tú."
+      "extra_note": "Importes sin IVA. Cuenta el personal activo en la aplicación, incluido tú."
+    },
+    "faq": {
+      "tag": "Dudas frecuentes",
+      "title": "Preguntas habituales",
+      "subtitle": "Todo lo que necesitas saber antes de empezar.",
+      "q1": "¿Necesito comprar hardware, pantallas especiales o un TPV?",
+      "a1": "No. Coaster funciona directamente en el navegador web de cualquier teléfono móvil, tablet (Android o iPad) o PC que ya tengas en tu local. No tienes que comprar pantallas caras ni pagar cuotas de renting.",
+      "q2": "¿Cumple con la normativa legal de registro de jornada en España?",
+      "a2": "Sí, cumple estrictamente con el Art. 34.9 del Estatuto de los Trabajadores. El sistema genera un registro digital inalterable con trazabilidad de cambios y te permite descargar al instante el informe oficial en CSV para presentar ante la Inspección de Trabajo.",
+      "q3": "¿Puedo conectar impresoras de tickets para barra y cocina?",
+      "a3": "Sí. Coaster es compatible con impresoras de tickets térmicas estándar (vía red, Wi-Fi o USB) para enviar comandas a cocina y barra, así como para entregar el ticket de cuenta al cliente.",
+      "q4": "¿Puedo usar Coaster si mi negocio no es de hostelería?",
+      "a4": "Por supuesto. Puedes desactivar las comandas y el inventario y utilizar Coaster únicamente como sistema de fichajes, turnos y control horario para tiendas, comercios, oficinas o talleres.",
+      "q5": "¿Qué ocurre cuando terminan los 14 días de prueba?",
+      "a5": "Tú decides si quieres continuar con el plan mensual de 19,99 €. Como no te pedimos tarjeta para empezar la prueba, no hay cobros sorpresa automáticos ni compromisos."
     },
     "cta": {
-      "title": "¿Empezamos?",
-      "subtitle": "Dos minutos para tenerlo funcionando.",
-      "button": "Empezar mi prueba gratuita"
+      "title": "Empieza a trabajar más tranquilo hoy mismo",
+      "subtitle": "Prueba Coaster gratis durante 14 días. Sin tarjeta, sin permanencia y listo en 2 minutos.",
+      "button": "Comenzar mis 14 días gratis"
     },
     "footer": {
-      "tagline": "Registro horario y gestión diaria para cualquier establecimiento.",
+      "tagline": "Control horario legal y gestión ágil para hostelería y comercios.",
       "rights": "Todos los derechos reservados."
     }
   },
@@ -987,6 +1082,37 @@
       "loading": "Cargando iconos…",
       "empty": "Ningún icono coincide",
       "more": "Mostrando {{shown}} de {{total}}. Afina la búsqueda."
+    }
+  },
+  "app": {
+    "update_ready": "Hay una versión nueva de Coaster.",
+    "update_reload": "Recargar"
+  },
+  "account": {
+    "heading": "Tu cuenta",
+    "subtitle": "Cómo entras en Coaster.",
+    "back": "Volver a mis establecimientos",
+    "email": {
+      "heading": "Correo electrónico",
+      "verified": "Confirmado",
+      "unverified": "Sin confirmar. Confírmalo para poder recuperar la cuenta si pierdes la contraseña.",
+      "send": "Enviarme el enlace",
+      "sent": "Enlace enviado. Mira también en spam."
+    },
+    "password": {
+      "set": "Poner una contraseña",
+      "change": "Cambiar la contraseña",
+      "current": "Contraseña actual",
+      "saved": "Contraseña guardada. Las demás sesiones se han cerrado.",
+      "none_yet": "Aún no tienes contraseña: entras solo con Google. Pon una y podrás entrar de las dos formas.",
+      "closes_others": "Al guardar se cierran las demás sesiones abiertas. Esta se queda."
+    },
+    "identities": {
+      "heading": "Cuentas vinculadas",
+      "none": "No tienes ninguna cuenta vinculada.",
+      "unlink": "Desvincular",
+      "google": "Google",
+      "only_way_in": "Es tu única forma de entrar. Pon una contraseña y entonces podrás desvincularla."
     }
   }
 }

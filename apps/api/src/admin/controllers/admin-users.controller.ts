@@ -1,4 +1,4 @@
-import { CurrentUser, FirebaseAuthGuard } from '@coaster/auth';
+import { CurrentUser, AuthGuard } from '@coaster/auth';
 import type { AdminUserDetail, AdminUserSummary, Paginated, User, UserId } from '@coaster/common';
 import { Admin, AdminGuard } from '@coaster/core';
 import { Body, Controller, Get, Param, Patch, Query, UseGuards } from '@nestjs/common';
@@ -9,7 +9,7 @@ import { GetAdminUserDetailQuery, ListAdminUsersQuery } from '../queries';
 
 @Controller('admin/users')
 @Admin()
-@UseGuards(FirebaseAuthGuard, AdminGuard)
+@UseGuards(AuthGuard, AdminGuard)
 export class AdminUsersController {
   constructor(
     private readonly _queryBus: QueryBus,

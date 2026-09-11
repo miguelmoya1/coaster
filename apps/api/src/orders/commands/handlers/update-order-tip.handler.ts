@@ -1,5 +1,5 @@
 import { ErrorCodes, OrderStatus } from '@coaster/common';
-import { Logger, NotFoundException, BadRequestException } from '@nestjs/common';
+import { BadRequestException, Logger, NotFoundException } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { OrdersReadRepository } from '../../data-access/orders.read.repository';
 import { OrdersWriteRepository } from '../../data-access/orders.write.repository';
@@ -19,8 +19,8 @@ export class UpdateOrderTipHandler implements ICommandHandler<UpdateOrderTipComm
   async execute(command: UpdateOrderTipCommand): Promise<void> {
     this.#logger.debug(`Executing updateOrderTip...`);
 
-    const order = await this.readRepo.findById(command.orderId);
-    if (!order || order.establishmentId !== command.establishmentId) {
+    const order = await this.readRepo.findOwnedById(command.orderId, command.establishmentId);
+    if (!order) {
       throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
     }
 

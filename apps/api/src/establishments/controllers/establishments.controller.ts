@@ -1,4 +1,4 @@
-import { CurrentUser, FirebaseAuthGuard } from '@coaster/auth';
+import { CurrentUser, AuthGuard } from '@coaster/auth';
 import type { Establishment, EstablishmentId, EstablishmentSettings, User } from '@coaster/common';
 import { EstablishmentPermission } from '@coaster/common';
 import { EstablishmentPermissions, EstablishmentPermissionsGuard } from '@coaster/core';
@@ -11,7 +11,7 @@ import { EstablishmentsMapper } from '../mappers/establishments.mapper';
 import { GetEstablishmentByIdQuery, GetEstablishmentSettingsQuery, GetEstablishmentsForUserQuery } from '../queries';
 
 @Controller('establishments')
-@UseGuards(FirebaseAuthGuard, EstablishmentPermissionsGuard)
+@UseGuards(AuthGuard, EstablishmentPermissionsGuard)
 export class EstablishmentsController {
   constructor(
     private readonly _queryBus: QueryBus,

@@ -13,6 +13,7 @@ describe('DeleteOrderHandler', () => {
   let handler: DeleteOrderHandler;
   const repository = {
     findById: vi.fn(),
+    findOwnedById: vi.fn(),
     deleteOrder: vi.fn(),
   };
   const eventBus = {
@@ -33,7 +34,7 @@ describe('DeleteOrderHandler', () => {
   });
 
   it('should throw BadRequestException if order is open', async () => {
-    repository.findById.mockResolvedValue({
+    repository.findOwnedById.mockResolvedValue({
       id: 'order-1',
       establishmentId: 'establishment-1',
       status: OrderStatus.OPEN,
@@ -47,7 +48,7 @@ describe('DeleteOrderHandler', () => {
   });
 
   it("should delete today's closed order successfully", async () => {
-    repository.findById.mockResolvedValue({
+    repository.findOwnedById.mockResolvedValue({
       id: 'order-1',
       establishmentId: 'establishment-1',
       status: OrderStatus.CLOSED,

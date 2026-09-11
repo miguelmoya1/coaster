@@ -4,11 +4,12 @@ import { MatButton } from '@angular/material/button';
 import { handleErrorFormField } from '@coaster/core';
 import { Product, ProductsStore } from '@coaster/products';
 import { TranslatePipe } from '@ngx-translate/core';
+import { FormErrors } from '../../../../../../components/field/form-errors';
 import { NumberInput } from '../../../../../../components/number-input/number-input';
 
 @Component({
   selector: 'coaster-update-product-form',
-  imports: [FormRoot, NumberInput, FormField, MatButton, TranslatePipe],
+  imports: [FormRoot, NumberInput, FormField, MatButton, TranslatePipe, FormErrors],
   host: {
     class: 'block px-6 pb-6 pt-2',
   },
@@ -22,13 +23,7 @@ import { NumberInput } from '../../../../../../components/number-input/number-in
             [label]="'inventory.update_product.current_stock_label' | translate"
           />
 
-          @if (form().errors().length > 0) {
-            <div class="flex flex-col gap-1 mt-1 ml-1" role="alert">
-              @for (error of form().errors(); track error) {
-                <span class="text-error text-xs font-medium">{{ error.message || error.kind | translate: error }}</span>
-              }
-            </div>
-          }
+          <coaster-form-errors [errors]="form().errors()" />
 
           <div class="flex justify-end mt-4 gap-2">
             <button

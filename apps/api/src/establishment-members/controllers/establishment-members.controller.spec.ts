@@ -1,4 +1,4 @@
-import { FirebaseAuthGuard } from '@coaster/auth';
+import { AuthGuard } from '@coaster/auth';
 import { asEstablishmentId, asEstablishmentMemberId, asUserId, EstablishmentRole, Role } from '@coaster/common';
 import { EstablishmentPermissionsGuard } from '@coaster/core';
 import { CanActivate } from '@nestjs/common';
@@ -27,7 +27,7 @@ describe('EstablishmentMembersController', () => {
         { provide: QueryBus, useValue: mockQueryBus },
       ],
     })
-      .overrideGuard(FirebaseAuthGuard)
+      .overrideGuard(AuthGuard)
       .useValue(mockGuard)
       .overrideGuard(EstablishmentPermissionsGuard)
       .useValue(mockGuard)
@@ -66,6 +66,7 @@ describe('EstablishmentMembersController', () => {
       active: true,
       role: Role.USER,
       language: 'en',
+      emailVerified: true,
     };
     const result = await controller.getMyMember(asEstablishmentId('establishment-1'), user);
 
@@ -87,6 +88,7 @@ describe('EstablishmentMembersController', () => {
       active: true,
       role: Role.ADMIN,
       language: 'en',
+      emailVerified: true,
     };
     const dto = { email: 'new@staff.com', role: EstablishmentRole.STAFF };
 

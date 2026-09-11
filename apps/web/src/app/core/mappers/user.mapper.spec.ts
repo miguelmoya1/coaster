@@ -11,6 +11,7 @@ describe('User Mapper', () => {
     active: true,
     role: Role.USER,
     language: 'es',
+    emailVerified: true,
   };
 
   describe('checkIsUser', () => {

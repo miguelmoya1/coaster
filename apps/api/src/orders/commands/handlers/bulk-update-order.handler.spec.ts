@@ -12,6 +12,7 @@ describe('BulkUpdateOrderHandler', () => {
   let handler: BulkUpdateOrderHandler;
   const repository = {
     findById: vi.fn(),
+    findOwnedById: vi.fn(),
     bulkUpdate: vi.fn(),
   };
   const eventBus = {
@@ -36,7 +37,7 @@ describe('BulkUpdateOrderHandler', () => {
   const dto = { items: [{ itemId: asOrderItemId('item-1'), paidQuantity: 2, servedQuantity: 1 }] };
 
   it('should throw NotFoundException if order item not found', async () => {
-    repository.findById.mockResolvedValue({
+    repository.findOwnedById.mockResolvedValue({
       id: 'order-1',
       establishmentId: 'establishment-1',
       status: OrderStatus.OPEN,

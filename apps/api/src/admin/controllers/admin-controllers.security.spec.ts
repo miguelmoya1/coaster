@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 
-import { FirebaseAuthGuard } from '@coaster/auth';
+import { AuthGuard } from '@coaster/auth';
 import { ADMIN_KEY, AdminGuard } from '@coaster/core';
 import { PATH_METADATA } from '@nestjs/common/constants';
 import { describe, expect, it } from 'vitest';
@@ -39,9 +39,9 @@ describe('admin controllers are locked down', () => {
     it('should authenticate before it authorises', () => {
       const guards = guardsOf(controller);
 
-      expect(guards).toContain(FirebaseAuthGuard);
+      expect(guards).toContain(AuthGuard);
       expect(guards).toContain(AdminGuard);
-      expect(guards.indexOf(FirebaseAuthGuard)).toBeLessThan(guards.indexOf(AdminGuard));
+      expect(guards.indexOf(AuthGuard)).toBeLessThan(guards.indexOf(AdminGuard));
     });
 
     it('should not let any route opt out of the admin check', () => {

@@ -1,4 +1,4 @@
-import { FirebaseAuthGuard } from '@coaster/auth';
+import { AuthGuard } from '@coaster/auth';
 import { EstablishmentPermission, MediaUploadResponse } from '@coaster/common';
 import { EstablishmentPermissions, EstablishmentPermissionsGuard } from '@coaster/core';
 import { Body, Controller, Param, Post, UseGuards } from '@nestjs/common';
@@ -8,7 +8,7 @@ import { MediaService } from './media.service';
 
 @ApiTags('Media')
 @Controller('establishments/:establishmentId/media')
-@UseGuards(FirebaseAuthGuard, EstablishmentPermissionsGuard)
+@UseGuards(AuthGuard, EstablishmentPermissionsGuard)
 @ApiBearerAuth()
 export class MediaController {
   constructor(private readonly mediaService: MediaService) {}

@@ -1,11 +1,12 @@
 import { ErrorCodes } from '@coaster/common';
 import { CanActivate, ExecutionContext, HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
+import { ModuleRef, Reflector } from '@nestjs/core';
 import { DbRole, DbSubscriptionStatus } from '../../db';
 import { isManualGrantActive } from '../../permissions/manual-grant';
 import { SecurityRepository, SubscriptionState } from '../data-access/security.repository';
-import { FirebaseTokenService } from '../services/firebase-token.service';
+import { AccessTokenService } from '../services/access-token.service';
 import { SKIP_SUBSCRIPTION_CHECK_KEY } from '../decorators/skip-subscription-check.decorator';
+import { SUBSCRIPTION_REFRESHER, SubscriptionRefresher } from '../tokens/subscription-refresher.token';
 
 interface RequestWithParams {
   method: string;
@@ -33,7 +34,8 @@ export class SubscriptionActiveGuard implements CanActivate {
   constructor(
     private readonly _reflector: Reflector,
     private readonly _securityRepository: SecurityRepository,
-    private readonly _tokens: FirebaseTokenService,
+    private readonly _tokens: AccessTokenService,
+    private readonly _moduleRef: ModuleRef,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -68,6 +70,10 @@ export class SubscriptionActiveGuard implements CanActivate {
       return true;
     }
 
+    if (this.#grantsAccess(await this.#healFromStripe(establishmentId, subscription))) {
+      return true;
+    }
+
     if (await this.#isPlatformAdmin(request)) {
       this.#logger.debug(
         `Letting a platform admin act on establishmentId=${establishmentId} despite its lapsed subscription`,
@@ -86,6 +92,21 @@ export class SubscriptionActiveGuard implements CanActivate {
     );
   }
 
+  async #healFromStripe(establishmentId: string, stale: SubscriptionState | null): Promise<SubscriptionState | null> {
+    if (!stale?.stripeSubscriptionId) {
+      return stale;
+    }
+
+    try {
+      const refresher = this._moduleRef.get<SubscriptionRefresher>(SUBSCRIPTION_REFRESHER, { strict: false });
+
+      return (await refresher.refresh(establishmentId)) ?? stale;
+    } catch (error) {
+      this.#logger.error(`Could not check establishmentId=${establishmentId} against Stripe: ${error}`);
+      return stale;
+    }
+  }
+
   #grantsAccess(subscription: SubscriptionState | null): boolean {
     if (!subscription) {
       return false;
@@ -94,6 +115,10 @@ export class SubscriptionActiveGuard implements CanActivate {
     const now = new Date();
 
     if (isManualGrantActive(subscription, now)) {
+      return true;
+    }
+
+    if (subscription.status === DbSubscriptionStatus.PAST_DUE) {
       return true;
     }
 

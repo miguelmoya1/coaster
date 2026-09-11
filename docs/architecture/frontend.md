@@ -22,12 +22,18 @@ When `core` needs behaviour that lives higher up, the dependency is inverted wit
 `InjectionToken`. A real example: `errorInterceptor` opens the plan dialog on a 402, but does not
 know `PlanDialogService`; it depends on `PAYWALL_HANDLER`, which `app.config.ts` resolves.
 
-The interceptor chain is `[urlInterceptor, idTokenInterceptor, errorInterceptor,
+The interceptor chain is `[urlInterceptor, accessTokenInterceptor, errorInterceptor,
 unauthorizedInterceptor]`, and the order matters. `urlInterceptor` turns relative URLs into absolute
-API URLs first; `idTokenInterceptor` then attaches the Firebase token **only** to relative URLs or
+API URLs first; `accessTokenInterceptor` then attaches the access token **only** to relative URLs or
 URLs under `environment.apiUrl`. That condition is not decorative: image uploads `PUT` straight to
 `storage.googleapis.com` through the same `HttpClient`, and without it the user's token was being
 sent to a third-party host on every upload.
+
+`unauthorizedInterceptor` sits last, so it sees a 401 before `errorInterceptor` turns it into an
+`ApiError`. On one it asks `Auth.refresh()` for a new token and replays the request; only if that
+comes back empty does it send the user to the login page. Calls to `/auth/` are excluded, or a
+refused refresh would ask to refresh itself forever. `Auth.refresh()` is single-flight, so five
+requests failing at once produce one call to the API, not five.
 
 ### Domains — `establishments/`, `establishment-members/`, `establishment-subscription/`, `admin/`, `orders/`, ...
 
@@ -184,20 +190,17 @@ touching `eslint.config.js`.
 
 `environment.ts` is **generated** by `set-env.ts` from environment variables and is gitignored. An
 unset `PRODUCTION` warns and falls back to development, so a fresh checkout and CI both work without
-a `.env`; `PRODUCTION=true` together with `USE_EMULATORS=true` is refused outright, because it
-produces a bundle that looks fine and talks to the Firebase emulator.
+a `.env`.
 
-The guarantee that actually matters is checked on the artefact, not on the inputs: CI builds the web
-with `PRODUCTION=true` and fails if `__TEST_LOGIN__` appears anywhere in `dist/`. A precondition can
-be skipped by whoever forgets to set it; the postcondition cannot.
-
-`environment.production` also gates the test-login backdoor (`window.__TEST_LOGIN__`), which the
-Playwright suite relies on and which the production build tree-shakes away entirely.
+There used to be a test-login backdoor here — `window.__TEST_LOGIN__`, gated on `environment.production`,
+with a CI step that grepped `dist/` to prove the production bundle had tree-shaken it away. It is
+gone. The Playwright suite signs in the way a person does now: it mocks `POST /auth/refresh` and
+lets the route guard restore the session, so there is no backdoor left to keep out of the bundle.
 
 ## Bundle
 
 The `initial` budget is 880 kB warning / 1 MB error, not Angular's default 500 kB. The framework
-floor alone is ~600 kB (Angular core and router, CDK and Material, Firebase Auth) and application
+floor alone is ~600 kB (Angular core and router, CDK and Material) and application
 code is ~27 kB. The value is set so a real regression trips it, not to silence the warning.
 
 Two things are deliberately lazy:

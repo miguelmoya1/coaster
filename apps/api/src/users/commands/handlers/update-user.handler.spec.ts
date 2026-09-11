@@ -33,7 +33,6 @@ describe('UpdateUserHandler', () => {
       id: 'user-1',
       email: 'test@mail.com',
       name: 'Updated Name',
-      firebaseUid: 'uid-123',
       photoUrl: 'http://photo.com/2',
       active: true,
       createdAt: new Date(),

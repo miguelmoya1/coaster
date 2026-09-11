@@ -5,7 +5,6 @@ import { UsersController } from './controllers/users.controller';
 import { UserReadRepository } from './data-access/user.read.repository';
 import { UserWriteRepository } from './data-access/user.write.repository';
 import { EventHandlers } from './events';
-import { QueryHandlers } from './queries';
 import { UserSagas } from './sagas/user.sagas';
 
 @Module({
@@ -14,7 +13,6 @@ import { UserSagas } from './sagas/user.sagas';
     UserReadRepository,
     UserWriteRepository,
     ...CommandHandlers,
-    ...QueryHandlers,
     ...EventHandlers,
     UserSagas,
   ],

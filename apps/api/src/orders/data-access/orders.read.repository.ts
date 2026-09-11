@@ -48,6 +48,13 @@ export class OrdersReadRepository {
     });
   }
 
+  public async findOwnedById(orderId: OrderId, establishmentId: EstablishmentId) {
+    return this._db.dbOrder.findFirst({
+      where: { id: orderId, establishmentId },
+      include: ORDER_RELATIONS,
+    });
+  }
+
   public async findItemById(itemId: OrderItemId) {
     return this._db.dbOrderItem.findUnique({
       where: { id: itemId },

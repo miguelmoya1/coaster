@@ -1,4 +1,4 @@
-import { CurrentUser, FirebaseAuthGuard } from '@coaster/auth';
+import { CurrentUser, AuthGuard } from '@coaster/auth';
 import type { EstablishmentId, ShiftExchange, ShiftExchangeId, ShiftId, User } from '@coaster/common';
 import { asUserId, EstablishmentPermission } from '@coaster/common';
 import { EstablishmentPermissions, EstablishmentPermissionsGuard } from '@coaster/core';
@@ -10,7 +10,7 @@ import { ShiftExchangesMapper } from '../mappers/shift-exchanges.mapper';
 import { GetPendingExchangesQuery } from '../queries';
 
 @Controller('establishments/:establishmentId')
-@UseGuards(FirebaseAuthGuard, EstablishmentPermissionsGuard)
+@UseGuards(AuthGuard, EstablishmentPermissionsGuard)
 export class ShiftExchangesController {
   constructor(
     private readonly _queryBus: QueryBus,

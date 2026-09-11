@@ -3,6 +3,7 @@ import { Logger } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { EstablishmentSubscriptionReadRepository } from '../../data-access/establishment-subscription.read.repository';
 import { EstablishmentSubscriptionMapper } from '../../mappers/establishment-subscription.mapper';
+import { StripeSubscriptionRefresher } from '../../services/stripe-subscription-refresher';
 import { FindEstablishmentSubscriptionQuery } from '../impl/find-establishment-subscription.query';
 
 @QueryHandler(FindEstablishmentSubscriptionQuery)
@@ -12,11 +13,14 @@ export class FindEstablishmentSubscriptionHandler implements IQueryHandler<
 > {
   private readonly _logger = new Logger(FindEstablishmentSubscriptionHandler.name);
 
-  constructor(private readonly _readRepo: EstablishmentSubscriptionReadRepository) {}
+  constructor(
+    private readonly _readRepo: EstablishmentSubscriptionReadRepository,
+    private readonly _refresher: StripeSubscriptionRefresher,
+  ) {}
 
   async execute(query: FindEstablishmentSubscriptionQuery): Promise<EstablishmentSubscription> {
     const { establishmentId } = query;
-    const subscription = await this._readRepo.findByEstablishmentId(establishmentId);
+    let subscription = await this._readRepo.findByEstablishmentId(establishmentId);
 
     if (!subscription) {
       this._logger.debug(
@@ -25,6 +29,17 @@ export class FindEstablishmentSubscriptionHandler implements IQueryHandler<
       return EstablishmentSubscriptionMapper.toFreeDefault(establishmentId);
     }
 
+    if (this.#looksLapsed(subscription)) {
+      await this._refresher.refresh(establishmentId);
+      subscription = (await this._readRepo.findByEstablishmentId(establishmentId)) ?? subscription;
+    }
+
     return EstablishmentSubscriptionMapper.toDomain(subscription);
+  }
+
+  #looksLapsed(subscription: { stripeSubscriptionId: string | null; currentPeriodEnd: Date | null }): boolean {
+    return Boolean(
+      subscription.stripeSubscriptionId && subscription.currentPeriodEnd && subscription.currentPeriodEnd < new Date(),
+    );
   }
 }

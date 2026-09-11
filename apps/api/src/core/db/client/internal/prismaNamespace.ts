@@ -80,12 +80,12 @@ export type PrismaVersion = {
 }
 
 /**
- * Prisma Client JS version: 7.8.0
- * Query Engine version: 3c6e192761c0362d496ed980de936e2f3cebcd3a
+ * Prisma Client JS version: 7.10.0
+ * Query Engine version: 0edf323efd1d98336f3f0a68684b56f689b900d3
  */
 export const prismaVersion: PrismaVersion = {
-  client: "7.8.0",
-  engine: "3c6e192761c0362d496ed980de936e2f3cebcd3a"
+  client: "7.10.0",
+  engine: "0edf323efd1d98336f3f0a68684b56f689b900d3"
 }
 
 /**
@@ -156,6 +156,19 @@ export type Subset<T, U> = {
 };
 
 /**
+ * Resolved type of the argument passed to the `PrismaClient` constructor.
+ *
+ * When called without a narrower options type (the common case), this resolves
+ * to `PrismaClientOptions` directly, which produces a clear TypeScript error
+ * message (`not assignable to parameter of type 'PrismaClientOptions'`) when
+ * the argument is missing or incomplete. When the user supplies a narrower
+ * options type (e.g. via a literal), it falls back to `Subset` to keep
+ * filtering out unknown properties.
+ */
+export type PrismaClientConstructorArgs<Options extends PrismaClientOptions> =
+  [PrismaClientOptions] extends [Options] ? PrismaClientOptions : Subset<Options, PrismaClientOptions>;
+
+/**
  * SelectSubset
  * @desc From `T` pick properties that exist in `U`. Simple version of Intersection.
  * Additionally, it validates, if both select and include are present. If the case, it errors.
@@ -187,7 +200,7 @@ type Without<T, U> = { [P in Exclude<keyof T, keyof U>]?: never };
 export type XOR<T, U> =
   T extends object ?
   U extends object ?
-    (Without<T, U> & U) | (Without<U, T> & T)
+    ((Without<T, U> & U) | (Without<U, T> & T)) & object
   : U : T
 
 
@@ -386,6 +399,9 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 export const ModelName = {
   DbOrderAdjustment: 'DbOrderAdjustment',
   DbUser: 'DbUser',
+  DbAuthIdentity: 'DbAuthIdentity',
+  DbAuthSession: 'DbAuthSession',
+  DbAuthToken: 'DbAuthToken',
   DbBetaTester: 'DbBetaTester',
   DbEstablishment: 'DbEstablishment',
   DbEstablishmentSettings: 'DbEstablishmentSettings',
@@ -426,7 +442,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "dbOrderAdjustment" | "dbUser" | "dbBetaTester" | "dbEstablishment" | "dbEstablishmentSettings" | "dbPrinterPairing" | "dbAiUsage" | "dbUserPreferences" | "dbEstablishmentMember" | "dbShift" | "dbShiftExchange" | "dbMenu" | "dbMenuSection" | "dbMenuItem" | "dbCategory" | "dbProduct" | "dbTable" | "dbOrder" | "dbOrderItem" | "dbPrinterConfig" | "dbPrintJob" | "dbEstablishmentSubscription" | "dbTimeEntry" | "dbAdminAuditLog" | "dbInvoice" | "dbInvoiceTaxLine" | "dbOrderAuditLog"
+    modelProps: "dbOrderAdjustment" | "dbUser" | "dbAuthIdentity" | "dbAuthSession" | "dbAuthToken" | "dbBetaTester" | "dbEstablishment" | "dbEstablishmentSettings" | "dbPrinterPairing" | "dbAiUsage" | "dbUserPreferences" | "dbEstablishmentMember" | "dbShift" | "dbShiftExchange" | "dbMenu" | "dbMenuSection" | "dbMenuItem" | "dbCategory" | "dbProduct" | "dbTable" | "dbOrder" | "dbOrderItem" | "dbPrinterConfig" | "dbPrintJob" | "dbEstablishmentSubscription" | "dbTimeEntry" | "dbAdminAuditLog" | "dbInvoice" | "dbInvoiceTaxLine" | "dbOrderAuditLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -575,6 +591,228 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.DbUserCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.DbUserCountAggregateOutputType> | number
+        }
+      }
+    }
+    DbAuthIdentity: {
+      payload: Prisma.$DbAuthIdentityPayload<ExtArgs>
+      fields: Prisma.DbAuthIdentityFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DbAuthIdentityFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbAuthIdentityPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DbAuthIdentityFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbAuthIdentityPayload>
+        }
+        findFirst: {
+          args: Prisma.DbAuthIdentityFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbAuthIdentityPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DbAuthIdentityFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbAuthIdentityPayload>
+        }
+        findMany: {
+          args: Prisma.DbAuthIdentityFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbAuthIdentityPayload>[]
+        }
+        create: {
+          args: Prisma.DbAuthIdentityCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbAuthIdentityPayload>
+        }
+        createMany: {
+          args: Prisma.DbAuthIdentityCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DbAuthIdentityCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbAuthIdentityPayload>[]
+        }
+        delete: {
+          args: Prisma.DbAuthIdentityDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbAuthIdentityPayload>
+        }
+        update: {
+          args: Prisma.DbAuthIdentityUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbAuthIdentityPayload>
+        }
+        deleteMany: {
+          args: Prisma.DbAuthIdentityDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DbAuthIdentityUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DbAuthIdentityUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbAuthIdentityPayload>[]
+        }
+        upsert: {
+          args: Prisma.DbAuthIdentityUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbAuthIdentityPayload>
+        }
+        aggregate: {
+          args: Prisma.DbAuthIdentityAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDbAuthIdentity>
+        }
+        groupBy: {
+          args: Prisma.DbAuthIdentityGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DbAuthIdentityGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DbAuthIdentityCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DbAuthIdentityCountAggregateOutputType> | number
+        }
+      }
+    }
+    DbAuthSession: {
+      payload: Prisma.$DbAuthSessionPayload<ExtArgs>
+      fields: Prisma.DbAuthSessionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DbAuthSessionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbAuthSessionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DbAuthSessionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbAuthSessionPayload>
+        }
+        findFirst: {
+          args: Prisma.DbAuthSessionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbAuthSessionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DbAuthSessionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbAuthSessionPayload>
+        }
+        findMany: {
+          args: Prisma.DbAuthSessionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbAuthSessionPayload>[]
+        }
+        create: {
+          args: Prisma.DbAuthSessionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbAuthSessionPayload>
+        }
+        createMany: {
+          args: Prisma.DbAuthSessionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DbAuthSessionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbAuthSessionPayload>[]
+        }
+        delete: {
+          args: Prisma.DbAuthSessionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbAuthSessionPayload>
+        }
+        update: {
+          args: Prisma.DbAuthSessionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbAuthSessionPayload>
+        }
+        deleteMany: {
+          args: Prisma.DbAuthSessionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DbAuthSessionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DbAuthSessionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbAuthSessionPayload>[]
+        }
+        upsert: {
+          args: Prisma.DbAuthSessionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbAuthSessionPayload>
+        }
+        aggregate: {
+          args: Prisma.DbAuthSessionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDbAuthSession>
+        }
+        groupBy: {
+          args: Prisma.DbAuthSessionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DbAuthSessionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DbAuthSessionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DbAuthSessionCountAggregateOutputType> | number
+        }
+      }
+    }
+    DbAuthToken: {
+      payload: Prisma.$DbAuthTokenPayload<ExtArgs>
+      fields: Prisma.DbAuthTokenFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DbAuthTokenFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbAuthTokenPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DbAuthTokenFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbAuthTokenPayload>
+        }
+        findFirst: {
+          args: Prisma.DbAuthTokenFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbAuthTokenPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DbAuthTokenFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbAuthTokenPayload>
+        }
+        findMany: {
+          args: Prisma.DbAuthTokenFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbAuthTokenPayload>[]
+        }
+        create: {
+          args: Prisma.DbAuthTokenCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbAuthTokenPayload>
+        }
+        createMany: {
+          args: Prisma.DbAuthTokenCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DbAuthTokenCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbAuthTokenPayload>[]
+        }
+        delete: {
+          args: Prisma.DbAuthTokenDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbAuthTokenPayload>
+        }
+        update: {
+          args: Prisma.DbAuthTokenUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbAuthTokenPayload>
+        }
+        deleteMany: {
+          args: Prisma.DbAuthTokenDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DbAuthTokenUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DbAuthTokenUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbAuthTokenPayload>[]
+        }
+        upsert: {
+          args: Prisma.DbAuthTokenUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbAuthTokenPayload>
+        }
+        aggregate: {
+          args: Prisma.DbAuthTokenAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDbAuthToken>
+        }
+        groupBy: {
+          args: Prisma.DbAuthTokenGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DbAuthTokenGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DbAuthTokenCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DbAuthTokenCountAggregateOutputType> | number
         }
       }
     }
@@ -2485,6 +2723,9 @@ export const DbUserScalarFieldEnum = {
   id: 'id',
   email: 'email',
   firebaseUid: 'firebaseUid',
+  passwordHash: 'passwordHash',
+  passwordUpdatedAt: 'passwordUpdatedAt',
+  emailVerifiedAt: 'emailVerifiedAt',
   name: 'name',
   photoUrl: 'photoUrl',
   active: 'active',
@@ -2494,6 +2735,49 @@ export const DbUserScalarFieldEnum = {
 } as const
 
 export type DbUserScalarFieldEnum = (typeof DbUserScalarFieldEnum)[keyof typeof DbUserScalarFieldEnum]
+
+
+export const DbAuthIdentityScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  provider: 'provider',
+  subject: 'subject',
+  email: 'email',
+  createdAt: 'createdAt',
+  lastLoginAt: 'lastLoginAt'
+} as const
+
+export type DbAuthIdentityScalarFieldEnum = (typeof DbAuthIdentityScalarFieldEnum)[keyof typeof DbAuthIdentityScalarFieldEnum]
+
+
+export const DbAuthSessionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  tokenHash: 'tokenHash',
+  familyId: 'familyId',
+  userAgent: 'userAgent',
+  ip: 'ip',
+  createdAt: 'createdAt',
+  lastUsedAt: 'lastUsedAt',
+  expiresAt: 'expiresAt',
+  rotatedAt: 'rotatedAt',
+  revokedAt: 'revokedAt'
+} as const
+
+export type DbAuthSessionScalarFieldEnum = (typeof DbAuthSessionScalarFieldEnum)[keyof typeof DbAuthSessionScalarFieldEnum]
+
+
+export const DbAuthTokenScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  purpose: 'purpose',
+  tokenHash: 'tokenHash',
+  createdAt: 'createdAt',
+  expiresAt: 'expiresAt',
+  usedAt: 'usedAt'
+} as const
+
+export type DbAuthTokenScalarFieldEnum = (typeof DbAuthTokenScalarFieldEnum)[keyof typeof DbAuthTokenScalarFieldEnum]
 
 
 export const DbBetaTesterScalarFieldEnum = {
@@ -3071,6 +3355,34 @@ export type ListEnumDbRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$Prism
 
 
 /**
+ * Reference to a field of type 'DbAuthProvider'
+ */
+export type EnumDbAuthProviderFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DbAuthProvider'>
+    
+
+
+/**
+ * Reference to a field of type 'DbAuthProvider[]'
+ */
+export type ListEnumDbAuthProviderFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DbAuthProvider[]'>
+    
+
+
+/**
+ * Reference to a field of type 'DbAuthTokenPurpose'
+ */
+export type EnumDbAuthTokenPurposeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DbAuthTokenPurpose'>
+    
+
+
+/**
+ * Reference to a field of type 'DbAuthTokenPurpose[]'
+ */
+export type ListEnumDbAuthTokenPurposeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DbAuthTokenPurpose[]'>
+    
+
+
+/**
  * Reference to a field of type 'DbEstablishmentModule[]'
  */
 export type ListEnumDbEstablishmentModuleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DbEstablishmentModule[]'>
@@ -3331,19 +3643,10 @@ export type BatchPayload = {
 export const defineExtension = runtime.Extensions.defineExtension as unknown as runtime.Types.Extensions.ExtendsHook<"define", TypeMapCb, runtime.Types.Extensions.DefaultArgs>
 export type DefaultPrismaClient = PrismaClient
 export type ErrorFormat = 'pretty' | 'colorless' | 'minimal'
-export type PrismaClientOptions = ({
-  /**
-   * Instance of a Driver Adapter, e.g., like one provided by `@prisma/adapter-pg`.
-   */
-  adapter: runtime.SqlDriverAdapterFactory
-  accelerateUrl?: never
-} | {
-  /**
-   * Prisma Accelerate URL allowing the client to connect through Accelerate instead of a direct database.
-   */
-  accelerateUrl: string
-  adapter?: never
-}) & {
+/**
+ * Options common to all variants of `PrismaClientOptions`, regardless of whether you connect to your database through a driver adapter or through Prisma Accelerate.
+ */
+export interface PrismaClientBaseOptions {
   /**
    * @default "colorless"
    */
@@ -3430,9 +3733,62 @@ export type PrismaClientOptions = ({
    */
   queryPlanCacheMaxSize?: number
 }
+
+/**
+ * `PrismaClient` options for connecting to your database through Prisma Accelerate instead of a driver adapter.
+ * 
+ * Learn more: https://pris.ly/d/accelerate
+ */
+export interface PrismaClientOptionsWithAccelerateUrl extends PrismaClientBaseOptions {
+  /**
+   * The Prisma Accelerate connection URL. Use this option to connect to your database through Prisma Accelerate instead of using a driver adapter to connect directly.
+   * 
+   * Learn more: https://pris.ly/d/accelerate
+   */
+  accelerateUrl: string
+  adapter?: never
+}
+
+/**
+ * `PrismaClient` options for connecting to your database through a driver adapter. This is the common case in Prisma 7.
+ * 
+ * Learn more: https://pris.ly/d/driver-adapters
+ */
+export interface PrismaClientOptionsWithAdapter extends PrismaClientBaseOptions {
+  /**
+   * A driver adapter that PrismaClient uses to connect to your database, such as the ones provided by `@prisma/adapter-pg`, `@prisma/adapter-libsql`, `@prisma/adapter-planetscale`, etc.
+   * 
+   * A driver adapter is **required** unless you connect to your database through Prisma Accelerate (in which case use `accelerateUrl` instead).
+   * 
+   * Learn more: https://pris.ly/d/driver-adapters
+   * 
+   * @example
+   * ```ts
+   * import { PrismaPg } from '@prisma/adapter-pg'
+   * import { PrismaClient } from './generated/prisma/client'
+   * 
+   * const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL })
+   * const prisma = new PrismaClient({ adapter })
+   * ```
+   */
+  adapter: runtime.SqlDriverAdapterFactory
+  accelerateUrl?: never
+}
+
+/**
+ * Options passed to the `PrismaClient` constructor.
+ * 
+ * A driver adapter (or, alternatively, a Prisma Accelerate URL) is **required**. See {@link PrismaClientOptionsWithAdapter} and {@link PrismaClientOptionsWithAccelerateUrl} for the two variants. All other properties live in {@link PrismaClientBaseOptions} and are optional.
+ * 
+ * Learn more about driver adapters: https://pris.ly/d/driver-adapters
+ */
+export type PrismaClientOptions = PrismaClientOptionsWithAccelerateUrl | PrismaClientOptionsWithAdapter
 export type GlobalOmitConfig = {
   dbOrderAdjustment?: Prisma.DbOrderAdjustmentOmit
   dbUser?: Prisma.DbUserOmit
+  dbAuthIdentity?: Prisma.DbAuthIdentityOmit
+  dbAuthSession?: Prisma.DbAuthSessionOmit
+  dbAuthToken?: Prisma.DbAuthTokenOmit
   dbBetaTester?: Prisma.DbBetaTesterOmit
   dbEstablishment?: Prisma.DbEstablishmentOmit
   dbEstablishmentSettings?: Prisma.DbEstablishmentSettingsOmit

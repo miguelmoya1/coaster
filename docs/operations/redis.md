@@ -17,7 +17,7 @@ of the codebase asks a `CacheService` to `remember` and `forget`.
 | Key                                  | Read by                                         | Dropped by                                                           |
 | ------------------------------------ | ----------------------------------------------- | -------------------------------------------------------------------- |
 | `user:{userId}:role`                 | `SecurityRepository.getUserRole`                | `UserUpdatedEvent`                                                   |
-| `user:firebase:{firebaseUid}`        | `FirebaseTokenService.resolve`                  | `UserUpdatedEvent`, and `SyncUserHandler` directly                   |
+| `user:{userId}`                      | `AccessTokenService.resolve`                    | `UserUpdatedEvent`                                                   |
 | `establishment:{id}:member:{userId}` | `SecurityRepository.getEstablishmentMemberRole` | `MemberInvitedEvent`, `MemberRemovedEvent`, `MemberRoleChangedEvent` |
 | `establishment:{id}:modules`         | `SecurityRepository.getEnabledModules`          | `EstablishmentSettingsUpdatedEvent`                                  |
 | `establishment:{id}:subscription`    | `SecurityRepository.getSubscriptionState`       | `SubscriptionActivated/Renewed/Cancelled/PaymentFailed/Overridden`   |
@@ -99,11 +99,10 @@ two commands arriving out of order leave the older one in the cache, where the T
 hours. Deleting is idempotent and cannot invert.
 
 **Absence is cached too.** `{"v":null}` is a stored answer, distinct from a key that is not there.
-Caching "this person is not a member" is what keeps a non-member hammering an endpoint cheap. The
-one place where that bites is a `firebaseUid` that has no user _yet_ — a first sign-in would cache the
-absence and lock the new account out until the TTL — so `SyncUserHandler` drops that key on the
-paths where it links or creates the account. It is the only writer that clears a key directly rather
-than through an event, because `auth` cannot import `users` without a require-time cycle.
+Caching "this person is not a member" is what keeps a non-member hammering an endpoint cheap. It
+used to bite on `user:` — a sign-in could cache the absence of an account that was being created in
+the same breath, and lock it out until the TTL. It cannot any more: the key is now our own user id,
+read from a token we only sign for a row that already exists.
 
 Dates are revived on read. Without that, `currentPeriodEnd` would come back as a string and
 `SubscriptionActiveGuard` would compare a `Date` against text. The guard caches the row, never the

@@ -1,4 +1,4 @@
-import { FirebaseAuthGuard } from '@coaster/auth';
+import { AuthGuard } from '@coaster/auth';
 import type {
   EstablishmentId,
   EnqueuePrintJobResponseDto,
@@ -24,7 +24,7 @@ import { GetPrinterConnectionQuery, GetPrinterStatusQuery, GetPrintJobQuery } fr
 
 @ApiTags('printer')
 @Controller('establishments/:establishmentId/printer')
-@UseGuards(FirebaseAuthGuard, EstablishmentPermissionsGuard, EstablishmentModulesGuard)
+@UseGuards(AuthGuard, EstablishmentPermissionsGuard, EstablishmentModulesGuard)
 @RequiresModule(EstablishmentModule.ORDERS)
 export class PrinterConnectionController {
   constructor(

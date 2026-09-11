@@ -89,6 +89,10 @@ export default class Staff {
   protected readonly totalMembers = computed(() => this.members()?.length ?? 0);
 
   protected readonly seats = computed(() => {
+    if (!this.#myMemberStore.hasPermission(EstablishmentPermission.ESTABLISHMENT_MANAGE_BILLING)) {
+      return undefined;
+    }
+
     const summary = this.#subscriptionStore.billedSeats();
 
     return summary ? { ...summary, monthlyTotal: this.#money.format(summary.monthlyTotalCents) } : undefined;

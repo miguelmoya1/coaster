@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { EstablishmentSubscriptionStore, PlanDialogService } from '@coaster/establishment-subscription';
+import { EstablishmentSubscriptionStore, BillingEntryPoint } from '@coaster/establishment-subscription';
 import type { EstablishmentId } from '@coaster/common';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -24,11 +24,11 @@ class TestComponent {
 describe('RequireSubscriptionDirective', () => {
   let fixture: ComponentFixture<TestComponent>;
   const isReadOnlySignal = signal(false);
-  let planDialogServiceMock: { open: ReturnType<typeof vi.fn> };
+  let billingEntryPointMock: { open: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
     isReadOnlySignal.set(false);
-    planDialogServiceMock = { open: vi.fn() };
+    billingEntryPointMock = { open: vi.fn() };
 
     TestBed.configureTestingModule({
       imports: [TestComponent],
@@ -41,8 +41,8 @@ describe('RequireSubscriptionDirective', () => {
           },
         },
         {
-          provide: PlanDialogService,
-          useValue: planDialogServiceMock,
+          provide: BillingEntryPoint,
+          useValue: billingEntryPointMock,
         },
       ],
     });
@@ -59,7 +59,7 @@ describe('RequireSubscriptionDirective', () => {
     fixture.detectChanges();
 
     expect(fixture.componentInstance.actionCalled).toBe(true);
-    expect(planDialogServiceMock.open).not.toHaveBeenCalled();
+    expect(billingEntryPointMock.open).not.toHaveBeenCalled();
   });
 
   it('should preserve clickability and open plan dialog when read-only', () => {
@@ -76,6 +76,6 @@ describe('RequireSubscriptionDirective', () => {
     fixture.detectChanges();
 
     expect(fixture.componentInstance.actionCalled).toBe(false);
-    expect(planDialogServiceMock.open).toHaveBeenCalledWith('establishment-1');
+    expect(billingEntryPointMock.open).toHaveBeenCalledWith('establishment-1');
   });
 });

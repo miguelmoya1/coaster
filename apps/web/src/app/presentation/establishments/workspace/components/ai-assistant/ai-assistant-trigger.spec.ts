@@ -1,7 +1,7 @@
 import { asEstablishmentId } from '@coaster/common';
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { EstablishmentSubscriptionStore, PlanDialogService } from '@coaster/establishment-subscription';
+import { EstablishmentSubscriptionStore, BillingEntryPoint } from '@coaster/establishment-subscription';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AiAssistantTrigger } from './ai-assistant-trigger';
@@ -11,7 +11,7 @@ describe('AiAssistantTrigger', () => {
   let fixture: ComponentFixture<AiAssistantTrigger>;
 
   const isReadOnly = signal(false);
-  const planDialogServiceMock = { open: vi.fn() };
+  const billingEntryPointMock = { open: vi.fn() };
 
   const aiVoiceServiceMock = {
     isOpen: signal(false),
@@ -33,7 +33,7 @@ describe('AiAssistantTrigger', () => {
         provideTranslateService(),
         { provide: AiVoiceService, useValue: aiVoiceServiceMock },
         { provide: EstablishmentSubscriptionStore, useValue: { isReadOnly } },
-        { provide: PlanDialogService, useValue: planDialogServiceMock },
+        { provide: BillingEntryPoint, useValue: billingEntryPointMock },
       ],
     }).compileComponents();
 
@@ -82,6 +82,6 @@ describe('AiAssistantTrigger', () => {
     button().dispatchEvent(new MouseEvent('click', { cancelable: true, bubbles: true }));
 
     expect(aiVoiceServiceMock.toggle).not.toHaveBeenCalled();
-    expect(planDialogServiceMock.open).toHaveBeenCalledWith('establishment-1');
+    expect(billingEntryPointMock.open).toHaveBeenCalledWith('establishment-1');
   });
 });

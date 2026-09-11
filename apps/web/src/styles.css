@@ -25,6 +25,11 @@
 
   --color-border-ghost: #484847;
   --color-border-strong: #767575;
+
+  --bottom-bar-width: min(calc(100vw - 2rem), 28rem);
+  --bottom-bar-inset: calc(1rem + env(safe-area-inset-bottom));
+  --bottom-bar-gap: 0.75rem;
+  --bottom-fab-size: 3.5rem;
 }
 
 @theme {

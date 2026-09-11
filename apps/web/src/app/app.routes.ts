@@ -12,6 +12,33 @@ export const appRoutes: Routes = [
     loadComponent: () => import('./presentation/public-menu/public-menu'),
   },
   {
+    path: 'forgot-password',
+    canActivate: [noAuthGuard],
+    loadComponent: () => import('./presentation/auth/pages/forgot-password/forgot-password'),
+  },
+  {
+    path: 'reset-password/:token',
+    loadComponent: () => import('./presentation/auth/pages/reset-password/reset-password'),
+  },
+  {
+    path: 'verify-email/:token',
+    loadComponent: () => import('./presentation/auth/pages/verify-email/verify-email'),
+  },
+  {
+    path: 'invite/:token',
+    loadComponent: () => import('./presentation/auth/pages/invite/invite'),
+  },
+  {
+    path: 'account',
+    canActivate: [authGuard],
+    loadComponent: () => import('./presentation/account/account'),
+  },
+  {
+    path: 'register',
+    canActivate: [noAuthGuard],
+    loadComponent: () => import('./presentation/auth/pages/register/register'),
+  },
+  {
     path: 'login',
     canActivate: [noAuthGuard],
     loadChildren: () => import('./presentation/auth/auth.routes'),

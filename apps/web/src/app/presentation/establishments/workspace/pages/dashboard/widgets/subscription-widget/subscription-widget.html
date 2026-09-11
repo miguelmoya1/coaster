@@ -31,14 +31,14 @@
         </div>
       </div>
 
-      @if (showBillingAction()) {
+      @if (canManageBilling()) {
         <div class="flex items-center gap-2 self-start sm:self-center shrink-0 flex-wrap">
           @if (billingAction() === BillingAction.MANAGE) {
             <button
               mat-button
               [disabled]="isOpeningBillingPortal()"
               [attr.aria-busy]="isOpeningBillingPortal()"
-              (click)="manageBilling()"
+              (click)="openBilling()"
               class="!rounded-xl font-bold border border-outline-variant/30 gap-2 whitespace-nowrap"
             >
               @if (isOpeningBillingPortal()) {
@@ -52,7 +52,7 @@
             <button
               mat-flat-button
               color="primary"
-              (click)="activatePro()"
+              (click)="openBilling()"
               class="!rounded-xl font-bold gap-2 whitespace-nowrap"
             >
               <mat-icon class="text-sm">rocket_launch</mat-icon>

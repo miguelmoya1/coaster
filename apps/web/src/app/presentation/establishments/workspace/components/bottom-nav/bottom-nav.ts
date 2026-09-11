@@ -6,6 +6,7 @@ import { MyMemberStore } from '@coaster/establishment-members';
 import { EstablishmentModule, EstablishmentPermission, EstablishmentPermissionType } from '@coaster/common';
 import { ModulesStore } from '@coaster/establishments';
 import { TranslatePipe } from '@ngx-translate/core';
+import { BottomBar } from '../bottom-bar/bottom-bar';
 
 interface NavItem {
   value: string;
@@ -23,22 +24,22 @@ interface NavItem {
     <nav
       ngToolbar
       orientation="horizontal"
-      class="fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-md flex justify-around items-center h-16 bg-surface-container-high/80 backdrop-blur-2xl rounded-full z-50 shadow-elevated border border-outline-variant/20 shrink-0"
+      class="fixed flex justify-around items-center h-[var(--bottom-fab-size)] bg-surface-container-high/80 backdrop-blur-2xl rounded-full z-50 shadow-elevated border border-outline-variant/20 shrink-0 px-1.5 transition-[width] duration-200"
+      [style.bottom]="'var(--bottom-bar-inset)'"
+      [style.left]="'calc(50vw - var(--bottom-bar-width) / 2)'"
+      [style.width]="barWidth()"
     >
       @for (item of visibleNavItems(); track item.value) {
         <a
           ngToolbarWidget
           [value]="item.value"
           [routerLink]="item.link"
-          routerLinkActive="bg-surface-bright text-primary rounded-2xl scale-105 sm:scale-110"
-          class="flex-1 min-w-0 flex flex-col items-center justify-center text-on-surface-variant px-1 sm:px-2 py-1.5 sm:py-2 hover:text-white transition-all active:scale-95 duration-150 gap-0 sm:gap-1 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-container"
+          [attr.aria-label]="item.labelKey | translate"
+          [title]="item.labelKey | translate"
+          routerLinkActive="bg-surface-bright text-primary"
+          class="flex-1 min-w-0 aspect-square max-w-11 flex items-center justify-center rounded-full text-on-surface-variant hover:text-white transition-all active:scale-95 duration-150 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-container"
         >
           <mat-icon class="text-xl sm:text-2xl">{{ item.icon }}</mat-icon>
-          <span
-            class="font-bold text-xxs sm:text-xxs-plus uppercase tracking-wider hidden sm:block truncate max-w-full"
-          >
-            {{ item.labelKey | translate }}
-          </span>
         </a>
       }
     </nav>
@@ -48,6 +49,13 @@ export class BottomNav {
   public readonly establishmentId = input.required<string>();
   readonly #myMemberStore = inject(MyMemberStore);
   readonly #modulesStore = inject(ModulesStore);
+  readonly #bottomBar = inject(BottomBar);
+
+  protected readonly barWidth = computed(() =>
+    this.#bottomBar.hasFab()
+      ? 'calc(var(--bottom-bar-width) - var(--bottom-fab-size) - var(--bottom-bar-gap))'
+      : 'var(--bottom-bar-width)',
+  );
 
   private readonly allNavItems = computed<NavItem[]>(() => [
     {

@@ -177,28 +177,98 @@ model DbOrderAdjustment {
 }
 
 model DbUser {
-  id             String                  @id @default(uuid())
-  email          String                  @unique
-  firebaseUid    String?                 @unique
-  name           String
-  photoUrl       String?
-  active         Boolean                 @default(true)
-  role           DbRole                  @default(USER)
-  createdAt      DateTime                @default(now())
-  updatedAt      DateTime                @updatedAt
-  preferences    DbUserPreferences?
-  memberships    DbEstablishmentMember[]
-  shifts         DbShift[]
-  shiftRequests  DbShiftExchange[]       @relation("Requester")
-  shiftApprovals DbShiftExchange[]       @relation("Target")
-  auditLogs      DbAdminAuditLog[]       @relation("AdminAuditActor")
-  timeEntries    DbTimeEntry[]           @relation("TimeEntrySubject")
-  timeEntryEdits DbTimeEntry[]           @relation("TimeEntryActor")
-  createdOrders  DbOrder[]               @relation("OrderCreator")
-  betaInvites    DbBetaTester[]          @relation("BetaTesterInviter")
-  orderAudits    DbOrderAuditLog[]
+  id                String                  @id @default(uuid())
+  email             String                  @unique
+  firebaseUid       String?                 @unique
+  passwordHash      String?
+  passwordUpdatedAt DateTime?
+  emailVerifiedAt   DateTime?
+  name              String
+  photoUrl          String?
+  active            Boolean                 @default(true)
+  role              DbRole                  @default(USER)
+  createdAt         DateTime                @default(now())
+  updatedAt         DateTime                @updatedAt
+  preferences       DbUserPreferences?
+  memberships       DbEstablishmentMember[]
+  shifts            DbShift[]
+  shiftRequests     DbShiftExchange[]       @relation("Requester")
+  shiftApprovals    DbShiftExchange[]       @relation("Target")
+  auditLogs         DbAdminAuditLog[]       @relation("AdminAuditActor")
+  timeEntries       DbTimeEntry[]           @relation("TimeEntrySubject")
+  timeEntryEdits    DbTimeEntry[]           @relation("TimeEntryActor")
+  createdOrders     DbOrder[]               @relation("OrderCreator")
+  betaInvites       DbBetaTester[]          @relation("BetaTesterInviter")
+  orderAudits       DbOrderAuditLog[]
+  identities        DbAuthIdentity[]
+  sessions          DbAuthSession[]
+  authTokens        DbAuthToken[]
 
   @@map("User")
+}
+
+enum DbAuthProvider {
+  GOOGLE
+
+  @@map("AuthProvider")
+}
+
+enum DbAuthTokenPurpose {
+  EMAIL_VERIFICATION
+  PASSWORD_RESET
+  INVITE
+
+  @@map("AuthTokenPurpose")
+}
+
+model DbAuthIdentity {
+  id          String         @id @default(uuid())
+  userId      String
+  user        DbUser         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider    DbAuthProvider
+  subject     String
+  email       String
+  createdAt   DateTime       @default(now())
+  lastLoginAt DateTime?
+
+  @@unique([provider, subject])
+  @@unique([provider, userId])
+  @@map("AuthIdentity")
+}
+
+model DbAuthSession {
+  id         String    @id @default(uuid())
+  userId     String
+  user       DbUser    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash  String    @unique
+  familyId   String
+  userAgent  String?
+  ip         String?
+  createdAt  DateTime  @default(now())
+  lastUsedAt DateTime  @default(now())
+  expiresAt  DateTime
+  rotatedAt  DateTime?
+  revokedAt  DateTime?
+
+  @@index([userId, revokedAt])
+  @@index([familyId])
+  @@index([expiresAt])
+  @@map("AuthSession")
+}
+
+model DbAuthToken {
+  id        String             @id @default(uuid())
+  userId    String
+  user      DbUser             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  purpose   DbAuthTokenPurpose
+  tokenHash String             @unique
+  createdAt DateTime           @default(now())
+  expiresAt DateTime
+  usedAt    DateTime?
+
+  @@index([userId, purpose])
+  @@index([expiresAt])
+  @@map("AuthToken")
 }
 
 model DbBetaTester {

@@ -1,6 +1,6 @@
 import { DestroyRef, Directive, ElementRef, effect, inject, input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { PlanDialogService } from '../services/plan-dialog.service';
+import { BillingEntryPoint } from '../services/billing-entry-point';
 import { EstablishmentSubscriptionStore } from '../store/establishment-subscription.store';
 import type { EstablishmentId } from '@coaster/common';
 
@@ -10,7 +10,7 @@ import type { EstablishmentId } from '@coaster/common';
 })
 export class RequireSubscriptionDirective {
   readonly #subStore = inject(EstablishmentSubscriptionStore, { optional: true });
-  readonly #planDialogService = inject(PlanDialogService, { optional: true });
+  readonly #billingEntryPoint = inject(BillingEntryPoint, { optional: true });
   readonly #elementRef = inject(ElementRef<HTMLElement>);
   readonly #destroyRef = inject(DestroyRef);
   readonly #translate = inject(TranslateService);
@@ -24,7 +24,7 @@ export class RequireSubscriptionDirective {
         event.preventDefault();
         event.stopPropagation();
         event.stopImmediatePropagation();
-        this.#planDialogService?.open(this.establishmentId());
+        this.#billingEntryPoint?.open(this.establishmentId());
       }
     };
 
@@ -34,7 +34,7 @@ export class RequireSubscriptionDirective {
       event.preventDefault();
       event.stopPropagation();
       event.stopImmediatePropagation();
-      this.#planDialogService?.open(this.establishmentId());
+      this.#billingEntryPoint?.open(this.establishmentId());
     };
 
     el.addEventListener('click', handleCaptureClick, true);

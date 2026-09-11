@@ -1,4 +1,4 @@
-import { FirebaseAuthGuard } from '@coaster/auth';
+import { AuthGuard } from '@coaster/auth';
 import { asEstablishmentId, asCategoryId } from '@coaster/common';
 import { EstablishmentModulesGuard, EstablishmentPermissionsGuard } from '@coaster/core';
 import { CanActivate } from '@nestjs/common';
@@ -27,7 +27,7 @@ describe('CategoriesController', () => {
         { provide: QueryBus, useValue: mockQueryBus },
       ],
     })
-      .overrideGuard(FirebaseAuthGuard)
+      .overrideGuard(AuthGuard)
       .useValue(mockGuard)
       .overrideGuard(EstablishmentPermissionsGuard)
       .useValue(mockGuard)

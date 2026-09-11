@@ -12,8 +12,6 @@
 
 import * as process from 'node:process'
 import * as path from 'node:path'
-import { fileURLToPath } from 'node:url'
-globalThis['__dirname'] = path.dirname(fileURLToPath(import.meta.url))
 
 import * as runtime from "@prisma/client/runtime/client"
 import * as $Enums from "./enums.js"
@@ -51,6 +49,21 @@ export type DbOrderAdjustment = Prisma.DbOrderAdjustmentModel
  * 
  */
 export type DbUser = Prisma.DbUserModel
+/**
+ * Model DbAuthIdentity
+ * 
+ */
+export type DbAuthIdentity = Prisma.DbAuthIdentityModel
+/**
+ * Model DbAuthSession
+ * 
+ */
+export type DbAuthSession = Prisma.DbAuthSessionModel
+/**
+ * Model DbAuthToken
+ * 
+ */
+export type DbAuthToken = Prisma.DbAuthTokenModel
 /**
  * Model DbBetaTester
  * 

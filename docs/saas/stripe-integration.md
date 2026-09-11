@@ -145,6 +145,38 @@ customer reads before deciding, so change it first. `landing.spec.ts` pins the f
 table against the arithmetic, which catches a table edited by hand but not a price changed in
 Stripe alone.
 
+## When the projection and Stripe disagree
+
+`EstablishmentSubscription` is a copy of what Stripe told us. A webhook that never arrives leaves
+that copy behind, and a copy that says "lapsed" locks a venue that is paying — the worst failure
+this system has, because the customer paid and cannot work.
+
+So `SubscriptionActiveGuard` does not take the copy as final. When it is about to answer 402 and the
+row still carries a `stripeSubscriptionId`, it asks Stripe through `SUBSCRIPTION_REFRESHER`, writes
+what comes back and decides again. An establishment that never subscribed has no id, so it never
+costs a Stripe call, and the check only runs on the path that was going to fail anyway.
+
+The refresher lives in `establishment-subscription`, not in `core`: the guard is base layer and may
+not import a feature module. `core` declares the token, the feature module provides it, and the
+guard resolves it through `ModuleRef` with `strict: false`. With nothing registered the guard simply
+behaves as it did before any of this existed.
+
+That refresh is the one write to `EstablishmentSubscription` that does not come from a webhook. It
+is still Stripe's own answer being written — the same source, asked directly instead of waited for.
+
+## A failed card does not lock the venue
+
+Stripe retries a failed payment for about two weeks before giving up. Cutting a bar's till off on
+day one over an expired card does far more damage than the fee is worth, and the venue churns.
+
+`PAST_DUE` therefore keeps full access, on both sides: the guard grants it and the web mirrors it in
+`isReadOnly`. What the owner gets is `paymentNeedsAttention` — a banner that says the charge failed
+and sends them to the portal to fix the card. Access is only cut when Stripe itself gives up and the
+subscription becomes `UNPAID`, or it is cancelled with no paid period left.
+
+Both sides must agree. If the web ever stops mirroring the guard, the venue is shown a workspace it
+cannot write to, which is worse than either answer on its own.
+
 ## Tax
 
 The Pro price is **tax exclusive**: Checkout runs with `automatic_tax`, asks for a billing address
@@ -171,5 +203,6 @@ the same breath as `STRIPE_PRICE_PRO`. Subscribers on the old price keep the tie
 
 Anything else is logged at debug level and acknowledged.
 
-`EstablishmentSubscription` is a local read model: customer, subscription, plan, status and periods are only
-ever written from webhooks — never from a user action.
+`EstablishmentSubscription` is a local read model: customer, subscription, plan, status and periods are
+written from Stripe and never from a user action — normally by a webhook, and by the guard's refresh
+when the copy has fallen behind (see [When the projection and Stripe disagree](#when-the-projection-and-stripe-disagree)).

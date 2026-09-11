@@ -59,6 +59,7 @@ describe('WorkspaceLayout', () => {
   const establishmentSubscriptionStoreMock = {
     setEstablishmentId: vi.fn(),
     isReadOnly: signal(false),
+    paymentNeedsAttention: signal(false),
     isTrialExpiringSoon: signal(false),
     showSubscriptionBanner: signal(false),
     billingAction: signal('ACTIVATE'),

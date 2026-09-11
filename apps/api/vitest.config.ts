@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import swc from 'unplugin-swc';
-import { defineConfig } from 'vitest/config';
+import { configDefaults, defineConfig } from 'vitest/config';
 
 const tsconfig = JSON.parse(readFileSync(resolve(__dirname, './tsconfig.json'), 'utf8')) as {
   compilerOptions: { paths: Record<string, string[]> };
@@ -17,7 +17,7 @@ const alias = Object.entries(tsconfig.compilerOptions.paths)
 export default defineConfig({
   test: {
     include: ['**/*.spec.ts'],
-    exclude: ['**/*.e2e-spec.ts'],
+    exclude: [...configDefaults.exclude, '**/*.e2e-spec.ts'],
     globals: true,
     root: './',
   },

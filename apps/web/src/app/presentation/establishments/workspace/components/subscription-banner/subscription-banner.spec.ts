@@ -1,7 +1,8 @@
 import { computed, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { EstablishmentSubscriptionStore, PlanDialogService } from '@coaster/establishment-subscription';
+import { EstablishmentSubscriptionStore, BillingEntryPoint } from '@coaster/establishment-subscription';
 import type { EstablishmentId } from '@coaster/common';
+import { MyMemberStore } from '@coaster/establishment-members';
 import { provideTranslateService, TranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SubscriptionBanner } from './subscription-banner';
@@ -9,34 +10,43 @@ import { SubscriptionBanner } from './subscription-banner';
 describe('SubscriptionBanner', () => {
   let fixture: ComponentFixture<SubscriptionBanner>;
   const isReadOnlySignal = signal(false);
+  const canManageBilling = signal(true);
+  const paymentNeedsAttentionSignal = signal(false);
   const isTrialExpiringSoonSignal = signal(false);
   const trialDaysRemainingSignal = signal(2);
-  let planDialogServiceMock: { open: ReturnType<typeof vi.fn> };
+  let billingEntryPointMock: { open: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
     isReadOnlySignal.set(false);
+    canManageBilling.set(true);
+    paymentNeedsAttentionSignal.set(false);
     isTrialExpiringSoonSignal.set(false);
     trialDaysRemainingSignal.set(2);
-    planDialogServiceMock = { open: vi.fn() };
+    billingEntryPointMock = { open: vi.fn() };
 
     TestBed.configureTestingModule({
       imports: [SubscriptionBanner],
       providers: [
         provideTranslateService(),
+        { provide: MyMemberStore, useValue: { hasPermission: () => canManageBilling() } },
         {
           provide: EstablishmentSubscriptionStore,
           useValue: {
             isReadOnly: isReadOnlySignal,
+            paymentNeedsAttention: paymentNeedsAttentionSignal,
+            isOpeningBillingPortal: signal(false),
+            createCustomerPortalSession: vi.fn().mockResolvedValue('https://portal.stripe.com'),
             isTrialExpiringSoon: isTrialExpiringSoonSignal,
             trialDaysRemaining: trialDaysRemainingSignal,
-            showSubscriptionBanner: computed(() => isReadOnlySignal() || isTrialExpiringSoonSignal()),
+            showSubscriptionBanner: computed(
+              () => isReadOnlySignal() || paymentNeedsAttentionSignal() || isTrialExpiringSoonSignal(),
+            ),
             billingAction: signal('ACTIVATE'),
-            isOpeningBillingPortal: signal(false),
           },
         },
         {
-          provide: PlanDialogService,
-          useValue: planDialogServiceMock,
+          provide: BillingEntryPoint,
+          useValue: billingEntryPointMock,
         },
       ],
     });
@@ -73,7 +83,7 @@ describe('SubscriptionBanner', () => {
 
     const button: HTMLButtonElement = fixture.nativeElement.querySelector('button');
     button.click();
-    expect(planDialogServiceMock.open).toHaveBeenCalledWith('establishment-123');
+    expect(billingEntryPointMock.open).toHaveBeenCalledWith('establishment-123');
   });
 
   it('should render expiring soon banner when trial has <= 3 days left', () => {
@@ -87,6 +97,6 @@ describe('SubscriptionBanner', () => {
 
     const button: HTMLButtonElement = fixture.nativeElement.querySelector('button');
     button.click();
-    expect(planDialogServiceMock.open).toHaveBeenCalledWith('establishment-123');
+    expect(billingEntryPointMock.open).toHaveBeenCalledWith('establishment-123');
   });
 });

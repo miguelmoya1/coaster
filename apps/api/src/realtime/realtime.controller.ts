@@ -1,4 +1,4 @@
-import { CurrentUser, FirebaseAuthGuard } from '@coaster/auth';
+import { CurrentUser, AuthGuard } from '@coaster/auth';
 import type { EstablishmentId, User } from '@coaster/common';
 import { EstablishmentPermissionsGuard } from '@coaster/core';
 import { Controller, Get, Headers, Logger, Param, Res, UseGuards } from '@nestjs/common';
@@ -6,7 +6,7 @@ import type { FastifyReply } from 'fastify';
 import { RealtimeBus, RealtimeRegistry, RealtimeStream } from './services';
 
 @Controller('establishments/:establishmentId')
-@UseGuards(FirebaseAuthGuard, EstablishmentPermissionsGuard)
+@UseGuards(AuthGuard, EstablishmentPermissionsGuard)
 export class RealtimeController {
   readonly #logger = new Logger(RealtimeController.name);
 

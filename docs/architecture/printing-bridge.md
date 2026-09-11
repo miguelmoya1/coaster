@@ -28,11 +28,11 @@ the venue's wifi.
 
 ## Authentication
 
-The bridge is not a user, so it does not carry a Firebase token. Each venue has a **device key**
+The bridge is not a user, so it does not carry an access token. Each venue has a **device key**
 stored in `PrinterConfig`. The bridge sends it in the `X-Device-Key` header, and `DeviceKeyService`
 compares it with `crypto.timingSafeEqual`.
 
-That is why the printer controller is the one API controller without `FirebaseAuthGuard`: it
+That is why the printer controller is the one API controller without `AuthGuard`: it
 authenticates per device, per establishment.
 
 The long-poll endpoint is exempt from rate limiting — it deliberately holds a connection open and

@@ -1,14 +1,15 @@
-import { asUserId } from '@coaster/common';
 import { Component, computed, inject, input, output, signal } from '@angular/core';
 import { FormField, FormRoot, form, required } from '@angular/forms/signals';
 import { MatButton } from '@angular/material/button';
 import { MatTimepicker, MatTimepickerInput, MatTimepickerToggle } from '@angular/material/timepicker';
 import type { EstablishmentMember } from '@coaster/common';
+import { asUserId } from '@coaster/common';
 import { DateFormatterService, handleErrorFormField } from '@coaster/core';
 import { ScheduleStateService } from '@coaster/schedule';
 import { ShiftsStore } from '@coaster/shifts';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Field } from '../../../../../../components/field/field';
+import { FormErrors } from '../../../../../../components/field/form-errors';
 import { CoasterInput } from '../../../../../../components/field/input.directive';
 
 @Component({
@@ -23,6 +24,7 @@ import { CoasterInput } from '../../../../../../components/field/input.directive
     TranslatePipe,
     Field,
     CoasterInput,
+    FormErrors,
   ],
   template: `
     <div class="mb-4 pb-4 border-b border-outline-variant/15 select-none">
@@ -70,13 +72,7 @@ import { CoasterInput } from '../../../../../../components/field/input.directive
           ></textarea>
         </coaster-field>
 
-        @if (form().errors().length > 0) {
-          <div class="flex flex-col gap-1 mt-1 ml-1" role="alert">
-            @for (error of form().errors(); track error) {
-              <span class="text-error text-xs font-medium">{{ error.message || error.kind | translate: error }}</span>
-            }
-          </div>
-        }
+        <coaster-form-errors [errors]="form().errors()" />
 
         <div class="flex justify-end mt-4 gap-2">
           <button

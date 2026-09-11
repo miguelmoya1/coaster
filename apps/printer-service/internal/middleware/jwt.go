@@ -1,28 +1,19 @@
 package middleware
 
 import (
-	"crypto/hmac"
-	"crypto/sha256"
 	"crypto/subtle"
-	"encoding/base64"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"log"
 	"net/http"
 	"strings"
-	"time"
-)
 
-type JWTHeader struct {
-	Alg string `json:"alg"`
-	Typ string `json:"typ"`
-}
+	"github.com/golang-jwt/jwt/v5"
+)
 
 type JWTPayload struct {
 	EstablishmentID string `json:"establishmentId"`
-	Iat             int64  `json:"iat"`
-	Exp             int64  `json:"exp"`
+	jwt.RegisteredClaims
 }
 
 func JWT(secret, establishmentID string) func(http.Handler) http.Handler {
@@ -77,52 +68,18 @@ func deny(w http.ResponseWriter, status int, message string) {
 }
 
 func ValidateJWT(tokenStr string, secret []byte) (*JWTPayload, error) {
-	parts := strings.Split(tokenStr, ".")
-	if len(parts) != 3 {
-		return nil, errors.New("invalid token format: must have 3 parts")
-	}
+	payload := &JWTPayload{}
 
-	headerPart, payloadPart, signaturePart := parts[0], parts[1], parts[2]
-
-	headerBytes, err := base64.RawURLEncoding.DecodeString(headerPart)
+	_, err := jwt.ParseWithClaims(
+		tokenStr,
+		payload,
+		func(*jwt.Token) (any, error) { return secret, nil },
+		jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Alg()}),
+		jwt.WithExpirationRequired(),
+	)
 	if err != nil {
-		return nil, fmt.Errorf("failed to decode header: %w", err)
-	}
-	var header JWTHeader
-	if err := json.Unmarshal(headerBytes, &header); err != nil {
-		return nil, fmt.Errorf("failed to parse header JSON: %w", err)
-	}
-	if header.Alg != "HS256" {
-		return nil, fmt.Errorf("unsupported algorithm: %s", header.Alg)
+		return nil, err
 	}
 
-	mac := hmac.New(sha256.New, secret)
-	mac.Write([]byte(headerPart + "." + payloadPart))
-	expectedSignature := mac.Sum(nil)
-
-	sigBytes, err := base64.RawURLEncoding.DecodeString(signaturePart)
-	if err != nil {
-		return nil, fmt.Errorf("failed to decode signature: %w", err)
-	}
-	if !hmac.Equal(sigBytes, expectedSignature) {
-		return nil, errors.New("signature verification failed")
-	}
-
-	payloadBytes, err := base64.RawURLEncoding.DecodeString(payloadPart)
-	if err != nil {
-		return nil, fmt.Errorf("failed to decode payload: %w", err)
-	}
-	var payload JWTPayload
-	if err := json.Unmarshal(payloadBytes, &payload); err != nil {
-		return nil, fmt.Errorf("failed to parse payload JSON: %w", err)
-	}
-
-	if payload.Exp == 0 {
-		return nil, errors.New("missing exp claim")
-	}
-	if time.Unix(payload.Exp, 0).Before(time.Now()) {
-		return nil, errors.New("token is expired")
-	}
-
-	return &payload, nil
+	return payload, nil
 }

@@ -1,35 +1,32 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRouteSnapshot, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
-import { firstValueFrom, Observable } from 'rxjs';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Auth } from '../services/auth';
 import { authGuard } from './auth-guard';
 
-const activatedRouteSnapshotMock = {
-  snapshot: {},
-} as unknown as ActivatedRouteSnapshot;
-
-const routerStateSnapshotMock = {
-  url: '',
-} as unknown as RouterStateSnapshot;
+const activatedRouteSnapshotMock = { snapshot: {} } as unknown as ActivatedRouteSnapshot;
+const routerStateSnapshotMock = { url: '' } as unknown as RouterStateSnapshot;
 
 describe('authGuard', () => {
-  const isAuthLoaded = signal(true);
   const isAuthenticated = signal(true);
 
   const authMock = {
-    isAuthLoaded: isAuthLoaded.asReadonly(),
     isAuthenticated: isAuthenticated.asReadonly(),
+    ensureRestored: vi.fn().mockResolvedValue(undefined),
   };
 
   const routerMock = {
     createUrlTree: vi.fn((path: string[]) => ({ path }) as unknown as UrlTree),
   };
 
+  const run = () =>
+    TestBed.runInInjectionContext(() => authGuard(activatedRouteSnapshotMock, routerStateSnapshotMock));
+
   beforeEach(() => {
-    isAuthLoaded.set(true);
+    vi.clearAllMocks();
     isAuthenticated.set(true);
+    authMock.ensureRestored.mockResolvedValue(undefined);
 
     TestBed.configureTestingModule({
       providers: [
@@ -39,38 +36,27 @@ describe('authGuard', () => {
     });
   });
 
-  it('should return true if authenticated', async () => {
-    const result = await TestBed.runInInjectionContext(() => {
-      const guard = authGuard(activatedRouteSnapshotMock, routerStateSnapshotMock);
-      return firstValueFrom(guard as Observable<boolean | UrlTree>);
-    });
-
-    expect(result).toBe(true);
+  it('should let an authenticated visitor through', async () => {
+    await expect(run()).resolves.toBe(true);
   });
 
-  it('should return UrlTree to login if not authenticated', async () => {
+  it('should send a stranger to the login page', async () => {
     isAuthenticated.set(false);
 
-    const result = await TestBed.runInInjectionContext(() => {
-      const guard = authGuard(activatedRouteSnapshotMock, routerStateSnapshotMock);
-      return firstValueFrom(guard as Observable<boolean | UrlTree>);
-    });
+    const result = (await run()) as UrlTree & { path: string[] };
 
     expect(routerMock.createUrlTree).toHaveBeenCalledWith(['/login']);
-    expect((result as UrlTree & { path: string[] }).path).toEqual(['/login']);
+    expect(result.path).toEqual(['/login']);
   });
 
-  it('should wait for auth to load before emitting', async () => {
-    isAuthLoaded.set(false);
+  it('should pick the session back up before deciding, not after', async () => {
+    isAuthenticated.set(false);
 
-    const guardPromise = TestBed.runInInjectionContext(() => {
-      const guard = authGuard(activatedRouteSnapshotMock, routerStateSnapshotMock);
-      return firstValueFrom(guard as Observable<boolean | UrlTree>);
+    authMock.ensureRestored.mockImplementation(async () => {
+      isAuthenticated.set(true);
     });
 
-    isAuthLoaded.set(true);
-
-    const result = await guardPromise;
-    expect(result).toBe(true);
+    await expect(run()).resolves.toBe(true);
+    expect(authMock.ensureRestored).toHaveBeenCalled();
   });
 });

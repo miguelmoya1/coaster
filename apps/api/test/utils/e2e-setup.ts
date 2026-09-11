@@ -3,7 +3,9 @@ import { CanActivate, ExecutionContext, ValidationPipe } from '@nestjs/common';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from '../../src/app.module';
-import { FirebaseAuthGuard, OptionalFirebaseAuthGuard } from '../../src/auth';
+import cookie from '@fastify/cookie';
+import { AUTH_MAILER } from '@coaster/core';
+import { AuthGuard, OptionalAuthGuard } from '../../src/auth';
 import {
   DbService,
   DbEstablishmentModule,
@@ -30,30 +32,72 @@ export class MockAuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<{
       headers?: Record<string, string | string[] | undefined>;
       user?: unknown;
+      session?: unknown;
     }>();
     const header = request.headers?.['x-e2e-user-id'];
     const impersonated = typeof header === 'string' ? header : undefined;
 
-    request.user = impersonated
+    const user = impersonated
       ? (MockAuthGuard.users.get(impersonated) ?? { ...mockUser, id: impersonated })
       : { ...mockUser };
 
+    request.user = user;
+    request.session = { sub: user.id, sid: `e2e-session-${user.id}` };
+
     return true;
+  }
+}
+
+export interface SentEmail {
+  kind: 'invite' | 'verifyEmail' | 'resetPassword' | 'passwordChanged';
+  to: string;
+  token?: string;
+}
+
+/** Stands in for Resend, so the tests can follow the links instead of sending anything. */
+export class TestMailbox {
+  readonly sent: SentEmail[] = [];
+
+  async sendInvite(to: string, invite: { token: string }) {
+    this.sent.push({ kind: 'invite', to, token: invite.token });
+  }
+
+  async sendEmailVerification(to: string, _name: string, token: string) {
+    this.sent.push({ kind: 'verifyEmail', to, token });
+  }
+
+  async sendPasswordReset(to: string, _name: string, token: string) {
+    this.sent.push({ kind: 'resetPassword', to, token });
+  }
+
+  async sendPasswordChanged(to: string) {
+    this.sent.push({ kind: 'passwordChanged', to });
+  }
+
+  lastOf(kind: SentEmail['kind']): SentEmail | undefined {
+    return this.sent.filter((email) => email.kind === kind).at(-1);
+  }
+
+  clear() {
+    this.sent.length = 0;
   }
 }
 
 export class E2eTestSetup {
   public app!: NestFastifyApplication;
   public prisma!: DbService;
+  public readonly mailbox = new TestMailbox();
 
   async setup() {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     })
-      .overrideGuard(FirebaseAuthGuard)
+      .overrideGuard(AuthGuard)
       .useClass(MockAuthGuard)
-      .overrideGuard(OptionalFirebaseAuthGuard)
+      .overrideGuard(OptionalAuthGuard)
       .useClass(MockAuthGuard)
+      .overrideProvider(AUTH_MAILER)
+      .useValue(this.mailbox)
       .compile();
 
     this.app = moduleFixture.createNestApplication<NestFastifyApplication>(new FastifyAdapter());
@@ -69,6 +113,8 @@ export class E2eTestSetup {
         },
       }),
     );
+
+    await this.app.register(cookie);
 
     await this.app.init();
     await this.app.getHttpAdapter().getInstance().ready();

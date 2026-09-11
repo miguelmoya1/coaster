@@ -83,6 +83,24 @@ export class SecurityRepository {
     );
   }
 
+  async refreshSubscriptionState(
+    establishmentId: string,
+    snapshot: {
+      status: DbSubscriptionStatus;
+      stripeSubscriptionId: string | null;
+      currentPeriodStart: Date | null;
+      currentPeriodEnd: Date | null;
+      trialEndsAt: Date | null;
+      canceledAt: Date | null;
+      seats: number;
+    },
+  ): Promise<SubscriptionState | null> {
+    await this._db.dbEstablishmentSubscription.update({ where: { establishmentId }, data: snapshot });
+    await this._cache.forget(CacheKeys.subscription(establishmentId));
+
+    return this.getSubscriptionState(establishmentId);
+  }
+
   async isOnTrial(establishmentId: string): Promise<boolean> {
     const subscription = await this.getSubscriptionState(establishmentId);
 

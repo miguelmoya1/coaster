@@ -10,6 +10,9 @@
  */
 export type * from './models/DbOrderAdjustment.js'
 export type * from './models/DbUser.js'
+export type * from './models/DbAuthIdentity.js'
+export type * from './models/DbAuthSession.js'
+export type * from './models/DbAuthToken.js'
 export type * from './models/DbBetaTester.js'
 export type * from './models/DbEstablishment.js'
 export type * from './models/DbEstablishmentSettings.js'

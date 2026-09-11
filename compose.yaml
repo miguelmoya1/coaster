@@ -27,17 +27,6 @@ services:
       timeout: 3s
       retries: 5
 
-  firebase:
-    build:
-      context: ./apps/firebase
-      dockerfile: Dockerfile
-    ports:
-      - '9099:9099'
-      - '4000:4000'
-    volumes:
-      - ./apps/firebase:/app
-      - /app/node_modules
-
   api:
     build:
       context: .
@@ -46,45 +35,16 @@ services:
       - '3000:3000'
     environment:
       - DATABASE_URL=postgres://admin:admin@db:5432/coaster
-      - FIREBASE_AUTH_EMULATOR_HOST=firebase:9099
       - REDIS_URL=redis://redis:6379
       - TRUST_PROXY_HOPS=0
       - BETA_ALLOWLIST_ENABLED=${BETA_ALLOWLIST_ENABLED:-false}
       - CORS_ORIGINS=${CORS_ORIGINS:-}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
     depends_on:
       db:
         condition: service_healthy
       redis:
         condition: service_healthy
-      firebase:
-        condition: service_started
-    volumes:
-      - ./:/app
-      - /app/node_modules
-      - /app/apps/api/node_modules
-      - /app/packages/common/node_modules
-
-  api-2:
-    profiles: ['cluster']
-    build:
-      context: .
-      dockerfile: ./apps/api/Dockerfile.dev
-    ports:
-      - '3001:3000'
-    environment:
-      - DATABASE_URL=postgres://admin:admin@db:5432/coaster
-      - FIREBASE_AUTH_EMULATOR_HOST=firebase:9099
-      - REDIS_URL=redis://redis:6379
-      - TRUST_PROXY_HOPS=0
-      - BETA_ALLOWLIST_ENABLED=${BETA_ALLOWLIST_ENABLED:-false}
-      - CORS_ORIGINS=${CORS_ORIGINS:-}
-    depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      firebase:
-        condition: service_started
     volumes:
       - ./:/app
       - /app/node_modules
@@ -99,10 +59,9 @@ services:
       - '4200:4200'
     environment:
       - API_URL=http://localhost:3000
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
     depends_on:
       api:
-        condition: service_started
-      firebase:
         condition: service_started
     volumes:
       - ./:/app

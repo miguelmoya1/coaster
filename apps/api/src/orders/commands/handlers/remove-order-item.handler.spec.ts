@@ -13,6 +13,7 @@ describe('RemoveOrderItemHandler', () => {
   let handler: RemoveOrderItemHandler;
   const repository = {
     findById: vi.fn(),
+    findOwnedById: vi.fn(),
     removeItemAndRecalculate: vi.fn(),
   };
   const eventBus = {
@@ -67,7 +68,7 @@ describe('RemoveOrderItemHandler', () => {
         },
       ],
     };
-    repository.findById.mockResolvedValue(order);
+    repository.findOwnedById.mockResolvedValue(order);
     repository.removeItemAndRecalculate.mockResolvedValue({
       ...order,
       items: [order.items[1]],

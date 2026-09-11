@@ -6,7 +6,7 @@ import type { User } from '@coaster/common';
 import { Role } from '@coaster/common';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { Auth, UserProfile } from './auth';
+import { Auth } from './auth';
 import { CurrentUser } from './current-user';
 
 describe('CurrentUser', () => {
@@ -15,18 +15,15 @@ describe('CurrentUser', () => {
 
   const isAuthLoaded = signal(true);
   const isAuthenticated = signal(true);
-  const userProfile = signal<UserProfile | null>(null);
 
   const authMock = {
     isAuthLoaded: isAuthLoaded.asReadonly(),
     isAuthenticated: isAuthenticated.asReadonly(),
-    userProfile: userProfile.asReadonly(),
   };
 
   beforeEach(async () => {
     isAuthLoaded.set(true);
     isAuthenticated.set(true);
-    userProfile.set(null);
 
     TestBed.configureTestingModule({
       providers: [provideHttpClientTesting(), provideTranslateService(), { provide: Auth, useValue: authMock }],
@@ -73,6 +70,7 @@ describe('CurrentUser', () => {
         active: true,
         role: Role.USER,
         language: 'es',
+        emailVerified: true,
       };
 
       httpMock.expectOne('/users/me').flush(mockUser);
@@ -87,76 +85,6 @@ describe('CurrentUser', () => {
       expect(currentUser?.email).toBe(mockUser.email);
       expect(currentUser?.name).toBe(mockUser.name);
       expect(currentUser?.photoUrl).toContain('ui-avatars.com');
-    });
-  });
-
-  describe('syncUser', () => {
-    const mockUser: User = {
-      id: asUserId('user-1'),
-      email: 'test@example.com',
-      name: 'Test user',
-      active: true,
-      role: Role.USER,
-      photoUrl: 'http://photo.com/1',
-      language: 'es',
-    };
-
-    it('should not update if user matches profile', async () => {
-      userProfile.set({
-        name: 'Test user',
-        email: 'test@example.com',
-        photo: 'http://photo.com/1',
-        language: 'es',
-      });
-
-      const result = await service.syncUser(mockUser);
-
-      expect(result).toEqual(mockUser);
-      httpMock.expectNone('/users/me');
-    });
-
-    it('should update if name differs from profile', async () => {
-      userProfile.set({
-        name: 'Old Name',
-        email: 'test@example.com',
-        photo: 'http://photo.com/1',
-        language: 'es',
-      });
-
-      const promise = service.syncUser(mockUser);
-
-      const req = httpMock.expectOne('/users/me');
-      expect(req.request.method).toBe('PATCH');
-      req.flush(null);
-
-      const result = await promise;
-      expect(result).toEqual(mockUser);
-    });
-
-    it('should update if photo differs from profile', async () => {
-      userProfile.set({
-        name: 'Test user',
-        email: 'test@example.com',
-        photo: 'http://old.photo/1',
-        language: 'es',
-      });
-
-      const promise = service.syncUser(mockUser);
-
-      const req = httpMock.expectOne('/users/me');
-      expect(req.request.method).toBe('PATCH');
-      req.flush(null);
-
-      await promise;
-    });
-
-    it('should not update if no profile available', async () => {
-      userProfile.set(null);
-
-      const result = await service.syncUser(mockUser);
-
-      expect(result).toEqual(mockUser);
-      httpMock.expectNone('/users/me');
     });
   });
 });

@@ -1,4 +1,4 @@
-import { FirebaseAuthGuard } from '@coaster/auth';
+import { AuthGuard } from '@coaster/auth';
 import type { EstablishmentId, Category, CategoryId } from '@coaster/common';
 import { EstablishmentModule, EstablishmentPermission } from '@coaster/common';
 import {
@@ -17,7 +17,7 @@ import { CategoriesMapper } from '../mappers/categories.mapper';
 import { GetCategoriesQuery } from '../queries';
 
 @Controller('establishments/:establishmentId/categories')
-@UseGuards(FirebaseAuthGuard, EstablishmentPermissionsGuard, EstablishmentModulesGuard)
+@UseGuards(AuthGuard, EstablishmentPermissionsGuard, EstablishmentModulesGuard)
 @RequiresModule(EstablishmentModule.INVENTORY)
 export class CategoriesController {
   constructor(

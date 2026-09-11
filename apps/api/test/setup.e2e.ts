@@ -5,7 +5,7 @@ import * as path from 'path';
 
 let container: StartedPostgreSqlContainer;
 
-const REQUIRED_SECRETS = ['PRINTER_JWT_SECRET'];
+const REQUIRED_SECRETS = ['PRINTER_JWT_SECRET', 'AUTH_JWT_SECRET'];
 
 function generateMissingSecrets() {
   for (const name of REQUIRED_SECRETS) {
@@ -15,8 +15,13 @@ function generateMissingSecrets() {
   }
 }
 
+export const E2E_GOOGLE_CLIENT_ID = 'e2e-client.apps.googleusercontent.com';
+
 export async function setup() {
   generateMissingSecrets();
+
+  // The suite signs its own Google tokens and serves its own JWKS, so it needs a client id to match
+  process.env.GOOGLE_CLIENT_ID = E2E_GOOGLE_CLIENT_ID;
 
   /*
    * The suite gets a database of its own but would share whatever cache the developer has running,

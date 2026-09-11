@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { EstablishmentModule } from '@coaster/common';
+import { DEFAULT_ESTABLISHMENT_MODULES } from '@coaster/common';
 import { CategoriesStore } from '@coaster/categories';
 import { ModulesStore } from '@coaster/establishments';
 import { ProductsStore } from '@coaster/products';
@@ -20,8 +20,6 @@ describe('OnboardingDialog', () => {
   const catalogueStoreMock = {
     import: vi.fn().mockResolvedValue(undefined),
   };
-
-  const typeNamed = (key: string) => component['types'].find((type) => type.key === key)!;
 
   beforeEach(async () => {
     vi.clearAllMocks();
@@ -44,53 +42,32 @@ describe('OnboardingDialog', () => {
     fixture.detectChanges();
   });
 
-  it('should finish straight away for a business with no inventory, without asking about a catalogue', async () => {
-    component['choose'](typeNamed('other'));
-    await Promise.resolve();
-
-    expect(modulesStoreMock.save).toHaveBeenCalledWith([EstablishmentModule.TIME_TRACKING]);
-    expect(catalogueStoreMock.import).not.toHaveBeenCalled();
-    expect(dialogRefMock.close).toHaveBeenCalledWith(true);
-  });
-
-  it('should ask about the catalogue when the answer brings inventory with it', () => {
-    component['choose'](typeNamed('hospitality'));
-
-    expect(component['step']()).toBe('catalogue');
-    expect(modulesStoreMock.save).not.toHaveBeenCalled();
-  });
-
-  it('should import the standard catalogue when asked to', async () => {
-    component['choose'](typeNamed('retail'));
+  it('should configure establishment and import catalogue when chosen', async () => {
     await component['finish'](true);
 
-    expect(modulesStoreMock.save).toHaveBeenCalledWith([
-      EstablishmentModule.TIME_TRACKING,
-      EstablishmentModule.INVENTORY,
-    ]);
+    expect(modulesStoreMock.save).toHaveBeenCalledWith(DEFAULT_ESTABLISHMENT_MODULES);
     expect(catalogueStoreMock.import).toHaveBeenCalledWith('establishment-1');
-  });
-
-  it('should refresh the catalogue the inventory already loaded', async () => {
-    component['choose'](typeNamed('retail'));
-    await component['finish'](true);
-
     expect(categoriesStoreMock.reloadCategories).toHaveBeenCalled();
     expect(productsStoreMock.reloadProducts).toHaveBeenCalled();
-  });
-
-  it('should leave the catalogue alone when declined', async () => {
-    component['choose'](typeNamed('hospitality'));
-    await component['finish'](false);
-
-    expect(catalogueStoreMock.import).not.toHaveBeenCalled();
     expect(dialogRefMock.close).toHaveBeenCalledWith(true);
   });
 
-  it('should let the owner go back and change the answer', () => {
-    component['choose'](typeNamed('hospitality'));
-    component['back']();
+  it('should configure establishment and leave catalogue empty when starting from scratch', async () => {
+    await component['finish'](false);
 
-    expect(component['step']()).toBe('type');
+    expect(modulesStoreMock.save).toHaveBeenCalledWith(DEFAULT_ESTABLISHMENT_MODULES);
+    expect(catalogueStoreMock.import).not.toHaveBeenCalled();
+    expect(categoriesStoreMock.reloadCategories).not.toHaveBeenCalled();
+    expect(productsStoreMock.reloadProducts).not.toHaveBeenCalled();
+    expect(dialogRefMock.close).toHaveBeenCalledWith(true);
+  });
+
+  it('should not allow concurrent finish calls while saving', async () => {
+    component['isSaving'].set(true);
+
+    await component['finish'](true);
+
+    expect(modulesStoreMock.save).not.toHaveBeenCalled();
   });
 });
+

@@ -1,4 +1,4 @@
-import { FirebaseAuthGuard } from '@coaster/auth';
+import { AuthGuard } from '@coaster/auth';
 import type { EstablishmentId, MenuDraft, SaveMenuDraftDto as SaveMenuDraft } from '@coaster/common';
 import { EstablishmentModule, EstablishmentPermission } from '@coaster/common';
 import {
@@ -14,7 +14,7 @@ import { SaveMenuDraftDto } from '../dto/save-menu-draft.dto';
 import { GetMenuDraftQuery } from '../queries';
 
 @Controller('establishments/:establishmentId/menu')
-@UseGuards(FirebaseAuthGuard, EstablishmentPermissionsGuard, EstablishmentModulesGuard)
+@UseGuards(AuthGuard, EstablishmentPermissionsGuard, EstablishmentModulesGuard)
 @RequiresModule(EstablishmentModule.INVENTORY)
 export class MenuController {
   constructor(

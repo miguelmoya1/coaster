@@ -19,8 +19,8 @@ export class BulkUpdateOrderHandler implements ICommandHandler<BulkUpdateOrderCo
 
   async execute(command: BulkUpdateOrderCommand): Promise<void> {
     this.#logger.debug(`Executing bulkUpdateOrder...`);
-    const order = await this.readRepo.findById(command.orderId);
-    if (!order || order.establishmentId !== command.establishmentId) {
+    const order = await this.readRepo.findOwnedById(command.orderId, command.establishmentId);
+    if (!order) {
       throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
     }
     if (order.status !== OrderStatus.OPEN) {

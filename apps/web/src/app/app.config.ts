@@ -12,17 +12,16 @@ import type { EstablishmentId } from '@coaster/common';
 import type { PaywallHandler } from '@coaster/core';
 import {
   errorInterceptor,
-  FIREBASE_AUTH,
-  idTokenInterceptor,
+  accessTokenInterceptor,
   PAYWALL_HANDLER,
   unauthorizedInterceptor,
   urlInterceptor,
   VirtualKeyboard,
+  AppUpdate,
 } from '@coaster/core';
+import { provideServiceWorker } from '@angular/service-worker';
 import { provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
-import { initializeApp } from 'firebase/app';
-import { connectAuthEmulator, getAuth } from 'firebase/auth';
 import { environment } from '../environments/environment';
 import { appRoutes } from './app.routes';
 
@@ -32,8 +31,8 @@ export const appConfig: ApplicationConfig = {
       provide: PAYWALL_HANDLER,
       useFactory: (injector: Injector): PaywallHandler => ({
         open: (establishmentId: EstablishmentId) => {
-          void import('@coaster/establishment-subscription').then(({ PlanDialogService }) =>
-            injector.get(PlanDialogService).open(establishmentId),
+          void import('@coaster/establishment-subscription').then(({ BillingEntryPoint }) =>
+            injector.get(BillingEntryPoint).open(establishmentId),
           );
         },
       }),
@@ -41,9 +40,14 @@ export const appConfig: ApplicationConfig = {
     },
     provideBrowserGlobalErrorListeners(),
     provideAppInitializer(() => inject(VirtualKeyboard).watch()),
+    provideAppInitializer(() => inject(AppUpdate).watch()),
+    provideServiceWorker('ngsw-worker.js', {
+      enabled: environment.production,
+      registrationStrategy: 'registerWhenStable:30000',
+    }),
     provideZonelessChangeDetection(),
     provideHttpClient(
-      withInterceptors([urlInterceptor, idTokenInterceptor, errorInterceptor, unauthorizedInterceptor]),
+      withInterceptors([urlInterceptor, accessTokenInterceptor, errorInterceptor, unauthorizedInterceptor]),
     ),
     provideRouter(
       appRoutes,
@@ -57,25 +61,5 @@ export const appConfig: ApplicationConfig = {
         prefix: environment.defaultLanguagePath,
       }),
     }),
-    {
-      provide: FIREBASE_AUTH,
-      useFactory: () => {
-        const app = initializeApp({
-          apiKey: environment.firebase.apiKey,
-          authDomain: environment.firebase.authDomain,
-          projectId: environment.firebase.projectId,
-          storageBucket: environment.firebase.storageBucket,
-          messagingSenderId: environment.firebase.messagingSenderId,
-          appId: environment.firebase.appId,
-        });
-        const auth = getAuth(app);
-
-        if (environment.useEmulators) {
-          connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true });
-        }
-
-        return auth;
-      },
-    },
   ],
 };

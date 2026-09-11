@@ -1,4 +1,4 @@
-import { FirebaseAuthGuard } from '@coaster/auth';
+import { AuthGuard } from '@coaster/auth';
 import type { CreateProductDto } from '@coaster/common';
 import { asEstablishmentId, asProductId } from '@coaster/common';
 import { EstablishmentModulesGuard, EstablishmentPermissionsGuard } from '@coaster/core';
@@ -33,7 +33,7 @@ describe('ProductsController', () => {
         { provide: QueryBus, useValue: mockQueryBus },
       ],
     })
-      .overrideGuard(FirebaseAuthGuard)
+      .overrideGuard(AuthGuard)
       .useValue(mockGuard)
       .overrideGuard(EstablishmentPermissionsGuard)
       .useValue(mockGuard)

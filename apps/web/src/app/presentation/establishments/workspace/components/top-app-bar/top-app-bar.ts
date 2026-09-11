@@ -6,10 +6,10 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbar } from '@angular/material/toolbar';
 import { Router, RouterLink } from '@angular/router';
 import type { EstablishmentId } from '@coaster/common';
-import { ErrorCodes, EstablishmentPermission } from '@coaster/common';
-import { ActionFeedback, ApiError, Auth, CurrentUser } from '@coaster/core';
+import { EstablishmentPermission } from '@coaster/common';
+import { Auth, CurrentUser } from '@coaster/core';
 import { MyMemberStore } from '@coaster/establishment-members';
-import { BillingAction, EstablishmentSubscriptionStore, PlanDialogService } from '@coaster/establishment-subscription';
+import { BillingAction, BillingEntryPoint, EstablishmentSubscriptionStore } from '@coaster/establishment-subscription';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Spinner } from '../../../../components/spinner/spinner';
 import { AiAssistantTrigger } from '../ai-assistant/ai-assistant-trigger';
@@ -82,6 +82,11 @@ import { AvatarBadge } from '../avatar-badge/avatar-badge';
           <span>{{ 'common.change_establishment' | translate }}</span>
         </a>
 
+        <a mat-menu-item routerLink="/account" data-testid="account-link">
+          <mat-icon>account_circle</mat-icon>
+          <span>{{ 'account.heading' | translate }}</span>
+        </a>
+
         @if (canManageSettings()) {
           <a mat-menu-item [routerLink]="['/establishments', establishmentId(), 'settings']">
             <mat-icon>tune</mat-icon>
@@ -89,13 +94,13 @@ import { AvatarBadge } from '../avatar-badge/avatar-badge';
           </a>
         }
 
-        @if (canManageBilling() && showBillingAction()) {
+        @if (canManageBilling()) {
           @if (billingAction() === BillingAction.MANAGE) {
             <button
               mat-menu-item
               [disabled]="isOpeningBillingPortal()"
               [attr.aria-busy]="isOpeningBillingPortal()"
-              (click)="manageBilling(); menuTrigger.closeMenu()"
+              (click)="openBilling(); menuTrigger.closeMenu()"
             >
               @if (isOpeningBillingPortal()) {
                 <coaster-spinner />
@@ -105,7 +110,7 @@ import { AvatarBadge } from '../avatar-badge/avatar-badge';
               <span>{{ 'billing.manage_billing' | translate }}</span>
             </button>
           } @else {
-            <button mat-menu-item (click)="activatePro(); menuTrigger.closeMenu()">
+            <button mat-menu-item (click)="openBilling(); menuTrigger.closeMenu()">
               <mat-icon>rocket_launch</mat-icon>
               <span>{{ 'billing.activate_pro_title' | translate }}</span>
             </button>
@@ -155,8 +160,7 @@ export class TopAppBar {
   readonly #establishmentSubscriptionStore = inject(EstablishmentSubscriptionStore);
   readonly #router = inject(Router);
   readonly #translate = inject(TranslateService);
-  readonly #actionFeedback = inject(ActionFeedback);
-  readonly #planDialogService = inject(PlanDialogService);
+  readonly #billingEntryPoint = inject(BillingEntryPoint);
 
   readonly currentLang = this.#translate.currentLang;
   readonly isAdmin = this.#currentUser.isAdmin;
@@ -169,7 +173,6 @@ export class TopAppBar {
   readonly subscription = computed(() => this.#establishmentSubscriptionStore.subscription.value());
   readonly billingAction = this.#establishmentSubscriptionStore.billingAction;
   readonly isOpeningBillingPortal = this.#establishmentSubscriptionStore.isOpeningBillingPortal;
-  readonly showBillingAction = this.#establishmentSubscriptionStore.showBillingAction;
   readonly BillingAction = BillingAction;
 
   readonly isProActive = computed(() => {
@@ -255,27 +258,7 @@ export class TopAppBar {
     await this.#router.navigate(['/login'], { replaceUrl: true });
   }
 
-  async manageBilling(): Promise<void> {
-    if (this.isOpeningBillingPortal()) {
-      return;
-    }
-
-    try {
-      const portalUrl = await this.#establishmentSubscriptionStore.createCustomerPortalSession();
-
-      if (portalUrl) {
-        window.location.assign(portalUrl);
-      } else {
-        this.#actionFeedback.error(ErrorCodes.STRIPE_BILLING_PORTAL_FAILED);
-      }
-    } catch (error) {
-      if (!(error instanceof ApiError)) {
-        this.#actionFeedback.error(ErrorCodes.STRIPE_BILLING_PORTAL_FAILED);
-      }
-    }
-  }
-
-  activatePro(): void {
-    this.#planDialogService.open(this.establishmentId());
+  openBilling(): void {
+    this.#billingEntryPoint.open(this.establishmentId());
   }
 }

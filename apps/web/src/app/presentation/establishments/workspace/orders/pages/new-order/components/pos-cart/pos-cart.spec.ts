@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { EstablishmentSubscriptionStore, PlanDialogService } from '@coaster/establishment-subscription';
+import { EstablishmentSubscriptionStore, BillingEntryPoint } from '@coaster/establishment-subscription';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CartItem, PosCart } from './pos-cart';
@@ -25,7 +25,7 @@ describe('PosCart', () => {
       providers: [
         provideTranslateService(),
         { provide: EstablishmentSubscriptionStore, useValue: { isReadOnly: () => false } },
-        { provide: PlanDialogService, useValue: { open: vi.fn() } },
+        { provide: BillingEntryPoint, useValue: { open: vi.fn() } },
       ],
     }).compileComponents();
 

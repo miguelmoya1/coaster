@@ -1,6 +1,6 @@
 export const CacheKeys = {
   userRole: (userId: string) => `user:${userId}:role`,
-  userByFirebaseUid: (firebaseUid: string) => `user:firebase:${firebaseUid}`,
+  user: (userId: string) => `user:${userId}`,
   membership: (establishmentId: string, userId: string) => `establishment:${establishmentId}:member:${userId}`,
   modules: (establishmentId: string) => `establishment:${establishmentId}:modules`,
   subscription: (establishmentId: string) => `establishment:${establishmentId}:subscription`,

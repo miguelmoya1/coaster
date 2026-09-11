@@ -1,4 +1,4 @@
-import { FirebaseAuthGuard } from '@coaster/auth';
+import { AuthGuard } from '@coaster/auth';
 import type { EstablishmentId, StarterCatalogueCategory } from '@coaster/common';
 import { EstablishmentModule, EstablishmentPermission } from '@coaster/common';
 import {
@@ -14,7 +14,7 @@ import { ImportStarterCatalogueDto } from '../dto/import-starter-catalogue.dto';
 import { GetStarterCatalogueQuery } from '../queries';
 
 @Controller('establishments/:establishmentId/catalogue')
-@UseGuards(FirebaseAuthGuard, EstablishmentPermissionsGuard, EstablishmentModulesGuard)
+@UseGuards(AuthGuard, EstablishmentPermissionsGuard, EstablishmentModulesGuard)
 @RequiresModule(EstablishmentModule.INVENTORY)
 @EstablishmentPermissions(EstablishmentPermission.ESTABLISHMENT_IMPORT_CATALOGUE)
 export class CatalogueController {

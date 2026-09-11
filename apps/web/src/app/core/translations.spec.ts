@@ -15,6 +15,8 @@ import {
 } from '@coaster/common';
 import { describe, expect, it } from 'vitest';
 
+const AUTH_PROVIDERS = ['GOOGLE'];
+
 const load = (lang: string): Record<string, unknown> =>
   JSON.parse(readFileSync(resolve(process.cwd(), 'public/i18n', `${lang}.json`), 'utf8'));
 
@@ -35,6 +37,7 @@ const dynamicFamilies: { prefix: string; values: string[]; builtIn: string }[] =
   { prefix: 'admin.billing_source.', values: Object.values(EstablishmentBillingSource), builtIn: 'billing-badge' },
   { prefix: 'admin.subscription_status.', values: Object.values(SubscriptionStatus), builtIn: 'status-chip' },
   { prefix: 'admin.user_role.', values: Object.values(Role), builtIn: 'admin-users' },
+  { prefix: 'account.identities.', values: AUTH_PROVIDERS, builtIn: 'account' },
   { prefix: 'common.role.', values: Object.values(EstablishmentRole), builtIn: 'staff-member-card' },
   { prefix: 'schedule.time_tracking.type_', values: Object.values(TimeEntryType), builtIn: 'workday-card' },
   { prefix: 'schedule.time_tracking.action_', values: Object.values(TimeEntryAction), builtIn: 'workday-card' },

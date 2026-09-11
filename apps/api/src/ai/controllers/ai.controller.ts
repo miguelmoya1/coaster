@@ -1,4 +1,4 @@
-import { CurrentUser, FirebaseAuthGuard } from '@coaster/auth';
+import { CurrentUser, AuthGuard } from '@coaster/auth';
 import type { AiMessage, AiResponse, AiUsage, EstablishmentId, User } from '@coaster/common';
 import { EstablishmentPermissionsGuard } from '@coaster/core';
 import { Body, Controller, Get, Logger, Param, Post, Res, UseGuards } from '@nestjs/common';
@@ -9,7 +9,7 @@ import { ExecuteAiCommand } from '../commands';
 import { GetAiUsageQuery } from '../queries';
 
 @Controller('establishments/:establishmentId/ai')
-@UseGuards(FirebaseAuthGuard, EstablishmentPermissionsGuard)
+@UseGuards(AuthGuard, EstablishmentPermissionsGuard)
 @Throttle({ default: { ttl: seconds(60), limit: 20 } })
 export class AiController {
   private readonly _logger = new Logger(AiController.name);

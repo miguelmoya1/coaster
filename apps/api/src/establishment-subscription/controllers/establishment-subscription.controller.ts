@@ -1,4 +1,4 @@
-import { FirebaseAuthGuard } from '@coaster/auth';
+import { AuthGuard } from '@coaster/auth';
 import type {
   EstablishmentId,
   EstablishmentSubscription,
@@ -15,7 +15,7 @@ import { CreateCheckoutSessionDto, CreateCustomerPortalSessionDto } from '../dto
 import { FindEstablishmentSubscriptionQuery, GetSubscriptionSeatsQuery } from '../queries';
 
 @Controller('establishments/:establishmentId/establishment-subscription')
-@UseGuards(FirebaseAuthGuard, EstablishmentPermissionsGuard)
+@UseGuards(AuthGuard, EstablishmentPermissionsGuard)
 export class EstablishmentSubscriptionController {
   private readonly _logger = new Logger(EstablishmentSubscriptionController.name);
 

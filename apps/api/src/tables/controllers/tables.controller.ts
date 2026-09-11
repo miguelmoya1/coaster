@@ -1,4 +1,4 @@
-import { FirebaseAuthGuard } from '@coaster/auth';
+import { AuthGuard } from '@coaster/auth';
 import type { EstablishmentId, Table, TableId } from '@coaster/common';
 import { EstablishmentModule, EstablishmentPermission } from '@coaster/common';
 import {
@@ -17,7 +17,7 @@ import { TablesMapper } from '../mappers/tables.mapper';
 import { GetTablesByEstablishmentIdQuery } from '../queries';
 
 @Controller('establishments/:establishmentId/tables')
-@UseGuards(FirebaseAuthGuard, EstablishmentPermissionsGuard, EstablishmentModulesGuard)
+@UseGuards(AuthGuard, EstablishmentPermissionsGuard, EstablishmentModulesGuard)
 @RequiresModule(EstablishmentModule.ORDERS)
 export class TablesController {
   constructor(

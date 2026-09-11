@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { randomUUID } from 'crypto';
 import { extname } from 'path';
-import { getStorage } from 'firebase-admin/storage';
+import { Storage } from '@google-cloud/storage';
 import { MediaFileRequestDto } from './dto/generate-upload-urls.dto';
 import { MediaUploadResponse } from '@coaster/common';
 
@@ -14,6 +14,7 @@ const ALLOWED_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.webp', '.avif', '
 @Injectable()
 export class MediaService {
   private readonly logger = new Logger(MediaService.name);
+  readonly #storage = new Storage();
 
   constructor(private readonly _config: ConfigService) {}
 
@@ -23,7 +24,7 @@ export class MediaService {
     files: MediaFileRequestDto[],
   ): Promise<MediaUploadResponse[]> {
     const bucketName = this._config.get<string>('MEDIA_BUCKET') ?? 'imagenes-clientes-app';
-    const bucket = getStorage().bucket(bucketName);
+    const bucket = this.#storage.bucket(bucketName);
     const responses: MediaUploadResponse[] = [];
 
     for (const fileReq of files) {

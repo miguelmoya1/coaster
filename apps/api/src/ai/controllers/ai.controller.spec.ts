@@ -1,4 +1,4 @@
-import { FirebaseAuthGuard } from '@coaster/auth';
+import { AuthGuard } from '@coaster/auth';
 import type { User } from '@coaster/common';
 import { asEstablishmentId, asUserId } from '@coaster/common';
 import { EstablishmentPermissionsGuard } from '@coaster/core';
@@ -25,7 +25,7 @@ describe('AiController', () => {
         { provide: QueryBus, useValue: { execute: vi.fn() } },
       ],
     })
-      .overrideGuard(FirebaseAuthGuard)
+      .overrideGuard(AuthGuard)
       .useValue(mockGuard)
       .overrideGuard(EstablishmentPermissionsGuard)
       .useValue(mockGuard)

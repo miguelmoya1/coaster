@@ -391,11 +391,31 @@ describe('EstablishmentSubscriptionStore', () => {
       expect(store.billingAction()).toBe('MANAGE');
     });
 
-    it('should keep pushing checkout while the workspace is locked for non-payment', async () => {
+    it('should keep a venue working while Stripe retries its card, and point it at the portal', async () => {
       await load({ ...activeSubscription, status: SubscriptionStatus.PAST_DUE });
 
+      expect(store.isReadOnly()).toBe(false);
+      expect(store.paymentNeedsAttention()).toBe(true);
+      expect(store.showSubscriptionBanner()).toBe(true);
+      expect(store.billingAction()).toBe('MANAGE');
+    });
+
+    it('should lock the venue once Stripe gives the payment up', async () => {
+      await load({ ...activeSubscription, status: SubscriptionStatus.UNPAID });
+
       expect(store.isReadOnly()).toBe(true);
-      expect(store.billingAction()).toBe('ACTIVATE');
+      expect(store.paymentNeedsAttention()).toBe(false);
+      expect(store.billingAction()).toBe('MANAGE');
+    });
+
+    it('should send a lapsed projection to the portal while Stripe still has the subscription', async () => {
+      await load({
+        ...activeSubscription,
+        currentPeriodEnd: new Date(Date.now() - 86_400_000).toISOString(),
+      });
+
+      expect(store.isReadOnly()).toBe(true);
+      expect(store.billingAction()).toBe('MANAGE');
     });
   });
 });

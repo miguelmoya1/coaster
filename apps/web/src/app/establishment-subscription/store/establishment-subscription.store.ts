@@ -4,10 +4,10 @@ import type { EstablishmentId, SubscriptionSeats as SubscriptionSeatsInfo } from
 import { SubscriptionPlan, SubscriptionStatus } from '@coaster/common';
 import { Realtime } from '@coaster/core';
 import { establishmentSubscriptionMapper } from '../mappers/establishment-subscription.mapper';
-import { EstablishmentSubscription } from '../services/establishment-subscription';
-import { SubscriptionSeats } from '../services/subscription-seats';
 import { CreateCheckoutSession } from '../services/create-checkout-session';
 import { CreateCustomerPortalSession } from '../services/create-customer-portal-session';
+import { EstablishmentSubscription } from '../services/establishment-subscription';
+import { SubscriptionSeats } from '../services/subscription-seats';
 
 export const BillingAction = {
   ACTIVATE: 'ACTIVATE',
@@ -42,9 +42,7 @@ export class EstablishmentSubscriptionStore {
   public readonly subscription = this.#subscriptionResource.asReadonly();
   public readonly seats = this.#seatsResource.asReadonly();
 
-  readonly #currentSeats = computed(() =>
-    this.#seatsResource.hasValue() ? this.#seatsResource.value() : undefined,
-  );
+  readonly #currentSeats = computed(() => (this.#seatsResource.hasValue() ? this.#seatsResource.value() : undefined));
 
   public readonly seatSummary = computed(() => {
     const seats = this.#currentSeats();
@@ -100,9 +98,12 @@ export class EstablishmentSubscriptionStore {
       if (!sub.currentPeriodEnd) return true;
       return new Date() > new Date(sub.currentPeriodEnd);
     }
+    if (sub.status === SubscriptionStatus.PAST_DUE) {
+      return false;
+    }
+
     if (
       sub.status === SubscriptionStatus.EXPIRED ||
-      sub.status === SubscriptionStatus.PAST_DUE ||
       sub.status === SubscriptionStatus.UNPAID ||
       sub.status === SubscriptionStatus.INACTIVE
     ) {
@@ -136,8 +137,12 @@ export class EstablishmentSubscriptionStore {
     return this.isTrialActive() && this.trialDaysRemaining() <= 3;
   });
 
+  public readonly paymentNeedsAttention = computed(
+    () => this.#currentSubscription()?.status === SubscriptionStatus.PAST_DUE,
+  );
+
   public readonly showSubscriptionBanner = computed(() => {
-    return this.isReadOnly() || this.isTrialExpiringSoon();
+    return this.isReadOnly() || this.paymentNeedsAttention() || this.isTrialExpiringSoon();
   });
 
   public readonly isPendingCancellation = computed(() => {
@@ -151,16 +156,12 @@ export class EstablishmentSubscriptionStore {
   });
 
   public readonly billingAction = computed<BillingAction>(() => {
-    const subscription = this.#currentSubscription();
-
     if (this.isPendingCancellation()) {
       return BillingAction.MANAGE;
     }
 
-    return subscription?.stripeSubscriptionId && !this.isReadOnly() ? BillingAction.MANAGE : BillingAction.ACTIVATE;
+    return this.#currentSubscription()?.stripeSubscriptionId ? BillingAction.MANAGE : BillingAction.ACTIVATE;
   });
-
-  public readonly showBillingAction = computed(() => !this.showSubscriptionBanner());
 
   constructor() {
     effect(() => {

@@ -1,4 +1,5 @@
 import compression from '@fastify/compress';
+import cookie from '@fastify/cookie';
 import helmet from '@fastify/helmet';
 import fastifyStatic from '@fastify/static';
 import {
@@ -13,22 +14,16 @@ import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import fastifyRawBody from 'fastify-raw-body';
-import { getApps, initializeApp } from 'firebase-admin/app';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
   const startInstant = Temporal.Now.instant();
 
-  if (getApps().length === 0) {
-    initializeApp({
-      projectId: process.env.GCLOUD_PROJECT || 'coaster-437f2',
-    });
-  }
-
   const isProduction = process.env.NODE_ENV === 'production';
 
   const proxyHops = Number(process.env.TRUST_PROXY_HOPS ?? 1);
-  const trustProxy = Number.isFinite(proxyHops) && proxyHops > 0 ? proxyHops : false;
+  const hops = Number.isFinite(proxyHops) && proxyHops > 0 ? proxyHops : 0;
+  const trustProxy = hops > 0 ? (_address: string, hop: number) => hop < hops : false;
 
   const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter({ trustProxy }), {
     logger: isProduction ? ['error', 'warn'] : ['log', 'error', 'warn', 'debug', 'verbose'],
@@ -41,6 +36,8 @@ async function bootstrap() {
     type: VersioningType.URI,
     defaultVersion: '1',
   });
+
+  await app.register(cookie);
 
   await app.register(helmet);
 

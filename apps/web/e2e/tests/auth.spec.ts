@@ -11,22 +11,46 @@ test.describe('Auth Flow', () => {
     loginPage = new LoginPage(page);
   });
 
-  test('should display the login card and sign in button', async () => {
+  test('should display the login card with an email and a password field', async ({ page }) => {
+    await page.route('**/api/v1/auth/refresh', (route) => route.fulfill({ status: 401, body: '{}' }));
+
     await loginPage.goto();
+
     await expect(loginPage.loginCard).toBeVisible();
-    await expect(loginPage.googleSignInButton).toBeVisible();
-    await expect(loginPage.googleSignInButton).toBeEnabled();
+    await expect(loginPage.emailInput).toBeVisible();
+    await expect(loginPage.passwordInput).toBeVisible();
+    await expect(loginPage.loginButton).toBeVisible();
+    await expect(loginPage.registerLink).toBeVisible();
   });
 
-  test('should login using mocked auth and redirect to /establishments/select', async ({ page }) => {
-    // Mock /establishments so that the redirect works
+  test('should sign in with an email and a password and land on the establishment picker', async ({ page }) => {
+    await page.route('**/api/v1/auth/refresh', (route) => route.fulfill({ status: 401, body: '{}' }));
+    await mockApiResponse(page, '/establishments', 'GET', []);
+    await mockApiResponse(page, '/auth/login', 'POST', {
+      accessToken: 'fake-access-token',
+      expiresIn: 900,
+      user: {
+        id: 'test-user-123',
+        email: 'test@example.com',
+        name: 'Test User',
+        role: 'ADMIN',
+        active: true,
+        language: 'es',
+      },
+    });
+
+    await loginPage.goto();
+    await loginPage.signIn('test@example.com', 'a-good-enough-password');
+
+    await page.waitForURL('**/establishments/select');
+    expect(page.url()).toContain('/establishments/select');
+  });
+
+  test('should carry an existing session straight through to the establishment picker', async ({ page }) => {
     await mockApiResponse(page, '/establishments', 'GET', []);
 
-    // Perform login
-    await loginAsTestUser(page);
+    await loginAsTestUser(page, '/establishments/select');
 
-    // After login, the user should be redirected to /establishments/select
-    await page.waitForURL('**/establishments/select');
     expect(page.url()).toContain('/establishments/select');
   });
 });
