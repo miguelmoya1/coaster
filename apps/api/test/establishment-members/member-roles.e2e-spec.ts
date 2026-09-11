@@ -27,6 +27,7 @@ describe('Member roles (e2e)', () => {
   beforeEach(async () => {
     mockUser.role = 'USER';
     await testSetup.clearDatabase();
+    testSetup.mailbox.clear();
 
     await testSetup.prisma.dbUser.createMany({
       data: [
@@ -112,5 +113,7 @@ describe('Member roles (e2e)', () => {
       .post(`/api/establishments/${establishment.id}/members`)
       .send({ email: 'newcomer@establishment.com', role: EstablishmentRole.MANAGER })
       .expect(201);
+
+    await testSetup.mailbox.waitFor('invite', 'newcomer@establishment.com');
   });
 });
