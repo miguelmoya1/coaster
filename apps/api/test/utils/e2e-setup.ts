@@ -16,6 +16,14 @@ import {
 
 const TRIAL_DAYS = 14;
 
+const TRUNCATE_ATTEMPTS = 3;
+
+const DEADLOCK_SQLSTATE = '40P01';
+
+const isDeadlock = (error: unknown): boolean => error instanceof Error && error.message.includes(DEADLOCK_SQLSTATE);
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 export const mockUser = {
   id: '00000000-0000-4000-8000-000000000000',
   email: 'test@example.com',
@@ -76,6 +84,21 @@ export class TestMailbox {
 
   lastOf(kind: SentEmail['kind']): SentEmail | undefined {
     return this.sent.filter((email) => email.kind === kind).at(-1);
+  }
+
+  /** Mail sent from an event handler lands after the response; tests that need it have to wait. */
+  async waitFor(kind: SentEmail['kind'], to: string): Promise<SentEmail> {
+    for (let attempt = 0; attempt < 50; attempt++) {
+      const email = this.sent.find((sent) => sent.kind === kind && sent.to === to);
+
+      if (email) {
+        return email;
+      }
+
+      await sleep(20);
+    }
+
+    throw new Error(`No ${kind} email ever reached ${to}`);
   }
 
   clear() {
@@ -168,7 +191,7 @@ export class E2eTestSetup {
         return members;
       }
 
-      await new Promise((resolve) => setTimeout(resolve, 20));
+      await sleep(20);
     }
 
     throw new Error(`Establishment ${establishmentId} never reached ${count} members`);
@@ -180,6 +203,11 @@ export class E2eTestSetup {
     }
   }
 
+  /**
+   * An event handler the previous test left running can still be inside its transaction, holding
+   * one table while TRUNCATE holds the rest; Postgres then kills one of the two. When it kills us
+   * the handler is about to finish, so trying again is enough. Anything else surfaces here.
+   */
   async clearDatabase() {
     const tablenames = await this.prisma.$queryRaw<
       { tablename: string }[]
@@ -191,12 +219,21 @@ export class E2eTestSetup {
       .map((name) => `"${name}"`)
       .join(', ');
 
-    try {
-      if (tables.length > 0) {
+    if (tables.length === 0) {
+      return;
+    }
+
+    for (let attempt = 1; ; attempt++) {
+      try {
         await this.prisma.$executeRawUnsafe(`TRUNCATE TABLE ${tables} CASCADE;`);
+        return;
+      } catch (error) {
+        if (!isDeadlock(error) || attempt === TRUNCATE_ATTEMPTS) {
+          throw error;
+        }
+
+        await sleep(50);
       }
-    } catch (error) {
-      console.log('Error clearing database:', error);
     }
   }
 }

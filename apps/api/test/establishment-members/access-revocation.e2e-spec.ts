@@ -17,6 +17,7 @@ describe('Access revocation (e2e)', () => {
   beforeEach(async () => {
     mockUser.role = 'USER';
     await testSetup.clearDatabase();
+    testSetup.mailbox.clear();
 
     await testSetup.prisma.dbUser.createMany({
       data: [
@@ -79,6 +80,7 @@ describe('Access revocation (e2e)', () => {
         .expect(201);
 
       await testSetup.waitForMembers(establishment.id, 2);
+      await testSetup.mailbox.waitFor('invite', 'removed@establishment.com');
 
       await request(http()).get(`/api/establishments/${establishment.id}/orders`).set(asRemoved()).expect(200);
     });
@@ -108,6 +110,7 @@ describe('Access revocation (e2e)', () => {
         .expect(201);
 
       const members = await testSetup.waitForMembers(establishment.id, 2);
+      await testSetup.mailbox.waitFor('invite', 'newstaff@establishment.com');
       expect(members.some((member) => member.role === DbEstablishmentRole.STAFF)).toBe(true);
     });
 
@@ -120,6 +123,7 @@ describe('Access revocation (e2e)', () => {
         .expect(201);
 
       const members = await testSetup.waitForMembers(establishment.id, 2);
+      await testSetup.mailbox.waitFor('invite', 'newowner@establishment.com');
       expect(members.some((member) => member.role === DbEstablishmentRole.OWNER && member.userId !== mockUser.id)).toBe(
         true,
       );

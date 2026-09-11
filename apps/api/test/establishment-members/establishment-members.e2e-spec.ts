@@ -14,6 +14,7 @@ describe('EstablishmentMembersController (e2e)', () => {
 
   beforeEach(async () => {
     await testSetup.clearDatabase();
+    testSetup.mailbox.clear();
 
     await testSetup.prisma.dbUser.create({
       data: {
@@ -85,6 +86,20 @@ describe('EstablishmentMembersController (e2e)', () => {
       const members = await testSetup.waitForMembers(establishmentId, 2);
       expect(members).toHaveLength(2);
       expect(members.some((m) => m.userId === otherUserId && m.role === EstablishmentRole.STAFF)).toBe(true);
+    });
+
+    it('should send the invitation, with a link the invite page accepts', async () => {
+      await request(testSetup.app.getHttpServer())
+        .post(`/api/establishments/${establishmentId}/members`)
+        .send({ email: 'other@example.com', role: EstablishmentRole.STAFF })
+        .expect(201);
+
+      const invitation = await testSetup.mailbox.waitFor('invite', 'other@example.com');
+
+      const response = await request(testSetup.app.getHttpServer())
+        .get(`/api/auth/invite/${invitation.token}`)
+        .expect(200);
+      expect(response.body).toMatchObject({ email: 'other@example.com', hasCredentials: false });
     });
 
     it('should return 400 for invalid email', async () => {

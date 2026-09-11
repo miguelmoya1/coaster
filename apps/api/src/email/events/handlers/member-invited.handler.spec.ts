@@ -1,16 +1,16 @@
 import { AuthTokenRepository } from '@coaster/auth';
+import { AUTH_MAILER } from '@coaster/core';
 import { asEstablishmentId, asEstablishmentMemberId, asUserId } from '@coaster/common';
 import { MemberInvitedEvent } from '@coaster/establishment-members';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { EmailService } from '../../email.service';
 import { MemberInvitedHandler } from './member-invited.handler';
 
 describe('MemberInvitedHandler', () => {
   let handler: MemberInvitedHandler;
 
-  const emailService = { sendInvite: vi.fn() };
+  const mailer = { sendInvite: vi.fn() };
   const tokens = { issue: vi.fn() };
 
   const event = new MemberInvitedEvent(
@@ -29,12 +29,12 @@ describe('MemberInvitedHandler', () => {
     vi.spyOn(Logger.prototype, 'error').mockReturnValue(undefined);
 
     tokens.issue.mockResolvedValue('an-invite-token');
-    emailService.sendInvite.mockResolvedValue(undefined);
+    mailer.sendInvite.mockResolvedValue(undefined);
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         MemberInvitedHandler,
-        { provide: EmailService, useValue: emailService },
+        { provide: AUTH_MAILER, useValue: mailer },
         { provide: AuthTokenRepository, useValue: tokens },
       ],
     }).compile();
@@ -46,7 +46,7 @@ describe('MemberInvitedHandler', () => {
     await handler.handle(event);
 
     expect(tokens.issue).toHaveBeenCalledWith('user-1', 'INVITE');
-    expect(emailService.sendInvite).toHaveBeenCalledWith(
+    expect(mailer.sendInvite).toHaveBeenCalledWith(
       'john@example.com',
       { establishmentName: 'My Establishment', inviterName: 'John Doe', token: 'an-invite-token' },
       'es',
@@ -54,14 +54,14 @@ describe('MemberInvitedHandler', () => {
   });
 
   it('should not take the whole invitation down when the email cannot be sent', async () => {
-    emailService.sendInvite.mockRejectedValue(new Error('domain is not verified'));
+    mailer.sendInvite.mockRejectedValue(new Error('domain is not verified'));
 
     await expect(handler.handle(event)).resolves.toBeUndefined();
   });
 
   it('should say loudly that the invitation never left', async () => {
     const error = vi.spyOn(Logger.prototype, 'error').mockReturnValue(undefined);
-    emailService.sendInvite.mockRejectedValue(new Error('domain is not verified'));
+    mailer.sendInvite.mockRejectedValue(new Error('domain is not verified'));
 
     await handler.handle(event);
 
