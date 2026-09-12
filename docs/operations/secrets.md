@@ -66,29 +66,23 @@ Once per environment. `scripts/secrets-bootstrap.sh` creates the secrets, grants
 that runs the API permission to read them, strips the plaintext copies off the Cloud Run service and
 the migration job, and attaches the secrets in their place.
 
-Write the values to a file outside the repository — this is the only point where they sit in the
-clear, and `.env*` is gitignored but a file you leave in `~` is not:
+The values are already on the service, so take them from there rather than retyping them — a
+mistyped `DATABASE_URL` is a revision that will not start, and a mistyped `STRIPE_WEBHOOK_SECRET` is
+subscriptions that silently stop activating:
 
 ```sh
-# ~/coaster-prod.secrets.env
-DATABASE_URL=postgresql://…
-AUTH_JWT_SECRET=…
-PRINTER_JWT_SECRET=…
-STRIPE_SECRET_KEY=sk_live_…
-STRIPE_WEBHOOK_SECRET=whsec_…
-RESEND_API_KEY=re_…
-AI_GATEWAY_API_KEY=…
-REDIS_URL=rediss://…
+gcloud run services describe api-new --region europe-west1 --format=json \
+  | jq -r '.spec.template.spec.containers[0].env[] | select(.value) | "\(.name)=\(.value)"' \
+  > ~/coaster-prod.secrets.env
 ```
 
-Take the values from the service you are migrating, so that nothing changes but where they are kept:
+That writes every literal the service carries, in `KEY=value` form. Leave the configuration in it —
+the script only ever looks up the eight names it knows, and the file is going in the bin in a minute
+anyway. Keep it **outside the repository**: `.env*` is gitignored, a file in `~` is not a file you
+can commit by accident.
 
-```sh
-gcloud run services describe api-new --region europe-west1 \
-  --format='value[delimiter="\n"](spec.template.spec.containers[0].env)'
-```
-
-Then:
+Read it before you use it. If a variable you expected is missing, it was never set on the service,
+and the script will tell you as much for the required ones.
 
 ```sh
 scripts/secrets-bootstrap.sh prod ~/coaster-prod.secrets.env
@@ -98,9 +92,16 @@ It is safe to run twice. A secret that already exists is left alone — the scri
 value, so it cannot undo a rotation you did last month — and a required value missing from the file
 stops it before it touches the service.
 
-**Do this before merging a workflow that reads the secrets.** The order is not fussiness: CI checks
-that every required secret exists before it builds the image, so merging first costs you a red run
-and nothing else, but it is a red run on `main`.
+**Do this before merging a workflow that reads the secrets, and merge straight afterwards.** Both
+halves matter, in different ways. Merging first costs a red run and nothing else — CI checks that
+every required secret exists before it builds the image, so nothing gets half-deployed — but it is a
+red run on `main`. Leaving a gap afterwards is quieter and worse: until the new workflow lands, a
+push still runs the old one, which sets `DATABASE_URL` on the migration job as a literal, and Cloud
+Run refuses a name that is now also a secret.
+
+So do one environment at a time, and close the gap each time: run the script for beta, merge to
+`dev`, watch beta deploy green. Then run it for production and promote. Production is untouched for
+the whole of the first half, which is the point of having a beta.
 
 Afterwards, the script prints the three steps left: set `GCP_SECRET_PREFIX` on the GitHub
 environment, check the service came back up, and delete the `DATABASE_URL` secret from the GitHub
@@ -180,6 +181,7 @@ a worthwhile afternoon and needs its own bucket bindings; it is not done.
 | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `missing in Secret Manager: …` before the image is built           | The secret does not exist under that prefix. Run the bootstrap script for that environment                                                             |
 | `GCP_SECRET_PREFIX is empty`                                       | The GitHub environment was never given the variable                                                                                                    |
+| gcloud refuses a name that is both a literal and a secret          | A deploy from the old workflow ran after the migration. Merge the new workflow; it sets no literals                                                    |
 | The revision fails to start, logs mention a permission on a secret | The runtime service account has no `secretAccessor` on it. Re-running the bootstrap script grants it                                                   |
 | The API is up but something is wrong with a value                  | Check the wiring, never the value: `gcloud run services describe api-new --region europe-west1 --format='value(spec.template.spec.containers[0].env)'` |
 
