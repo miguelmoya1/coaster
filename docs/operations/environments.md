@@ -25,21 +25,22 @@ duplicated, and the things that **must** be duplicated are listed below with the
 environment: ${{ github.ref_name == 'main' && 'api-production' || 'api-beta' }}
 ```
 
-From there the job body never mentions an environment again: the service name, the job name and
-`PUBLIC_URL` come from `vars`, the database URL from `secrets`, and both resolve to whatever that
-environment holds. A deploy to beta and a deploy to production are the same twelve lines.
+From there the job body never mentions an environment again: the service name, the job name, the
+secret prefix and `PUBLIC_URL` come from `vars`, and each resolves to whatever that environment
+holds. A deploy to beta and a deploy to production are the same twelve lines.
 
-The first step fails the run if any of the four is empty, before a single `gcloud` call. A GitHub
+The first step fails the run if any of the four is empty, and the step that resolves the secret
+mapping fails it if a required credential is missing — both before an image is built. A GitHub
 environment that was never configured cannot half-deploy anything.
 
 **What lives where:**
 
-| Value                                                                                                                                        | Where it is set                  | Why there                                                        |
-| -------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- | ---------------------------------------------------------------- |
-| `GCP_SERVICE_NAME`, `GCP_JOB_NAME`, `PUBLIC_URL`                                                                                             | GitHub environment **variables** | CI needs them to know what it is deploying                       |
-| `DATABASE_URL`                                                                                                                               | GitHub environment **secret**    | CI hands it to the migration job; the service holds its own copy |
-| `FRONTEND_URL`, `STRIPE_*`, `RESEND_API_KEY`, `REDIS_URL`, `CORS_ORIGINS`, `AUTH_JWT_SECRET`, `GOOGLE_CLIENT_ID`, `BETA_ALLOWLIST_ENABLED` … | The Cloud Run service            | Runtime configuration, never needed to build or release          |
-| `PRODUCTION`, `API_URL`, `GOOGLE_CLIENT_ID`, `ALLOW_INDEXING`                                                                                | Vercel project                   | Baked into the bundle at build time by `set-env.ts`              |
+| Value                                                                                                                                                      | Where it is set                             | Why there                                                                             |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------- |
+| `GCP_SERVICE_NAME`, `GCP_JOB_NAME`, `GCP_SECRET_PREFIX`, `PUBLIC_URL`                                                                                      | GitHub environment **variables**            | CI needs them to know what it is deploying, and which set of credentials to wire      |
+| `DATABASE_URL`, `AUTH_JWT_SECRET`, `PRINTER_JWT_SECRET`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `RESEND_API_KEY`, `AI_GATEWAY_API_KEY`, `REDIS_URL` | **Secret Manager**, one set per environment | Credentials. CI passes their names and never their values — see [secrets](secrets.md) |
+| `FRONTEND_URL`, `CORS_ORIGINS`, `MEDIA_BUCKET`, `STRIPE_PRICE_*`, `EMAIL_FROM`, `GOOGLE_CLIENT_ID`, `BETA_ALLOWLIST_ENABLED` …                             | The Cloud Run service                       | Runtime configuration, never needed to build or release                               |
+| `PRODUCTION`, `API_URL`, `GOOGLE_CLIENT_ID`, `ALLOW_INDEXING`                                                                                              | Vercel project                              | Baked into the bundle at build time by `set-env.ts`                                   |
 
 ## What the two environments must never share
 
@@ -103,21 +104,22 @@ both before merging to `main`.
 
 ```sh
 gh api -X PUT repos/miguelmoya1/coaster/environments/api-production
-gh variable set GCP_SERVICE_NAME --env api-production --body api-new
-gh variable set GCP_JOB_NAME     --env api-production --body api-migrate
-gh variable set PUBLIC_URL       --env api-production --body https://api.coaster.business
-gh secret   set DATABASE_URL     --env api-production   # paste the production Neon URL
+gh variable set GCP_SERVICE_NAME  --env api-production --body api-new
+gh variable set GCP_JOB_NAME      --env api-production --body api-migrate
+gh variable set GCP_SECRET_PREFIX --env api-production --body coaster-prod
+gh variable set PUBLIC_URL        --env api-production --body https://api.coaster.business
 
 gh api -X PUT repos/miguelmoya1/coaster/environments/api-beta
-gh variable set GCP_SERVICE_NAME --env api-beta --body api-beta
-gh variable set GCP_JOB_NAME     --env api-beta --body api-migrate-beta
-gh variable set PUBLIC_URL       --env api-beta --body https://api.beta.coaster.business
-gh secret   set DATABASE_URL     --env api-beta         # paste the beta Neon URL
+gh variable set GCP_SERVICE_NAME  --env api-beta --body api-beta
+gh variable set GCP_JOB_NAME      --env api-beta --body api-migrate-beta
+gh variable set GCP_SECRET_PREFIX --env api-beta --body coaster-beta
+gh variable set PUBLIC_URL        --env api-beta --body https://api.beta.coaster.business
 ```
 
-An environment secret shadows a repository secret of the same name, so the old repository-level
-`DATABASE_URL` is now dead weight — delete it once production has deployed green, or it will quietly
-become the value nobody remembers setting.
+No GitHub secrets: the database URL the migration job needs comes from Secret Manager, so this
+pipeline keeps nothing worth stealing on GitHub's side. If an environment or the repository still
+carries a `DATABASE_URL` secret from before that change, delete it — nothing reads it, and a
+credential nobody reads is a credential nobody rotates.
 
 Optionally pin each environment to its branch, so a run from the wrong branch cannot reach the wrong
 database:
@@ -166,23 +168,17 @@ SA=$(gcloud run services describe api-new --region $REGION --format='value(spec.
 If `$SA` comes back empty, production runs as the project's default compute account: drop the
 `--service-account` flag below and beta will do the same.
 
-Write the runtime configuration to a file — commas in a connection string make `--set-env-vars`
-unusable, and the file is easy to read before you apply it:
+The configuration splits in two. The credentials go to Secret Manager, in a moment; what is left is
+plain configuration, and it goes to a file because `CORS_ORIGINS` is comma-separated and commas make
+`--set-env-vars` unusable:
 
 ```yaml
-# /tmp/api-beta.env.yaml — delete it afterwards, it holds secrets
-DATABASE_URL: 'postgresql://…beta neon…'
+# /tmp/api-beta.env.yaml
 FRONTEND_URL: 'https://beta.coaster.business'
 PUBLIC_URL: 'https://api.beta.coaster.business'
-RESEND_API_KEY: 're_…'
-STRIPE_SECRET_KEY: 'sk_test_…'
-STRIPE_WEBHOOK_SECRET: 'whsec_…'
 STRIPE_PRICE_PRO: 'price_…'
-PRINTER_JWT_SECRET: '…openssl rand -hex 32…'
 CORS_ORIGINS: 'https://beta.coaster.business'
 MEDIA_BUCKET: 'coaster-media-beta'
-AI_GATEWAY_API_KEY: '…'
-REDIS_URL: 'rediss://…beta…'
 ```
 
 ```sh
@@ -199,8 +195,22 @@ gcloud run deploy api-beta \
 `--min-instances 0` is the difference between beta costing a cold start and beta costing money all
 month.
 
-The migration job carries no configuration of its own — CI overwrites its image and its
-`DATABASE_URL` on every run — so it only has to exist:
+Now the eight credentials. Write beta's values to a file outside the repository and hand it to the
+bootstrap script, which creates the secrets, lets `$SA` read them and attaches them to both the
+service and the job — [secrets](secrets.md) has the file's shape and the reasoning:
+
+```sh
+scripts/secrets-bootstrap.sh beta ~/coaster-beta.secrets.env
+```
+
+Beta's values are its own, all eight of them, for the reasons above. `REDIS_URL` and
+`AI_GATEWAY_API_KEY` may simply be absent; the other six are not optional.
+
+Run it **after** creating the migration job below, so it can attach the database secret in the same
+pass — or run it again afterwards, which is free.
+
+The migration job carries no configuration of its own — CI overwrites its image on every run and
+points it at the environment's database secret — so it only has to exist:
 
 ```sh
 gcloud run jobs create api-migrate-beta \

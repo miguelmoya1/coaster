@@ -90,10 +90,10 @@ jobs:
         env:
           GCP_SERVICE_NAME: ${{ vars.GCP_SERVICE_NAME }}
           GCP_JOB_NAME: ${{ vars.GCP_JOB_NAME }}
+          GCP_SECRET_PREFIX: ${{ vars.GCP_SECRET_PREFIX }}
           PUBLIC_URL: ${{ vars.PUBLIC_URL }}
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
-          for name in GCP_SERVICE_NAME GCP_JOB_NAME PUBLIC_URL DATABASE_URL; do
+          for name in GCP_SERVICE_NAME GCP_JOB_NAME GCP_SECRET_PREFIX PUBLIC_URL; do
             if [ -z "${!name}" ]; then
               echo "::error::${name} is empty. Set it on the '${{ github.ref_name == 'main' && 'api-production' || 'api-beta' }}' GitHub environment."
               exit 1
@@ -109,6 +109,50 @@ jobs:
       - name: ☁️ Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
 
+      # Credentials live in Secret Manager, one copy per environment, and the deploy only ever
+      # carries their names. Each secret is its variable in kebab-case behind the environment's
+      # prefix, so AUTH_JWT_SECRET in beta is coaster-beta-auth-jwt-secret and the mapping needs
+      # no table to maintain. Missing a required one fails here, before the image is built and
+      # long before a revision could come up without it.
+      - name: 🔑 Resolve the Secret Manager mapping
+        env:
+          SECRET_PREFIX: ${{ vars.GCP_SECRET_PREFIX }}
+        run: |
+          required='DATABASE_URL AUTH_JWT_SECRET PRINTER_JWT_SECRET STRIPE_SECRET_KEY STRIPE_WEBHOOK_SECRET RESEND_API_KEY'
+          optional='AI_GATEWAY_API_KEY REDIS_URL'
+
+          present=$(gcloud secrets list --format='value(name.basename())')
+
+          mapping=''
+          missing=''
+
+          for name in $required $optional; do
+            secret="${SECRET_PREFIX}-$(printf '%s' "$name" | tr 'A-Z_' 'a-z-')"
+
+            if printf '%s\n' "$present" | grep -qx "$secret"; then
+              mapping="${mapping:+$mapping,}${name}=${secret}:latest"
+              continue
+            fi
+
+            case " $required " in
+              *" $name "*)
+                missing="${missing} ${secret}"
+                ;;
+              *)
+                # Beta is allowed to run without a cache and without the assistant.
+                echo "::notice::no ${secret} in Secret Manager; the API runs without ${name}"
+                ;;
+            esac
+          done
+
+          if [ -n "$missing" ]; then
+            echo "::error::missing in Secret Manager:${missing} — create them with scripts/secrets-bootstrap.sh, see docs/operations/secrets.md"
+            exit 1
+          fi
+
+          echo "API_SECRETS=${mapping}" >> "$GITHUB_ENV"
+          echo "Wiring ${mapping}"
+
       - name: 🔑 Configure Docker
         run: gcloud auth configure-docker ${{ env.GCP_REGION_SERVICE }}-docker.pkg.dev
 
@@ -122,7 +166,7 @@ jobs:
           gcloud run jobs deploy ${{ vars.GCP_JOB_NAME }} \
             --image ${{ env.GCP_IMAGE_NAME }}:${{ github.sha }} \
             --region ${{ env.GCP_REGION_JOB }} \
-            --set-env-vars="DATABASE_URL=${{ secrets.DATABASE_URL }}" \
+            --update-secrets="DATABASE_URL=${{ vars.GCP_SECRET_PREFIX }}-database-url:latest" \
             --command "npx,prisma,migrate,deploy,--config=apps/api/prisma.config.ts"
 
           gcloud run jobs execute ${{ vars.GCP_JOB_NAME }} --region ${{ env.GCP_REGION_JOB }} --wait
@@ -133,5 +177,6 @@ jobs:
             --image ${{ env.GCP_IMAGE_NAME }}:${{ github.sha }} \
             --region ${{ env.GCP_REGION_SERVICE }} \
             --update-env-vars="PUBLIC_URL=${{ vars.PUBLIC_URL }}" \
+            --update-secrets="${API_SECRETS}" \
             --timeout=3600 \
             --allow-unauthenticated

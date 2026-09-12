@@ -25,6 +25,8 @@ what is known to be owed.
 - [Admin backoffice](admin/backoffice.md)
 - [Production and beta](operations/environments.md) — the two environments, what they share and what
   they must not
+- [Secrets](operations/secrets.md) — the eight credentials in Secret Manager, and why the rest are
+  plain environment variables
 - [The shared cache](operations/redis.md) — the realtime bus, rate limit and the guards' preamble
 - [Time tracking](operations/time-tracking.md) — the legal working-time register
 - [Stripe integration](saas/stripe-integration.md)
