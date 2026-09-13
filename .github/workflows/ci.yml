@@ -124,7 +124,11 @@ jobs:
           required='DATABASE_URL AUTH_JWT_SECRET PRINTER_JWT_SECRET STRIPE_SECRET_KEY STRIPE_WEBHOOK_SECRET RESEND_API_KEY'
           optional='AI_GATEWAY_API_KEY REDIS_URL'
 
-          present=$(gcloud secrets list --format='value(name.basename())')
+          if ! present=$(gcloud secrets list --format='value(name.basename())' 2>&1); then
+            echo "::error::cannot list secrets: ${present}"
+            echo "::error::the deploy service account needs roles/secretmanager.viewer — metadata only, not the values. scripts/secrets-bootstrap.sh grants it; see docs/operations/secrets.md"
+            exit 1
+          fi
 
           mapping=''
           missing=''

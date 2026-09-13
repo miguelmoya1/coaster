@@ -22,6 +22,7 @@ set -euo pipefail
 PROJECT='coaster-437f2'
 REGION='europe-west1'
 REGION_JOB='europe-southwest1'
+DEPLOYER='github-actions@coaster-437f2.iam.gserviceaccount.com'
 
 # The same two lists live in .github/workflows/ci.yml. Required means the API cannot
 # serve without it; optional means beta is allowed to run without a cache and without
@@ -103,6 +104,26 @@ READERS="$SERVICE_SA"
 [ -z "$JOB_SA" ] || [ "$JOB_SA" = "$SERVICE_SA" ] || READERS="$SERVICE_SA $JOB_SA"
 
 echo "▸ readers: ${READERS}"
+
+# The deploy has to know which of these exist before it can decide what to wire, and it
+# cannot know without being allowed to look. Viewer is metadata only — names, labels,
+# version numbers — and deliberately not accessor: the workflow passes names around and
+# never has the standing to read a value, which is what keeps a CI log safe to read.
+# Project level because listing is a project-level operation; there is no per-secret
+# grant that lets you enumerate.
+if grant=$(gcloud projects add-iam-policy-binding "$PROJECT" \
+     --member="serviceAccount:${DEPLOYER}" --role='roles/secretmanager.viewer' \
+     --condition=None 2>&1); then
+  echo "▸ deployer ${DEPLOYER} can see that these exist, never what they hold"
+else
+  echo "! could not grant roles/secretmanager.viewer to ${DEPLOYER}:" >&2
+  printf '%s\n' "$grant" | tail -3 >&2
+  echo "  Without it the deploy stops at 'Resolve the Secret Manager mapping'. Run this" >&2
+  echo "  yourself, or ask whoever owns the project:" >&2
+  echo "    gcloud projects add-iam-policy-binding ${PROJECT} \\" >&2
+  echo "      --member=serviceAccount:${DEPLOYER} --role=roles/secretmanager.viewer" >&2
+fi
+
 echo
 
 missing=''

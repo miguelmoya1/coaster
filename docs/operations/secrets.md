@@ -162,9 +162,15 @@ message will be about a secret you were sure you had created.
 
 ## Who can read them
 
-Access is granted per secret to the service account the Cloud Run service runs as, never at the
-project level. `github-actions@` deploys but holds no `secretAccessor`: it passes names around and
-never sees a value, which is what makes a workflow log safe to read.
+Reading a **value** is granted per secret, to the service account the Cloud Run service runs as, and
+to nobody else. `github-actions@` deploys and holds no `secretAccessor` anywhere: it passes names
+around and never has the standing to read one, which is what makes a workflow log safe to read.
+
+It does hold `roles/secretmanager.viewer` on the project, which is metadata only — names, labels,
+version numbers — and is how the deploy knows which secrets exist before deciding what to wire. That
+one is project-wide because enumerating is a project-level operation; there is no per-secret grant
+that lets you list. It gives away nothing the workflow file does not already spell out. The
+bootstrap script grants it.
 
 One caveat worth knowing rather than discovering: **beta and production currently run as the same
 service account**, because beta was built to copy production's shape and inherit its Cloud Storage
@@ -174,11 +180,12 @@ a worthwhile afternoon and needs its own bucket bindings; it is not done.
 
 ## When a deploy fails on this
 
-| What you see                                                       | What it is                                                                                                                                             |
-| ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `missing in Secret Manager: …` before the image is built           | The secret does not exist under that prefix. Run the bootstrap script for that environment                                                             |
-| The revision fails to start, logs mention a permission on a secret | The runtime service account has no `secretAccessor` on it. Re-running the bootstrap script grants it                                                   |
-| The API is up but something is wrong with a value                  | Check the wiring, never the value: `gcloud run services describe api-new --region europe-west1 --format='value(spec.template.spec.containers[0].env)'` |
+| What you see                                                            | What it is                                                                                                                                             |
+| ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `missing in Secret Manager: …` before the image is built                | The secret does not exist under that prefix. Run the bootstrap script for that environment                                                             |
+| `cannot list secrets: … Permission 'secretmanager.secrets.list' denied` | The deploy service account lost, or never had, `roles/secretmanager.viewer`. Re-running the bootstrap script grants it                                 |
+| The revision fails to start, logs mention a permission on a secret      | The runtime service account has no `secretAccessor` on it. Re-running the bootstrap script grants it                                                   |
+| The API is up but something is wrong with a value                       | Check the wiring, never the value: `gcloud run services describe api-new --region europe-west1 --format='value(spec.template.spec.containers[0].env)'` |
 
 A missing or unreadable secret fails the revision rather than starting the API without it, so
 production keeps serving the previous revision while you sort it out.
