@@ -236,6 +236,12 @@ environments: `main` is production, `dev` is beta on `beta.coaster.business` —
 [production and beta](docs/operations/environments.md) for what they share, what they must not, and
 how to set one up.
 
+Eight of the API's variables are credentials and live in Google Secret Manager, one set per
+environment, reaching the container as ordinary environment variables — see
+[secrets](docs/operations/secrets.md) for which eight, how to rotate one and how to add another.
+Everything below is configuration, and configuration you can read at a glance is configuration you
+get right.
+
 Environment variables that are easy to get wrong:
 
 | Variable                 | Where     | Why it matters                                                                                                                                                                                                       |
@@ -272,6 +278,7 @@ Everything is indexed in [`docs/`](docs/README.md).
 - [Time tracking](docs/operations/time-tracking.md) — the legal working-time register
 - [The shared cache](docs/operations/redis.md) — realtime bus, rate limit, guard preamble
 - [Production and beta](docs/operations/environments.md)
+- [Secrets](docs/operations/secrets.md) — what is in Secret Manager, and what is deliberately not
 - [Stripe integration](docs/saas/stripe-integration.md) · [Stripe setup](docs/saas/stripe-local-setup.md) · [Closed beta](docs/saas/closed-beta.md)
 - [Admin backoffice](docs/admin/backoffice.md)
 - [Roadmap](TODO.md) — what is next, what is parked, what is owed
