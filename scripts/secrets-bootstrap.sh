@@ -21,6 +21,7 @@ set -euo pipefail
 
 PROJECT='coaster-437f2'
 REGION='europe-west1'
+REGION_JOB='europe-southwest1'
 
 # The same two lists live in .github/workflows/ci.yml. Required means the API cannot
 # serve without it; optional means beta is allowed to run without a cache and without
@@ -29,8 +30,8 @@ REQUIRED='DATABASE_URL AUTH_JWT_SECRET PRINTER_JWT_SECRET STRIPE_SECRET_KEY STRI
 OPTIONAL='AI_GATEWAY_API_KEY REDIS_URL'
 
 case "${1:-}" in
-  prod) PREFIX='coaster-prod'; SERVICE='api-new' ;;
-  beta) PREFIX='coaster-beta'; SERVICE='api-beta' ;;
+  prod) PREFIX='coaster-prod'; SERVICE='api-new';  JOB='api-migrate' ;;
+  beta) PREFIX='coaster-beta'; SERVICE='api-beta'; JOB='api-migrate-beta' ;;
   *) sed -n '3,7p' "$0" | sed 's/^# \{0,1\}//' >&2; exit 64 ;;
 esac
 
@@ -92,7 +93,16 @@ if [ -z "$SERVICE_SA" ]; then
   SERVICE_SA="$(gcloud projects describe "$PROJECT" --format='value(projectNumber)')-compute@developer.gserviceaccount.com"
 fi
 
-echo "▸ reader: ${SERVICE_SA}"
+# The migration job reads DATABASE_URL too, and it is a separate resource that can run as
+# a separate account. Granting only the service's would leave every deploy failing at the
+# migration step with a permission error about a secret that looks perfectly fine.
+JOB_SA=$(gcloud run jobs describe "$JOB" --project "$PROJECT" --region "$REGION_JOB" \
+  --format='value(spec.template.spec.template.spec.serviceAccountName)' 2>/dev/null || true)
+
+READERS="$SERVICE_SA"
+[ -z "$JOB_SA" ] || [ "$JOB_SA" = "$SERVICE_SA" ] || READERS="$SERVICE_SA $JOB_SA"
+
+echo "▸ readers: ${READERS}"
 echo
 
 missing=''
@@ -125,8 +135,10 @@ for name in $REQUIRED $OPTIONAL; do
     echo "+ ${secret}"
   fi
 
-  gcloud secrets add-iam-policy-binding "$secret" --project "$PROJECT" \
-    --member="serviceAccount:${SERVICE_SA}" --role='roles/secretmanager.secretAccessor' >/dev/null
+  for reader in $READERS; do
+    gcloud secrets add-iam-policy-binding "$secret" --project "$PROJECT" \
+      --member="serviceAccount:${reader}" --role='roles/secretmanager.secretAccessor' >/dev/null
+  done
 done
 
 if [ -n "$missing" ]; then

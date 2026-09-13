@@ -108,12 +108,15 @@ gh secret delete DATABASE_URL --env api-production
 ### Why the plaintext copies go
 
 A literal left behind is the password still sitting in the service YAML, readable by anyone with
-`run.services.get`, and you would have done all of this for nothing. So the deploy passes
-`--remove-env-vars` on the same eight names it attaches as secrets.
+`run.services.get`, and you would have done all of this for nothing. So before deploying, the
+workflow asks the service and the job which of the eight they still carry as plaintext, and removes
+exactly those.
 
-It stays there rather than being a one-off, and that is deliberate. Cloud Run refuses a name that is
-both a literal and a secret, so a credential somebody sets by hand in the console is stripped by the
-next deploy instead of silently taking precedence.
+Exactly those, and not the eight names flatly, because after the first deploy they are secrets
+rather than literals and there is nothing left to remove: a steady-state deploy passes no removal
+flag at all, and the one deploy per environment that does is the one that replaces them. The check
+is not just tidiness either — it is what strips a credential somebody sets by hand in the console,
+on the next deploy, instead of letting it sit there.
 
 ## Rotating
 
