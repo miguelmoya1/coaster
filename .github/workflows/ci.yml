@@ -82,6 +82,10 @@ jobs:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     environment: ${{ github.ref_name == 'main' && 'api-production' || 'api-beta' }}
+    # The branch already chooses the GitHub environment one line up; it chooses the set of
+    # credentials the same way, so there is no variable to set and none to forget.
+    env:
+      SECRET_PREFIX: ${{ github.ref_name == 'main' && 'coaster-prod' || 'coaster-beta' }}
     steps:
       - name: 📦 Checkout code
         uses: actions/checkout@v4
@@ -91,9 +95,8 @@ jobs:
           GCP_SERVICE_NAME: ${{ vars.GCP_SERVICE_NAME }}
           GCP_JOB_NAME: ${{ vars.GCP_JOB_NAME }}
           PUBLIC_URL: ${{ vars.PUBLIC_URL }}
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
-          for name in GCP_SERVICE_NAME GCP_JOB_NAME PUBLIC_URL DATABASE_URL; do
+          for name in GCP_SERVICE_NAME GCP_JOB_NAME PUBLIC_URL; do
             if [ -z "${!name}" ]; then
               echo "::error::${name} is empty. Set it on the '${{ github.ref_name == 'main' && 'api-production' || 'api-beta' }}' GitHub environment."
               exit 1
@@ -109,6 +112,84 @@ jobs:
       - name: ☁️ Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
 
+      # Credentials live in Secret Manager and the deploy only ever carries their names.
+      # Each secret is its variable in kebab-case behind the environment's prefix, so
+      # AUTH_JWT_SECRET in beta is coaster-beta-auth-jwt-secret and there is no table to
+      # keep in sync. A missing required one stops the run here, before the image is built.
+      - name: 🔑 Resolve the Secret Manager mapping
+        env:
+          GCP_SERVICE_NAME: ${{ vars.GCP_SERVICE_NAME }}
+          GCP_JOB_NAME: ${{ vars.GCP_JOB_NAME }}
+        run: |
+          required='DATABASE_URL AUTH_JWT_SECRET PRINTER_JWT_SECRET STRIPE_SECRET_KEY STRIPE_WEBHOOK_SECRET RESEND_API_KEY'
+          optional='AI_GATEWAY_API_KEY REDIS_URL'
+
+          present=$(gcloud secrets list --format='value(name.basename())')
+
+          mapping=''
+          missing=''
+
+          for name in $required $optional; do
+            secret="${SECRET_PREFIX}-$(printf '%s' "$name" | tr 'A-Z_' 'a-z-')"
+
+            if printf '%s\n' "$present" | grep -qx "$secret"; then
+              mapping="${mapping:+$mapping,}${name}=${secret}:latest"
+              continue
+            fi
+
+            case " $required " in
+              *" $name "*)
+                missing="${missing} ${secret}"
+                ;;
+              *)
+                # Beta is allowed to run without a cache and without the assistant.
+                echo "::notice::no ${secret} in Secret Manager; the API runs without ${name}"
+                ;;
+            esac
+          done
+
+          if [ -n "$missing" ]; then
+            echo "::error::missing in Secret Manager:${missing} — run scripts/secrets-bootstrap.sh, see docs/operations/secrets.md"
+            exit 1
+          fi
+
+          # Which of the eight the service and the job still carry as plaintext. Only those
+          # are removed, and only on the deploy that replaces them: once they are secrets the
+          # flag is not passed at all, so a steady-state deploy is an --update-secrets and
+          # nothing else. Cloud Run refuses a name that is both a literal and a secret, so
+          # this is also what strips a credential somebody sets by hand in the console.
+          names=$(printf '%s' "$required $optional" | tr ' ' '|')
+
+          # A service or job that does not exist yet is not an error: the deploy below creates
+          # it, already wired. Without the fallback the runner's pipefail would stop the run.
+          service_json=$(gcloud run services describe "$GCP_SERVICE_NAME" --region "$GCP_REGION_SERVICE" --format=json 2>/dev/null || echo '{}')
+          job_json=$(gcloud run jobs describe "$GCP_JOB_NAME" --region "$GCP_REGION_JOB" --format=json 2>/dev/null || echo '{}')
+
+          stale=$(printf '%s' "$service_json" \
+            | jq -r --arg names "$names" '
+                .spec.template.spec.containers[0].env[]?
+                | select(.value != null)
+                | select(.name | test("^(" + $names + ")$"))
+                | .name' \
+            | paste -sd, -)
+
+          stale_job=$(printf '%s' "$job_json" \
+            | jq -r '
+                .spec.template.spec.template.spec.containers[0].env[]?
+                | select(.value != null)
+                | select(.name == "DATABASE_URL")
+                | .name' \
+            | paste -sd, -)
+
+          {
+            echo "API_SECRETS=${mapping}"
+            echo "REMOVE_STALE=${stale:+--remove-env-vars=$stale}"
+            echo "REMOVE_STALE_JOB=${stale_job:+--remove-env-vars=$stale_job}"
+          } >> "$GITHUB_ENV"
+
+          echo "Wiring ${mapping}"
+          echo "Plaintext still to strip: ${stale:-none} (service) · ${stale_job:-none} (job)"
+
       - name: 🔑 Configure Docker
         run: gcloud auth configure-docker ${{ env.GCP_REGION_SERVICE }}-docker.pkg.dev
 
@@ -122,16 +203,21 @@ jobs:
           gcloud run jobs deploy ${{ vars.GCP_JOB_NAME }} \
             --image ${{ env.GCP_IMAGE_NAME }}:${{ github.sha }} \
             --region ${{ env.GCP_REGION_JOB }} \
-            --set-env-vars="DATABASE_URL=${{ secrets.DATABASE_URL }}" \
+            ${REMOVE_STALE_JOB} \
+            --update-secrets="DATABASE_URL=${SECRET_PREFIX}-database-url:latest" \
             --command "npx,prisma,migrate,deploy,--config=apps/api/prisma.config.ts"
 
           gcloud run jobs execute ${{ vars.GCP_JOB_NAME }} --region ${{ env.GCP_REGION_JOB }} --wait
 
+      # REMOVE_STALE is deliberately unquoted: it is either a --remove-env-vars=A,B,C or the
+      # empty string, and an unquoted empty expansion is no argument rather than an empty one.
       - name: 🌐 Deploy API to Cloud Run Service
         run: |
           gcloud run deploy ${{ vars.GCP_SERVICE_NAME }} \
             --image ${{ env.GCP_IMAGE_NAME }}:${{ github.sha }} \
             --region ${{ env.GCP_REGION_SERVICE }} \
             --update-env-vars="PUBLIC_URL=${{ vars.PUBLIC_URL }}" \
+            ${REMOVE_STALE} \
+            --update-secrets="${API_SECRETS}" \
             --timeout=3600 \
             --allow-unauthenticated
