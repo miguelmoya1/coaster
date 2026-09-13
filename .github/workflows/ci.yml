@@ -82,6 +82,10 @@ jobs:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     environment: ${{ github.ref_name == 'main' && 'api-production' || 'api-beta' }}
+    # The branch already chooses the GitHub environment one line up; it chooses the set of
+    # credentials the same way, so there is no variable to set and none to forget.
+    env:
+      SECRET_PREFIX: ${{ github.ref_name == 'main' && 'coaster-prod' || 'coaster-beta' }}
     steps:
       - name: 📦 Checkout code
         uses: actions/checkout@v4
@@ -90,10 +94,9 @@ jobs:
         env:
           GCP_SERVICE_NAME: ${{ vars.GCP_SERVICE_NAME }}
           GCP_JOB_NAME: ${{ vars.GCP_JOB_NAME }}
-          GCP_SECRET_PREFIX: ${{ vars.GCP_SECRET_PREFIX }}
           PUBLIC_URL: ${{ vars.PUBLIC_URL }}
         run: |
-          for name in GCP_SERVICE_NAME GCP_JOB_NAME GCP_SECRET_PREFIX PUBLIC_URL; do
+          for name in GCP_SERVICE_NAME GCP_JOB_NAME PUBLIC_URL; do
             if [ -z "${!name}" ]; then
               echo "::error::${name} is empty. Set it on the '${{ github.ref_name == 'main' && 'api-production' || 'api-beta' }}' GitHub environment."
               exit 1
@@ -109,14 +112,11 @@ jobs:
       - name: ☁️ Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
 
-      # Credentials live in Secret Manager, one copy per environment, and the deploy only ever
-      # carries their names. Each secret is its variable in kebab-case behind the environment's
-      # prefix, so AUTH_JWT_SECRET in beta is coaster-beta-auth-jwt-secret and the mapping needs
-      # no table to maintain. Missing a required one fails here, before the image is built and
-      # long before a revision could come up without it.
+      # Credentials live in Secret Manager and the deploy only ever carries their names.
+      # Each secret is its variable in kebab-case behind the environment's prefix, so
+      # AUTH_JWT_SECRET in beta is coaster-beta-auth-jwt-secret and there is no table to
+      # keep in sync. A missing required one stops the run here, before the image is built.
       - name: 🔑 Resolve the Secret Manager mapping
-        env:
-          SECRET_PREFIX: ${{ vars.GCP_SECRET_PREFIX }}
         run: |
           required='DATABASE_URL AUTH_JWT_SECRET PRINTER_JWT_SECRET STRIPE_SECRET_KEY STRIPE_WEBHOOK_SECRET RESEND_API_KEY'
           optional='AI_GATEWAY_API_KEY REDIS_URL'
@@ -146,11 +146,15 @@ jobs:
           done
 
           if [ -n "$missing" ]; then
-            echo "::error::missing in Secret Manager:${missing} — create them with scripts/secrets-bootstrap.sh, see docs/operations/secrets.md"
+            echo "::error::missing in Secret Manager:${missing} — run scripts/secrets-bootstrap.sh, see docs/operations/secrets.md"
             exit 1
           fi
 
-          echo "API_SECRETS=${mapping}" >> "$GITHUB_ENV"
+          {
+            echo "API_SECRETS=${mapping}"
+            echo "SECRET_NAMES=$(printf '%s' "$required $optional" | tr ' ' ',')"
+          } >> "$GITHUB_ENV"
+
           echo "Wiring ${mapping}"
 
       - name: 🔑 Configure Docker
@@ -166,17 +170,24 @@ jobs:
           gcloud run jobs deploy ${{ vars.GCP_JOB_NAME }} \
             --image ${{ env.GCP_IMAGE_NAME }}:${{ github.sha }} \
             --region ${{ env.GCP_REGION_JOB }} \
-            --update-secrets="DATABASE_URL=${{ vars.GCP_SECRET_PREFIX }}-database-url:latest" \
+            --remove-env-vars="DATABASE_URL" \
+            --update-secrets="DATABASE_URL=${SECRET_PREFIX}-database-url:latest" \
             --command "npx,prisma,migrate,deploy,--config=apps/api/prisma.config.ts"
 
           gcloud run jobs execute ${{ vars.GCP_JOB_NAME }} --region ${{ env.GCP_REGION_JOB }} --wait
 
+      # --remove-env-vars on the same eight names is what makes this switch itself over: the
+      # plaintext copies the service used to hold go on the deploy that introduces the
+      # secrets, with no window in between and nothing to run by hand first. It stays because
+      # Cloud Run refuses a name that is both a literal and a secret, so a credential set by
+      # hand on the console is stripped by the next deploy rather than silently winning.
       - name: 🌐 Deploy API to Cloud Run Service
         run: |
           gcloud run deploy ${{ vars.GCP_SERVICE_NAME }} \
             --image ${{ env.GCP_IMAGE_NAME }}:${{ github.sha }} \
             --region ${{ env.GCP_REGION_SERVICE }} \
             --update-env-vars="PUBLIC_URL=${{ vars.PUBLIC_URL }}" \
+            --remove-env-vars="${SECRET_NAMES}" \
             --update-secrets="${API_SECRETS}" \
             --timeout=3600 \
             --allow-unauthenticated
