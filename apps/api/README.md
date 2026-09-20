@@ -67,5 +67,7 @@ travels in git nor enters the image. Production reads real environment variables
 | `TRUST_PROXY_HOPS`                                               | Defaults to `1` (Cloud Run); `compose.yaml` sets `0`                           |
 | `BETA_ALLOWLIST_ENABLED`                                         | Closes sign-up to the `BetaTester` allowlist                                   |
 
-Migrations are **not** run by the image. Apply them with `prisma migrate deploy` before or during
-the release.
+Migrations are **not** run by the production image. Apply them with `prisma migrate deploy` before
+or during the release — the CI deploy does it in a Cloud Run job. The dev container is the exception:
+`compose.yaml` has it run `prisma migrate deploy` before the dev server, so a local database is
+never a step behind the checkout.

@@ -31,6 +31,15 @@ services:
     build:
       context: .
       dockerfile: ./apps/api/Dockerfile.dev
+    # A database with no tables in it looks exactly like broken code: every request dies on
+    # Prisma and the browser is told "Internal server error", login included. Nothing used to
+    # apply the migrations, so a fresh volume —a first checkout, or the drop that the move to
+    # postgres:18 asks for— left the API talking to an empty schema. Now the container applies
+    # them before it serves. `deploy` and not `dev`: it only ever plays the migrations that are
+    # already committed, never writes one and never resets anybody's local data.
+    # `exec` so the dev server is the process the container signals: without it a stop waits
+    # out its ten seconds and kills the shell instead.
+    command: ['sh', '-c', 'npx prisma migrate deploy && exec npm run dev']
     ports:
       - '3000:3000'
     environment:
