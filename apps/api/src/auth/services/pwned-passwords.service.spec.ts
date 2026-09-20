@@ -19,6 +19,10 @@ describe('PwnedPasswordsService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.spyOn(Logger.prototype, 'warn').mockReturnValue(undefined);
+
+    // A test must never reach the real service: the runner may well have a route to it, and the
+    // passwords here are exactly the ones the corpus knows. Each test says what it wants back.
+    globalThis.fetch = vi.fn().mockRejectedValue(new Error('no network in tests'));
   });
 
   afterEach(() => {
@@ -69,6 +73,8 @@ describe('PwnedPasswordsService', () => {
   });
 
   it('should say nothing about a password it could not check', async () => {
+    globalThis.fetch = vi.fn().mockRejectedValue(new Error('timed out'));
+
     await expect(new PwnedPasswordsService(configWith()).assertNotCompromised(PASSWORD)).resolves.toBeUndefined();
   });
 
