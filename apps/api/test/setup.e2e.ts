@@ -24,6 +24,13 @@ export async function setup() {
   process.env.GOOGLE_CLIENT_ID = E2E_GOOGLE_CLIENT_ID;
 
   /*
+   * Registering in a test should not call Have I Been Pwned: the suite would depend on somebody
+   * else's uptime, and the passwords it uses are exactly the sort the corpus knows. What the check
+   * does is covered by its own unit tests.
+   */
+  process.env.PWNED_PASSWORDS_ENABLED = 'false';
+
+  /*
    * The suite gets a database of its own but would share whatever cache the developer has running,
    * and `clearDatabase` cannot reach into it: a role cached in one test then answers for a user the
    * next test has already deleted. Running without one keeps every test reading Postgres, which is

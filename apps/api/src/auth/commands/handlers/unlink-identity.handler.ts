@@ -1,12 +1,16 @@
 import { ErrorCodes } from '@coaster/common';
-import { DbService } from '@coaster/core/db';
+import { DbAuthEventType, DbService } from '@coaster/core/db';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
+import { AuthEventOccurred } from '../../events/impl/auth-event.event';
 import { UnlinkIdentityCommand } from '../impl/unlink-identity.command';
 
 @CommandHandler(UnlinkIdentityCommand)
 export class UnlinkIdentityHandler implements ICommandHandler<UnlinkIdentityCommand, void> {
-  constructor(private readonly _db: DbService) {}
+  constructor(
+    private readonly _db: DbService,
+    private readonly _events: EventBus,
+  ) {}
 
   async execute(command: UnlinkIdentityCommand): Promise<void> {
     const user = await this._db.dbUser.findUnique({
@@ -29,5 +33,15 @@ export class UnlinkIdentityHandler implements ICommandHandler<UnlinkIdentityComm
     }
 
     await this._db.dbAuthIdentity.deleteMany({ where: { userId: command.userId, provider: command.provider } });
+
+    this._events.publish(
+      new AuthEventOccurred({
+        type: DbAuthEventType.IDENTITY_UNLINKED,
+        userId: user.id,
+        email: user.email,
+        ...command.origin,
+        metadata: { provider: command.provider },
+      }),
+    );
   }
 }

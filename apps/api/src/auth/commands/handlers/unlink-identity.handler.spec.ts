@@ -6,6 +6,7 @@ import { UnlinkIdentityHandler } from './unlink-identity.handler';
 
 describe('UnlinkIdentityHandler', () => {
   let db: any;
+  let events: any;
   let handler: UnlinkIdentityHandler;
 
   beforeEach(() => {
@@ -16,7 +17,9 @@ describe('UnlinkIdentityHandler', () => {
       dbAuthIdentity: { deleteMany: vi.fn() },
     };
 
-    handler = new UnlinkIdentityHandler(db);
+    events = { publish: vi.fn() };
+
+    handler = new UnlinkIdentityHandler(db, events);
   });
 
   const unlink = () => handler.execute(new UnlinkIdentityCommand('user-1', DbAuthProvider.GOOGLE));

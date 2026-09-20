@@ -1,3 +1,4 @@
+import { ErrorCodes } from '@coaster/common';
 import { BadRequestException, Logger, UnauthorizedException } from '@nestjs/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { hashPassword, verifyPassword } from '../../domain/password';
@@ -8,6 +9,8 @@ describe('SetPasswordHandler', () => {
   let users: any;
   let sessions: any;
   let email: any;
+  let pwned: any;
+  let events: any;
   let handler: SetPasswordHandler;
   let existingHash: string;
 
@@ -23,8 +26,10 @@ describe('SetPasswordHandler', () => {
     };
     sessions = { revokeEveryOtherSessionOf: vi.fn() };
     email = { sendPasswordChanged: vi.fn().mockResolvedValue(undefined) };
+    pwned = { assertNotCompromised: vi.fn().mockResolvedValue(undefined) };
+    events = { publish: vi.fn() };
 
-    handler = new SetPasswordHandler(users, sessions, email);
+    handler = new SetPasswordHandler(users, sessions, email, pwned, events);
   });
 
   const setPassword = (password = 'a-good-enough-password', currentPassword?: string) =>
@@ -78,5 +83,36 @@ describe('SetPasswordHandler', () => {
     email.sendPasswordChanged.mockRejectedValue(new Error('domain is not verified'));
 
     await expect(setPassword()).resolves.toBeUndefined();
+  });
+
+  describe('a password somebody else has already leaked', () => {
+    it('should refuse it, and leave the sessions and the old password alone', async () => {
+      pwned.assertNotCompromised.mockRejectedValue(new BadRequestException(ErrorCodes.PASSWORD_COMPROMISED));
+
+      await expect(setPassword()).rejects.toThrow(BadRequestException);
+
+      expect(sessions.revokeEveryOtherSessionOf).not.toHaveBeenCalled();
+      expect(users.update).not.toHaveBeenCalled();
+    });
+
+    it('should check the wrong current password first, which is the cheaper no', async () => {
+      users.findById.mockResolvedValue({ id: 'user-1', passwordHash: existingHash });
+
+      await expect(setPassword('a-good-enough-password', 'not-the-old-password')).rejects.toThrow(
+        UnauthorizedException,
+      );
+
+      expect(pwned.assertNotCompromised).not.toHaveBeenCalled();
+    });
+  });
+
+  it('should record the change in the auth log, against the session that asked for it', async () => {
+    await setPassword();
+
+    expect(events.publish.mock.calls[0][0].entry).toMatchObject({
+      type: 'PASSWORD_CHANGED',
+      userId: 'user-1',
+      sessionId: 'session-1',
+    });
   });
 });

@@ -56,6 +56,7 @@ export const ModelName = {
   DbAuthIdentity: 'DbAuthIdentity',
   DbAuthSession: 'DbAuthSession',
   DbAuthToken: 'DbAuthToken',
+  DbAuthEvent: 'DbAuthEvent',
   DbBetaTester: 'DbBetaTester',
   DbEstablishment: 'DbEstablishment',
   DbEstablishmentSettings: 'DbEstablishmentSettings',
@@ -172,6 +173,21 @@ export const DbAuthTokenScalarFieldEnum = {
 } as const
 
 export type DbAuthTokenScalarFieldEnum = (typeof DbAuthTokenScalarFieldEnum)[keyof typeof DbAuthTokenScalarFieldEnum]
+
+
+export const DbAuthEventScalarFieldEnum = {
+  id: 'id',
+  type: 'type',
+  userId: 'userId',
+  email: 'email',
+  sessionId: 'sessionId',
+  ip: 'ip',
+  userAgent: 'userAgent',
+  metadata: 'metadata',
+  createdAt: 'createdAt'
+} as const
+
+export type DbAuthEventScalarFieldEnum = (typeof DbAuthEventScalarFieldEnum)[keyof typeof DbAuthEventScalarFieldEnum]
 
 
 export const DbBetaTesterScalarFieldEnum = {

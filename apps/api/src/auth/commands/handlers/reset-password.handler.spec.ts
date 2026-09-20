@@ -1,3 +1,4 @@
+import { ErrorCodes } from '@coaster/common';
 import { BadRequestException, Logger, UnauthorizedException } from '@nestjs/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { verifyPassword } from '../../domain/password';
@@ -18,6 +19,8 @@ describe('ResetPasswordHandler', () => {
   let sessions: any;
   let session: any;
   let email: any;
+  let pwned: any;
+  let events: any;
   let handler: ResetPasswordHandler;
 
   beforeEach(() => {
@@ -31,8 +34,10 @@ describe('ResetPasswordHandler', () => {
     sessions = { revokeEverySessionOf: vi.fn() };
     session = { issue: vi.fn().mockResolvedValue({ accessToken: 'fresh' }) };
     email = { sendPasswordChanged: vi.fn().mockResolvedValue(undefined) };
+    pwned = { assertNotCompromised: vi.fn().mockResolvedValue(undefined) };
+    events = { publish: vi.fn() };
 
-    handler = new ResetPasswordHandler(users, tokens, sessions, session, email);
+    handler = new ResetPasswordHandler(users, tokens, sessions, session, email, pwned, events);
   });
 
   const reset = (password = 'a-good-enough-password') =>
@@ -97,5 +102,24 @@ describe('ResetPasswordHandler', () => {
     email.sendPasswordChanged.mockRejectedValue(new Error('domain is not verified'));
 
     await expect(reset()).resolves.toEqual({ accessToken: 'fresh' });
+  });
+
+  it('should refuse a password that is already in a breach without spending the link on it', async () => {
+    pwned.assertNotCompromised.mockRejectedValue(new BadRequestException(ErrorCodes.PASSWORD_COMPROMISED));
+
+    await expect(reset()).rejects.toThrow(BadRequestException);
+
+    expect(tokens.spend).not.toHaveBeenCalled();
+    expect(sessions.revokeEverySessionOf).not.toHaveBeenCalled();
+    expect(users.update).not.toHaveBeenCalled();
+  });
+
+  it('should record the reset in the auth log', async () => {
+    await reset();
+
+    expect(events.publish.mock.calls[0][0].entry).toMatchObject({
+      type: 'PASSWORD_RESET_COMPLETED',
+      userId: 'user-1',
+    });
   });
 });

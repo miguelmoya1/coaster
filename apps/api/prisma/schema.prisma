@@ -203,6 +203,7 @@ model DbUser {
   identities        DbAuthIdentity[]
   sessions          DbAuthSession[]
   authTokens        DbAuthToken[]
+  authEvents        DbAuthEvent[]
 
   @@map("User")
 }
@@ -219,6 +220,24 @@ enum DbAuthTokenPurpose {
   INVITE
 
   @@map("AuthTokenPurpose")
+}
+
+enum DbAuthEventType {
+  REGISTERED
+  LOGIN_SUCCEEDED
+  LOGIN_FAILED
+  LOGIN_BLOCKED
+  LOGGED_OUT
+  PASSWORD_CHANGED
+  PASSWORD_RESET_REQUESTED
+  PASSWORD_RESET_COMPLETED
+  INVITE_ACCEPTED
+  EMAIL_VERIFIED
+  IDENTITY_LINKED
+  IDENTITY_UNLINKED
+  REFRESH_REUSE_DETECTED
+
+  @@map("AuthEventType")
 }
 
 model DbAuthIdentity {
@@ -269,6 +288,29 @@ model DbAuthToken {
   @@index([userId, purpose])
   @@index([expiresAt])
   @@map("AuthToken")
+}
+
+// Who came in, who could not, and what they changed about the way they sign in. The address
+// is kept apart from the relation on purpose: a login nobody has an account for has no userId,
+// and deleting an account leaves the trail behind with the user set to null rather than
+// erasing what happened.
+model DbAuthEvent {
+  id        String          @id @default(uuid())
+  type      DbAuthEventType
+  userId    String?
+  user      DbUser?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  email     String?
+  sessionId String?
+  ip        String?
+  userAgent String?
+  metadata  Json?
+  createdAt DateTime        @default(now())
+
+  @@index([userId, createdAt])
+  @@index([type, createdAt])
+  @@index([email, createdAt])
+  @@index([createdAt])
+  @@map("AuthEvent")
 }
 
 model DbBetaTester {

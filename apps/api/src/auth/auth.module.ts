@@ -13,16 +13,20 @@ import { ResetPasswordHandler } from './commands/handlers/reset-password.handler
 import { SetPasswordHandler } from './commands/handlers/set-password.handler';
 import { UnlinkIdentityHandler } from './commands/handlers/unlink-identity.handler';
 import { VerifyEmailHandler } from './commands/handlers/verify-email.handler';
+import { AuthEventRepository } from './data-access/auth-event.repository';
 import { AuthIdentityRepository } from './data-access/auth-identity.repository';
 import { AuthSessionRepository } from './data-access/auth-session.repository';
 import { AuthTokenRepository } from './data-access/auth-token.repository';
 import { AuthUserRepository } from './data-access/auth-user.repository';
+import { EventHandlers } from './events';
 import { AuthGuard } from './guards/auth.guard';
 import { OptionalAuthGuard } from './guards/optional-auth.guard';
 import { GetAccountHandler } from './queries/handlers/get-account.handler';
 import { GetInviteHandler } from './queries/handlers/get-invite.handler';
 import { GetPasswordResetHandler } from './queries/handlers/get-password-reset.handler';
 import { GoogleTokenService } from './services/google-token.service';
+import { LoginAttemptsService } from './services/login-attempts.service';
+import { PwnedPasswordsService } from './services/pwned-passwords.service';
 import { SessionService } from './services/session.service';
 
 const CommandHandlers = [
@@ -48,15 +52,19 @@ const QueryHandlers = [GetInviteHandler, GetPasswordResetHandler, GetAccountHand
   providers: [
     AuthGuard,
     OptionalAuthGuard,
+    AuthEventRepository,
     AuthIdentityRepository,
     AuthSessionRepository,
     AuthTokenRepository,
     AuthUserRepository,
     SessionService,
     GoogleTokenService,
+    LoginAttemptsService,
+    PwnedPasswordsService,
     ...CommandHandlers,
     ...QueryHandlers,
+    ...EventHandlers,
   ],
-  exports: [AuthGuard, OptionalAuthGuard, SessionService, AuthTokenRepository],
+  exports: [AuthGuard, OptionalAuthGuard, SessionService, AuthTokenRepository, AuthEventRepository],
 })
 export class AuthModule {}

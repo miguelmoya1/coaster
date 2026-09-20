@@ -79,6 +79,7 @@ User            + passwordHash, passwordUpdatedAt, emailVerifiedAt      − fire
 AuthIdentity      provider, subject, userId          @@unique([provider, subject])
 AuthSession       userId, tokenHash, familyId, expiresAt, rotatedAt, revokedAt
 AuthToken         userId, purpose, tokenHash, expiresAt, usedAt
+AuthEvent         type, userId?, email?, sessionId?, ip, userAgent, metadata
 ```
 
 La contraseña es una por persona, así que es una columna de `User` y no una fila con la mitad de
@@ -208,6 +209,55 @@ cliente, `apps/api/scripts/set-password.mjs` pone una contraseña sobre cualquie
 DATABASE_URL='<la de beta>' node apps/api/scripts/set-password.mjs tu@correo.com tu-contraseña
 ```
 
+### Endurecimiento: límite por cuenta, contraseñas filtradas y registro de eventos
+
+Tres de la lista de abajo, hechos el 20 de septiembre de 2026. Los tres son de la API y ninguno
+cambia lo que ve quien entra, salvo cuando le toca que le digan que no.
+
+**Límite por cuenta.** Los 10/minuto de `@Throttle` cuentan por IP y siguen donde estaban; encima
+va `LoginAttemptsService`, que cuenta los intentos fallidos **por dirección**: diez en quince
+minutos y esa dirección deja de contestar durante otros quince, venga de donde venga. La cuenta
+vive en Redis con un script de Lua —el mismo patrón que `ThrottlerCacheStorage`, y por la misma
+razón: incrementar y caducar en una sola ida—. Sin `REDIS_URL`, que es como está beta hoy, cuenta
+en memoria del proceso: vale menos que entre todas las instancias, pero es exactamente el trato que
+ya hace el throttler, y no hay una tercera opción que no sea una consulta por intento.
+
+La clave es el **sha256** de la dirección, no la dirección. Quien pueda leer el Redis no se lleva la
+lista de quién tiene cuenta.
+
+Esto abre la puerta a molestar a alguien a propósito: mil intentos contra su dirección y no entra en
+quince minutos. Es la contrapartida conocida de cualquier límite por cuenta, y se acepta porque el
+recambio —bloquear solo por IP— es justo el agujero que se venía a tapar. Quien se quede fuera
+sigue teniendo la recuperación por correo, que no pasa por este contador.
+
+**Contraseñas filtradas.** `PwnedPasswordsService` contrasta contra Have I Been Pwned con
+k-anonimato: salen los cinco primeros caracteres del SHA-1 y nada más, la respuesta trae los cientos
+de hashes que empiezan igual y la comparación se hace aquí. Con `Add-Padding` ni el tamaño de la
+respuesta dice nada. Se comprueba en los cuatro sitios donde alguien elige contraseña: registro,
+invitación, recuperación y cambio desde la cuenta.
+
+**Si el servicio no contesta, la contraseña pasa.** Quien está abriendo una cuenta no es el que
+tiene que pagar la caída de un tercero. `PWNED_PASSWORDS_ENABLED=false` lo apaga del todo; la suite
+de e2e lo apaga por eso mismo, para no depender de nadie y porque sus contraseñas de prueba son
+justo las que el corpus conoce.
+
+En recuperación e invitación la comprobación va **antes** de gastar el token, que es de un solo uso:
+si no, rechazar la contraseña le costaría a alguien el enlace entero.
+
+**El registro de eventos.** Tabla `AuthEvent` y su `AuthEventType`: entrada, salida, intento
+fallido —con el motivo, que es lo que al cliente nunca se le dice—, dirección bloqueada, alta,
+invitación aceptada, cambio y recuperación de contraseña, correo confirmado, identidad vinculada y
+desvinculada, y reuso de un refresh token. Cada fila lleva IP, user-agent y, cuando la hay, la
+sesión.
+
+Se publica por el `EventBus` y lo escribe `RecordAuthEventHandler`, que se traga sus propios
+errores: una tabla que no admita la fila no puede costarle a nadie su login. El `userId` es opcional
+y la relación es `SetNull` a propósito —un intento contra una dirección que no existe no tiene
+usuario, y borrar una cuenta no debería borrar el rastro de lo que pasó—.
+
+Solo se escribe: no hay pantalla ni endpoint que lo lea todavía. `findRecentOf` está en el
+repositorio para cuando lo haya.
+
 ### Lo que le falta para estar redondo
 
 Nada de esto rompe nada hoy, y ninguno es urgente. Están en el orden en que yo los haría.
@@ -235,15 +285,6 @@ deja la mía» de la página de cuenta, que es justo lo que hace `sid`. Para rev
 verdad hay que comprobar la sesión en cada petición: cachear `sesión {sid} viva` y olvidarla al
 revocar. Con Redis es barato; sin Redis —como está beta hoy— es una consulta a Postgres por
 petición. Es una decisión con coste, no un apaño de cinco líneas.
-
-**Límite por cuenta, no solo por IP.** Los 10/minuto paran a alguien desde una IP. No paran a mil IPs
-probando una contraseña contra la misma cuenta.
-
-**Contraseñas filtradas.** Contrastar contra HaveIBeenPwned al registrarse y al cambiarla. Lo
-recomienda OWASP, son unas veinte líneas y con k-anonimato no sale la contraseña de casa.
-
-**Registrar los eventos de auth** —entrada, salida, cambio de contraseña, identidad vinculada—.
-`AdminAuditLog` cubre el backoffice; esto no lo cubre nadie.
 
 **Ver las sesiones abiertas** desde la aplicación, y poder cerrarlas. Los datos ya están en
 `AuthSession`: `userAgent`, `ip`, `lastUsedAt`. Falta la pantalla.

@@ -1,11 +1,14 @@
 import { ErrorCodes } from '@coaster/common';
 import type { AuthMailer } from '@coaster/core';
 import { AUTH_MAILER } from '@coaster/core';
+import { DbAuthEventType } from '@coaster/core/db';
 import { BadRequestException, Inject, Logger, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { AuthSessionRepository } from '../../data-access/auth-session.repository';
 import { AuthUserRepository } from '../../data-access/auth-user.repository';
 import { hashPassword, verifyPassword } from '../../domain/password';
+import { AuthEventOccurred } from '../../events/impl/auth-event.event';
+import { PwnedPasswordsService } from '../../services/pwned-passwords.service';
 import { SetPasswordCommand } from '../impl/set-password.command';
 
 @CommandHandler(SetPasswordCommand)
@@ -16,6 +19,8 @@ export class SetPasswordHandler implements ICommandHandler<SetPasswordCommand, v
     private readonly _users: AuthUserRepository,
     private readonly _sessions: AuthSessionRepository,
     @Inject(AUTH_MAILER) private readonly _email: AuthMailer,
+    private readonly _pwned: PwnedPasswordsService,
+    private readonly _events: EventBus,
   ) {}
 
   async execute(command: SetPasswordCommand): Promise<void> {
@@ -35,12 +40,25 @@ export class SetPasswordHandler implements ICommandHandler<SetPasswordCommand, v
       }
     }
 
+    await this._pwned.assertNotCompromised(command.password);
+
     await this._sessions.revokeEveryOtherSessionOf(command.userId, command.sessionId);
 
     const user = await this._users.update(command.userId, {
       passwordHash: await hashPassword(command.password),
       passwordUpdatedAt: new Date(),
     });
+
+    this._events.publish(
+      new AuthEventOccurred({
+        type: DbAuthEventType.PASSWORD_CHANGED,
+        userId: user.id,
+        email: user.email,
+        sessionId: command.sessionId,
+        ...command.origin,
+        metadata: { first: current.passwordHash === null },
+      }),
+    );
 
     await this._email
       .sendPasswordChanged(user.email, user.name, user.preferences?.language)

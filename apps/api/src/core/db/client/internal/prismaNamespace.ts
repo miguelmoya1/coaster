@@ -402,6 +402,7 @@ export const ModelName = {
   DbAuthIdentity: 'DbAuthIdentity',
   DbAuthSession: 'DbAuthSession',
   DbAuthToken: 'DbAuthToken',
+  DbAuthEvent: 'DbAuthEvent',
   DbBetaTester: 'DbBetaTester',
   DbEstablishment: 'DbEstablishment',
   DbEstablishmentSettings: 'DbEstablishmentSettings',
@@ -442,7 +443,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "dbOrderAdjustment" | "dbUser" | "dbAuthIdentity" | "dbAuthSession" | "dbAuthToken" | "dbBetaTester" | "dbEstablishment" | "dbEstablishmentSettings" | "dbPrinterPairing" | "dbAiUsage" | "dbUserPreferences" | "dbEstablishmentMember" | "dbShift" | "dbShiftExchange" | "dbMenu" | "dbMenuSection" | "dbMenuItem" | "dbCategory" | "dbProduct" | "dbTable" | "dbOrder" | "dbOrderItem" | "dbPrinterConfig" | "dbPrintJob" | "dbEstablishmentSubscription" | "dbTimeEntry" | "dbAdminAuditLog" | "dbInvoice" | "dbInvoiceTaxLine" | "dbOrderAuditLog"
+    modelProps: "dbOrderAdjustment" | "dbUser" | "dbAuthIdentity" | "dbAuthSession" | "dbAuthToken" | "dbAuthEvent" | "dbBetaTester" | "dbEstablishment" | "dbEstablishmentSettings" | "dbPrinterPairing" | "dbAiUsage" | "dbUserPreferences" | "dbEstablishmentMember" | "dbShift" | "dbShiftExchange" | "dbMenu" | "dbMenuSection" | "dbMenuItem" | "dbCategory" | "dbProduct" | "dbTable" | "dbOrder" | "dbOrderItem" | "dbPrinterConfig" | "dbPrintJob" | "dbEstablishmentSubscription" | "dbTimeEntry" | "dbAdminAuditLog" | "dbInvoice" | "dbInvoiceTaxLine" | "dbOrderAuditLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -813,6 +814,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.DbAuthTokenCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.DbAuthTokenCountAggregateOutputType> | number
+        }
+      }
+    }
+    DbAuthEvent: {
+      payload: Prisma.$DbAuthEventPayload<ExtArgs>
+      fields: Prisma.DbAuthEventFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DbAuthEventFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbAuthEventPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DbAuthEventFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbAuthEventPayload>
+        }
+        findFirst: {
+          args: Prisma.DbAuthEventFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbAuthEventPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DbAuthEventFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbAuthEventPayload>
+        }
+        findMany: {
+          args: Prisma.DbAuthEventFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbAuthEventPayload>[]
+        }
+        create: {
+          args: Prisma.DbAuthEventCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbAuthEventPayload>
+        }
+        createMany: {
+          args: Prisma.DbAuthEventCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DbAuthEventCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbAuthEventPayload>[]
+        }
+        delete: {
+          args: Prisma.DbAuthEventDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbAuthEventPayload>
+        }
+        update: {
+          args: Prisma.DbAuthEventUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbAuthEventPayload>
+        }
+        deleteMany: {
+          args: Prisma.DbAuthEventDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DbAuthEventUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DbAuthEventUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbAuthEventPayload>[]
+        }
+        upsert: {
+          args: Prisma.DbAuthEventUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbAuthEventPayload>
+        }
+        aggregate: {
+          args: Prisma.DbAuthEventAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDbAuthEvent>
+        }
+        groupBy: {
+          args: Prisma.DbAuthEventGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DbAuthEventGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DbAuthEventCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DbAuthEventCountAggregateOutputType> | number
         }
       }
     }
@@ -2780,6 +2855,21 @@ export const DbAuthTokenScalarFieldEnum = {
 export type DbAuthTokenScalarFieldEnum = (typeof DbAuthTokenScalarFieldEnum)[keyof typeof DbAuthTokenScalarFieldEnum]
 
 
+export const DbAuthEventScalarFieldEnum = {
+  id: 'id',
+  type: 'type',
+  userId: 'userId',
+  email: 'email',
+  sessionId: 'sessionId',
+  ip: 'ip',
+  userAgent: 'userAgent',
+  metadata: 'metadata',
+  createdAt: 'createdAt'
+} as const
+
+export type DbAuthEventScalarFieldEnum = (typeof DbAuthEventScalarFieldEnum)[keyof typeof DbAuthEventScalarFieldEnum]
+
+
 export const DbBetaTesterScalarFieldEnum = {
   id: 'id',
   email: 'email',
@@ -3383,6 +3473,34 @@ export type ListEnumDbAuthTokenPurposeFieldRefInput<$PrismaModel> = FieldRefInpu
 
 
 /**
+ * Reference to a field of type 'DbAuthEventType'
+ */
+export type EnumDbAuthEventTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DbAuthEventType'>
+    
+
+
+/**
+ * Reference to a field of type 'DbAuthEventType[]'
+ */
+export type ListEnumDbAuthEventTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DbAuthEventType[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Json'
+ */
+export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+/**
+ * Reference to a field of type 'QueryMode'
+ */
+export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+/**
  * Reference to a field of type 'DbEstablishmentModule[]'
  */
 export type ListEnumDbEstablishmentModuleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DbEstablishmentModule[]'>
@@ -3407,20 +3525,6 @@ export type EnumDbEstablishmentRoleFieldRefInput<$PrismaModel> = FieldRefInputTy
  * Reference to a field of type 'DbEstablishmentRole[]'
  */
 export type ListEnumDbEstablishmentRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DbEstablishmentRole[]'>
-    
-
-
-/**
- * Reference to a field of type 'Json'
- */
-export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
-    
-
-
-/**
- * Reference to a field of type 'QueryMode'
- */
-export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
 
@@ -3789,6 +3893,7 @@ export type GlobalOmitConfig = {
   dbAuthIdentity?: Prisma.DbAuthIdentityOmit
   dbAuthSession?: Prisma.DbAuthSessionOmit
   dbAuthToken?: Prisma.DbAuthTokenOmit
+  dbAuthEvent?: Prisma.DbAuthEventOmit
   dbBetaTester?: Prisma.DbBetaTesterOmit
   dbEstablishment?: Prisma.DbEstablishmentOmit
   dbEstablishmentSettings?: Prisma.DbEstablishmentSettingsOmit

@@ -1,3 +1,4 @@
+import { ErrorCodes } from '@coaster/common';
 import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { verifyPassword } from '../../domain/password';
@@ -16,6 +17,8 @@ describe('AcceptInviteHandler', () => {
   let users: any;
   let tokens: any;
   let session: any;
+  let pwned: any;
+  let events: any;
   let handler: AcceptInviteHandler;
 
   beforeEach(() => {
@@ -24,8 +27,10 @@ describe('AcceptInviteHandler', () => {
     users = { update: vi.fn().mockResolvedValue({ id: 'user-1', preferences: null }) };
     tokens = { findUsable: vi.fn().mockResolvedValue(storedToken()), spend: vi.fn().mockResolvedValue(true) };
     session = { issue: vi.fn().mockResolvedValue({ accessToken: 'fresh' }) };
+    pwned = { assertNotCompromised: vi.fn().mockResolvedValue(undefined) };
+    events = { publish: vi.fn() };
 
-    handler = new AcceptInviteHandler(users, tokens, session);
+    handler = new AcceptInviteHandler(users, tokens, session, pwned, events);
   });
 
   const accept = () => handler.execute(new AcceptInviteCommand('an-invite-token', 'a-good-enough-password', ORIGIN));
@@ -74,5 +79,20 @@ describe('AcceptInviteHandler', () => {
     tokens.findUsable.mockResolvedValue(storedToken({ active: false }));
 
     await expect(accept()).rejects.toThrow(UnauthorizedException);
+  });
+
+  it('should refuse a password that is already in a breach without spending the invitation on it', async () => {
+    pwned.assertNotCompromised.mockRejectedValue(new BadRequestException(ErrorCodes.PASSWORD_COMPROMISED));
+
+    await expect(accept()).rejects.toThrow(BadRequestException);
+
+    expect(tokens.spend).not.toHaveBeenCalled();
+    expect(users.update).not.toHaveBeenCalled();
+  });
+
+  it('should record the invitation being claimed in the auth log', async () => {
+    await accept();
+
+    expect(events.publish.mock.calls[0][0].entry).toMatchObject({ type: 'INVITE_ACCEPTED', userId: 'user-1' });
   });
 });

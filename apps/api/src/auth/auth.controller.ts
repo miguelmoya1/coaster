@@ -104,10 +104,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Trades the session cookie for a fresh access token' })
   @ApiResponse({ status: 200, description: 'A new access token, and the cookie rotated' })
   @ApiResponse({ status: 401, description: 'No session, or one that is no longer valid' })
-  async refresh(
-    @Req() request: FastifyRequest,
-    @Res({ passthrough: true }) reply: FastifyReply,
-  ): Promise<AuthSession> {
+  async refresh(@Req() request: FastifyRequest, @Res({ passthrough: true }) reply: FastifyReply): Promise<AuthSession> {
     const issued = await this.commandBus.execute<RefreshSessionCommand, IssuedSession>(
       new RefreshSessionCommand(request.cookies?.[REFRESH_COOKIE_NAME], this.#origin(request)),
     );
@@ -193,7 +190,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Ends this session' })
   @ApiResponse({ status: 204, description: 'Session ended and cookie cleared' })
   async logout(@Req() request: FastifyRequest, @Res({ passthrough: true }) reply: FastifyReply): Promise<void> {
-    await this.sessions.revoke(request.cookies?.[REFRESH_COOKIE_NAME]);
+    await this.sessions.revoke(request.cookies?.[REFRESH_COOKIE_NAME], this.#origin(request));
 
     reply.clearCookie(REFRESH_COOKIE_NAME, { path: REFRESH_COOKIE_PATH });
   }
@@ -203,8 +200,12 @@ export class AuthController {
   @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Ends every session this user has open, on every device' })
   @ApiResponse({ status: 204, description: 'Every session ended' })
-  async logoutEverywhere(@CurrentUser() user: User, @Res({ passthrough: true }) reply: FastifyReply): Promise<void> {
-    await this.sessions.revokeEverySessionOf(user.id);
+  async logoutEverywhere(
+    @CurrentUser() user: User,
+    @Req() request: FastifyRequest,
+    @Res({ passthrough: true }) reply: FastifyReply,
+  ): Promise<void> {
+    await this.sessions.revokeEverySessionOf(user.id, this.#origin(request));
 
     reply.clearCookie(REFRESH_COOKIE_NAME, { path: REFRESH_COOKIE_PATH });
   }

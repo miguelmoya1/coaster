@@ -31,6 +31,7 @@ describe('LoginWithGoogleHandler', () => {
   let users: any;
   let session: any;
   let config: any;
+  let events: any;
   let handler: LoginWithGoogleHandler;
 
   beforeEach(() => {
@@ -54,8 +55,9 @@ describe('LoginWithGoogleHandler', () => {
     };
     session = { issue: vi.fn().mockResolvedValue({ accessToken: 'fresh' }) };
     config = { get: vi.fn().mockReturnValue('false') };
+    events = { publish: vi.fn() };
 
-    handler = new LoginWithGoogleHandler(db, google, identities, sessions, users, session, config);
+    handler = new LoginWithGoogleHandler(db, google, identities, sessions, users, session, config, events);
   });
 
   const signIn = () => handler.execute(new LoginWithGoogleCommand('a-google-credential', ORIGIN));

@@ -1,8 +1,11 @@
 import type { User } from '@coaster/common';
 import { AccessTokenService, DbUserWithoutPassword, UsersMapper } from '@coaster/core';
+import { DbAuthEventType } from '@coaster/core/db';
 import { Injectable } from '@nestjs/common';
+import { EventBus } from '@nestjs/cqrs';
 import { AuthSessionRepository } from '../data-access/auth-session.repository';
 import { hashRefreshToken, newFamilyId, newRefreshToken, refreshExpiryFrom } from '../domain/session';
+import { AuthEventOccurred } from '../events/impl/auth-event.event';
 
 export interface SessionOrigin {
   userAgent?: string;
@@ -11,6 +14,7 @@ export interface SessionOrigin {
 
 export interface IssuedSession {
   user: User;
+  sessionId: string;
   accessToken: string;
   refreshToken: string;
   refreshExpiresAt: Date;
@@ -21,6 +25,7 @@ export class SessionService {
   constructor(
     private readonly _sessions: AuthSessionRepository,
     private readonly _tokens: AccessTokenService,
+    private readonly _events: EventBus,
   ) {}
 
   public async issue(user: DbUserWithoutPassword, origin: SessionOrigin): Promise<IssuedSession> {
@@ -58,7 +63,7 @@ export class SessionService {
     return this.#issued(user, session.id, refreshToken, session.expiresAt);
   }
 
-  public async revoke(refreshToken: string | undefined): Promise<void> {
+  public async revoke(refreshToken: string | undefined, origin: SessionOrigin = {}): Promise<void> {
     if (!refreshToken) {
       return;
     }
@@ -67,11 +72,29 @@ export class SessionService {
 
     if (session) {
       await this._sessions.revokeFamily(session.familyId);
+
+      this._events.publish(
+        new AuthEventOccurred({
+          type: DbAuthEventType.LOGGED_OUT,
+          userId: session.userId,
+          sessionId: session.id,
+          ...origin,
+        }),
+      );
     }
   }
 
-  public async revokeEverySessionOf(userId: string): Promise<void> {
+  public async revokeEverySessionOf(userId: string, origin: SessionOrigin = {}): Promise<void> {
     await this._sessions.revokeEverySessionOf(userId);
+
+    this._events.publish(
+      new AuthEventOccurred({
+        type: DbAuthEventType.LOGGED_OUT,
+        userId,
+        ...origin,
+        metadata: { everywhere: true },
+      }),
+    );
   }
 
   async #issued(
@@ -82,6 +105,7 @@ export class SessionService {
   ): Promise<IssuedSession> {
     return {
       user: UsersMapper.toDomain(user),
+      sessionId,
       accessToken: await this._tokens.sign(user.id, sessionId),
       refreshToken,
       refreshExpiresAt: expiresAt,
