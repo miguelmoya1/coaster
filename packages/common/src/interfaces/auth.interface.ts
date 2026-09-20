@@ -31,3 +31,13 @@ export interface AccountSummary {
   hasPassword: boolean;
   identities: LinkedIdentity[];
 }
+
+export interface AccountSession {
+  id: string;
+  current: boolean;
+  userAgent: string | null;
+  ip: string | null;
+  createdAt: string;
+  lastUsedAt: string;
+  expiresAt: string;
+}

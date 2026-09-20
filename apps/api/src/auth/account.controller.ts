@@ -4,13 +4,20 @@ import { Body, Controller, Delete, Get, HttpCode, Param, ParseEnumPipe, Post, Pu
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { seconds, Throttle } from '@nestjs/throttler';
-import { RequestEmailVerificationCommand, SetPasswordCommand, UnlinkIdentityCommand } from './commands';
+import {
+  CloseOtherSessionsCommand,
+  CloseSessionCommand,
+  RequestEmailVerificationCommand,
+  SetPasswordCommand,
+  UnlinkIdentityCommand,
+} from './commands';
 import { CurrentUser } from './decorators/current-user.decorator';
 import type { SessionClaims } from './decorators/current-session.decorator';
 import { CurrentSession } from './decorators/current-session.decorator';
 import { SetPasswordDto } from './dto/set-password.dto';
 import { AuthGuard } from './guards/auth.guard';
-import { GetAccountQuery } from './queries';
+import { GetAccountQuery, GetAccountSessionsQuery } from './queries';
+import type { AccountSession } from './queries/handlers/get-account-sessions.handler';
 import type { AccountSummary } from './queries/handlers/get-account.handler';
 
 @ApiTags('Account')
@@ -53,6 +60,41 @@ export class AccountController {
   ): Promise<void> {
     await this.commandBus.execute<SetPasswordCommand, void>(
       new SetPasswordCommand(user.id, session.sid, dto.password, dto.currentPassword),
+    );
+  }
+
+  @Get('sessions')
+  @ApiOperation({ summary: 'The devices signed in to this account right now' })
+  @ApiResponse({ status: 200, description: 'One entry per device, the one in use first-hand flagged' })
+  async sessions(@CurrentUser() user: User, @CurrentSession() session: SessionClaims): Promise<AccountSession[]> {
+    return this.queryBus.execute<GetAccountSessionsQuery, AccountSession[]>(
+      new GetAccountSessionsQuery(user.id, session?.sid ?? null),
+    );
+  }
+
+  @Delete('sessions')
+  @HttpCode(204)
+  @ApiOperation({ summary: 'Signs out every device but the one asking' })
+  @ApiResponse({ status: 204, description: 'The others were closed' })
+  async closeOtherSessions(@CurrentUser() user: User, @CurrentSession() session: SessionClaims): Promise<void> {
+    await this.commandBus.execute<CloseOtherSessionsCommand, void>(
+      new CloseOtherSessionsCommand(user.id, session?.sid ?? null),
+    );
+  }
+
+  @Delete('sessions/:id')
+  @HttpCode(204)
+  @ApiOperation({ summary: 'Signs out one device' })
+  @ApiResponse({ status: 204, description: 'Closed' })
+  @ApiResponse({ status: 400, description: 'That is the session making the call; sign out instead' })
+  @ApiResponse({ status: 404, description: 'No session of this account with that id' })
+  async closeSession(
+    @CurrentUser() user: User,
+    @CurrentSession() session: SessionClaims,
+    @Param('id') id: string,
+  ): Promise<void> {
+    await this.commandBus.execute<CloseSessionCommand, void>(
+      new CloseSessionCommand(user.id, id, session?.sid ?? null),
     );
   }
 

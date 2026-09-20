@@ -1,6 +1,6 @@
 import { inject, Service } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { format, type Locale } from 'date-fns';
+import { format, formatDistanceToNow, type Locale } from 'date-fns';
 import { enUS, es } from 'date-fns/locale';
 
 const LOCALES: Record<string, Locale> = { es, en: enUS };
@@ -56,6 +56,10 @@ export class DateFormatterService {
 
   public formatTime(iso: string): string {
     return format(new Date(iso), 'HH:mm');
+  }
+
+  public formatSince(iso: string): string {
+    return formatDistanceToNow(new Date(iso), { addSuffix: true, locale: this.#locale });
   }
 
   public formatDuration(minutes: number): string {

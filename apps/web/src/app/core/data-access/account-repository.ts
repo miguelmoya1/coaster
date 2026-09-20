@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
-import type { AccountSummary, AuthProvider } from '@coaster/common';
+import type { AccountSession, AccountSummary, AuthProvider } from '@coaster/common';
 import { firstValueFrom } from 'rxjs';
 
 @Service()
@@ -12,6 +12,7 @@ export class AccountRepository {
     verifyEmail: '/account/verify-email',
     password: '/account/password',
     identities: '/account/identities',
+    sessions: '/account/sessions',
   };
 
   public account(): Promise<AccountSummary> {
@@ -24,6 +25,18 @@ export class AccountRepository {
 
   public setPassword(password: string, currentPassword?: string): Promise<void> {
     return firstValueFrom(this.#http.put<void>(this.routes.password, { password, currentPassword }));
+  }
+
+  public sessions(): Promise<AccountSession[]> {
+    return firstValueFrom(this.#http.get<AccountSession[]>(this.routes.sessions));
+  }
+
+  public closeSession(id: string): Promise<void> {
+    return firstValueFrom(this.#http.delete<void>(`${this.routes.sessions}/${id}`));
+  }
+
+  public closeOtherSessions(): Promise<void> {
+    return firstValueFrom(this.#http.delete<void>(this.routes.sessions));
   }
 
   public unlink(provider: AuthProvider): Promise<void> {

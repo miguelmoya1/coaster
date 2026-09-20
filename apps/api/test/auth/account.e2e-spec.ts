@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { hashPassword, verifyPassword } from '../../src/auth/domain/password';
@@ -27,6 +28,19 @@ describe('AccountController (e2e)', () => {
   const seedAccount = async (overrides: Record<string, unknown> = {}) =>
     testSetup.prisma.dbUser.create({
       data: { id: mockUser.id, email: EMAIL, name: 'Cuenta', emailVerifiedAt: new Date(), ...overrides },
+    });
+
+  const currentSessionId = `e2e-session-${mockUser.id}`;
+
+  const seedSession = (userId: string, overrides: Record<string, unknown> = {}) =>
+    testSetup.prisma.dbAuthSession.create({
+      data: {
+        userId,
+        tokenHash: randomUUID(),
+        familyId: randomUUID(),
+        expiresAt: new Date(Date.now() + 60_000),
+        ...overrides,
+      },
     });
 
   const linkGoogle = (userId: string) =>
@@ -94,6 +108,120 @@ describe('AccountController (e2e)', () => {
         .put('/api/account/password')
         .send({ password: 'una-nueva-buena', currentPassword: PASSWORD })
         .expect(204);
+    });
+  });
+
+  describe('GET /account/sessions', () => {
+    it('should list one entry per device and say which one is asking', async () => {
+      const user = await seedAccount();
+      await seedSession(user.id, {
+        id: currentSessionId,
+        familyId: 'this-device',
+        userAgent: 'Mozilla/5.0 (Macintosh)',
+        ip: '10.0.0.1',
+      });
+      await seedSession(user.id, { familyId: 'the-tablet', userAgent: 'Mozilla/5.0 (iPad)', ip: '10.0.0.2' });
+
+      const response = await request(server()).get('/api/account/sessions').expect(200);
+
+      expect(response.body).toHaveLength(2);
+      expect(response.body.filter((session: { current: boolean }) => session.current)).toHaveLength(1);
+      expect(response.body.find((session: { id: string }) => session.id === currentSessionId)).toMatchObject({
+        current: true,
+        userAgent: 'Mozilla/5.0 (Macintosh)',
+        ip: '10.0.0.1',
+      });
+    });
+
+    it('should collapse the trail a device leaves behind every refresh into one entry', async () => {
+      const user = await seedAccount();
+      await seedSession(user.id, { familyId: 'this-device', rotatedAt: new Date() });
+      await seedSession(user.id, { id: currentSessionId, familyId: 'this-device' });
+
+      const response = await request(server()).get('/api/account/sessions').expect(200);
+
+      expect(response.body).toHaveLength(1);
+      expect(response.body[0].id).toBe(currentSessionId);
+    });
+
+    it('should leave out what no longer lets anybody in', async () => {
+      const user = await seedAccount();
+      await seedSession(user.id, { familyId: 'closed', revokedAt: new Date() });
+      await seedSession(user.id, { familyId: 'expired', expiresAt: new Date(Date.now() - 60_000) });
+
+      await expect(request(server()).get('/api/account/sessions').expect(200)).resolves.toMatchObject({ body: [] });
+    });
+
+    it('should never hand out the refresh tokens behind the sessions', async () => {
+      const user = await seedAccount();
+      const session = await seedSession(user.id);
+
+      const response = await request(server()).get('/api/account/sessions').expect(200);
+
+      expect(JSON.stringify(response.body)).not.toContain(session.tokenHash);
+    });
+  });
+
+  describe('DELETE /account/sessions/:id', () => {
+    it('should close the device for good, refresh token and all', async () => {
+      const user = await seedAccount();
+      await seedSession(user.id, { id: currentSessionId, familyId: 'this-device' });
+      const tablet = await seedSession(user.id, { familyId: 'the-tablet' });
+      await seedSession(user.id, { familyId: 'the-tablet', rotatedAt: new Date() });
+
+      await request(server()).delete(`/api/account/sessions/${tablet.id}`).expect(204);
+
+      const left = await testSetup.prisma.dbAuthSession.findMany({ where: { familyId: 'the-tablet' } });
+
+      expect(left.every((session) => session.revokedAt !== null)).toBe(true);
+      expect((await testSetup.prisma.dbAuthSession.findUnique({ where: { id: currentSessionId } }))?.revokedAt).toBe(
+        null,
+      );
+    });
+
+    it('should refuse to close the session making the call', async () => {
+      const user = await seedAccount();
+      await seedSession(user.id, { id: currentSessionId, familyId: 'this-device' });
+
+      await request(server()).delete(`/api/account/sessions/${currentSessionId}`).expect(400);
+
+      expect((await testSetup.prisma.dbAuthSession.findUnique({ where: { id: currentSessionId } }))?.revokedAt).toBe(
+        null,
+      );
+    });
+
+    it('should not let anybody close a session that is not theirs', async () => {
+      await seedAccount();
+      const other = await testSetup.prisma.dbUser.create({
+        data: { email: 'otra@coaster.test', name: 'Otra' },
+      });
+      const theirs = await seedSession(other.id);
+
+      await request(server()).delete(`/api/account/sessions/${theirs.id}`).expect(404);
+
+      expect((await testSetup.prisma.dbAuthSession.findUnique({ where: { id: theirs.id } }))?.revokedAt).toBe(null);
+    });
+
+    it('should answer plainly for a session that does not exist', async () => {
+      await seedAccount();
+
+      await request(server()).delete(`/api/account/sessions/${randomUUID()}`).expect(404);
+    });
+  });
+
+  describe('DELETE /account/sessions', () => {
+    it('should close every other device and leave this one alone', async () => {
+      const user = await seedAccount();
+      await seedSession(user.id, { familyId: 'this-device', rotatedAt: new Date() });
+      await seedSession(user.id, { id: currentSessionId, familyId: 'this-device' });
+      await seedSession(user.id, { familyId: 'the-tablet' });
+      await seedSession(user.id, { familyId: 'the-phone' });
+
+      await request(server()).delete('/api/account/sessions').expect(204);
+
+      const left = await testSetup.prisma.dbAuthSession.findMany({ where: { userId: user.id, revokedAt: null } });
+
+      expect(left.map((session) => session.familyId)).toEqual(['this-device', 'this-device']);
     });
   });
 

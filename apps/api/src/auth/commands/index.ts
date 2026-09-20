@@ -1,4 +1,6 @@
 export * from './impl/accept-invite.command';
+export * from './impl/close-other-sessions.command';
+export * from './impl/close-session.command';
 export * from './impl/login-with-google.command';
 export * from './impl/login-with-password.command';
 export * from './impl/refresh-session.command';

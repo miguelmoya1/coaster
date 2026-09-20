@@ -3,6 +3,8 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { AccountController } from './account.controller';
 import { AuthController } from './auth.controller';
 import { AcceptInviteHandler } from './commands/handlers/accept-invite.handler';
+import { CloseOtherSessionsHandler } from './commands/handlers/close-other-sessions.handler';
+import { CloseSessionHandler } from './commands/handlers/close-session.handler';
 import { LoginWithGoogleHandler } from './commands/handlers/login-with-google.handler';
 import { LoginWithPasswordHandler } from './commands/handlers/login-with-password.handler';
 import { RefreshSessionHandler } from './commands/handlers/refresh-session.handler';
@@ -19,6 +21,7 @@ import { AuthTokenRepository } from './data-access/auth-token.repository';
 import { AuthUserRepository } from './data-access/auth-user.repository';
 import { AuthGuard } from './guards/auth.guard';
 import { OptionalAuthGuard } from './guards/optional-auth.guard';
+import { GetAccountSessionsHandler } from './queries/handlers/get-account-sessions.handler';
 import { GetAccountHandler } from './queries/handlers/get-account.handler';
 import { GetInviteHandler } from './queries/handlers/get-invite.handler';
 import { GetPasswordResetHandler } from './queries/handlers/get-password-reset.handler';
@@ -37,9 +40,11 @@ const CommandHandlers = [
   AcceptInviteHandler,
   SetPasswordHandler,
   UnlinkIdentityHandler,
+  CloseSessionHandler,
+  CloseOtherSessionsHandler,
 ];
 
-const QueryHandlers = [GetInviteHandler, GetPasswordResetHandler, GetAccountHandler];
+const QueryHandlers = [GetInviteHandler, GetPasswordResetHandler, GetAccountHandler, GetAccountSessionsHandler];
 
 @Global()
 @Module({
