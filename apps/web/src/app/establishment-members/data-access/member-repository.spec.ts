@@ -45,6 +45,12 @@ describe('MemberRepository', () => {
     it('should have the invite route', () => {
       expect(service.routes.invite(asEstablishmentId('1'))).toBe('/establishments/1/members');
     });
+
+    it('should have the resend invite route', () => {
+      expect(service.routes.resendInvite(asEstablishmentId('1'), 'member-1')).toBe(
+        '/establishments/1/members/member-1/invite',
+      );
+    });
   });
 
   describe('invite', () => {
@@ -66,6 +72,21 @@ describe('MemberRepository', () => {
       httpMock.expectOne(service.routes.invite(establishmentId)).flush(mockMember);
 
       expect(await res).toEqual(mockMember);
+    });
+  });
+
+  describe('resendInvite', () => {
+    const establishmentId = asEstablishmentId('establishment-1');
+    const memberId = asEstablishmentMemberId('member-1');
+
+    it('should post to the resend invite endpoint', async () => {
+      const promise = service.resendInvite(establishmentId, memberId);
+
+      const req = httpMock.expectOne(service.routes.resendInvite(establishmentId, memberId));
+      expect(req.request.method).toBe('POST');
+      req.flush(null);
+
+      await promise;
     });
   });
 });

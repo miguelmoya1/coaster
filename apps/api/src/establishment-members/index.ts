@@ -1,6 +1,7 @@
 export { EstablishmentMembersModule } from './establishment-members.module';
 export { InviteMemberCommand } from './commands/impl/invite-member.command';
 export { RemoveMemberCommand } from './commands/impl/remove-member.command';
+export { ResendInviteCommand } from './commands/impl/resend-invite.command';
 export { UpdateMemberRoleCommand } from './commands/impl/update-member-role.command';
 export { InviteMemberRequestedEvent } from './events/impl/invite-member-requested.event';
 export { MemberInvitedEvent } from './events/impl/member-invited.event';

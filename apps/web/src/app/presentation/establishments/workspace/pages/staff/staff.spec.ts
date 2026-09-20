@@ -24,9 +24,11 @@ describe('Staff', () => {
     isOnlyOwner: vi.fn().mockReturnValue(false),
     setEstablishmentId: vi.fn(),
     remove: vi.fn(),
+    resendInvite: vi.fn(),
   };
 
   const canManageBilling = signal(true);
+  const canInvite = signal(false);
 
   const myMemberStoreMock = {
     myMember: {
@@ -34,9 +36,11 @@ describe('Staff', () => {
       hasValue: signal(true),
     },
     isOwner: signal(false),
-    hasPermission: vi.fn((permission: string) =>
-      permission === 'establishment:manage-billing' ? canManageBilling() : false,
-    ),
+    hasPermission: vi.fn((permission: string) => {
+      if (permission === 'establishment:manage-billing') return canManageBilling();
+      if (permission === 'establishment:invite-member') return canInvite();
+      return false;
+    }),
   };
 
   const confirmationDialogMock = {
@@ -65,6 +69,7 @@ describe('Staff', () => {
   beforeEach(async () => {
     billedSeats.set(undefined);
     canManageBilling.set(true);
+    canInvite.set(false);
 
     await TestBed.configureTestingModule({
       imports: [Staff],
@@ -217,6 +222,51 @@ describe('Staff', () => {
 
       expect(component['seats']()).toBeUndefined();
       expect(fixture.nativeElement.textContent).not.toContain('members.staff.seats_used');
+    });
+  });
+  describe('a pending invitation', () => {
+    const listPendingMember = () => {
+      membersStoreMock.list.hasValue.set(true);
+      membersStoreMock.list.value.set([
+        {
+          id: 'm2',
+          userId: 'u2',
+          userName: 'Invited',
+          userEmail: 'invited@test.com',
+          role: EstablishmentRole.STAFF,
+          pending: true,
+        },
+      ] as any);
+      myMemberStoreMock.myMember.hasValue.set(true);
+      myMemberStoreMock.myMember.value.set({ userId: 'u1', role: EstablishmentRole.OWNER } as any);
+    };
+
+    it('should offer to resend it to whoever can invite', () => {
+      canInvite.set(true);
+      listPendingMember();
+
+      const [member] = component['members']();
+
+      expect(member.isPending).toBe(true);
+      expect(member.canResendInvite).toBe(true);
+    });
+
+    it('should not offer it to somebody who cannot invite', () => {
+      canInvite.set(false);
+      listPendingMember();
+
+      expect(component['members']()[0].canResendInvite).toBe(false);
+    });
+
+    it('should send it again through the store', async () => {
+      membersStoreMock.resendInvite.mockResolvedValue(undefined);
+
+      await (component as any).handleResendInvite({
+        id: 'm2',
+        userEmail: 'invited@test.com',
+      });
+
+      expect(membersStoreMock.resendInvite).toHaveBeenCalledWith('m2');
     });
   });
 });

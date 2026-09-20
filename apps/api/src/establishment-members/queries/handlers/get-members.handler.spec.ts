@@ -35,6 +35,8 @@ describe('GetMembersHandler', () => {
           name: 'admin',
           photoUrl: 'http://user-1.jpg',
           email: 'admin@mail.com',
+          passwordUpdatedAt: new Date(),
+          _count: { identities: 0 },
         },
       },
     ]);
@@ -50,10 +52,58 @@ describe('GetMembersHandler', () => {
         active: true,
         role: DbEstablishmentRole.OWNER,
         permissions: getRolePermissions(asEstablishmentRole(DbEstablishmentRole.OWNER)),
+        pending: false,
         userName: 'admin',
         userImage: 'http://user-1.jpg',
         userEmail: 'admin@mail.com',
       },
     ]);
+  });
+  it('should mark as pending whoever never finished the invitation', async () => {
+    repository.getMembersByEstablishment.mockResolvedValue([
+      {
+        id: 'member-2',
+        userId: 'user-2',
+        establishmentId: 'establishment-1',
+        active: true,
+        role: DbEstablishmentRole.STAFF,
+        user: {
+          id: 'user-2',
+          name: 'invited',
+          photoUrl: null,
+          email: 'invited@mail.com',
+          passwordUpdatedAt: null,
+          _count: { identities: 0 },
+        },
+      },
+    ]);
+
+    const [member] = await handler.execute(new GetMembersQuery(asEstablishmentId('establishment-1')));
+
+    expect(member.pending).toBe(true);
+  });
+
+  it('should not mark as pending somebody who only ever signed in with Google', async () => {
+    repository.getMembersByEstablishment.mockResolvedValue([
+      {
+        id: 'member-3',
+        userId: 'user-3',
+        establishmentId: 'establishment-1',
+        active: true,
+        role: DbEstablishmentRole.STAFF,
+        user: {
+          id: 'user-3',
+          name: 'google',
+          photoUrl: null,
+          email: 'google@mail.com',
+          passwordUpdatedAt: null,
+          _count: { identities: 1 },
+        },
+      },
+    ]);
+
+    const [member] = await handler.execute(new GetMembersQuery(asEstablishmentId('establishment-1')));
+
+    expect(member.pending).toBe(false);
   });
 });

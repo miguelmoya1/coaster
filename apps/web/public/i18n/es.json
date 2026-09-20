@@ -80,6 +80,8 @@
   "UPLOAD_OR_PASTE_URL": "O pega la URL de una imagen...",
   "USER_ALREADY_EXISTS": "El usuario ya existe en el sistema.",
   "USER_ALREADY_MEMBER": "Este usuario ya es miembro de la plantilla.",
+  "INVITE_ALREADY_ACCEPTED": "Esta persona ya entró con su cuenta, así que no hay invitación que reenviar.",
+  "INVITE_EMAIL_FAILED": "No hemos podido enviar el correo de invitación. Inténtalo de nuevo en unos minutos.",
   "USER_CREATION_FAILED": "Hubo un error y no se pudo registrar al usuario.",
   "USER_NOT_FOUND": "No hay ningún usuario registrado con ese email.",
   "ai_voice": {
@@ -360,6 +362,11 @@
       "seats_over": "{{extra}} por encima de las incluidas · {{total}} al mes + IVA"
     },
     "change_role": "Cambiar rol",
+    "pending_invite": "Invitación pendiente",
+    "resend_invite": {
+      "action": "Reenviar invitación",
+      "success": "Invitación reenviada a {{email}}"
+    },
     "role_dialog": {
       "title": "Cambiar el rol",
       "message": "{{ name }} pasará a ser {{ role }} en este establecimiento. Sus permisos cambian de inmediato.",

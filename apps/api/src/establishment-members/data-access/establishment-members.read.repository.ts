@@ -1,4 +1,4 @@
-import type { EstablishmentId, UserId } from '@coaster/common';
+import type { EstablishmentId, EstablishmentMemberId, UserId } from '@coaster/common';
 import { DbService } from '@coaster/core/db';
 import { Injectable } from '@nestjs/common';
 
@@ -25,7 +25,33 @@ export class EstablishmentMembersReadRepository {
       where: { establishmentId, active: true, deletedAt: null },
       include: {
         user: {
-          select: { id: true, name: true, email: true, photoUrl: true },
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            photoUrl: true,
+            passwordUpdatedAt: true,
+            _count: { select: { identities: true } },
+          },
+        },
+      },
+    });
+  }
+
+  public async getMemberById(establishmentId: EstablishmentId, memberId: EstablishmentMemberId) {
+    return this.db.dbEstablishmentMember.findFirst({
+      where: { id: memberId, establishmentId, deletedAt: null },
+      include: {
+        establishment: { select: { name: true } },
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            active: true,
+            passwordUpdatedAt: true,
+            _count: { select: { identities: true } },
+          },
         },
       },
     });
@@ -40,7 +66,14 @@ export class EstablishmentMembersReadRepository {
       },
       include: {
         user: {
-          select: { id: true, name: true, email: true, photoUrl: true },
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            photoUrl: true,
+            passwordUpdatedAt: true,
+            _count: { select: { identities: true } },
+          },
         },
       },
     });
