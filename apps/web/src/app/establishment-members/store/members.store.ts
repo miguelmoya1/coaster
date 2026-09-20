@@ -7,6 +7,7 @@ import { memberArrayMapper } from '../mappers/member.mapper';
 import { EstablishmentMembers } from '../services/establishment-members';
 import { InviteMember } from '../services/invite-member';
 import { RemoveMember } from '../services/remove-member';
+import { ResendInvite } from '../services/resend-invite';
 import { UpdateMemberRole } from '../services/update-member-role';
 
 @Service()
@@ -14,6 +15,7 @@ export class MembersStore {
   readonly #members = inject(EstablishmentMembers);
   readonly #inviteMember = inject(InviteMember);
   readonly #removeMember = inject(RemoveMember);
+  readonly #resendInvite = inject(ResendInvite);
   readonly #updateMemberRole = inject(UpdateMemberRole);
   readonly #realtime = inject(Realtime);
   readonly #currentEstablishmentId = signal<EstablishmentId | undefined>(undefined);
@@ -76,6 +78,15 @@ export class MembersStore {
 
     await this.#inviteMember.execute(establishmentId, inviteDto);
     this.reload();
+  }
+
+  public async resendInvite(memberId: EstablishmentMemberId) {
+    const establishmentId = this.#currentEstablishmentId();
+    if (!establishmentId) {
+      throw new Error(ErrorCodes.MISSING_ESTABLISHMENT_ID);
+    }
+
+    await this.#resendInvite.execute(establishmentId, memberId);
   }
 
   public async updateRole(memberId: EstablishmentMemberId, role: EstablishmentRole) {

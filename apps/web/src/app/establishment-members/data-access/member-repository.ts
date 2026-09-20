@@ -20,10 +20,16 @@ export class MemberRepository {
     me: (establishmentId: EstablishmentId) => `/establishments/${establishmentId}/members/me`,
     member: (establishmentId: EstablishmentId, memberId: string) =>
       `/establishments/${establishmentId}/members/${memberId}`,
+    resendInvite: (establishmentId: EstablishmentId, memberId: string) =>
+      `/establishments/${establishmentId}/members/${memberId}/invite`,
   };
 
   public async invite(establishmentId: EstablishmentId, dto: InviteEstablishmentMemberDto) {
     return firstValueFrom(this.#http.post<void>(this.routes.invite(establishmentId), dto));
+  }
+
+  public async resendInvite(establishmentId: EstablishmentId, memberId: EstablishmentMemberId) {
+    return firstValueFrom(this.#http.post<void>(this.routes.resendInvite(establishmentId, memberId), {}));
   }
 
   public async updateRole(establishmentId: EstablishmentId, memberId: EstablishmentMemberId, role: EstablishmentRole) {

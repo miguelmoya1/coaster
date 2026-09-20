@@ -13,6 +13,7 @@ export interface EstablishmentMember {
   role: EstablishmentRole;
   permissions: EstablishmentPermissionType[];
   active: boolean;
+  pending?: boolean;
   createdAt?: string;
   updatedAt?: string;
 

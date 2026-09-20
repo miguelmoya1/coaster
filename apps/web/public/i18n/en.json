@@ -80,6 +80,8 @@
   "UPLOAD_OR_PASTE_URL": "Or paste an image URL...",
   "USER_ALREADY_EXISTS": "User already exists in the system.",
   "USER_ALREADY_MEMBER": "This user is already a member of the staff.",
+  "INVITE_ALREADY_ACCEPTED": "This person already signed in with their account, so there is no invitation to resend.",
+  "INVITE_EMAIL_FAILED": "We could not send the invitation email. Try again in a few minutes.",
   "USER_CREATION_FAILED": "An error occurred and the user could not be registered.",
   "USER_NOT_FOUND": "No user registered with that email address.",
   "ai_voice": {
@@ -360,6 +362,11 @@
       "seats_over": "{{extra}} beyond the included ones · {{total}} a month + VAT"
     },
     "change_role": "Change role",
+    "pending_invite": "Invitation pending",
+    "resend_invite": {
+      "action": "Resend invitation",
+      "success": "Invitation resent to {{email}}"
+    },
     "role_dialog": {
       "title": "Change the role",
       "message": "{{ name }} will become {{ role }} in this establishment. Their permissions change straight away.",

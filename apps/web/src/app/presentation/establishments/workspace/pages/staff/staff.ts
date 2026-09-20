@@ -1,9 +1,9 @@
-import { Component, computed, effect, inject, input, outputBinding } from '@angular/core';
+import { Component, computed, effect, inject, input, outputBinding, signal } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { ActivatedRoute, createUrlTreeFromSnapshot, isActive, Router, RouterLink } from '@angular/router';
 import { MyMemberStore } from '@coaster/establishment-members';
 import { EstablishmentSubscriptionStore, RequireSubscriptionDirective } from '@coaster/establishment-subscription';
-import type { EstablishmentId, EstablishmentMember, EstablishmentRole } from '@coaster/common';
+import type { EstablishmentId, EstablishmentMember, EstablishmentMemberId, EstablishmentRole } from '@coaster/common';
 import { EstablishmentPermission } from '@coaster/common';
 import { ActionFeedback, MoneyFormatterService } from '@coaster/core';
 import { MembersStore } from '@coaster/establishment-members';
@@ -20,6 +20,9 @@ type MemberItem = EstablishmentMember & {
   isCurrentUser: boolean;
   showDeleteButton: boolean;
   isOnlyOwner: boolean;
+  isPending: boolean;
+  canResendInvite: boolean;
+  resendingInvite: boolean;
 };
 
 @Component({
@@ -52,6 +55,7 @@ export default class Staff {
   readonly #bottomSheet = inject(MatBottomSheet);
   readonly #subscriptionStore = inject(EstablishmentSubscriptionStore);
   readonly #money = inject(MoneyFormatterService);
+  readonly #resendingMemberId = signal<EstablishmentMemberId | undefined>(undefined);
 
   protected readonly membersLoading = this.#membersStore.list.isLoading;
 
@@ -65,6 +69,9 @@ export default class Staff {
   protected readonly canChangeRole = computed(() =>
     this.#myMemberStore.hasPermission(EstablishmentPermission.ESTABLISHMENT_UPDATE_MEMBER_ROLE),
   );
+  protected readonly canInvite = computed(() =>
+    this.#myMemberStore.hasPermission(EstablishmentPermission.ESTABLISHMENT_INVITE_MEMBER),
+  );
   protected readonly members = computed(() => {
     if (!this.#membersStore.list.hasValue()) {
       return [];
@@ -72,15 +79,23 @@ export default class Staff {
 
     const userMember = this.userMember();
 
-    return this.#membersStore.list.value().map(
-      (member) =>
-        ({
-          ...member,
-          showDeleteButton: this.isOwner() || userMember?.userId === member.userId,
-          isCurrentUser: userMember?.userId === member.userId,
-          isOnlyOwner: this.#membersStore.isOnlyOwner(),
-        }) satisfies MemberItem,
-    );
+    const canInvite = this.canInvite();
+    const resendingMemberId = this.#resendingMemberId();
+
+    return this.#membersStore.list.value().map((member) => {
+      const isCurrentUser = userMember?.userId === member.userId;
+      const isPending = member.pending === true;
+
+      return {
+        ...member,
+        showDeleteButton: this.isOwner() || isCurrentUser,
+        isCurrentUser,
+        isOnlyOwner: this.#membersStore.isOnlyOwner(),
+        isPending,
+        canResendInvite: isPending && canInvite && !isCurrentUser,
+        resendingInvite: resendingMemberId === member.id,
+      } satisfies MemberItem;
+    });
   });
   protected readonly isInviteMode = isActive(
     createUrlTreeFromSnapshot(this.#route.parent?.snapshot ?? this.#route.snapshot, ['invite']),
@@ -144,6 +159,21 @@ export default class Staff {
       await this.#membersStore.remove(member.id);
     } catch (error) {
       this.#feedback.error(error);
+    }
+  }
+
+  protected async handleResendInvite(member: MemberItem) {
+    if (this.#resendingMemberId()) return;
+
+    this.#resendingMemberId.set(member.id);
+
+    try {
+      await this.#membersStore.resendInvite(member.id);
+      this.#feedback.success(this.#translate.instant('members.resend_invite.success', { email: member.userEmail }));
+    } catch (error) {
+      this.#feedback.error(error);
+    } finally {
+      this.#resendingMemberId.set(undefined);
     }
   }
 

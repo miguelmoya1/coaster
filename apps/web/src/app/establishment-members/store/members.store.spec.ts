@@ -212,4 +212,25 @@ describe('MembersStore', () => {
       expect(store.list.value()).toContainEqual(mockMembers[1]);
     });
   });
+  describe('resendInvite', () => {
+    it('should post to the member invite endpoint', async () => {
+      const establishmentId = asEstablishmentId('establishment-1');
+      store.setEstablishmentId(establishmentId);
+      TestBed.tick();
+      httpMock.expectOne(`/establishments/${establishmentId}/members`).flush(mockMembers);
+      TestBed.tick();
+      await Promise.resolve();
+      TestBed.tick();
+
+      const memberId = mockMembers[0].id;
+      const resendPromise = store.resendInvite(memberId);
+
+      const req = httpMock.expectOne(`/establishments/${establishmentId}/members/${memberId}/invite`);
+      expect(req.request.method).toBe('POST');
+      req.flush(null);
+      TestBed.tick();
+
+      await expect(resendPromise).resolves.toBeUndefined();
+    });
+  });
 });

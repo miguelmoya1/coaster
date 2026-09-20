@@ -5,7 +5,7 @@ import { CanActivate } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
-import { InviteMemberCommand, RemoveMemberCommand } from '../commands';
+import { InviteMemberCommand, RemoveMemberCommand, ResendInviteCommand } from '../commands';
 import { GetMembersQuery } from '../queries';
 import { EstablishmentMembersController } from './establishment-members.controller';
 
@@ -95,6 +95,23 @@ describe('EstablishmentMembersController', () => {
     await controller.inviteMember(asEstablishmentId('establishment-1'), dto, user);
 
     expect(commandBus.execute).toHaveBeenCalledWith(expect.any(InviteMemberCommand));
+  });
+
+  it('resendInvite should delegate to command bus', async () => {
+    commandBus.execute.mockResolvedValue(undefined);
+    const user = {
+      id: asUserId('admin-id'),
+      name: 'Admin',
+      email: 'a@a.com',
+      active: true,
+      role: Role.ADMIN,
+      language: 'en',
+      emailVerified: true,
+    };
+
+    await controller.resendInvite(asEstablishmentId('establishment-1'), asEstablishmentMemberId('mem-1'), user);
+
+    expect(commandBus.execute).toHaveBeenCalledWith(expect.any(ResendInviteCommand));
   });
 
   it('removeMember should delegate to command bus', async () => {

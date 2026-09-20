@@ -37,8 +37,12 @@
         [isCurrentUser]="member.isCurrentUser"
         [isOnlyOwner]="member.isOnlyOwner"
         [canChangeRole]="canChangeRole() && !member.isCurrentUser"
+        [isPending]="member.isPending"
+        [canResendInvite]="member.canResendInvite"
+        [resendingInvite]="member.resendingInvite"
         (deleteClicked)="handleClickDeleteMember(member)"
         (roleChanged)="handleRoleChange(member, $event)"
+        (resendInviteClicked)="handleResendInvite(member)"
       />
     } @empty {
       <p

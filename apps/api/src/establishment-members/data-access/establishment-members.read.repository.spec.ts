@@ -1,4 +1,4 @@
-import { asEstablishmentId, asUserId } from '@coaster/common';
+import { asEstablishmentId, asEstablishmentMemberId, asUserId } from '@coaster/common';
 import { DbService } from '@coaster/core/db';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -78,7 +78,45 @@ describe('EstablishmentMembersReadRepository', () => {
       expect(dbService.dbEstablishmentMember.findMany).toHaveBeenCalledWith({
         where: { establishmentId, active: true, deletedAt: null },
         include: {
-          user: { select: { id: true, name: true, email: true, photoUrl: true } },
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              photoUrl: true,
+              passwordUpdatedAt: true,
+              _count: { select: { identities: true } },
+            },
+          },
+        },
+      });
+      expect(result).toEqual(expectedResult);
+    });
+  });
+
+  describe('getMemberById', () => {
+    it('should look the member up with what it takes to tell a pending invite', async () => {
+      const establishmentId = asEstablishmentId('establishment-1');
+      const memberId = asEstablishmentMemberId('member-1');
+      const expectedResult = { id: 'member-1' };
+      vi.mocked(dbService.dbEstablishmentMember.findFirst).mockResolvedValue(expectedResult as any);
+
+      const result = await repository.getMemberById(establishmentId, memberId);
+
+      expect(dbService.dbEstablishmentMember.findFirst).toHaveBeenCalledWith({
+        where: { id: memberId, establishmentId, deletedAt: null },
+        include: {
+          establishment: { select: { name: true } },
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              active: true,
+              passwordUpdatedAt: true,
+              _count: { select: { identities: true } },
+            },
+          },
         },
       });
       expect(result).toEqual(expectedResult);
@@ -97,7 +135,16 @@ describe('EstablishmentMembersReadRepository', () => {
       expect(dbService.dbEstablishmentMember.findFirst).toHaveBeenCalledWith({
         where: { userId, establishmentId, deletedAt: null },
         include: {
-          user: { select: { id: true, name: true, email: true, photoUrl: true } },
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              photoUrl: true,
+              passwordUpdatedAt: true,
+              _count: { select: { identities: true } },
+            },
+          },
         },
       });
       expect(result).toEqual(expectedResult);

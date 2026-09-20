@@ -26,13 +26,20 @@ import { MatIcon } from '@angular/material/icon';
         }
       </div>
 
-      <div class="grow min-w-0 ml-3 sm:ml-4 flex flex-col gap-0.5">
+      <div class="grow min-w-0 ml-3 sm:ml-4 flex flex-col gap-0.5 items-start">
         <h3 class="heading-3 truncate text-base font-bold text-on-surface">
           {{ staffName() }}
         </h3>
         <p class="text-on-surface-variant text-[0.8rem] font-medium truncate">
           {{ 'common.role.' + roleName().toLowerCase() | translate }}
         </p>
+        @if (isPending()) {
+          <span
+            class="mt-1 px-2 py-0.5 rounded-full bg-primary-container text-on-primary-container text-[0.7rem] font-bold uppercase tracking-wide"
+          >
+            {{ 'members.pending_invite' | translate }}
+          </span>
+        }
       </div>
     </div>
 
@@ -40,6 +47,18 @@ import { MatIcon } from '@angular/material/icon';
       <div
         class="flex items-center gap-2 mt-3 sm:mt-0 sm:ml-4 justify-end w-full sm:w-auto pt-3 sm:pt-0 border-t border-outline-variant/10 sm:border-t-0 shrink-0"
       >
+        @if (canResendInvite()) {
+          <button
+            mat-icon-button
+            [disabled]="disabled() || resendingInvite()"
+            [attr.aria-label]="'members.resend_invite.action' | translate"
+            [title]="'members.resend_invite.action' | translate"
+            (click)="onResendInviteClick($event)"
+          >
+            <mat-icon class="text-[18px]! w-[18px]! h-[18px]! leading-[18px]! m-0!">forward_to_inbox</mat-icon>
+          </button>
+        }
+
         @if (!isCurrentUser()) {
           <a
             [attr.href]="disabled() ? null : 'mailto:' + staffEmail()"
@@ -124,8 +143,12 @@ export class StaffMemberCard {
   readonly isCurrentUser = input(false);
   readonly isOnlyOwner = input(false);
   readonly canChangeRole = input(false);
+  readonly isPending = input(false);
+  readonly canResendInvite = input(false);
+  readonly resendingInvite = input(false);
   readonly deleteClicked = output<void>();
   readonly roleChanged = output<EstablishmentRoleType>();
+  readonly resendInviteClicked = output<void>();
 
   protected readonly assignableRoles = Object.values(EstablishmentRole);
   protected readonly ownerRole = EstablishmentRole.OWNER;
@@ -144,7 +167,9 @@ export class StaffMemberCard {
     return name.substring(0, Math.min(name.length, 2)).toUpperCase();
   });
 
-  readonly showActions = computed(() => !this.isCurrentUser() || this.showDeleteButton() || this.canChangeRole());
+  readonly showActions = computed(
+    () => !this.isCurrentUser() || this.showDeleteButton() || this.canChangeRole() || this.canResendInvite(),
+  );
 
   onImageError(): void {
     this.imageFailed.set(true);
@@ -153,5 +178,10 @@ export class StaffMemberCard {
   onDeleteClick(event: Event) {
     event.stopPropagation();
     this.deleteClicked.emit();
+  }
+
+  onResendInviteClick(event: Event) {
+    event.stopPropagation();
+    this.resendInviteClicked.emit();
   }
 }

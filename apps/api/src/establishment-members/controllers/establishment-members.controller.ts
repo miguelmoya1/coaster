@@ -4,7 +4,7 @@ import { EstablishmentPermission } from '@coaster/common';
 import { EstablishmentPermissions, EstablishmentPermissionsGuard } from '@coaster/core';
 import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { InviteMemberCommand, RemoveMemberCommand, UpdateMemberRoleCommand } from '../commands';
+import { InviteMemberCommand, RemoveMemberCommand, ResendInviteCommand, UpdateMemberRoleCommand } from '../commands';
 import { InviteEstablishmentMemberDto } from '../dto/invite-establishment-member.dto';
 import { UpdateMemberRoleDto } from '../dto/update-member-role.dto';
 import { EstablishmentMembersMapper } from '../mappers/establishment-members.mapper';
@@ -43,6 +43,16 @@ export class EstablishmentMembersController {
     @CurrentUser() user: User,
   ) {
     await this._commandBus.execute(new InviteMemberCommand(establishmentId, dto.email, user, dto.role));
+  }
+
+  @Post(':memberId/invite')
+  @EstablishmentPermissions(EstablishmentPermission.ESTABLISHMENT_INVITE_MEMBER)
+  async resendInvite(
+    @Param('establishmentId') establishmentId: EstablishmentId,
+    @Param('memberId') memberId: EstablishmentMemberId,
+    @CurrentUser() user: User,
+  ) {
+    await this._commandBus.execute(new ResendInviteCommand(establishmentId, memberId, user));
   }
 
   @Patch(':memberId')

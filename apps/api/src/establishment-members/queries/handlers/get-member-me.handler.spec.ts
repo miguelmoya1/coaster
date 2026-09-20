@@ -39,7 +39,13 @@ describe('GetMemberMeHandler', () => {
       establishmentId,
       role: EstablishmentRole.STAFF,
       active: true,
-      user: { name: 'John Doe', photoUrl: 'http://test.com/photo.jpg', email: 'john@test.com' },
+      user: {
+        name: 'John Doe',
+        photoUrl: 'http://test.com/photo.jpg',
+        email: 'john@test.com',
+        passwordUpdatedAt: new Date(),
+        _count: { identities: 0 },
+      },
     };
 
     mockReadRepository.getMemberByUserAndEstablishment.mockResolvedValue(mockDbMember);
@@ -54,6 +60,7 @@ describe('GetMemberMeHandler', () => {
       role: DbEstablishmentRole.STAFF,
       permissions: expect.any(Array),
       active: true,
+      pending: false,
       userName: 'John Doe',
       userImage: 'http://test.com/photo.jpg',
       userEmail: 'john@test.com',
@@ -82,7 +89,13 @@ describe('GetMemberMeHandler', () => {
       establishmentId,
       role: EstablishmentRole.STAFF,
       active: false,
-      user: { name: 'John Doe', photoUrl: 'http://test.com/photo.jpg', email: 'john@test.com' },
+      user: {
+        name: 'John Doe',
+        photoUrl: 'http://test.com/photo.jpg',
+        email: 'john@test.com',
+        passwordUpdatedAt: new Date(),
+        _count: { identities: 0 },
+      },
     };
 
     mockReadRepository.getMemberByUserAndEstablishment.mockResolvedValue(mockDbMember);

@@ -7,6 +7,13 @@ import {
   getRolePermissions,
 } from '@coaster/common';
 
+/**
+ * Somebody who was invited but never finished: no password of their own and no identity linked, so
+ * the only way in is still the invitation email.
+ */
+export const isInvitePending = (user: { passwordUpdatedAt?: Date | null; _count?: { identities: number } }): boolean =>
+  !user.passwordUpdatedAt && (user._count?.identities ?? 0) === 0;
+
 export const EstablishmentMembersMapper = {
   toDomain(member: {
     id: string;
@@ -14,7 +21,13 @@ export const EstablishmentMembersMapper = {
     establishmentId: string;
     role: string;
     active: boolean;
-    user: { name: string; photoUrl: string | null; email: string };
+    user: {
+      name: string;
+      photoUrl: string | null;
+      email: string;
+      passwordUpdatedAt?: Date | null;
+      _count?: { identities: number };
+    };
   }): EstablishmentMember {
     const role = asEstablishmentRole(member.role);
     return {
@@ -24,6 +37,7 @@ export const EstablishmentMembersMapper = {
       role,
       permissions: getRolePermissions(role),
       active: member.active,
+      pending: isInvitePending(member.user),
       userName: member.user.name,
       userImage: member.user.photoUrl ?? '',
       userEmail: member.user.email,
