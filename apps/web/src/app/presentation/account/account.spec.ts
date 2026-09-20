@@ -1,9 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import type { AccountSummary } from '@coaster/common';
+import type { AccountSession, AccountSummary } from '@coaster/common';
 import { AccountRepository, Toast } from '@coaster/core';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { ConfirmationDialog } from '../components/confirm-dialog/confirmation-dialog.service';
 import Account from './account';
 
 const summary = (overrides: Partial<AccountSummary> = {}): AccountSummary => ({
@@ -15,6 +16,23 @@ const summary = (overrides: Partial<AccountSummary> = {}): AccountSummary => ({
   ...overrides,
 });
 
+const CHROME_ON_WINDOWS =
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36';
+
+const SAFARI_ON_IPHONE =
+  'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1';
+
+const session = (overrides: Partial<AccountSession> = {}): AccountSession => ({
+  id: 'session-1',
+  current: false,
+  userAgent: CHROME_ON_WINDOWS,
+  ip: '10.0.0.1',
+  createdAt: '2026-09-20T10:00:00.000Z',
+  lastUsedAt: '2026-09-20T10:00:00.000Z',
+  expiresAt: '2026-10-20T10:00:00.000Z',
+  ...overrides,
+});
+
 describe('Account', () => {
   let fixture: ComponentFixture<Account>;
 
@@ -23,8 +41,12 @@ describe('Account', () => {
     requestEmailVerification: vi.fn(),
     setPassword: vi.fn(),
     unlink: vi.fn(),
+    sessions: vi.fn(),
+    closeSession: vi.fn(),
+    closeOtherSessions: vi.fn(),
   };
   const toast = { success: vi.fn(), error: vi.fn() };
+  const confirmation = { confirm: vi.fn() };
 
   const render = async () => {
     fixture = TestBed.createComponent(Account);
@@ -48,6 +70,10 @@ describe('Account', () => {
     repo.requestEmailVerification.mockResolvedValue(undefined);
     repo.setPassword.mockResolvedValue(undefined);
     repo.unlink.mockResolvedValue(undefined);
+    repo.sessions.mockResolvedValue([session({ id: 'this-one', current: true }), session({ id: 'the-phone' })]);
+    repo.closeSession.mockResolvedValue(undefined);
+    repo.closeOtherSessions.mockResolvedValue(undefined);
+    confirmation.confirm.mockResolvedValue(true);
 
     await TestBed.configureTestingModule({
       imports: [Account],
@@ -56,6 +82,7 @@ describe('Account', () => {
         provideRouter([]),
         { provide: AccountRepository, useValue: repo },
         { provide: Toast, useValue: toast },
+        { provide: ConfirmationDialog, useValue: confirmation },
       ],
     }).compileComponents();
   });
@@ -207,6 +234,98 @@ describe('Account', () => {
       await render();
 
       expect(at('no-identities')).toBeTruthy();
+    });
+  });
+
+  describe('the open sessions', () => {
+    it('should name the device behind each one and flag the one being used', async () => {
+      await render();
+
+      expect(at('session-this-one').textContent).toContain('Chrome · Windows');
+      expect(at('session-current-this-one')).toBeTruthy();
+      expect(at('session-current-the-phone')).toBeFalsy();
+    });
+
+    it('should not offer to close the session doing the asking', async () => {
+      await render();
+
+      expect(at('close-session-this-one')).toBeFalsy();
+      expect(at('close-session-the-phone')).toBeTruthy();
+    });
+
+    it('should close one after asking first, and show what is left', async () => {
+      await render();
+
+      at('close-session-the-phone').click();
+      await fixture.whenStable();
+
+      expect(confirmation.confirm).toHaveBeenCalled();
+      expect(repo.closeSession).toHaveBeenCalledWith('the-phone');
+      expect(repo.sessions).toHaveBeenCalledTimes(2);
+      expect(toast.success).toHaveBeenCalledWith('account.sessions.closed');
+    });
+
+    it('should leave the session alone when the question is answered no', async () => {
+      confirmation.confirm.mockResolvedValue(false);
+
+      await render();
+      at('close-session-the-phone').click();
+      await fixture.whenStable();
+
+      expect(repo.closeSession).not.toHaveBeenCalled();
+    });
+
+    it('should close every other session at once', async () => {
+      await render();
+
+      at('close-others-btn').click();
+      await fixture.whenStable();
+
+      expect(repo.closeOtherSessions).toHaveBeenCalled();
+      expect(toast.success).toHaveBeenCalledWith('account.sessions.others_closed');
+    });
+
+    it('should not offer to close the others when there are none', async () => {
+      repo.sessions.mockResolvedValue([session({ id: 'this-one', current: true })]);
+
+      await render();
+
+      expect(at('close-others-btn')).toBeFalsy();
+    });
+
+    it('should say what went wrong instead of pretending the session closed', async () => {
+      repo.closeSession.mockRejectedValue(new Error('SESSION_NOT_FOUND'));
+
+      await render();
+      at('close-session-the-phone').click();
+      await fixture.whenStable();
+
+      expect(toast.error).toHaveBeenCalledWith('SESSION_NOT_FOUND');
+    });
+
+    it('should tell a device apart even when nothing is known about it', async () => {
+      repo.sessions.mockResolvedValue([session({ id: 'odd-one', userAgent: null, ip: null })]);
+
+      await render();
+
+      expect(at('session-odd-one').textContent).toContain('account.sessions.unknown_device');
+    });
+
+    it('should recognise a phone as a phone', async () => {
+      repo.sessions.mockResolvedValue([session({ id: 'the-phone', userAgent: SAFARI_ON_IPHONE })]);
+
+      await render();
+
+      expect(at('session-the-phone').textContent).toContain('Safari · iPhone');
+      expect(at('session-the-phone').querySelector('mat-icon').textContent).toContain('smartphone');
+    });
+
+    it('should say plainly when there is nothing open', async () => {
+      repo.sessions.mockResolvedValue([]);
+
+      await render();
+
+      expect(at('no-sessions')).toBeTruthy();
     });
   });
 });

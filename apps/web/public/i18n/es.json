@@ -27,6 +27,8 @@
   "IDENTITY_NOT_LINKED": "Esa cuenta no está vinculada.",
   "LAST_WAY_IN": "Es tu única forma de entrar. Pon una contraseña antes de desvincularla.",
   "SESSION_EXPIRED": "Tu sesión ha caducado. Vuelve a entrar.",
+  "SESSION_NOT_FOUND": "Esa sesión ya no existe. Actualiza la página.",
+  "CANNOT_CLOSE_CURRENT_SESSION": "Esta es la sesión que estás usando. Para salir de ella, cierra sesión.",
   "SUBSCRIPTION_EXPIRED": "Tu prueba o suscripción ha finalizado. Activa Coaster Pro para continuar.",
   "email": "Introduce un email válido.",
   "EXCHANGE_ALREADY_PENDING": "Este turno ya tiene una solicitud de intercambio pendiente.",
@@ -1113,6 +1115,26 @@
       "unlink": "Desvincular",
       "google": "Google",
       "only_way_in": "Es tu única forma de entrar. Pon una contraseña y entonces podrás desvincularla."
+    },
+    "sessions": {
+      "heading": "Sesiones abiertas",
+      "subtitle": "Los dispositivos en los que has entrado. Si ves uno que no reconoces, ciérralo y cambia la contraseña.",
+      "current": "Esta sesión",
+      "unknown_device": "Dispositivo desconocido",
+      "last_used": "Última actividad {{ when }}",
+      "none": "No hay ninguna sesión abierta.",
+      "close": "Cerrar",
+      "closed": "Sesión cerrada.",
+      "close_others": "Cerrar las demás",
+      "others_closed": "Las demás sesiones se han cerrado.",
+      "close_dialog": {
+        "title": "¿Cerrar esta sesión?",
+        "message": "{{ device }} tendrá que volver a entrar."
+      },
+      "close_others_dialog": {
+        "title": "¿Cerrar las demás sesiones?",
+        "message": "Todos los dispositivos menos este tendrán que volver a entrar. Esta sesión se queda."
+      }
     }
   }
 }

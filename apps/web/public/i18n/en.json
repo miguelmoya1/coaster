@@ -27,6 +27,8 @@
   "IDENTITY_NOT_LINKED": "That account is not linked.",
   "LAST_WAY_IN": "It is your only way in. Set a password before unlinking it.",
   "SESSION_EXPIRED": "Your session has expired. Please sign in again.",
+  "SESSION_NOT_FOUND": "That session no longer exists. Refresh the page.",
+  "CANNOT_CLOSE_CURRENT_SESSION": "That is the session you are using. Sign out to leave it.",
   "SUBSCRIPTION_EXPIRED": "Your trial or subscription has ended. Activate Coaster Pro to continue.",
   "email": "Please enter a valid email.",
   "EXCHANGE_ALREADY_PENDING": "This shift already has a pending exchange request.",
@@ -1113,6 +1115,26 @@
       "unlink": "Unlink",
       "google": "Google",
       "only_way_in": "It is your only way in. Set a password and then you can unlink it."
+    },
+    "sessions": {
+      "heading": "Open sessions",
+      "subtitle": "The devices you are signed in on. If you do not recognise one, close it and change your password.",
+      "current": "This session",
+      "unknown_device": "Unknown device",
+      "last_used": "Last active {{ when }}",
+      "none": "There are no open sessions.",
+      "close": "Close",
+      "closed": "Session closed.",
+      "close_others": "Close the others",
+      "others_closed": "Every other session was closed.",
+      "close_dialog": {
+        "title": "Close this session?",
+        "message": "{{ device }} will have to sign in again."
+      },
+      "close_others_dialog": {
+        "title": "Close every other session?",
+        "message": "Every device but this one will have to sign in again. This session stays."
+      }
     }
   }
 }

@@ -1,17 +1,35 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { form, FormField, FormRoot, maxLength, minLength, required } from '@angular/forms/signals';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
-import type { AccountSummary } from '@coaster/common';
-import { AccountRepository, getErrorMessage, handleErrorFormField, Toast } from '@coaster/core';
-import { TranslatePipe } from '@ngx-translate/core';
+import type { AccountSession, AccountSummary } from '@coaster/common';
+import {
+  AccountRepository,
+  DateFormatterService,
+  describeUserAgent,
+  getErrorMessage,
+  handleErrorFormField,
+  Toast,
+} from '@coaster/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { ConfirmationDialog } from '../components/confirm-dialog/confirmation-dialog.service';
 import { Field } from '../components/field/field';
 import { FormErrors } from '../components/field/form-errors';
 import { CoasterInput } from '../components/field/input.directive';
 import { PasswordReveal } from '../components/password-reveal/password-reveal';
 import { Spinner } from '../components/spinner/spinner';
 import { UsernameHint } from '../components/username-hint/username-hint';
+
+/** One row of the list: a device somebody is signed in on, said the way a person would say it. */
+interface Device {
+  id: string;
+  current: boolean;
+  icon: string;
+  name: string;
+  ip: string | null;
+  lastUsed: string;
+}
 
 const PASSWORD_MIN_LENGTH = 8;
 const PASSWORD_MAX_LENGTH = 128;
@@ -212,6 +230,90 @@ const PASSWORD_MAX_LENGTH = 128;
             </p>
           </section>
         </div>
+        <section
+          class="mt-6 flex min-w-0 flex-col gap-4 rounded-2xl border border-white/10 bg-surface-container-low/70 p-6 backdrop-blur-xs"
+        >
+          <div class="flex flex-wrap items-start justify-between gap-4">
+            <div class="flex flex-col gap-1">
+              <h2 class="text-on-surface text-base font-semibold">{{ 'account.sessions.heading' | translate }}</h2>
+              <p class="text-on-surface-variant text-sm">{{ 'account.sessions.subtitle' | translate }}</p>
+            </div>
+
+            @if (others() > 0) {
+              <button
+                mat-stroked-button
+                type="button"
+                data-testid="close-others-btn"
+                class="text-error! shrink-0 rounded-full"
+                [disabled]="closing() !== ''"
+                (click)="closeOthers()"
+              >
+                @if (closing() === OTHERS) {
+                  <coaster-spinner />
+                }
+                {{ 'account.sessions.close_others' | translate }}
+              </button>
+            }
+          </div>
+
+          @if (sessions() === null) {
+            <div class="flex justify-center py-6"><coaster-spinner /></div>
+          } @else {
+            @for (device of devices(); track device.id) {
+              <div
+                class="border-outline-variant/30 flex min-w-0 items-center justify-between gap-4 rounded-xl border p-3"
+                [attr.data-testid]="'session-' + device.id"
+              >
+                <div class="flex min-w-0 items-center gap-3">
+                  <span
+                    class="bg-surface-container-highest flex size-9 shrink-0 items-center justify-center rounded-full"
+                  >
+                    <mat-icon class="text-on-surface-variant text-lg!">{{ device.icon }}</mat-icon>
+                  </span>
+
+                  <div class="flex min-w-0 flex-col">
+                    <span class="text-on-surface flex flex-wrap items-center gap-2 text-sm font-medium">
+                      {{ device.name || ('account.sessions.unknown_device' | translate) }}
+
+                      @if (device.current) {
+                        <span
+                          class="bg-primary/15 text-primary rounded-full px-2 py-0.5 text-xs font-medium"
+                          [attr.data-testid]="'session-current-' + device.id"
+                        >
+                          {{ 'account.sessions.current' | translate }}
+                        </span>
+                      }
+                    </span>
+
+                    <span class="text-on-surface-variant truncate text-xs">
+                      {{ 'account.sessions.last_used' | translate: { when: device.lastUsed } }}
+                      @if (device.ip) {
+                        · {{ device.ip }}
+                      }
+                    </span>
+                  </div>
+                </div>
+
+                @if (!device.current) {
+                  <button
+                    mat-stroked-button
+                    type="button"
+                    class="text-error! shrink-0 rounded-full"
+                    [attr.data-testid]="'close-session-' + device.id"
+                    [disabled]="closing() !== ''"
+                    (click)="close(device)"
+                  >
+                    {{ 'account.sessions.close' | translate }}
+                  </button>
+                }
+              </div>
+            } @empty {
+              <p class="text-on-surface-variant text-sm" data-testid="no-sessions">
+                {{ 'account.sessions.none' | translate }}
+              </p>
+            }
+          }
+        </section>
       } @else if (failed()) {
         <p class="text-error text-sm" role="alert">{{ failed() | translate }}</p>
       } @else {
@@ -223,15 +325,29 @@ const PASSWORD_MAX_LENGTH = 128;
 export default class Account {
   readonly #repo = inject(AccountRepository);
   readonly #toast = inject(Toast);
+  readonly #dates = inject(DateFormatterService);
+  readonly #confirmation = inject(ConfirmationDialog);
+  readonly #translate = inject(TranslateService);
+
+  /** Stands in for a session id while every other device is being closed at once. */
+  protected readonly OTHERS = 'others';
 
   protected readonly account = signal<AccountSummary | null>(null);
   protected readonly failed = signal('');
   protected readonly sending = signal(false);
   protected readonly unlinking = signal(false);
   protected readonly formModel = signal({ password: '', currentPassword: '' });
+  protected readonly sessions = signal<AccountSession[] | null>(null);
+  protected readonly closing = signal('');
+
+  protected readonly devices = computed<Device[]>(() =>
+    (this.sessions() ?? []).map((session) => this.#device(session)),
+  );
+  protected readonly others = computed(() => this.devices().filter((device) => !device.current).length);
 
   constructor() {
     void this.#load();
+    void this.#loadSessions();
   }
 
   readonly passwordForm = form(
@@ -262,6 +378,58 @@ export default class Account {
     },
   );
 
+  protected async close(device: Device): Promise<void> {
+    const confirmed = await this.#confirmation.confirm({
+      destructive: true,
+      title: this.#translate.instant('account.sessions.close_dialog.title'),
+      text: this.#translate.instant('account.sessions.close_dialog.message', {
+        device: device.name || this.#translate.instant('account.sessions.unknown_device'),
+      }),
+      confirmLabel: 'account.sessions.close',
+    });
+
+    if (!confirmed) {
+      return;
+    }
+
+    this.closing.set(device.id);
+
+    try {
+      await this.#repo.closeSession(device.id);
+      this.#toast.success('account.sessions.closed');
+      await this.#loadSessions();
+    } catch (error) {
+      this.#toast.error(getErrorMessage(error));
+    } finally {
+      this.closing.set('');
+    }
+  }
+
+  protected async closeOthers(): Promise<void> {
+    const confirmed = await this.#confirmation.confirm({
+      destructive: true,
+      title: this.#translate.instant('account.sessions.close_others_dialog.title'),
+      text: this.#translate.instant('account.sessions.close_others_dialog.message'),
+      confirmLabel: 'account.sessions.close_others',
+    });
+
+    if (!confirmed) {
+      return;
+    }
+
+    this.closing.set(this.OTHERS);
+
+    try {
+      await this.#repo.closeOtherSessions();
+      this.#toast.success('account.sessions.others_closed');
+      await this.#loadSessions();
+    } catch (error) {
+      this.#toast.error(getErrorMessage(error));
+    } finally {
+      this.closing.set('');
+    }
+  }
+
   protected isOnlyWayIn(summary: AccountSummary): boolean {
     return !summary.hasPassword && summary.identities.length === 1;
   }
@@ -285,6 +453,36 @@ export default class Account {
       await this.#load();
     } finally {
       this.unlinking.set(false);
+    }
+  }
+
+  #device(session: AccountSession): Device {
+    const { browser, platform } = describeUserAgent(session.userAgent);
+
+    return {
+      id: session.id,
+      current: session.current,
+      icon: this.#icon(platform),
+      name: [browser, platform].filter(Boolean).join(' · '),
+      ip: session.ip,
+      lastUsed: this.#dates.formatSince(session.lastUsedAt),
+    };
+  }
+
+  #icon(platform: string | null): string {
+    if (platform === 'iPhone' || platform === 'Android') {
+      return 'smartphone';
+    }
+
+    return platform === 'iPad' ? 'tablet' : 'computer';
+  }
+
+  async #loadSessions(): Promise<void> {
+    try {
+      this.sessions.set(await this.#repo.sessions());
+    } catch (error) {
+      this.sessions.set([]);
+      this.#toast.error(getErrorMessage(error));
     }
   }
 

@@ -23,4 +23,5 @@ export * from './services/virtual-keyboard';
 export * from './utils/errors.utils';
 export * from './utils/money.utils';
 export * from './utils/sse.utils';
+export * from './utils/user-agent.utils';
 export * from './utils/user.utils';

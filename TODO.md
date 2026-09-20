@@ -245,9 +245,6 @@ recomienda OWASP, son unas veinte líneas y con k-anonimato no sale la contrase�
 **Registrar los eventos de auth** —entrada, salida, cambio de contraseña, identidad vinculada—.
 `AdminAuditLog` cubre el backoffice; esto no lo cubre nadie.
 
-**Ver las sesiones abiertas** desde la aplicación, y poder cerrarlas. Los datos ya están en
-`AuthSession`: `userAgent`, `ip`, `lastUsedAt`. Falta la pantalla.
-
 ### Cuando esté todo
 
 El repositorio ya no sabe nada de Firebase, pero **producción y beta siguen ejecutando el código
