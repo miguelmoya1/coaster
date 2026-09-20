@@ -67,7 +67,7 @@ describe('VerifyEmailHandler', () => {
       spend: vi.fn().mockResolvedValue(true),
     };
 
-    handler = new VerifyEmailHandler(users, tokens);
+    handler = new VerifyEmailHandler(users, tokens, { publish: vi.fn() } as any);
   });
 
   const verify = () => handler.execute(new VerifyEmailCommand('a-verification-token'));

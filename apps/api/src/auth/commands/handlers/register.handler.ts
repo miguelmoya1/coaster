@@ -1,10 +1,12 @@
 import { ErrorCodes } from '@coaster/common';
 import { BETA_ALLOWLIST_ENABLED, isBetaAllowlistEnabled } from '@coaster/core';
-import { DbService } from '@coaster/core/db';
+import { DbAuthEventType, DbService } from '@coaster/core/db';
 import { ConflictException, ForbiddenException, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { hashPassword } from '../../domain/password';
+import { AuthEventOccurred } from '../../events/impl/auth-event.event';
+import { PwnedPasswordsService } from '../../services/pwned-passwords.service';
 import { IssuedSession, SessionService } from '../../services/session.service';
 import { RegisterCommand } from '../impl/register.command';
 
@@ -16,6 +18,8 @@ export class RegisterHandler implements ICommandHandler<RegisterCommand, IssuedS
     private readonly _db: DbService,
     private readonly _sessions: SessionService,
     private readonly _config: ConfigService,
+    private readonly _pwned: PwnedPasswordsService,
+    private readonly _events: EventBus,
   ) {}
 
   async execute(command: RegisterCommand): Promise<IssuedSession> {
@@ -30,6 +34,8 @@ export class RegisterHandler implements ICommandHandler<RegisterCommand, IssuedS
       throw new ConflictException(ErrorCodes.USER_ALREADY_EXISTS);
     }
 
+    await this._pwned.assertNotCompromised(command.password);
+
     const user = await this._db.dbUser.create({
       data: {
         email,
@@ -41,7 +47,19 @@ export class RegisterHandler implements ICommandHandler<RegisterCommand, IssuedS
       include: { preferences: true },
     });
 
-    return this._sessions.issue(user, command.origin);
+    const issued = await this._sessions.issue(user, command.origin);
+
+    this._events.publish(
+      new AuthEventOccurred({
+        type: DbAuthEventType.REGISTERED,
+        userId: user.id,
+        email: user.email,
+        sessionId: issued.sessionId,
+        ...command.origin,
+      }),
+    );
+
+    return issued;
   }
 
   async #outsideBeta(email: string): Promise<boolean> {

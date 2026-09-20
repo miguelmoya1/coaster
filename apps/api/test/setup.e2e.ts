@@ -23,6 +23,8 @@ export async function setup() {
   // The suite signs its own Google tokens and serves its own JWKS, so it needs a client id to match
   process.env.GOOGLE_CLIENT_ID = E2E_GOOGLE_CLIENT_ID;
 
+  process.env.PWNED_PASSWORDS_ENABLED = 'false';
+
   /*
    * The suite gets a database of its own but would share whatever cache the developer has running,
    * and `clearDatabase` cannot reach into it: a role cached in one test then answers for a user the

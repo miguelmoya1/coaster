@@ -66,6 +66,7 @@ travels in git nor enters the image. Production reads real environment variables
 | `CORS_ORIGINS`                                                   | Browser origins allowed to call the API; fails closed in production            |
 | `TRUST_PROXY_HOPS`                                               | Defaults to `1` (Cloud Run); `compose.yaml` sets `0`                           |
 | `BETA_ALLOWLIST_ENABLED`                                         | Closes sign-up to the `BetaTester` allowlist                                   |
+| `PWNED_PASSWORDS_ENABLED`                                        | Only `false` stops asking Have I Been Pwned about new passwords                |
 
 Migrations are **not** run by the production image. Apply them with `prisma migrate deploy` before
 or during the release — the CI deploy does it in a Cloud Run job. The dev container is the exception:

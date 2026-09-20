@@ -65,6 +65,11 @@ export type DbAuthSession = Prisma.DbAuthSessionModel
  */
 export type DbAuthToken = Prisma.DbAuthTokenModel
 /**
+ * Model DbAuthEvent
+ * 
+ */
+export type DbAuthEvent = Prisma.DbAuthEventModel
+/**
  * Model DbBetaTester
  * 
  */

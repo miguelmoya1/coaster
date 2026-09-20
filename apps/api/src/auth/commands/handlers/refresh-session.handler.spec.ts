@@ -22,6 +22,7 @@ describe('RefreshSessionHandler', () => {
   let db: any;
   let repo: any;
   let sessions: any;
+  let events: any;
   let handler: RefreshSessionHandler;
 
   beforeEach(() => {
@@ -31,7 +32,8 @@ describe('RefreshSessionHandler', () => {
     db = { dbUser: { findUnique: vi.fn().mockResolvedValue(activeUser) } };
     repo = { findByTokenHash: vi.fn(), revokeFamily: vi.fn() };
     sessions = { rotate: vi.fn().mockResolvedValue({ accessToken: 'fresh' }) };
-    handler = new RefreshSessionHandler(db, repo, sessions);
+    events = { publish: vi.fn() };
+    handler = new RefreshSessionHandler(db, repo, sessions, events);
   });
 
   const refresh = (token?: string) => handler.execute(new RefreshSessionCommand(token, ORIGIN));

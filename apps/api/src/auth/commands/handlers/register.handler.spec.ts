@@ -1,4 +1,5 @@
-import { ConflictException, ForbiddenException, Logger } from '@nestjs/common';
+import { ErrorCodes } from '@coaster/common';
+import { BadRequestException, ConflictException, ForbiddenException, Logger } from '@nestjs/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { verifyPassword } from '../../domain/password';
 import { RegisterCommand } from '../impl/register.command';
@@ -10,6 +11,8 @@ describe('RegisterHandler', () => {
   let db: any;
   let sessions: any;
   let config: any;
+  let pwned: any;
+  let events: any;
   let handler: RegisterHandler;
 
   beforeEach(() => {
@@ -21,7 +24,9 @@ describe('RegisterHandler', () => {
     };
     sessions = { issue: vi.fn().mockResolvedValue({ accessToken: 'fresh' }) };
     config = { get: vi.fn().mockReturnValue('false') };
-    handler = new RegisterHandler(db, sessions, config);
+    pwned = { assertNotCompromised: vi.fn().mockResolvedValue(undefined) };
+    events = { publish: vi.fn() };
+    handler = new RegisterHandler(db, sessions, config, pwned, events);
   });
 
   const register = (email = ' Someone@Coaster.test ', language?: string) =>
@@ -80,5 +85,33 @@ describe('RegisterHandler', () => {
 
     await expect(register()).resolves.toEqual({ accessToken: 'fresh' });
     expect(db.dbBetaTester.findUnique).toHaveBeenCalledWith({ where: { email: 'someone@coaster.test' } });
+  });
+
+  describe('a password somebody else has already leaked', () => {
+    it('should refuse it before the account exists', async () => {
+      pwned.assertNotCompromised.mockRejectedValue(new BadRequestException(ErrorCodes.PASSWORD_COMPROMISED));
+
+      await expect(register()).rejects.toThrow(BadRequestException);
+
+      expect(db.dbUser.create).not.toHaveBeenCalled();
+    });
+
+    it('should not bother asking about an address that is taken anyway', async () => {
+      db.dbUser.findUnique.mockResolvedValue({ id: 'user-1' });
+
+      await expect(register()).rejects.toThrow(ConflictException);
+
+      expect(pwned.assertNotCompromised).not.toHaveBeenCalled();
+    });
+  });
+
+  it('should record the new account in the auth log', async () => {
+    await register();
+
+    expect(events.publish.mock.calls[0][0].entry).toMatchObject({
+      type: 'REGISTERED',
+      userId: 'user-1',
+      ip: ORIGIN.ip,
+    });
   });
 });

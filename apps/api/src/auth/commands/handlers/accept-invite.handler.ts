@@ -1,10 +1,12 @@
 import { ErrorCodes } from '@coaster/common';
-import { DbAuthTokenPurpose } from '@coaster/core/db';
+import { DbAuthEventType, DbAuthTokenPurpose } from '@coaster/core/db';
 import { BadRequestException, UnauthorizedException } from '@nestjs/common';
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { AuthTokenRepository } from '../../data-access/auth-token.repository';
 import { AuthUserRepository } from '../../data-access/auth-user.repository';
 import { hashPassword } from '../../domain/password';
+import { AuthEventOccurred } from '../../events/impl/auth-event.event';
+import { PwnedPasswordsService } from '../../services/pwned-passwords.service';
 import { IssuedSession, SessionService } from '../../services/session.service';
 import { AcceptInviteCommand } from '../impl/accept-invite.command';
 
@@ -14,9 +16,13 @@ export class AcceptInviteHandler implements ICommandHandler<AcceptInviteCommand,
     private readonly _users: AuthUserRepository,
     private readonly _tokens: AuthTokenRepository,
     private readonly _session: SessionService,
+    private readonly _pwned: PwnedPasswordsService,
+    private readonly _events: EventBus,
   ) {}
 
   async execute(command: AcceptInviteCommand): Promise<IssuedSession> {
+    await this._pwned.assertNotCompromised(command.password);
+
     const token = await this._tokens.findUsable(command.token, DbAuthTokenPurpose.INVITE);
 
     if (!token || !(await this._tokens.spend(token.id))) {
@@ -37,6 +43,18 @@ export class AcceptInviteHandler implements ICommandHandler<AcceptInviteCommand,
       emailVerifiedAt: token.user.emailVerifiedAt ?? new Date(),
     });
 
-    return this._session.issue(user, command.origin);
+    const issued = await this._session.issue(user, command.origin);
+
+    this._events.publish(
+      new AuthEventOccurred({
+        type: DbAuthEventType.INVITE_ACCEPTED,
+        userId: user.id,
+        email: user.email,
+        sessionId: issued.sessionId,
+        ...command.origin,
+      }),
+    );
+
+    return issued;
   }
 }

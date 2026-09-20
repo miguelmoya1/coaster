@@ -7,6 +7,7 @@ describe('RequestPasswordResetHandler', () => {
   let users: any;
   let tokens: any;
   let email: any;
+  let events: any;
   let handler: RequestPasswordResetHandler;
 
   beforeEach(() => {
@@ -24,8 +25,9 @@ describe('RequestPasswordResetHandler', () => {
     };
     tokens = { issue: vi.fn().mockResolvedValue('a-reset-token') };
     email = { sendPasswordReset: vi.fn().mockResolvedValue(undefined) };
+    events = { publish: vi.fn() };
 
-    handler = new RequestPasswordResetHandler(users, tokens, email);
+    handler = new RequestPasswordResetHandler(users, tokens, email, events);
   });
 
   const request = (address = 'a@coaster.test') => handler.execute(new RequestPasswordResetCommand(address));

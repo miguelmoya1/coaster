@@ -37,6 +37,8 @@
   "EMAIL_ALREADY_LINKED": "Ese correo ya está asociado a otra cuenta de acceso. Entra con la cuenta con la que te registraste.",
   "EMAIL_NOT_VERIFIED": "Verifica tu correo antes de entrar.",
   "INVALID_CREDENTIALS": "El correo o contraseña ingresados son incorrectos.",
+  "TOO_MANY_ATTEMPTS": "Demasiados intentos con esta cuenta. Espera unos minutos antes de volver a probar.",
+  "PASSWORD_COMPROMISED": "Esta contraseña aparece en filtraciones conocidas. Elige otra distinta.",
   "INVALID_DATE": "La fecha ingresada no tiene un formato válido.",
   "INVALID_EMAIL": "El correo electrónico tiene un formato incorrecto.",
   "INVALID_EXCHANGE": "El intercambio de turnos propuesto no es válido.",

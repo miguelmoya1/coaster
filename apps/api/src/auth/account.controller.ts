@@ -1,9 +1,22 @@
 import type { User } from '@coaster/common';
 import { DbAuthProvider } from '@coaster/core/db';
-import { Body, Controller, Delete, Get, HttpCode, Param, ParseEnumPipe, Post, Put, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  Param,
+  ParseEnumPipe,
+  Post,
+  Put,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { seconds, Throttle } from '@nestjs/throttler';
+import type { FastifyRequest } from 'fastify';
 import {
   CloseOtherSessionsCommand,
   CloseSessionCommand,
@@ -19,6 +32,7 @@ import { AuthGuard } from './guards/auth.guard';
 import { GetAccountQuery, GetAccountSessionsQuery } from './queries';
 import type { AccountSession } from './queries/handlers/get-account-sessions.handler';
 import type { AccountSummary } from './queries/handlers/get-account.handler';
+import type { SessionOrigin } from './services/session.service';
 
 @ApiTags('Account')
 @Controller('account')
@@ -42,9 +56,7 @@ export class AccountController {
   @ApiOperation({ summary: 'Emails a link to confirm the address' })
   @ApiResponse({ status: 204, description: 'Sent, or already confirmed and nothing to send' })
   async requestVerification(@CurrentUser() user: User): Promise<void> {
-    await this.commandBus.execute<RequestEmailVerificationCommand, void>(
-      new RequestEmailVerificationCommand(user.id),
-    );
+    await this.commandBus.execute<RequestEmailVerificationCommand, void>(new RequestEmailVerificationCommand(user.id));
   }
 
   @Put('password')
@@ -57,9 +69,10 @@ export class AccountController {
     @CurrentUser() user: User,
     @CurrentSession() session: SessionClaims,
     @Body() dto: SetPasswordDto,
+    @Req() request: FastifyRequest,
   ): Promise<void> {
     await this.commandBus.execute<SetPasswordCommand, void>(
-      new SetPasswordCommand(user.id, session.sid, dto.password, dto.currentPassword),
+      new SetPasswordCommand(user.id, session.sid, dto.password, dto.currentPassword, this.#origin(request)),
     );
   }
 
@@ -106,7 +119,14 @@ export class AccountController {
   async unlink(
     @CurrentUser() user: User,
     @Param('provider', new ParseEnumPipe(DbAuthProvider)) provider: DbAuthProvider,
+    @Req() request: FastifyRequest,
   ): Promise<void> {
-    await this.commandBus.execute<UnlinkIdentityCommand, void>(new UnlinkIdentityCommand(user.id, provider));
+    await this.commandBus.execute<UnlinkIdentityCommand, void>(
+      new UnlinkIdentityCommand(user.id, provider, this.#origin(request)),
+    );
+  }
+
+  #origin(request: FastifyRequest): SessionOrigin {
+    return { userAgent: request.headers['user-agent'], ip: request.ip };
   }
 }

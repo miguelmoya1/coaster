@@ -1,12 +1,13 @@
 import { ErrorCodes } from '@coaster/common';
 import { BETA_ALLOWLIST_ENABLED, DbUserWithPreferences, isBetaAllowlistEnabled } from '@coaster/core';
-import { DbAuthProvider, DbService } from '@coaster/core/db';
+import { DbAuthEventType, DbAuthProvider, DbService } from '@coaster/core/db';
 import { ForbiddenException, Logger, ServiceUnavailableException, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { AuthIdentityRepository } from '../../data-access/auth-identity.repository';
 import { AuthSessionRepository } from '../../data-access/auth-session.repository';
 import { AuthUserRepository } from '../../data-access/auth-user.repository';
+import { AuthEventOccurred } from '../../events/impl/auth-event.event';
 import { GoogleIdentity, GoogleTokenService } from '../../services/google-token.service';
 import { IssuedSession, SessionService } from '../../services/session.service';
 import { LoginWithGoogleCommand } from '../impl/login-with-google.command';
@@ -23,6 +24,7 @@ export class LoginWithGoogleHandler implements ICommandHandler<LoginWithGoogleCo
     private readonly _users: AuthUserRepository,
     private readonly _session: SessionService,
     private readonly _config: ConfigService,
+    private readonly _events: EventBus,
   ) {}
 
   async execute(command: LoginWithGoogleCommand): Promise<IssuedSession> {
@@ -34,6 +36,8 @@ export class LoginWithGoogleHandler implements ICommandHandler<LoginWithGoogleCo
     const identity = await this._google.verify(command.credential);
 
     if (!identity) {
+      this.#refused(command, null, null, 'google_token_rejected');
+
       throw new UnauthorizedException(ErrorCodes.INVALID_CREDENTIALS);
     }
 
@@ -41,12 +45,14 @@ export class LoginWithGoogleHandler implements ICommandHandler<LoginWithGoogleCo
 
     if (linked) {
       if (!linked.active) {
+        this.#refused(command, linked.id, identity.email, 'inactive');
+
         throw new UnauthorizedException(ErrorCodes.INVALID_CREDENTIALS);
       }
 
       await this._identities.touch(DbAuthProvider.GOOGLE, identity.subject);
 
-      return this._session.issue(linked, command.origin);
+      return this.#signedIn(command, await this._session.issue(linked, command.origin), linked.id, identity.email);
     }
 
     const byEmail = await this._db.dbUser.findUnique({
@@ -56,14 +62,30 @@ export class LoginWithGoogleHandler implements ICommandHandler<LoginWithGoogleCo
 
     if (byEmail) {
       if (!byEmail.active) {
+        this.#refused(command, byEmail.id, identity.email, 'inactive');
+
         throw new UnauthorizedException(ErrorCodes.INVALID_CREDENTIALS);
       }
 
-      return this._session.issue(await this.#claim(byEmail, identity), command.origin);
+      const claimed = await this.#claim(byEmail, identity);
+
+      this._events.publish(
+        new AuthEventOccurred({
+          type: DbAuthEventType.IDENTITY_LINKED,
+          userId: claimed.id,
+          email: identity.email,
+          ...command.origin,
+          metadata: { provider: DbAuthProvider.GOOGLE },
+        }),
+      );
+
+      return this.#signedIn(command, await this._session.issue(claimed, command.origin), claimed.id, identity.email);
     }
 
     if (await this.#outsideBeta(identity.email)) {
       this.#logger.warn(`Refusing to open an account for ${identity.email}: not on the beta allowlist`);
+      this.#refused(command, null, identity.email, 'outside_beta');
+
       throw new ForbiddenException(ErrorCodes.BETA_ACCESS_REQUIRED);
     }
 
@@ -75,13 +97,68 @@ export class LoginWithGoogleHandler implements ICommandHandler<LoginWithGoogleCo
         emailVerifiedAt: new Date(),
         preferences: { create: {} },
         identities: {
-          create: { provider: DbAuthProvider.GOOGLE, subject: identity.subject, email: identity.email, lastLoginAt: new Date() },
+          create: {
+            provider: DbAuthProvider.GOOGLE,
+            subject: identity.subject,
+            email: identity.email,
+            lastLoginAt: new Date(),
+          },
         },
       },
       include: { preferences: true },
     });
 
-    return this._session.issue(created, command.origin);
+    const issued = await this._session.issue(created, command.origin);
+
+    this._events.publish(
+      new AuthEventOccurred({
+        type: DbAuthEventType.REGISTERED,
+        userId: created.id,
+        email: created.email,
+        sessionId: issued.sessionId,
+        ...command.origin,
+        metadata: { provider: DbAuthProvider.GOOGLE },
+      }),
+    );
+
+    this._events.publish(
+      new AuthEventOccurred({
+        type: DbAuthEventType.IDENTITY_LINKED,
+        userId: created.id,
+        email: created.email,
+        ...command.origin,
+        metadata: { provider: DbAuthProvider.GOOGLE },
+      }),
+    );
+
+    return this.#signedIn(command, issued, created.id, identity.email);
+  }
+
+  #signedIn(command: LoginWithGoogleCommand, issued: IssuedSession, userId: string, email: string): IssuedSession {
+    this._events.publish(
+      new AuthEventOccurred({
+        type: DbAuthEventType.LOGIN_SUCCEEDED,
+        userId,
+        email,
+        sessionId: issued.sessionId,
+        ...command.origin,
+        metadata: { method: 'google' },
+      }),
+    );
+
+    return issued;
+  }
+
+  #refused(command: LoginWithGoogleCommand, userId: string | null, email: string | null, reason: string): void {
+    this._events.publish(
+      new AuthEventOccurred({
+        type: DbAuthEventType.LOGIN_FAILED,
+        userId,
+        email,
+        ...command.origin,
+        metadata: { method: 'google', reason },
+      }),
+    );
   }
 
   async #claim(user: DbUserWithPreferences, identity: GoogleIdentity): Promise<DbUserWithPreferences> {

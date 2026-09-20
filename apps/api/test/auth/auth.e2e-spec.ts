@@ -1,5 +1,6 @@
 import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { DbAuthEventType } from '../../src/core/db';
 import { hashRefreshToken, REFRESH_COOKIE_NAME, REFRESH_COOKIE_PATH } from '../../src/auth';
 import { hashPassword } from '../../src/auth/domain/password';
 import { E2eTestSetup } from '../utils/e2e-setup';
@@ -201,6 +202,70 @@ describe('AuthController (e2e)', () => {
 
     it('should not complain when there was no session to end', async () => {
       await request(server()).post('/api/auth/logout').expect(204);
+    });
+  });
+
+  describe('the auth log', () => {
+    const eventsOf = async (type: DbAuthEventType) => {
+      for (let attempt = 0; attempt < 40; attempt++) {
+        const rows = await testSetup.prisma.dbAuthEvent.findMany({ where: { type } });
+
+        if (rows.length > 0) {
+          return rows;
+        }
+
+        await new Promise((resolve) => setTimeout(resolve, 50));
+      }
+
+      return [];
+    };
+
+    it('should write down an account being opened', async () => {
+      await register().expect(201);
+
+      const [event] = await eventsOf(DbAuthEventType.REGISTERED);
+
+      expect(event).toMatchObject({ email: CREDENTIALS.email, ip: expect.any(String) });
+      expect(event.userId).toEqual(expect.any(String));
+    });
+
+    it('should write down who came in, and against which session', async () => {
+      await seedAccount();
+
+      await request(server())
+        .post('/api/auth/login')
+        .send({ email: CREDENTIALS.email, password: CREDENTIALS.password })
+        .expect(200);
+
+      const [event] = await eventsOf(DbAuthEventType.LOGIN_SUCCEEDED);
+
+      expect(event.sessionId).toEqual(expect.any(String));
+      expect(await testSetup.prisma.dbAuthSession.findUnique({ where: { id: event.sessionId! } })).not.toBeNull();
+    });
+
+    it('should write down an attempt that did not work, with a reason the caller never sees', async () => {
+      await seedAccount();
+
+      const response = await request(server())
+        .post('/api/auth/login')
+        .send({ email: CREDENTIALS.email, password: 'not-the-password' })
+        .expect(401);
+
+      const [event] = await eventsOf(DbAuthEventType.LOGIN_FAILED);
+
+      expect(event.metadata).toEqual({ reason: 'wrong_password' });
+      expect(JSON.stringify(response.body)).not.toContain('wrong_password');
+    });
+
+    it('should write down somebody signing out, against the session that ended', async () => {
+      const user = await seedAccount();
+      const cookie = await seedSession(user.id);
+
+      await request(server()).post('/api/auth/logout').set('Cookie', cookie).expect(204);
+
+      const [event] = await eventsOf(DbAuthEventType.LOGGED_OUT);
+
+      expect(event).toMatchObject({ userId: user.id });
     });
   });
 });

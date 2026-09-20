@@ -17,6 +17,7 @@ const user = {
 describe('SessionService', () => {
   let repo: any;
   let tokens: any;
+  let events: any;
   let service: SessionService;
 
   beforeEach(() => {
@@ -31,7 +32,8 @@ describe('SessionService', () => {
       pruneExpiredOf: vi.fn(),
     };
     tokens = { sign: vi.fn().mockReturnValue('an-access-token') };
-    service = new SessionService(repo, tokens);
+    events = { publish: vi.fn() };
+    service = new SessionService(repo, tokens, events);
   });
 
   it('should store only the hash of the refresh token it hands out', async () => {
