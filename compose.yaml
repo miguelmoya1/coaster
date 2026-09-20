@@ -31,6 +31,7 @@ services:
     build:
       context: .
       dockerfile: ./apps/api/Dockerfile.dev
+    command: ['sh', '-c', 'npx prisma migrate deploy && exec npm run dev']
     ports:
       - '3000:3000'
     environment:

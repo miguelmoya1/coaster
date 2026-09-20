@@ -151,12 +151,16 @@ docker compose up
 ```
 
 That brings up Postgres, Redis, the API on `:3000`, the web app on `:4200` and the Stripe CLI
-forwarding webhooks. To run an application on the host instead, start the
-infrastructure it needs and then the app:
+forwarding webhooks. The API container applies the pending migrations before it starts serving, so
+an empty database —a first checkout, or a dropped volume— comes up with its schema on its own. To
+run an application on the host instead, start the infrastructure it needs and then the app:
 
 ```sh
 # Start local infrastructure
 docker compose up db redis
+
+# Apply the migrations: nothing on the host does it for you
+cd apps/api && npx prisma migrate deploy && cd -
 
 # Run the Backend API
 npm run dev:api
@@ -164,6 +168,10 @@ npm run dev:api
 # Run the Frontend App
 npm run dev:web
 ```
+
+An API talking to a database with no tables in it looks like broken code rather than a missing
+schema: every request dies on Prisma and the browser is told `Internal server error`, the login
+included. If that is what you are seeing, that is the first thing to check.
 
 `redis` is optional. With `REDIS_URL` unset the application behaves exactly as it did before the
 cache existed: every guard reads Postgres, the rate limit counts per process, and realtime events
@@ -173,7 +181,9 @@ reach only the clients of the instance that raised them — see
 
 > **Upgrading an existing checkout:** the `db` service moved from `postgres:16-alpine` to
 > `postgres:18-alpine`. A `postgres_data` volume created by 16 will not start under 18, so drop it
-> once (`docker compose down -v db`) and let the migrations rebuild your local database.
+> once (`docker compose down -v db`) and bring it back up. The drop takes your local data with it;
+> the next `docker compose up` rebuilds the schema, and on the host you apply the migrations
+> yourself, as above.
 
 To exercise Stripe locally you also need its CLI forwarding events to the API. `docker compose up`
 starts a `stripe` service that does it, or run it yourself — see
