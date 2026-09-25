@@ -305,7 +305,7 @@ export class OrdersWriteRepository {
         for (const item of allItems) {
           const pricingLine = pricing.itemLines.find((l) => l.id === item.id);
           if (pricingLine && item.quantity > 0) {
-            const unitFinalPrice = pricingLine.finalTotal / item.quantity;
+            const unitFinalPrice = pricingLine.grossTotal / item.quantity;
             amountPaidCash += Math.round(unitFinalPrice * item.paidQuantityCash);
             amountPaidCard += Math.round(unitFinalPrice * item.paidQuantityCard);
           }

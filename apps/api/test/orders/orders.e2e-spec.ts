@@ -398,7 +398,7 @@ describe('OrdersController (e2e)', () => {
       expect(item.deliveryStatus).toBe('SERVED');
     });
 
-    it('should take payment for part of an item', async () => {
+    it('should take payment for part of an item, at the price the customer pays with tax', async () => {
       const order = await openOrder();
 
       await request(testSetup.app.getHttpServer())
@@ -412,7 +412,7 @@ describe('OrdersController (e2e)', () => {
       expect(item.paymentStatus).toBe('PARTIAL');
 
       const updated = await testSetup.prisma.dbOrder.findUniqueOrThrow({ where: { id: order.id } });
-      expect(updated.amountPaidCard).toBe(500);
+      expect(updated.amountPaidCard).toBe(550);
     });
 
     it('should refuse to serve more units than the order has', async () => {
