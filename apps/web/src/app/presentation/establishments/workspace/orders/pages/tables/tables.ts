@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, input, inputBinding, outputBinding, signal } from '@angular/core';
+import { Component, computed, inject, input, inputBinding, outputBinding, signal } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatCard } from '@angular/material/card';
 import { MatChip } from '@angular/material/chips';
@@ -7,12 +7,11 @@ import { Router } from '@angular/router';
 import { MyMemberStore } from '@coaster/establishment-members';
 import { RequireSubscriptionDirective } from '@coaster/establishment-subscription';
 import type { EstablishmentId, Order, Table } from '@coaster/common';
-import { ActionFeedback } from '@coaster/core';
-import { ActiveOrdersStore } from '@coaster/orders';
-import { TablesStore } from '@coaster/tables';
+import { ActionFeedback, loadedOr, type PageResource } from '@coaster/core';
+import { ManageTables, tableCounts } from '@coaster/tables';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ConfirmationDialog } from '../../../../../components/confirm-dialog/confirmation-dialog.service';
-import { Loading } from '../../../../../components/loading/loading';
+import { ResourceStatus } from '../../../../../components/resource-status/resource-status';
 import { Fab } from '../../../components/fab/fab';
 import { PricePipe } from '../../../pipes/price/price';
 import { CreateTableForm } from './components/create-table-form/create-table-form';
@@ -20,15 +19,26 @@ import { TableCard } from './components/table-card/table-card';
 
 @Component({
   selector: 'coaster-tables',
-  imports: [TableCard, MatCard, Loading, Fab, TranslatePipe, MatIcon, PricePipe, MatChip, RequireSubscriptionDirective],
+  imports: [
+    TableCard,
+    MatCard,
+    ResourceStatus,
+    Fab,
+    TranslatePipe,
+    MatIcon,
+    PricePipe,
+    MatChip,
+    RequireSubscriptionDirective,
+  ],
   host: { class: 'flex flex-col gap-4' },
   templateUrl: './tables.html',
 })
 class Tables {
   public readonly establishmentId = input.required<EstablishmentId>();
+  public readonly tables = input.required<PageResource<Table[]>>();
+  public readonly openOrders = input.required<PageResource<Order[]>>();
 
-  readonly #tablesStore = inject(TablesStore);
-  readonly #activeOrdersStore = inject(ActiveOrdersStore);
+  readonly #manageTables = inject(ManageTables);
   readonly #myMemberStore = inject(MyMemberStore);
 
   readonly #router = inject(Router);
@@ -38,47 +48,30 @@ class Tables {
 
   readonly #translate = inject(TranslateService);
 
-  constructor() {
-    effect(() => {
-      const establishmentId = this.establishmentId();
-      this.#tablesStore.setEstablishmentId(establishmentId);
-      this.#activeOrdersStore.setEstablishmentId(establishmentId);
-    });
-  }
-
   readonly isSubmitting = signal(false);
 
   readonly isOwner = this.#myMemberStore.isOwner;
 
-  protected readonly freeCount = this.#tablesStore.freeCount;
-  protected readonly occupiedCount = this.#tablesStore.occupiedCount;
-  protected readonly totalOpen = this.#activeOrdersStore.totalOpen;
-  protected readonly isLoadingTables = this.#tablesStore.tables.isLoading;
+  readonly #openOrders = computed(() => loadedOr(this.openOrders(), []));
 
-  protected readonly tablesViewModel = computed(() => {
-    if (!this.#tablesStore.tables.hasValue()) return [];
-    const tables = this.#tablesStore.tables.value() ?? [];
-    const orders = this.#activeOrdersStore.openOrders();
+  protected readonly counts = computed(() => tableCounts(loadedOr(this.tables(), [])));
+  protected readonly totalOpen = computed(() => this.#openOrders().length);
 
-    return tables.map((table) => {
-      const order = orders.find((o) => o.tableId === table.id);
-      return {
-        original: table,
-        orderAmount: order?.payableTotal,
-      };
-    });
-  });
-
-  protected readonly barOrdersViewModel = computed(() =>
-    this.#activeOrdersStore.openOrders().filter((o) => !o.tableId),
+  protected readonly tablesViewModel = computed(() =>
+    loadedOr(this.tables(), []).map((table) => ({
+      original: table,
+      orderAmount: this.#openOrders().find((order) => order.tableId === table.id)?.payableTotal,
+    })),
   );
+
+  protected readonly barOrdersViewModel = computed(() => this.#openOrders().filter((order) => !order.tableId));
 
   onBarOrder() {
     this.#router.navigate(['/establishments', this.establishmentId(), 'orders', 'new']);
   }
 
   onTableClicked(table: Table) {
-    const order = this.#activeOrdersStore.openOrders().find((o) => o.tableId === table.id);
+    const order = this.#openOrders().find((o) => o.tableId === table.id);
     if (order) {
       this.#router.navigate(['/establishments', this.establishmentId(), 'orders', order.id]);
     } else {
@@ -97,7 +90,8 @@ class Tables {
         outputBinding('created', async (name: string) => {
           this.isSubmitting.set(true);
           try {
-            await this.#tablesStore.create({ name });
+            await this.#manageTables.create(this.establishmentId(), { name });
+            this.tables().reload();
             bottomSheetRef.dismiss();
           } catch (e) {
             this.#feedback.error(e);
@@ -118,7 +112,8 @@ class Tables {
     if (!confirmed) return;
 
     try {
-      await this.#tablesStore.delete(table.id);
+      await this.#manageTables.delete(this.establishmentId(), table.id);
+      this.tables().reload();
     } catch (error) {
       this.#feedback.error(error);
     }

@@ -1,19 +1,19 @@
-import { Component, computed, effect, inject, input, inputBinding, outputBinding, signal } from '@angular/core';
+import { Component, computed, inject, input, inputBinding, outputBinding, signal } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 import { MyMemberStore } from '@coaster/establishment-members';
 import { RequireSubscriptionDirective } from '@coaster/establishment-subscription';
-import { CategoriesStore } from '@coaster/categories';
+import { ManageCategories } from '@coaster/categories';
 import type { EstablishmentId, Category } from '@coaster/common';
 import { EstablishmentPermission, grossFromNet } from '@coaster/common';
-import { ActionFeedback } from '@coaster/core';
-import { Product, ProductsStore } from '@coaster/products';
+import { ActionFeedback, loadedOr, type PageResource } from '@coaster/core';
+import { ManageProducts, stockCounts, type Product } from '@coaster/products';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { CategoryFilter } from '../../../../components/category-filter/category-filter';
 import { ConfirmationDialog } from '../../../../components/confirm-dialog/confirmation-dialog.service';
-import { Loading } from '../../../../components/loading/loading';
+import { ResourceStatus } from '../../../../components/resource-status/resource-status';
 import { PageContainer } from '../../../../components/page-container/page-container';
 import { PageHeader } from '../../../../components/page-header/page-header';
 import { StatCard } from '../../../../components/stat-card/stat-card';
@@ -30,7 +30,7 @@ import { UpdateStockProductForm } from './components/update-stock-product-form/u
   imports: [
     CategoryFilter,
     InventoryItemCard,
-    Loading,
+    ResourceStatus,
     StatCard,
     RouterLink,
     TranslatePipe,
@@ -59,6 +59,8 @@ export default class Inventory {
   }
 
   public readonly establishmentId = input.required<EstablishmentId>();
+  public readonly products = input.required<PageResource<Product[]>>();
+  public readonly categories = input.required<PageResource<Category[]>>();
 
   readonly #myMemberStore = inject(MyMemberStore);
 
@@ -78,8 +80,8 @@ export default class Inventory {
     this.#myMemberStore.hasPermission(EstablishmentPermission.ESTABLISHMENT_CREATE_PRODUCT),
   );
 
-  readonly #productsStore = inject(ProductsStore);
-  readonly #categoriesStore = inject(CategoriesStore);
+  readonly #manageProducts = inject(ManageProducts);
+  readonly #manageCategories = inject(ManageCategories);
   readonly #translate = inject(TranslateService);
   readonly #feedback = inject(ActionFeedback);
 
@@ -90,18 +92,11 @@ export default class Inventory {
   readonly selectedCategoryId = signal<string>('ALL');
   readonly searchQuery = signal<string>('');
 
-  readonly categories = this.#categoriesStore.list;
-  readonly products = this.#productsStore.list;
-  readonly totalProductsCount = this.#productsStore.total;
-  readonly criticalProductsCount = this.#productsStore.criticalStock;
-  readonly alertProductsCount = this.#productsStore.lowStock;
+  protected readonly categoryList = computed(() => loadedOr(this.categories(), []));
+  protected readonly counts = computed(() => stockCounts(loadedOr(this.products(), [])));
 
   readonly filteredProducts = computed(() => {
-    if (!this.products.hasValue()) {
-      return [];
-    }
-
-    let allProducts = this.products.value();
+    let allProducts = loadedOr(this.products(), []);
     const categoryId = this.selectedCategoryId();
 
     if (categoryId !== 'ALL') {
@@ -120,24 +115,19 @@ export default class Inventory {
     });
   });
 
-  constructor() {
-    effect(() => {
-      const establishmentId = this.establishmentId();
-      this.#categoriesStore.setEstablishmentId(establishmentId);
-      this.#productsStore.setEstablishmentId(establishmentId);
-    });
-  }
-
   onCreateInventoryClicked() {
     const bottomSheetRef = this.#bottomSheet.open(CreateInventorySheet, {
       disableClose: true,
       bindings: [
-        inputBinding('categories', () => this.categories.value() ?? []),
+        inputBinding('establishmentId', () => this.establishmentId()),
+        inputBinding('categories', () => this.categoryList()),
         outputBinding('canceled', () => {
           bottomSheetRef.dismiss();
         }),
         outputBinding('created', () => {
           bottomSheetRef.dismiss();
+          this.products().reload();
+          this.categories().reload();
         }),
       ],
     });
@@ -146,9 +136,11 @@ export default class Inventory {
   onProductClicked(product: Product) {
     const bottomSheetRef = this.#bottomSheet.open(UpdateStockProductForm, {
       bindings: [
+        inputBinding('establishmentId', () => this.establishmentId()),
         inputBinding('product', () => product),
         outputBinding('updated', () => {
           bottomSheetRef.dismiss();
+          this.products().reload();
         }),
         outputBinding('canceled', () => {
           bottomSheetRef.dismiss();
@@ -160,10 +152,12 @@ export default class Inventory {
   onEditProductClicked(product: Product) {
     const bottomSheetRef = this.#bottomSheet.open(UpdateProductForm, {
       bindings: [
+        inputBinding('establishmentId', () => this.establishmentId()),
         inputBinding('product', () => product),
-        inputBinding('categories', () => this.categories.value() ?? []),
+        inputBinding('categories', () => this.categoryList()),
         outputBinding('edited', () => {
           bottomSheetRef.dismiss();
+          this.products().reload();
         }),
         outputBinding('canceled', () => {
           bottomSheetRef.dismiss();
@@ -175,13 +169,15 @@ export default class Inventory {
   onEditCategoryClicked(categoryId: string) {
     const targetId = categoryId || this.selectedCategoryId();
     if (targetId === 'ALL') return;
-    const cat = this.categories.value()?.find((c) => c.id === targetId);
+    const cat = this.categoryList().find((c) => c.id === targetId);
     if (cat) {
       const bottomSheetRef = this.#bottomSheet.open(EditCategoryForm, {
         bindings: [
+          inputBinding('establishmentId', () => this.establishmentId()),
           inputBinding('category', () => cat),
           outputBinding('updated', () => {
             bottomSheetRef.dismiss();
+            this.categories().reload();
           }),
           outputBinding('canceled', () => {
             bottomSheetRef.dismiss();
@@ -205,7 +201,8 @@ export default class Inventory {
     if (!confirmed) return;
 
     try {
-      await this.#productsStore.delete(product.id);
+      await this.#manageProducts.delete(this.establishmentId(), product.id);
+      this.products().reload();
     } catch (error) {
       this.#feedback.error(error);
     }
@@ -222,7 +219,8 @@ export default class Inventory {
 
     this.selectedCategoryId.set('ALL');
     try {
-      await this.#categoriesStore.delete(category.id);
+      await this.#manageCategories.delete(this.establishmentId(), category.id);
+      this.categories().reload();
     } catch (error) {
       this.#feedback.error(error);
     }

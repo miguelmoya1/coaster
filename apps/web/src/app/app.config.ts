@@ -7,7 +7,14 @@ import {
   provideBrowserGlobalErrorListeners,
   provideZonelessChangeDetection,
 } from '@angular/core';
-import { provideRouter, withComponentInputBinding, withRouterConfig, withViewTransitions } from '@angular/router';
+import {
+  provideRouter,
+  withAutoCleanupInjectors,
+  withComponentInputBinding,
+  withRouterConfig,
+  withRouterResources,
+  withViewTransitions,
+} from '@angular/router';
 import type { EstablishmentId } from '@coaster/common';
 import type { PaywallHandler } from '@coaster/core';
 import {
@@ -53,6 +60,8 @@ export const appConfig: ApplicationConfig = {
       appRoutes,
       withViewTransitions(),
       withComponentInputBinding(),
+      withRouterResources(),
+      withAutoCleanupInjectors(),
       withRouterConfig({ paramsInheritanceStrategy: 'always' }),
     ),
     provideTranslateService({

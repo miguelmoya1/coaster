@@ -1,9 +1,9 @@
-import { computed, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { ClockState, Workday } from '@coaster/common';
 import { ActionFeedback } from '@coaster/core';
-import { TimeTrackingStore } from '@coaster/time-tracking';
+import { ManageTimeEntries } from '@coaster/time-tracking';
+import { fakeResource } from '@coaster/testing';
 import { provideTranslateService } from '@ngx-translate/core';
 import { format } from 'date-fns';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -12,35 +12,25 @@ import { MyShiftWidget } from './my-shift-widget';
 const today = format(new Date(), 'yyyy-MM-dd');
 const tomorrow = format(new Date(Date.now() + 86400000), 'yyyy-MM-dd');
 
-const workdays = signal<Partial<Workday>[]>([]);
-
-const current = computed<Partial<Workday> | undefined>(
-  () => workdays().find((workday) => workday.state !== ClockState.OUT) ?? workdays().find((day) => day.date === today),
-);
-
-const timeTrackingStoreMock = {
-  myWorkdays: {
-    value: () => workdays(),
-    isLoading: () => false,
-    hasValue: () => true,
-  },
-  currentWorkday: current,
-  clockState: computed(() => current()?.state ?? ClockState.OUT),
-  setEstablishmentId: vi.fn(),
-  setRange: vi.fn(),
-  clock: vi.fn().mockResolvedValue(undefined),
-};
+const manageMock = { clock: vi.fn().mockResolvedValue(undefined) };
 
 describe('MyShiftWidget', () => {
   let fixture: ComponentFixture<MyShiftWidget>;
 
+  let myWorkdays = fakeResource<Workday[]>([]);
+  let running = fakeResource<Workday | null>(null);
+
   const withWorkdays = (days: Partial<Workday>[]) => {
-    workdays.set(days);
+    myWorkdays.resolve(days as Workday[]);
+    running.resolve(
+      ((days.find((day) => day.state !== ClockState.OUT) ?? days.find((day) => day.date === today)) as Workday) ?? null,
+    );
     return fixture.componentInstance;
   };
 
   beforeEach(async () => {
-    workdays.set([]);
+    myWorkdays = fakeResource<Workday[]>([]);
+    running = fakeResource<Workday | null>(null);
     vi.clearAllMocks();
 
     await TestBed.configureTestingModule({
@@ -48,13 +38,15 @@ describe('MyShiftWidget', () => {
       providers: [
         provideTranslateService(),
         provideRouter([]),
-        { provide: TimeTrackingStore, useValue: timeTrackingStoreMock },
+        { provide: ManageTimeEntries, useValue: manageMock },
         { provide: ActionFeedback, useValue: { success: vi.fn(), error: vi.fn() } },
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(MyShiftWidget);
     fixture.componentRef.setInput('establishmentId', 'establishment-1');
+    fixture.componentRef.setInput('myWorkdays', myWorkdays.resource);
+    fixture.componentRef.setInput('runningWorkday', running.resource);
   });
 
   it('should read as clocked out when the day has not started', () => {
@@ -141,6 +133,16 @@ describe('MyShiftWidget', () => {
     widget.isSubmitting.set(true);
     await widget.clock('CLOCK_IN');
 
-    expect(timeTrackingStoreMock.clock).not.toHaveBeenCalled();
+    expect(manageMock.clock).not.toHaveBeenCalled();
+  });
+
+  it('should punch and then ask again for the week and the running day', async () => {
+    const widget = withWorkdays([{ date: today, state: ClockState.OUT, workedMinutes: 0 }]);
+
+    await widget.clock('CLOCK_IN');
+
+    expect(manageMock.clock).toHaveBeenCalledWith('establishment-1', 'CLOCK_IN');
+    expect(myWorkdays.reload).toHaveBeenCalled();
+    expect(running.reload).toHaveBeenCalled();
   });
 });

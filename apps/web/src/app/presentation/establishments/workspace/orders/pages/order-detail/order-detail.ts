@@ -1,15 +1,14 @@
 import { asOrderId, asOrderItemId, asTableId } from '@coaster/common';
-import { Component, computed, effect, inject, input, inputBinding, outputBinding, signal } from '@angular/core';
+import { Component, computed, inject, input, inputBinding, linkedSignal, outputBinding, signal } from '@angular/core';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { Router } from '@angular/router';
-import type { EstablishmentId, BulkUpdateItemDto, Order, OrderItem } from '@coaster/common';
+import type { EstablishmentId, BulkUpdateItemDto, Order, OrderItem, Table } from '@coaster/common';
 import { AdjustmentTarget, OrderStatus, PaymentMethod } from '@coaster/common';
-import { ActionFeedback } from '@coaster/core';
-import { ActiveOrdersStore, OrderHistoryStore, OrderTitlePipe } from '@coaster/orders';
+import { ActionFeedback, loadedOr, type PageResource } from '@coaster/core';
+import { ManageOrder, OrderTitlePipe } from '@coaster/orders';
 import { PrintTicket } from '@coaster/printer';
-import { TablesStore } from '@coaster/tables';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ConfirmationDialog } from '../../../../../components/confirm-dialog/confirmation-dialog.service';
 import { Loading } from '../../../../../components/loading/loading';
@@ -46,10 +45,11 @@ class OrderDetail {
   protected readonly OrderStatus = OrderStatus;
   public readonly establishmentId = input.required<EstablishmentId>();
   public readonly orderId = input.required<string>();
+  public readonly order = input.required<PageResource<Order>>();
+  public readonly tables = input.required<PageResource<Table[]>>();
+  public readonly openOrders = input.required<PageResource<Order[]>>();
 
-  readonly #activeOrdersStore = inject(ActiveOrdersStore);
-  readonly #orderHistoryStore = inject(OrderHistoryStore);
-  readonly #tablesStore = inject(TablesStore);
+  readonly #manageOrder = inject(ManageOrder);
   readonly #router = inject(Router);
   readonly #dialog = inject(MatDialog);
   readonly #confirmation = inject(ConfirmationDialog);
@@ -59,12 +59,19 @@ class OrderDetail {
   readonly #translate = inject(TranslateService);
 
   protected readonly isPrinting = signal(false);
+  protected readonly isSaving = signal(false);
 
   readonly resolvedOrderId = computed(() => asOrderId(this.orderId()));
 
-  readonly fetchedOrder = signal<Order | null>(null);
-  readonly isLoading = signal(false);
-  #loadRequest = 0;
+  readonly displayOrder = linkedSignal<Order | undefined>(() => {
+    const order = this.order();
+    return order.hasValue() ? order.value() : undefined;
+  });
+
+  readonly currentOrder = computed(() => {
+    const order = this.displayOrder();
+    return order?.status === OrderStatus.OPEN ? order : null;
+  });
 
   protected readonly selectedItems = signal<Map<string, { paidQty: number }>>(new Map());
 
@@ -96,13 +103,6 @@ class OrderDetail {
     }, 0);
   });
 
-  readonly currentOrder = computed(() => {
-    const orders = this.#activeOrdersStore.openOrders();
-    return orders.find((o) => o.id === this.resolvedOrderId()) ?? null;
-  });
-
-  readonly displayOrder = computed(() => this.currentOrder() ?? this.fetchedOrder());
-
   protected readonly displayOrderViewModel = computed(() => {
     const order = this.displayOrder();
     if (!order) return null;
@@ -125,50 +125,7 @@ class OrderDetail {
     };
   });
 
-  protected readonly isLoadingServices = this.#activeOrdersStore.list.isLoading;
-
-  #isNavigatingAway = false;
-
-  constructor() {
-    effect(() => {
-      const establishmentId = this.establishmentId();
-      this.#activeOrdersStore.setEstablishmentId(establishmentId);
-      this.#orderHistoryStore.setEstablishmentId(establishmentId);
-      this.#tablesStore.setEstablishmentId(establishmentId);
-    });
-
-    effect(() => {
-      if (this.#isNavigatingAway) return;
-      const current = this.currentOrder();
-      const request = ++this.#loadRequest;
-
-      if (!current) {
-        void this.loadOrder(request);
-      } else {
-        this.fetchedOrder.set(null);
-        this.isLoading.set(false);
-      }
-    });
-  }
-
-  private async loadOrder(request: number) {
-    this.isLoading.set(true);
-    try {
-      const order = await this.#activeOrdersStore.getOrder(this.establishmentId(), this.resolvedOrderId());
-      if (request === this.#loadRequest) {
-        this.fetchedOrder.set(order);
-      }
-    } catch (error) {
-      this.#feedback.error(error);
-    } finally {
-      if (request === this.#loadRequest) {
-        this.isLoading.set(false);
-      }
-    }
-  }
-
   async goBack() {
-    this.#isNavigatingAway = true;
     await this.#router.navigate(['/establishments', this.establishmentId(), 'orders', 'tables']);
   }
 
@@ -243,15 +200,14 @@ class OrderDetail {
     if (itemsToUpdate.length === 0) return;
 
     try {
-      this.isLoading.set(true);
-      await this.#activeOrdersStore.bulkUpdate(this.establishmentId(), order.id, { items: itemsToUpdate });
-      const updated = await this.#activeOrdersStore.getOrder(this.establishmentId(), order.id);
-      this.fetchedOrder.set(updated);
+      this.isSaving.set(true);
+      await this.#manageOrder.bulkUpdate(this.establishmentId(), order.id, { items: itemsToUpdate });
+      this.order().reload();
       this.clearSelection();
     } catch (e) {
       this.#feedback.error(e);
     } finally {
-      this.isLoading.set(false);
+      this.isSaving.set(false);
     }
   }
 
@@ -263,10 +219,12 @@ class OrderDetail {
     this.#openPaymentMethodDialog(pendingAmount).subscribe(async (method) => {
       if (!method) return;
 
-      await this.#activeOrdersStore.checkout(this.establishmentId(), order.id, method);
-      this.goBack();
-      this.#tablesStore.reload();
-      this.#orderHistoryStore.reloadHistory();
+      try {
+        await this.#manageOrder.checkout(this.establishmentId(), order.id, { paymentMethod: method });
+        await this.goBack();
+      } catch (e) {
+        this.#feedback.error(e);
+      }
     });
   }
 
@@ -298,10 +256,12 @@ class OrderDetail {
 
     if (!confirmed) return;
 
-    await this.#activeOrdersStore.cancel(this.establishmentId(), order.id);
-    this.goBack();
-    this.#tablesStore.reload();
-    this.#orderHistoryStore.reloadHistory();
+    try {
+      await this.#manageOrder.cancel(this.establishmentId(), order.id);
+      await this.goBack();
+    } catch (e) {
+      this.#feedback.error(e);
+    }
   }
 
   protected async handleRemoveItem(item: OrderItem) {
@@ -316,8 +276,12 @@ class OrderDetail {
 
     if (!confirmed) return;
 
-    await this.#activeOrdersStore.removeItem(this.establishmentId(), order.id, item.id);
-    this.#tablesStore.reload();
+    try {
+      await this.#manageOrder.removeItem(this.establishmentId(), order.id, item.id);
+      this.order().reload();
+    } catch (e) {
+      this.#feedback.error(e);
+    }
   }
 
   onMoveTable() {
@@ -343,11 +307,10 @@ class OrderDetail {
 
     if (targetTableId) {
       try {
-        await this.#activeOrdersStore.moveTable(this.establishmentId(), order.id, {
+        await this.#manageOrder.moveTable(this.establishmentId(), order.id, {
           tableId: asTableId(targetTableId),
         });
-        this.#activeOrdersStore.reloadOrders();
-        this.#tablesStore.reload();
+        this.order().reload();
       } catch (e) {
         this.#feedback.error(e);
       }
@@ -358,7 +321,7 @@ class OrderDetail {
     const dialogRef = this.#dialog.open(MergeOrdersDialog, {
       autoFocus: false,
       bindings: [
-        inputBinding('orders', () => this.openOrders()),
+        inputBinding('orders', () => this.otherOpenOrders()),
         inputBinding('currentOrderId', () => this.orderId()),
         outputBinding('selected', (result: string) => {
           this.handleMergeResult(result);
@@ -377,45 +340,51 @@ class OrderDetail {
 
     if (targetOrderId) {
       try {
-        await this.#activeOrdersStore.merge(this.establishmentId(), {
+        await this.#manageOrder.merge(this.establishmentId(), {
           orderIds: [order.id, asOrderId(targetOrderId)],
         });
-        this.#activeOrdersStore.reloadOrders();
-        this.#tablesStore.reload();
+        this.order().reload();
       } catch (e) {
         this.#feedback.error(e);
       }
     }
   }
 
-  protected readonly availableTables = computed(() =>
-    this.#tablesStore.tables.hasValue() ? (this.#tablesStore.tables.value() ?? []) : [],
-  );
+  protected readonly availableTables = computed(() => loadedOr(this.tables(), []));
 
-  protected readonly openOrders = this.#activeOrdersStore.openOrders;
+  protected readonly otherOpenOrders = computed(() => loadedOr(this.openOrders(), []));
 
   async onOrderNotesChanged(notes: string) {
-    await this.saveNotes(() =>
-      this.#activeOrdersStore.updateNotes(this.establishmentId(), this.resolvedOrderId(), { notes }),
+    await this.#optimistically(
+      (order) => ({ ...order, notes }),
+      () => this.#manageOrder.updateNotes(this.establishmentId(), this.resolvedOrderId(), { notes }),
     );
   }
 
   async onTicketNotesChanged(ticketNotes: string) {
-    await this.saveNotes(() =>
-      this.#activeOrdersStore.updateNotes(this.establishmentId(), this.resolvedOrderId(), { ticketNotes }),
+    await this.#optimistically(
+      (order) => ({ ...order, ticketNotes }),
+      () => this.#manageOrder.updateNotes(this.establishmentId(), this.resolvedOrderId(), { ticketNotes }),
     );
   }
 
   async onItemNotesChanged(item: OrderItem, notes: string) {
-    await this.saveNotes(() =>
-      this.#activeOrdersStore.updateItemNotes(this.establishmentId(), this.resolvedOrderId(), item.id, notes),
+    await this.#optimistically(
+      (order) => ({ ...order, items: order.items.map((i) => (i.id === item.id ? { ...i, notes } : i)) }),
+      () => this.#manageOrder.updateItemNotes(this.establishmentId(), this.resolvedOrderId(), item.id, { notes }),
     );
   }
 
-  private async saveNotes(save: () => Promise<void>) {
+  async #optimistically(change: (order: Order) => Order, save: () => Promise<void>) {
+    const before = this.displayOrder();
+    if (!before) return;
+
+    this.displayOrder.set(change(before));
+
     try {
       await save();
     } catch (e) {
+      this.displayOrder.set(before);
       this.#feedback.error(e);
     }
   }
@@ -452,13 +421,10 @@ class OrderDetail {
   }
 
   protected async handleUpdateTipResult(tipCents: number) {
-    const order = this.currentOrder();
-    if (!order) return;
-    try {
-      await this.#activeOrdersStore.updateTip(this.establishmentId(), order.id, tipCents);
-    } catch (e) {
-      this.#feedback.error(e);
-    }
+    await this.#optimistically(
+      (order) => ({ ...order, tipAmount: tipCents, payableTotal: (order.orderTotal ?? order.totalAmount) + tipCents }),
+      () => this.#manageOrder.updateTip(this.establishmentId(), this.resolvedOrderId(), { tipAmount: tipCents }),
+    );
   }
 
   onAddAdjustment(itemId?: string) {
@@ -480,15 +446,14 @@ class OrderDetail {
     const order = this.currentOrder();
     if (!order) return;
     try {
-      await this.#activeOrdersStore.addAdjustment(this.establishmentId(), order.id, {
+      await this.#manageOrder.addAdjustment(this.establishmentId(), order.id, {
         target: itemId ? AdjustmentTarget.ITEM : AdjustmentTarget.ORDER,
         type: result.type,
         value: result.value,
         reason: result.reason,
         itemId: itemId ? asOrderItemId(itemId) : undefined,
       });
-      const updated = await this.#activeOrdersStore.getOrder(this.establishmentId(), order.id);
-      this.fetchedOrder.set(updated);
+      this.order().reload();
     } catch (e) {
       this.#feedback.error(e);
     }
@@ -498,9 +463,8 @@ class OrderDetail {
     const order = this.currentOrder();
     if (!order) return;
     try {
-      await this.#activeOrdersStore.removeAdjustment(this.establishmentId(), order.id, adjustmentId);
-      const updated = await this.#activeOrdersStore.getOrder(this.establishmentId(), order.id);
-      this.fetchedOrder.set(updated);
+      await this.#manageOrder.removeAdjustment(this.establishmentId(), order.id, adjustmentId);
+      this.order().reload();
     } catch (e) {
       this.#feedback.error(e);
     }

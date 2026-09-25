@@ -258,6 +258,7 @@
     "update": "Update",
     "loading": "Loading...",
     "refresh": "Refresh",
+    "retry": "Try again",
     "submitting": "Submitting"
   },
   "dashboard": {

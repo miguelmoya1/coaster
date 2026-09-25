@@ -1,11 +1,11 @@
-import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import type { MenuDraft } from '@coaster/common';
 import { ActionFeedback } from '@coaster/core';
-import { MenuStore } from '@coaster/menu';
-import { CategoriesStore } from '@coaster/categories';
-import { ProductsStore } from '@coaster/products';
+import type { Category } from '@coaster/common';
+import { ManageMenu } from '@coaster/menu';
+import type { Product } from '@coaster/products';
+import { fakeResource } from '@coaster/testing';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import MenuEditor from './menu-editor';
@@ -14,7 +14,7 @@ describe('MenuEditor', () => {
   let component: MenuEditor;
   let fixture: ComponentFixture<MenuEditor>;
 
-  const draft = signal<MenuDraft>({
+  const initialDraft: MenuDraft = {
     id: 'menu-1' as MenuDraft['id'],
     slug: 'bar-pepe',
     name: 'Carta',
@@ -22,42 +22,32 @@ describe('MenuEditor', () => {
     languages: ['es'],
     hasUnpublishedChanges: true,
     sections: [],
-  });
+  };
+
+  let current = initialDraft;
+  let menu = fakeResource(initialDraft);
+
+  const setDraft = (next: MenuDraft) => {
+    current = next;
+    menu.resolve(next);
+  };
 
   const menuStoreMock = {
-    draft: Object.assign(draft, {
-      isLoading: vi.fn().mockReturnValue(false),
-      hasValue: vi.fn().mockReturnValue(true),
-      value: vi.fn(() => draft()),
-    }),
-    setEstablishmentId: vi.fn(),
-    save: vi.fn().mockResolvedValue(undefined),
+    save: vi.fn(async () => current),
     publish: vi.fn().mockResolvedValue(undefined),
     unpublish: vi.fn().mockResolvedValue(undefined),
   };
 
-  const productsStoreMock = {
-    list: {
-      hasValue: vi.fn().mockReturnValue(true),
-      value: vi.fn().mockReturnValue([
-        { id: 'prod-1', name: 'Café Solo', price: 120, categoryId: 'cat-1' },
-        { id: 'prod-2', name: 'Croquetas', price: 600, categoryId: 'cat-2' },
-      ]),
-    },
-    setEstablishmentId: vi.fn(),
-  };
+  const products = [
+    { id: 'prod-1', name: 'Café Solo', price: 120, categoryId: 'cat-1' },
+    { id: 'prod-2', name: 'Croquetas', price: 600, categoryId: 'cat-2' },
+  ] as Product[];
 
-  const categoriesStoreMock = {
-    list: {
-      hasValue: vi.fn().mockReturnValue(true),
-      value: vi.fn().mockReturnValue([
-        { id: 'cat-1', name: 'Cafetería' },
-        { id: 'cat-2', name: 'Tapas' },
-        { id: 'cat-3', name: 'Vacía' },
-      ]),
-    },
-    setEstablishmentId: vi.fn(),
-  };
+  const categories = [
+    { id: 'cat-1', name: 'Cafetería' },
+    { id: 'cat-2', name: 'Tapas' },
+    { id: 'cat-3', name: 'Vacía' },
+  ] as Category[];
 
   const feedbackMock = { success: vi.fn(), error: vi.fn() };
 
@@ -69,15 +59,16 @@ describe('MenuEditor', () => {
       providers: [
         provideTranslateService(),
         provideRouter([]),
-        { provide: MenuStore, useValue: menuStoreMock },
-        { provide: ProductsStore, useValue: productsStoreMock },
-        { provide: CategoriesStore, useValue: categoriesStoreMock },
+        { provide: ManageMenu, useValue: menuStoreMock },
         { provide: ActionFeedback, useValue: feedbackMock },
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(MenuEditor);
     fixture.componentRef.setInput('establishmentId', 'establishment-1');
+    fixture.componentRef.setInput('menu', menu.resource);
+    fixture.componentRef.setInput('products', fakeResource(products).resource);
+    fixture.componentRef.setInput('categories', fakeResource(categories).resource);
     component = fixture.componentInstance;
     fixture.detectChanges();
     await fixture.whenStable();
@@ -86,15 +77,9 @@ describe('MenuEditor', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
     TestBed.resetTestingModule();
-    draft.set({
-      id: 'menu-1' as MenuDraft['id'],
-      slug: 'bar-pepe',
-      name: 'Carta',
-      defaultLanguage: 'es',
-      languages: ['es'],
-      hasUnpublishedChanges: true,
-      sections: [],
-    });
+    current = initialDraft;
+    menu = fakeResource(initialDraft);
+    menuStoreMock.save.mockImplementation(async () => current);
     await build();
   });
 
@@ -457,21 +442,21 @@ describe('MenuEditor', () => {
     });
 
     it('should stay offered while the server reports pending changes', async () => {
-      draft.set({ ...draft(), publishedAt: '2026-08-11T10:00:00.000Z', hasUnpublishedChanges: true });
+      setDraft({ ...current, publishedAt: '2026-08-11T10:00:00.000Z', hasUnpublishedChanges: true });
       await build();
 
       expect(component['canPublish']()).toBe(true);
     });
 
     it('should not be offered when published and nothing has moved', async () => {
-      draft.set({ ...draft(), publishedAt: '2026-08-11T10:00:00.000Z', hasUnpublishedChanges: false });
+      setDraft({ ...current, publishedAt: '2026-08-11T10:00:00.000Z', hasUnpublishedChanges: false });
       await build();
 
       expect(component['canPublish']()).toBe(false);
     });
 
     it('should come back as soon as something is edited on screen', async () => {
-      draft.set({ ...draft(), publishedAt: '2026-08-11T10:00:00.000Z', hasUnpublishedChanges: false });
+      setDraft({ ...current, publishedAt: '2026-08-11T10:00:00.000Z', hasUnpublishedChanges: false });
       await build();
 
       component['addSection']();
@@ -480,7 +465,7 @@ describe('MenuEditor', () => {
     });
 
     it('should settle again once the edit is saved', async () => {
-      draft.set({ ...draft(), publishedAt: '2026-08-11T10:00:00.000Z', hasUnpublishedChanges: false });
+      setDraft({ ...current, publishedAt: '2026-08-11T10:00:00.000Z', hasUnpublishedChanges: false });
       await build();
       component['addSection']();
 
@@ -517,7 +502,9 @@ describe('MenuEditor', () => {
 
     it('should not fire twice while a save is in flight', async () => {
       let release!: () => void;
-      menuStoreMock.save.mockImplementationOnce(() => new Promise<void>((resolve) => (release = resolve)));
+      menuStoreMock.save.mockImplementationOnce(
+        () => new Promise<MenuDraft>((resolve) => (release = () => resolve(current))),
+      );
 
       const first = component['save']();
       await component['save']();

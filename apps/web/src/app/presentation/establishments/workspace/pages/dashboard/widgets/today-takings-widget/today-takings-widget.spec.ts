@@ -2,9 +2,10 @@ import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CurrentEstablishmentStore } from '@coaster/establishments';
 import { EstablishmentId } from '@coaster/common';
-import { StatsStore } from '@coaster/stats';
+import type { EstablishmentStats } from '@coaster/common';
+import { fakeResource } from '@coaster/testing';
 import { provideTranslateService } from '@ngx-translate/core';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { TodayTakingsWidget } from './today-takings-widget';
 
 const baseStats = {
@@ -21,33 +22,23 @@ const baseStats = {
   history: null,
 };
 
-const statsValue = signal({ ...baseStats });
-
-const statsStoreMock = {
-  stats: {
-    value: () => statsValue(),
-    isLoading: () => false,
-    hasValue: () => true,
-  },
-  setEstablishmentId: vi.fn(),
-};
-
 describe('TodayTakingsWidget', () => {
   let fixture: ComponentFixture<TodayTakingsWidget>;
 
-  const withStats = (stats: Partial<typeof baseStats>) => {
-    statsValue.set({ ...baseStats, ...stats });
+  let stats = fakeResource<EstablishmentStats>(baseStats as unknown as EstablishmentStats);
+
+  const withStats = (overrides: Partial<typeof baseStats>) => {
+    stats.resolve({ ...baseStats, ...overrides } as unknown as EstablishmentStats);
     return fixture.componentInstance;
   };
 
   beforeEach(async () => {
-    statsValue.set({ ...baseStats });
+    stats = fakeResource<EstablishmentStats>(baseStats as unknown as EstablishmentStats);
 
     await TestBed.configureTestingModule({
       imports: [TodayTakingsWidget],
       providers: [
         provideTranslateService(),
-        { provide: StatsStore, useValue: statsStoreMock },
         {
           provide: CurrentEstablishmentStore,
           useValue: { currentId: signal<EstablishmentId | undefined>('establishment-1' as EstablishmentId) },
@@ -56,7 +47,7 @@ describe('TodayTakingsWidget', () => {
     }).compileComponents();
 
     fixture = TestBed.createComponent(TodayTakingsWidget);
-    fixture.componentRef.setInput('establishmentId', 'establishment-1');
+    fixture.componentRef.setInput('stats', stats.resource);
   });
 
   describe('against yesterday', () => {

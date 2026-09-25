@@ -1,8 +1,10 @@
 import { asEstablishmentId } from '@coaster/common';
 import { BadRequestException } from '@nestjs/common';
+import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CatalogueRepository } from '../../data-access/catalogue.repository';
+import { CatalogueImportedEvent } from '../../events';
 import { ImportStarterCatalogueCommand } from '../impl/import-starter-catalogue.command';
 import { ImportStarterCatalogueHandler } from './import-starter-catalogue.handler';
 
@@ -17,6 +19,8 @@ describe('ImportStarterCatalogueHandler', () => {
     createProducts: vi.fn(),
   };
 
+  const eventBus = { publish: vi.fn() };
+
   const establishmentId = asEstablishmentId('establishment-1');
   const importing = (...categoryKeys: string[]) =>
     handler.execute(new ImportStarterCatalogueCommand(establishmentId, { categoryKeys }));
@@ -28,10 +32,24 @@ describe('ImportStarterCatalogueHandler', () => {
     repository.findProductNames.mockResolvedValue([]);
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [ImportStarterCatalogueHandler, { provide: CatalogueRepository, useValue: repository }],
+      providers: [
+        ImportStarterCatalogueHandler,
+        { provide: CatalogueRepository, useValue: repository },
+        { provide: EventBus, useValue: eventBus },
+      ],
     }).compile();
 
     handler = module.get(ImportStarterCatalogueHandler);
+  });
+
+  it('should tell every device the catalogue changed once it is in', async () => {
+    repository.findCategoriesByName
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([{ id: 'cat-1', name: 'Cafetería' }]);
+
+    await importing('cafeteria');
+
+    expect(eventBus.publish).toHaveBeenCalledWith(new CatalogueImportedEvent(establishmentId));
   });
 
   it('should create the category and its products as words', async () => {

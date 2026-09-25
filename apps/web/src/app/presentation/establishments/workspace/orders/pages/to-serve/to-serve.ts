@@ -1,28 +1,29 @@
 import { asOrderId, asOrderItemId } from '@coaster/common';
-import { Component, computed, effect, inject, input, signal } from '@angular/core';
+import { Component, computed, inject, input, signal } from '@angular/core';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
-import type { EstablishmentId, BulkUpdateItemDto, OrderItem } from '@coaster/common';
-import { ActionFeedback } from '@coaster/core';
-import { ActiveOrdersStore, OrderTitlePipe } from '@coaster/orders';
+import type { EstablishmentId, BulkUpdateItemDto, Order, OrderItem } from '@coaster/common';
+import { ActionFeedback, loadedOr, type PageResource } from '@coaster/core';
+import { ManageOrder, OrderTitlePipe } from '@coaster/orders';
 import { TranslatePipe } from '@ngx-translate/core';
-import { Loading } from '../../../../../components/loading/loading';
+import { ResourceStatus } from '../../../../../components/resource-status/resource-status';
 
 import { NumberInput } from '../../../../../components/number-input/number-input';
 
 @Component({
   selector: 'coaster-to-serve',
-  imports: [Loading, MatButton, MatIconButton, TranslatePipe, MatIcon, OrderTitlePipe, NumberInput],
+  imports: [ResourceStatus, MatButton, MatIconButton, TranslatePipe, MatIcon, OrderTitlePipe, NumberInput],
   host: { class: 'flex flex-col gap-4' },
   templateUrl: './to-serve.html',
 })
 class ToServe {
   public readonly establishmentId = input.required<EstablishmentId>();
+  public readonly openOrders = input.required<PageResource<Order[]>>();
 
-  readonly #activeOrdersStore = inject(ActiveOrdersStore);
+  readonly #manageOrder = inject(ManageOrder);
   readonly #feedback = inject(ActionFeedback);
 
-  readonly isLoading = signal(false);
+  readonly isSaving = signal(false);
 
   protected readonly selectedItems = signal<Map<string, { orderId: string; item: OrderItem; serveQty: number }>>(
     new Map(),
@@ -34,16 +35,8 @@ class ToServe {
     return Array.from(this.selectedItems().values()).reduce((sum, val) => sum + val.serveQty, 0);
   });
 
-  constructor() {
-    effect(() => {
-      const establishmentId = this.establishmentId();
-      this.#activeOrdersStore.setEstablishmentId(establishmentId);
-    });
-  }
-
   protected readonly ordersToServe = computed(() => {
-    const orders = this.#activeOrdersStore.openOrders();
-    return orders
+    return loadedOr(this.openOrders(), [])
       .map((order) => {
         const unservedItems = order.items
           .filter((item) => item.servedQuantity < item.quantity)
@@ -107,7 +100,7 @@ class ToServe {
     if (this.selectedItems().size === 0) return;
 
     try {
-      this.isLoading.set(true);
+      this.isSaving.set(true);
 
       const groups = new Map<string, BulkUpdateItemDto[]>();
       for (const val of this.selectedItems().values()) {
@@ -122,7 +115,7 @@ class ToServe {
 
       await Promise.all(
         Array.from(groups.entries()).map(([orderId, items]) =>
-          this.#activeOrdersStore.bulkUpdate(this.establishmentId(), asOrderId(orderId), { items }),
+          this.#manageOrder.bulkUpdate(this.establishmentId(), asOrderId(orderId), { items }),
         ),
       );
 
@@ -130,14 +123,14 @@ class ToServe {
     } catch (e) {
       this.#feedback.error(e);
     } finally {
-      this.isLoading.set(false);
+      this.isSaving.set(false);
     }
   }
 
   protected async serveSingleItem(orderId: string, item: OrderItem) {
     try {
-      this.isLoading.set(true);
-      await this.#activeOrdersStore.bulkUpdate(this.establishmentId(), asOrderId(orderId), {
+      this.isSaving.set(true);
+      await this.#manageOrder.bulkUpdate(this.establishmentId(), asOrderId(orderId), {
         items: [
           {
             itemId: asOrderItemId(item.id),
@@ -153,7 +146,7 @@ class ToServe {
     } catch (e) {
       this.#feedback.error(e);
     } finally {
-      this.isLoading.set(false);
+      this.isSaving.set(false);
     }
   }
 

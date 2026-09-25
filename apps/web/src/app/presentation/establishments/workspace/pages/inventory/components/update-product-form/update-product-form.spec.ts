@@ -1,8 +1,7 @@
 import { asEstablishmentId, asCategoryId, asProductId } from '@coaster/common';
-import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import type { Category } from '@coaster/common';
-import { Product, ProductsStore } from '@coaster/products';
+import { ManageProducts, type Product } from '@coaster/products';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { UpdateProductForm } from './update-product-form';
@@ -12,7 +11,6 @@ describe('UpdateProductForm', () => {
   let fixture: ComponentFixture<UpdateProductForm>;
   let productsStoreMock: {
     update: ReturnType<typeof vi.fn>;
-    currentEstablishmentId: ReturnType<typeof signal>;
   };
 
   const mockProduct: Product = {
@@ -35,15 +33,15 @@ describe('UpdateProductForm', () => {
   beforeEach(async () => {
     productsStoreMock = {
       update: vi.fn().mockResolvedValue(null),
-      currentEstablishmentId: signal(asEstablishmentId('establishment-1')),
     };
 
     await TestBed.configureTestingModule({
       imports: [UpdateProductForm],
-      providers: [{ provide: ProductsStore, useValue: productsStoreMock }, provideTranslateService()],
+      providers: [{ provide: ManageProducts, useValue: productsStoreMock }, provideTranslateService()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(UpdateProductForm);
+    fixture.componentRef.setInput('establishmentId', 'establishment-1');
     component = fixture.componentInstance;
 
     fixture.componentRef.setInput('product', mockProduct);
@@ -93,6 +91,7 @@ describe('UpdateProductForm', () => {
       await new Promise((resolve) => setTimeout(resolve, 0));
 
       expect(productsStoreMock.update).toHaveBeenCalledWith(
+        'establishment-1',
         mockProduct.id,
         expect.objectContaining({ allergens: ['FISH'] }),
       );
@@ -110,7 +109,7 @@ describe('UpdateProductForm', () => {
       expect(spy).toHaveBeenCalled();
     });
 
-    it('should call ProductsStore.update when form is valid and submitted', async () => {
+    it('should call ManageProducts.update when form is valid and submitted', async () => {
       const f = component.form;
       f.name().value.set('Updated Beer');
 
@@ -125,7 +124,7 @@ describe('UpdateProductForm', () => {
 
       await new Promise((resolve) => setTimeout(resolve, 0));
 
-      expect(productsStoreMock.update).toHaveBeenCalledWith(mockProduct.id, {
+      expect(productsStoreMock.update).toHaveBeenCalledWith('establishment-1', mockProduct.id, {
         name: 'Updated Beer',
         categoryId: 'cat-1',
         minStockAlert: 5,

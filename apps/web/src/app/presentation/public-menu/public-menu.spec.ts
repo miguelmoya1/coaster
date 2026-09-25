@@ -1,7 +1,7 @@
-import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import type { PublishedMenu } from '@coaster/common';
-import { PublicMenuStore } from '@coaster/menu';
+import { provideRouter, Router } from '@angular/router';
+import { fakeResource } from '@coaster/testing';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import PublicMenu from './public-menu';
@@ -25,27 +25,17 @@ describe('PublicMenu', () => {
     ],
   };
 
-  const menu = signal<PublishedMenu | null>(published);
-  const isLoading = signal(false);
-
-  const storeMock = {
-    menu: {
-      isLoading: () => isLoading(),
-      hasValue: () => menu() !== null,
-      value: () => menu(),
-    },
-    setSlug: vi.fn(),
-    setLanguage: vi.fn(),
-  };
+  let menu = fakeResource(published);
 
   const build = async (lang?: string) => {
     await TestBed.configureTestingModule({
       imports: [PublicMenu],
-      providers: [provideTranslateService(), { provide: PublicMenuStore, useValue: storeMock }],
+      providers: [provideTranslateService(), provideRouter([])],
     }).compileComponents();
 
     fixture = TestBed.createComponent(PublicMenu);
     fixture.componentRef.setInput('slug', 'bar-pepe');
+    fixture.componentRef.setInput('published', menu.resource);
 
     if (lang) {
       fixture.componentRef.setInput('lang', lang);
@@ -59,8 +49,7 @@ describe('PublicMenu', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     TestBed.resetTestingModule();
-    menu.set(published);
-    isLoading.set(false);
+    menu = fakeResource(published);
   });
 
   it('should render the sections and their items', async () => {
@@ -73,17 +62,19 @@ describe('PublicMenu', () => {
     expect(text).toContain('Recién molido');
   });
 
-  it('should ask the API for the slug in the address', async () => {
+  it('should show progress while the menu is on its way, not that it is missing', async () => {
+    menu = fakeResource<PublishedMenu>();
+
     await build();
 
-    expect(storeMock.setSlug).toHaveBeenCalledWith('bar-pepe');
+    expect(fixture.nativeElement.textContent).not.toContain('MENU_NOT_FOUND');
+    expect(fixture.nativeElement.querySelector('coaster-loading')).toBeTruthy();
   });
 
   it('should honour a language in the address over the browser one', async () => {
     await build('en');
 
     expect(component['language']()).toBe('en');
-    expect(storeMock.setLanguage).toHaveBeenCalledWith('en');
   });
 
   it('should fall back to Spanish when the address asks for one the app does not have', async () => {
@@ -109,14 +100,16 @@ describe('PublicMenu', () => {
 
   it('should switch language on demand', async () => {
     await build();
+    const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
 
     component['choose']('en');
 
-    expect(storeMock.setLanguage).toHaveBeenLastCalledWith('en');
+    expect(navigate).toHaveBeenCalledWith(['/m', 'bar-pepe'], { queryParams: { lang: 'en' } });
   });
 
   it('should say the menu is not there rather than show an empty page', async () => {
-    menu.set(null);
+    menu = fakeResource<PublishedMenu>();
+    menu.fail(new Error('MENU_NOT_FOUND'));
 
     await build();
 

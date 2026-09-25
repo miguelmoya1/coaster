@@ -1,14 +1,14 @@
-import { Component, computed, effect, inject, input, signal } from '@angular/core';
+import { Component, computed, inject, input, signal } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatCard } from '@angular/material/card';
 import { MatIcon } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 import type { EstablishmentId, Workday } from '@coaster/common';
 import { ClockState, TimeEntryType } from '@coaster/common';
-import { ActionFeedback } from '@coaster/core';
-import { TimeTrackingStore } from '@coaster/time-tracking';
+import { ActionFeedback, loadedOr, type PageResource } from '@coaster/core';
+import { clockStateOf, ManageTimeEntries } from '@coaster/time-tracking';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { endOfWeek, format, startOfWeek } from 'date-fns';
+import { format } from 'date-fns';
 import { Spinner } from '../../../../../../components/spinner/spinner';
 
 const formatTime = (iso: string) =>
@@ -22,8 +22,10 @@ const formatTime = (iso: string) =>
 })
 export class MyShiftWidget {
   public readonly establishmentId = input.required<EstablishmentId>();
+  public readonly myWorkdays = input.required<PageResource<Workday[]>>();
+  public readonly runningWorkday = input.required<PageResource<Workday | null>>();
 
-  readonly #timeTrackingStore = inject(TimeTrackingStore);
+  readonly #manageTimeEntries = inject(ManageTimeEntries);
   readonly #feedback = inject(ActionFeedback);
   readonly #translate = inject(TranslateService);
 
@@ -32,32 +34,16 @@ export class MyShiftWidget {
   readonly ClockState = ClockState;
   readonly TimeEntryType = TimeEntryType;
 
-  constructor() {
-    effect(() => {
-      this.#timeTrackingStore.setEstablishmentId(this.establishmentId());
-    });
+  readonly #workdays = computed<Workday[]>(() => loadedOr(this.myWorkdays(), []));
 
-    effect(() => {
-      const now = new Date();
-      this.#timeTrackingStore.setRange(
-        format(startOfWeek(now, { weekStartsOn: 1 }), 'yyyy-MM-dd'),
-        format(endOfWeek(now, { weekStartsOn: 1 }), 'yyyy-MM-dd'),
-      );
-    });
-  }
-
-  readonly #workdays = computed<Workday[]>(() =>
-    this.#timeTrackingStore.myWorkdays.hasValue() ? (this.#timeTrackingStore.myWorkdays.value() ?? []) : [],
-  );
-
-  readonly isLoading = this.#timeTrackingStore.myWorkdays.isLoading;
+  readonly isLoading = computed(() => this.myWorkdays().isLoading());
 
   readonly today = computed(() => {
     const todayId = format(new Date(), 'yyyy-MM-dd');
     return this.#workdays().find((workday) => workday.date === todayId);
   });
 
-  readonly clockState = this.#timeTrackingStore.clockState;
+  readonly clockState = computed(() => clockStateOf(loadedOr(this.runningWorkday(), null)));
 
   readonly clockStateLabelKey = computed(() => `schedule.time_tracking.state_${this.clockState().toLowerCase()}`);
 
@@ -96,11 +82,13 @@ export class MyShiftWidget {
     this.isSubmitting.set(true);
 
     try {
-      await this.#timeTrackingStore.clock(type);
+      await this.#manageTimeEntries.clock(this.establishmentId(), type);
       this.#feedback.success(this.#translate.instant('schedule.time_tracking.clock_saved'));
     } catch (error) {
       this.#feedback.error(error);
     } finally {
+      this.myWorkdays().reload();
+      this.runningWorkday().reload();
       this.isSubmitting.set(false);
     }
   }

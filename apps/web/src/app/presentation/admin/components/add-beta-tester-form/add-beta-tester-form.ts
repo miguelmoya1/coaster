@@ -3,7 +3,7 @@ import { email, form, FormField, FormRoot, maxLength, required } from '@angular/
 import { MatButton } from '@angular/material/button';
 import { MatDialogActions, MatDialogContent, MatDialogTitle } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
-import { AdminBetaTestersStore } from '@coaster/admin';
+import { ManagePlatform } from '@coaster/admin';
 import { handleErrorFormField } from '@coaster/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Field } from '../../../components/field/field';
@@ -80,7 +80,7 @@ export class AddBetaTesterForm {
   public readonly added = output<void>();
   public readonly canceled = output<void>();
 
-  readonly #store = inject(AdminBetaTestersStore);
+  readonly #managePlatform = inject(ManagePlatform);
 
   readonly #formBase = signal<AddBetaTesterFormValue>({ email: '', note: '' });
 
@@ -98,7 +98,7 @@ export class AddBetaTesterForm {
           const value = form().value();
 
           try {
-            await this.#store.addBetaTester({
+            await this.#managePlatform.addBetaTester({
               email: value.email.trim(),
               note: value.note.trim() || undefined,
             });

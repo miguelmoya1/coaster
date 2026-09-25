@@ -1,8 +1,8 @@
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 import { MatCard } from '@angular/material/card';
 import { MatIcon } from '@angular/material/icon';
-import type { EstablishmentId } from '@coaster/common';
-import { StatsStore } from '@coaster/stats';
+import type { EstablishmentStats } from '@coaster/common';
+import type { PageResource } from '@coaster/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Loading } from '../../../../../../components/loading/loading';
 import { PricePipe } from '../../../../pipes/price/price';
@@ -32,19 +32,20 @@ const compare = (current: number, baseline: number): Comparison => {
   templateUrl: './today-takings-widget.html',
 })
 export class TodayTakingsWidget {
-  public readonly establishmentId = input.required<EstablishmentId>();
+  public readonly stats = input.required<PageResource<EstablishmentStats>>();
 
-  readonly #statsStore = inject(StatsStore);
-
-  readonly stats = this.#statsStore.stats;
+  readonly value = computed(() => {
+    const stats = this.stats();
+    return stats.hasValue() ? stats.value() : undefined;
+  });
 
   readonly vsYesterday = computed(() => {
-    const value = this.stats.hasValue() ? this.stats.value() : undefined;
+    const value = this.value();
     return value ? compare(value.todayRevenue, value.yesterdayRevenue) : null;
   });
 
   readonly vsLastWeek = computed(() => {
-    const value = this.stats.hasValue() ? this.stats.value() : undefined;
+    const value = this.value();
     return value ? compare(value.todayRevenue, value.sameWeekdayLastWeekRevenue) : null;
   });
 

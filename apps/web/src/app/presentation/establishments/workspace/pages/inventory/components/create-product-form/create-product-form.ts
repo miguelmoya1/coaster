@@ -1,10 +1,10 @@
 import { Component, computed, inject, input, output, signal } from '@angular/core';
 import { form, FormField, FormRoot, max, maxLength, min, minLength, required } from '@angular/forms/signals';
 import { MatButton } from '@angular/material/button';
-import type { Category, CreateProductDto } from '@coaster/common';
+import type { Category, CreateProductDto, EstablishmentId } from '@coaster/common';
 import { ALLERGENS, asCategoryId, DEFAULT_TAX_RATE, grossFromNet, toBasisPoints } from '@coaster/common';
 import { handleErrorFormField } from '@coaster/core';
-import { ProductsStore } from '@coaster/products';
+import { ManageProducts } from '@coaster/products';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ChipSelect } from '../../../../../../components/chip-select/chip-select';
 import { Field } from '../../../../../../components/field/field';
@@ -125,9 +125,9 @@ import { PricePipe } from '../../../../pipes/price/price';
 })
 export class CreateProductForm {
   readonly categories = input.required<Category[]>();
-  readonly #productsStore = inject(ProductsStore);
+  readonly #manageProducts = inject(ManageProducts);
   readonly #translate = inject(TranslateService);
-  readonly establishmentId = this.#productsStore.currentEstablishmentId;
+  readonly establishmentId = input.required<EstablishmentId>();
 
   readonly canceled = output<void>();
   readonly created = output<void>();
@@ -201,7 +201,7 @@ export class CreateProductForm {
           };
 
           try {
-            await this.#productsStore.create(payload);
+            await this.#manageProducts.create(this.establishmentId(), payload);
             this.created.emit();
             return null;
           } catch (error) {

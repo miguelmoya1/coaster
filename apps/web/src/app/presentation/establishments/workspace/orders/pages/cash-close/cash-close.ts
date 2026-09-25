@@ -2,10 +2,10 @@ import { Component, computed, effect, inject, input, signal } from '@angular/cor
 import { form, FormField, FormRoot, maxLength, min, required } from '@angular/forms/signals';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
-import type { CashClose, EstablishmentId } from '@coaster/common';
+import type { CashClose, CashClosePreview, EstablishmentId } from '@coaster/common';
 import { cashDifferenceOf, EstablishmentPermission, expectedCashOf } from '@coaster/common';
-import { CashCloseStore, cashCloseTicket } from '@coaster/cash-close';
-import { ActionFeedback, DateFormatterService, handleErrorFormField } from '@coaster/core';
+import { cashCloseTicket, ManageCashCloses } from '@coaster/cash-close';
+import { ActionFeedback, DateFormatterService, handleErrorFormField, loadedOr, type PageResource } from '@coaster/core';
 import { MyMemberStore } from '@coaster/establishment-members';
 import { RequireSubscriptionDirective } from '@coaster/establishment-subscription';
 import { CurrentEstablishmentStore } from '@coaster/establishments';
@@ -15,7 +15,7 @@ import { ConfirmationDialog } from '../../../../../components/confirm-dialog/con
 import { Field } from '../../../../../components/field/field';
 import { FormErrors } from '../../../../../components/field/form-errors';
 import { CoasterInput } from '../../../../../components/field/input.directive';
-import { Loading } from '../../../../../components/loading/loading';
+import { ResourceStatus } from '../../../../../components/resource-status/resource-status';
 import { NumberInput } from '../../../../../components/number-input/number-input';
 import { StatCard } from '../../../../../components/stat-card/stat-card';
 import { PricePipe } from '../../../pipes/price/price';
@@ -33,7 +33,7 @@ const toCents = (euros: number) => Math.round((euros || 0) * 100);
     Field,
     FormErrors,
     CoasterInput,
-    Loading,
+    ResourceStatus,
     NumberInput,
     StatCard,
     PricePipe,
@@ -44,8 +44,10 @@ const toCents = (euros: number) => Math.round((euros || 0) * 100);
 })
 class CashClosePage {
   public readonly establishmentId = input.required<EstablishmentId>();
+  public readonly preview = input.required<PageResource<CashClosePreview>>();
+  public readonly history = input.required<PageResource<CashClose[]>>();
 
-  readonly #store = inject(CashCloseStore);
+  readonly #manageCashCloses = inject(ManageCashCloses);
   readonly #myMember = inject(MyMemberStore);
   readonly #currentEstablishment = inject(CurrentEstablishmentStore);
   readonly #printTicket = inject(PrintTicket);
@@ -54,10 +56,10 @@ class CashClosePage {
   readonly #feedback = inject(ActionFeedback);
   readonly #dates = inject(DateFormatterService);
 
-  protected readonly preview = this.#store.preview;
-  protected readonly history = this.#store.history;
   protected readonly printingId = signal<string | null>(null);
   protected readonly when = (iso: string) => this.#dates.formatDateTime(iso);
+
+  protected readonly historyList = computed(() => loadedOr(this.history(), []));
 
   protected readonly canSeeHistory = computed(() =>
     this.#myMember.hasPermission(EstablishmentPermission.ESTABLISHMENT_VIEW_FINANCIALS),
@@ -81,7 +83,7 @@ class CashClosePage {
           const confirmed = await this.#confirmation.confirm({
             title: this.#translate.instant('cash_close.confirm_title'),
             text: this.#translate.instant('cash_close.confirm_message', {
-              count: this.preview.value()?.closedOrders ?? 0,
+              count: this.current()?.closedOrders ?? 0,
             }),
             confirmLabel: this.#translate.instant('cash_close.close'),
           });
@@ -91,11 +93,13 @@ class CashClosePage {
           }
 
           try {
-            await this.#store.close(this.establishmentId(), {
+            await this.#manageCashCloses.close(this.establishmentId(), {
               openingFloat: toCents(openingFloat),
               countedCash: toCents(countedCash),
               notes: notes.trim() || undefined,
             });
+            this.preview().reload();
+            this.history().reload();
             this.form().reset({ openingFloat, countedCash: 0, notes: '' });
             this.#feedback.success(this.#translate.instant('cash_close.closed'));
             return null;
@@ -107,23 +111,26 @@ class CashClosePage {
     },
   );
 
+  protected readonly current = computed(() => {
+    const preview = this.preview();
+    return preview.hasValue() ? preview.value() : undefined;
+  });
+
   protected readonly expectedCash = computed(() =>
-    expectedCashOf(toCents(this.form.openingFloat().value()), this.preview.value()?.cashAmount ?? 0),
+    expectedCashOf(toCents(this.form.openingFloat().value()), this.current()?.cashAmount ?? 0),
   );
 
   protected readonly difference = computed(() =>
     cashDifferenceOf(
       toCents(this.form.countedCash().value()),
       toCents(this.form.openingFloat().value()),
-      this.preview.value()?.cashAmount ?? 0,
+      this.current()?.cashAmount ?? 0,
     ),
   );
 
   constructor() {
-    effect(() => this.#store.setEstablishmentId(this.establishmentId()));
-
     effect(() => {
-      const openingFloat = this.preview.value()?.openingFloat;
+      const openingFloat = this.current()?.openingFloat;
       if (openingFloat !== undefined && !this.form.openingFloat().dirty()) {
         this.form.openingFloat().value.set(openingFloat / 100);
       }

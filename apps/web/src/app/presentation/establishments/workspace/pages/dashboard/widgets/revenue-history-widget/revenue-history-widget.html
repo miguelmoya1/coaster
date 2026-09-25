@@ -6,7 +6,7 @@
     </h2>
   </header>
 
-  @if (stats.isLoading()) {
+  @if (stats().status() === 'loading') {
     <coaster-loading
       containerClasses="min-h-[220px] bg-surface-container rounded-2xl border border-outline-variant/30"
     />

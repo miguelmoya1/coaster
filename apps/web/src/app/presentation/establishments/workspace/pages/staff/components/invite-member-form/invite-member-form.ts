@@ -1,10 +1,14 @@
-import { Component, computed, inject, output, signal } from '@angular/core';
+import { Component, computed, inject, input, output, signal } from '@angular/core';
 import { email, form, FormField, FormRoot, maxLength, minLength, required } from '@angular/forms/signals';
 import { MatButton } from '@angular/material/button';
-import type { EstablishmentRole as EstablishmentRoleType, InviteEstablishmentMemberDto } from '@coaster/common';
+import type {
+  EstablishmentId,
+  EstablishmentRole as EstablishmentRoleType,
+  InviteEstablishmentMemberDto,
+} from '@coaster/common';
 import { EstablishmentPermission, EstablishmentRole } from '@coaster/common';
 import { handleErrorFormField } from '@coaster/core';
-import { MembersStore, MyMemberStore } from '@coaster/establishment-members';
+import { ManageMembers, MyMemberStore } from '@coaster/establishment-members';
 import { EstablishmentSubscriptionStore } from '@coaster/establishment-subscription';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Field } from '../../../../../../components/field/field';
@@ -81,10 +85,11 @@ import { PricePipe } from '../../../../pipes/price/price';
   `,
 })
 export class InviteMemberForm {
+  public readonly establishmentId = input.required<EstablishmentId>();
   public readonly canceled = output<void>();
   public readonly invited = output<void>();
 
-  readonly #membersStore = inject(MembersStore);
+  readonly #manageMembers = inject(ManageMembers);
   readonly #subscriptionStore = inject(EstablishmentSubscriptionStore);
 
   readonly #myMemberStore = inject(MyMemberStore);
@@ -115,7 +120,7 @@ export class InviteMemberForm {
           const payload = { ...form().value(), role: this.selectedRole() };
 
           try {
-            await this.#membersStore.invite(payload);
+            await this.#manageMembers.invite(this.establishmentId(), payload);
             this.invited.emit();
             return null;
           } catch (error) {

@@ -2,7 +2,7 @@ import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import type { TimeEntry } from '@coaster/common';
 import { asEstablishmentId, asTimeEntryId, asUserId, TimeEntrySource, TimeEntryType } from '@coaster/common';
-import { TimeTrackingStore } from '@coaster/time-tracking';
+import { ManageTimeEntries } from '@coaster/time-tracking';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { VoidEntryForm } from './void-entry-form';
@@ -26,21 +26,22 @@ const entry = {
 describe('VoidEntryForm', () => {
   let fixture: ComponentFixture<VoidEntryForm>;
   let component: VoidEntryForm;
-  let store: { voidEntry: ReturnType<typeof vi.fn> };
+  let store: { void: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
-    store = { voidEntry: vi.fn().mockResolvedValue(undefined) };
+    store = { void: vi.fn().mockResolvedValue(undefined) };
 
     await TestBed.configureTestingModule({
       imports: [VoidEntryForm],
       providers: [
         provideZonelessChangeDetection(),
         provideTranslateService(),
-        { provide: TimeTrackingStore, useValue: store },
+        { provide: ManageTimeEntries, useValue: store },
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(VoidEntryForm);
+    fixture.componentRef.setInput('establishmentId', 'establishment-1');
     component = fixture.componentInstance;
     fixture.componentRef.setInput('entry', entry);
     fixture.detectChanges();
@@ -61,6 +62,6 @@ describe('VoidEntryForm', () => {
     submitButton.click();
     await new Promise((resolve) => setTimeout(resolve, 0));
 
-    expect(store.voidEntry).toHaveBeenCalledWith('entry-1', { reason: 'Marca duplicada del terminal' });
+    expect(store.void).toHaveBeenCalledWith('establishment-1', 'entry-1', { reason: 'Marca duplicada del terminal' });
   });
 });

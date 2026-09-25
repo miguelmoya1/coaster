@@ -1,9 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { CategoriesStore } from '@coaster/categories';
-import { ActiveOrdersStore } from '@coaster/orders';
-import { Product, ProductsStore } from '@coaster/products';
-import { TablesStore } from '@coaster/tables';
+import type { Category, Order, Table } from '@coaster/common';
+import { asOrderId } from '@coaster/common';
+import { ManageOrder } from '@coaster/orders';
+import type { Product } from '@coaster/products';
+import { fakeResource } from '@coaster/testing';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import NewOrder from './new-order';
@@ -14,41 +15,11 @@ describe('NewOrder', () => {
 
   const routerMock = { navigate: vi.fn().mockResolvedValue(true) };
 
-  const categoriesStoreMock = {
-    list: {
-      value: vi.fn().mockReturnValue([]),
-      isLoading: vi.fn().mockReturnValue(false),
-      hasValue: vi.fn().mockReturnValue(true),
-    },
-    setEstablishmentId: vi.fn(),
-    reloadCategories: vi.fn(),
-  };
+  let products = fakeResource<Product[]>([]);
 
-  const productsStoreMock = {
-    list: {
-      value: vi.fn().mockReturnValue([]),
-      isLoading: vi.fn().mockReturnValue(false),
-      hasValue: vi.fn().mockReturnValue(true),
-    },
-    setEstablishmentId: vi.fn(),
-  };
-
-  const tablesStoreMock = {
-    tables: {
-      value: vi.fn().mockReturnValue([]),
-      isLoading: vi.fn().mockReturnValue(false),
-      hasValue: vi.fn().mockReturnValue(true),
-    },
-    setEstablishmentId: vi.fn(),
-    setTableId: vi.fn(),
-    reload: vi.fn(),
-  };
-
-  const activeOrdersStoreMock = {
-    create: vi.fn(),
-    addItems: vi.fn(),
-    reloadOrders: vi.fn(),
-    setEstablishmentId: vi.fn(),
+  const manageOrderMock = {
+    create: vi.fn().mockResolvedValue(undefined),
+    addItems: vi.fn().mockResolvedValue(undefined),
   };
 
   beforeEach(async () => {
@@ -58,16 +29,17 @@ describe('NewOrder', () => {
         provideTranslateService(),
         provideRouter([]),
         { provide: Router, useValue: routerMock },
-        { provide: CategoriesStore, useValue: categoriesStoreMock },
-        { provide: ProductsStore, useValue: productsStoreMock },
-        { provide: TablesStore, useValue: tablesStoreMock },
-        { provide: ActiveOrdersStore, useValue: activeOrdersStoreMock },
+        { provide: ManageOrder, useValue: manageOrderMock },
       ],
     }).compileComponents();
 
     vi.clearAllMocks();
     fixture = TestBed.createComponent(NewOrder);
+    products = fakeResource<Product[]>([]);
     fixture.componentRef.setInput('establishmentId', 'establishment-1');
+    fixture.componentRef.setInput('products', products.resource);
+    fixture.componentRef.setInput('categories', fakeResource<Category[]>([]).resource);
+    fixture.componentRef.setInput('tables', fakeResource<Table[]>([]).resource);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });
@@ -139,11 +111,7 @@ describe('NewOrder', () => {
         { id: 'p-2', name: 'Absolut Vodka', categoryId: 'cat-1' },
         { id: 'p-3', name: 'Zinebra', categoryId: 'cat-1' },
       ] as Product[];
-      productsStoreMock.list.value.mockReturnValue(mockProducts);
-      productsStoreMock.list.hasValue.mockReturnValue(true);
-
-      component.selectedCategory.set('TEMP_VAL');
-      component.selectedCategory.set('ALL');
+      products.resolve(mockProducts);
 
       const filtered = component['filteredProducts']();
       expect(filtered[0].id).toBe('p-2');
@@ -190,6 +158,29 @@ describe('NewOrder', () => {
       component.decrementItem('p-1');
 
       expect(component.cartItems().length).toBe(0);
+    });
+  });
+
+  describe('adding to an order that already exists', () => {
+    it('should bring in the notes the order already had', async () => {
+      fixture.componentRef.setInput('orderId', asOrderId('order-1'));
+      fixture.componentRef.setInput('order', fakeResource({ id: 'order-1', notes: 'mesa exterior' } as Order).resource);
+      await fixture.whenStable();
+
+      expect(component.isAddItemsMode()).toBe(true);
+      expect(component.orderNotes()).toBe('mesa exterior');
+    });
+
+    it('should add the cart to that order rather than open a new one', async () => {
+      fixture.componentRef.setInput('orderId', asOrderId('order-1'));
+      fixture.componentRef.setInput('order', fakeResource({ id: 'order-1' } as Order).resource);
+      await fixture.whenStable();
+      component.addToCart({ id: 'p-1', name: 'Beer', price: 500 } as Product);
+
+      await component.submitOrder();
+
+      expect(manageOrderMock.addItems).toHaveBeenCalled();
+      expect(manageOrderMock.create).not.toHaveBeenCalled();
     });
   });
 });

@@ -1,3 +1,2 @@
-export { CatalogueStore } from './store/catalogue.store';
+export { starterCatalogueResource } from './resources/starter-catalogue.resource';
 export { ImportStarterCatalogue } from './services/import-starter-catalogue';
-export { StarterCatalogue } from './services/starter-catalogue';

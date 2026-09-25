@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { AdminBetaTestersStore } from '@coaster/admin';
+import { ManagePlatform } from '@coaster/admin';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AddBetaTesterForm } from './add-beta-tester-form';
@@ -26,7 +26,7 @@ describe('AddBetaTesterForm', () => {
 
     await TestBed.configureTestingModule({
       imports: [AddBetaTesterForm],
-      providers: [provideTranslateService(), { provide: AdminBetaTestersStore, useValue: { addBetaTester } }],
+      providers: [provideTranslateService(), { provide: ManagePlatform, useValue: { addBetaTester } }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(AddBetaTesterForm);

@@ -1,5 +1,6 @@
 export * from './data-access/account-repository';
 export * from './data-access/auth-repository';
+export * from './resources/account.resources';
 export * from './errors/api-error';
 export * from './guards/auth-guard';
 export * from './guards/no-auth-guard';
@@ -22,6 +23,8 @@ export * from './services/toast';
 export * from './services/virtual-keyboard';
 export * from './utils/errors.utils';
 export * from './utils/money.utils';
+export * from './utils/realtime-resource';
+export * from './utils/route-resources';
 export * from './utils/sse.utils';
 export * from './utils/user-agent.utils';
 export * from './utils/user.utils';

@@ -28,11 +28,11 @@
         type="button"
         class="px-3 py-1.5 rounded-full text-sm border transition-colors"
         [class]="
-          role() === roleFilter
+          selectedRole() === roleFilter
             ? 'border-primary bg-primary/10 text-primary font-semibold'
             : 'border-outline-variant text-on-surface-variant hover:bg-surface-container'
         "
-        [attr.aria-pressed]="role() === roleFilter"
+        [attr.aria-pressed]="selectedRole() === roleFilter"
         (click)="selectRole(roleFilter)"
       >
         {{ filterLabel(roleFilter) | translate }}
@@ -46,11 +46,11 @@
         type="button"
         class="px-3 py-1.5 rounded-full text-sm border transition-colors"
         [class]="
-          active() === stateFilter.value
+          selectedActive() === stateFilter.value
             ? 'border-primary bg-primary/10 text-primary font-semibold'
             : 'border-outline-variant text-on-surface-variant hover:bg-surface-container'
         "
-        [attr.aria-pressed]="active() === stateFilter.value"
+        [attr.aria-pressed]="selectedActive() === stateFilter.value"
         (click)="selectActive(stateFilter.value)"
       >
         {{ stateFilter.labelKey | translate }}
@@ -154,7 +154,7 @@
       @if (total() > pageSize) {
         <div class="px-4 pb-4">
           <coaster-admin-pagination
-            [page]="page()"
+            [page]="currentPage()"
             [pageSize]="pageSize"
             [total]="total()"
             [totalPages]="totalPages()"

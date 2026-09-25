@@ -2,7 +2,7 @@ import { Component, inject, output, signal } from '@angular/core';
 import { form, FormField, FormRoot, maxLength, minLength, required } from '@angular/forms/signals';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
-import { EstablishmentListStore } from '@coaster/establishments';
+import { CreateEstablishment } from '@coaster/establishments';
 import type { CreateEstablishmentDto } from '@coaster/common';
 import { handleErrorFormField } from '@coaster/core';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -60,7 +60,7 @@ export class CreateEstablishmentForm {
   public readonly formCancelled = output<void>();
   public readonly formSubmitted = output<void>();
 
-  readonly #establishmentListStore = inject(EstablishmentListStore);
+  readonly #createEstablishment = inject(CreateEstablishment);
 
   protected readonly formModel = signal<CreateEstablishmentDto>({
     name: '',
@@ -79,7 +79,7 @@ export class CreateEstablishmentForm {
           const payload = form().value();
 
           try {
-            await this.#establishmentListStore.create({ name: payload.name });
+            await this.#createEstablishment.execute({ name: payload.name });
             this.formSubmitted.emit();
             return null;
           } catch (error) {

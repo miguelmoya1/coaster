@@ -85,6 +85,10 @@ export class ManageOrder {
     await this.#orderRepository.addAdjustment(establishmentId, orderId, dto);
   }
 
+  public async delete(establishmentId: EstablishmentId, orderId: OrderId): Promise<void> {
+    await this.#orderRepository.deleteOrder(establishmentId, orderId);
+  }
+
   public async removeAdjustment(
     establishmentId: EstablishmentId,
     orderId: OrderId,

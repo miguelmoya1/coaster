@@ -3,14 +3,12 @@ import { Component, computed, effect, inject, input, signal } from '@angular/cor
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { Router } from '@angular/router';
-import { CategoriesStore } from '@coaster/categories';
-import type { EstablishmentId, OrderId, TableId } from '@coaster/common';
-import { ActionFeedback } from '@coaster/core';
-import { ActiveOrdersStore } from '@coaster/orders';
-import { Product, ProductsStore } from '@coaster/products';
-import { TablesStore } from '@coaster/tables';
+import type { Category, EstablishmentId, Order, OrderId, Table, TableId } from '@coaster/common';
+import { ActionFeedback, loadedOr, type PageResource } from '@coaster/core';
+import { ManageOrder } from '@coaster/orders';
+import type { Product } from '@coaster/products';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { Loading } from '../../../../../components/loading/loading';
+import { ResourceStatus } from '../../../../../components/resource-status/resource-status';
 
 import { CategoryFilter } from '../../../../../components/category-filter/category-filter';
 import { CartItem, PosCart } from './components/pos-cart/pos-cart';
@@ -19,7 +17,7 @@ import { PosSearch } from './components/pos-search/pos-search';
 
 @Component({
   selector: 'coaster-new-order',
-  imports: [CategoryFilter, PosProductsList, PosSearch, PosCart, Loading, TranslatePipe, MatIcon, MatIconButton],
+  imports: [CategoryFilter, PosProductsList, PosSearch, PosCart, ResourceStatus, TranslatePipe, MatIcon, MatIconButton],
   host: { class: 'flex flex-col gap-4' },
   templateUrl: './new-order.html',
 })
@@ -27,11 +25,12 @@ class NewOrder {
   public readonly establishmentId = input.required<EstablishmentId>();
   public readonly tableId = input<TableId>();
   public readonly orderId = input<OrderId>();
+  public readonly products = input.required<PageResource<Product[]>>();
+  public readonly categories = input.required<PageResource<Category[]>>();
+  public readonly tables = input.required<PageResource<Table[]>>();
+  public readonly order = input<PageResource<Order>>();
 
-  readonly #productsStore = inject(ProductsStore);
-  readonly #categoriesStore = inject(CategoriesStore);
-  readonly #tablesStore = inject(TablesStore);
-  readonly #activeOrdersStore = inject(ActiveOrdersStore);
+  readonly #manageOrder = inject(ManageOrder);
   readonly #router = inject(Router);
   readonly #translate = inject(TranslateService);
   readonly #feedback = inject(ActionFeedback);
@@ -50,18 +49,11 @@ class NewOrder {
 
   readonly cartItems = computed(() => Array.from(this.cart().values()));
 
-  protected readonly isLoadingProducts = this.#productsStore.list.isLoading;
-  protected readonly isLoadingCategories = this.#categoriesStore.list.isLoading;
-  protected readonly categories = computed(() =>
-    this.#categoriesStore.list.hasValue() ? (this.#categoriesStore.list.value() ?? []) : [],
-  );
-  protected readonly tables = computed(() =>
-    this.#tablesStore.tables.hasValue() ? (this.#tablesStore.tables.value() ?? []) : [],
-  );
+  protected readonly categoryList = computed(() => loadedOr(this.categories(), []));
+  protected readonly tableList = computed(() => loadedOr(this.tables(), []));
 
   protected readonly filteredProducts = computed(() => {
-    if (!this.#productsStore.list.hasValue()) return [];
-    const products = this.#productsStore.list.value() ?? [];
+    const products = loadedOr(this.products(), []);
     const cartMap = this.cart();
     const productsWithOptimisticStock = products.map((p) => {
       const cartItem = cartMap.get(p.id);
@@ -98,19 +90,10 @@ class NewOrder {
 
   constructor() {
     effect(() => {
-      const establishmentId = this.establishmentId();
-      this.#productsStore.setEstablishmentId(establishmentId);
-      this.#categoriesStore.setEstablishmentId(establishmentId);
-      this.#tablesStore.setEstablishmentId(establishmentId);
-      this.#activeOrdersStore.setEstablishmentId(establishmentId);
-    });
-
-    effect(() => {
       const tableId = this.tableId();
       if (tableId) {
         this.selectedTableId.set(tableId);
         this.tableLocked.set(true);
-        this.#tablesStore.setTableId(tableId);
       }
 
       const orderId = this.orderId();
@@ -125,10 +108,8 @@ class NewOrder {
       const orderId = this.existingOrderId();
       if (!orderId || this.#initialNotesLoaded) return;
 
-      const orders = this.#activeOrdersStore.list.value();
-      if (!orders) return;
-
-      const existingOrder = orders.find((o) => o.id === orderId);
+      const order = this.order();
+      const existingOrder = order?.hasValue() ? order.value() : undefined;
       if (existingOrder) {
         if (existingOrder.notes) {
           this.orderNotes.set(existingOrder.notes);
@@ -204,12 +185,12 @@ class NewOrder {
 
       const orderId = this.existingOrderId();
       if (orderId) {
-        await this.#activeOrdersStore.addItems(this.establishmentId(), orderId, {
+        await this.#manageOrder.addItems(this.establishmentId(), orderId, {
           items: itemDtos,
           notes: this.orderNotes(),
         });
       } else {
-        await this.#activeOrdersStore.create(this.establishmentId(), {
+        await this.#manageOrder.create(this.establishmentId(), {
           tableId: this.selectedTableId() ? asTableId(this.selectedTableId()!) : undefined,
           items: itemDtos,
           notes: this.orderNotes(),
@@ -218,8 +199,6 @@ class NewOrder {
 
       this.cart.set(new Map());
       this.orderNotes.set('');
-      this.#activeOrdersStore.reloadOrders();
-      this.#tablesStore.reload();
 
       await this.#router.navigate(['/establishments', this.establishmentId(), 'orders', 'tables']);
     } catch (e) {

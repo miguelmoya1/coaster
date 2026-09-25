@@ -1,6 +1,6 @@
 import { asCategoryId, asProductId } from '@coaster/common';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Product, ProductsStore } from '@coaster/products';
+import { ManageProducts, type Product } from '@coaster/products';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { UpdateStockProductForm } from './update-stock-product-form';
@@ -32,10 +32,11 @@ describe('UpdateStockProductForm', () => {
 
     await TestBed.configureTestingModule({
       imports: [UpdateStockProductForm],
-      providers: [{ provide: ProductsStore, useValue: productsStoreMock }, provideTranslateService()],
+      providers: [{ provide: ManageProducts, useValue: productsStoreMock }, provideTranslateService()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(UpdateStockProductForm);
+    fixture.componentRef.setInput('establishmentId', 'establishment-1');
     component = fixture.componentInstance;
 
     fixture.componentRef.setInput('product', mockProduct);
@@ -64,7 +65,7 @@ describe('UpdateStockProductForm', () => {
       expect(spy).toHaveBeenCalled();
     });
 
-    it('should call ProductsStore.updateStock when form is submitted', async () => {
+    it('should call ManageProducts.updateStock when form is submitted', async () => {
       component.form.currentStock().value.set(15);
       fixture.detectChanges();
 
@@ -77,7 +78,7 @@ describe('UpdateStockProductForm', () => {
 
       await new Promise((resolve) => setTimeout(resolve, 0));
 
-      expect(productsStoreMock.updateStock).toHaveBeenCalledWith(mockProduct.id, {
+      expect(productsStoreMock.updateStock).toHaveBeenCalledWith('establishment-1', mockProduct.id, {
         currentStock: 15,
       });
     });

@@ -2,10 +2,10 @@ import { asEstablishmentId } from '@coaster/common';
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { EstablishmentListStore } from '@coaster/establishments';
 import type { Establishment } from '@coaster/common';
 import { Role } from '@coaster/common';
 import { CurrentUser } from '@coaster/core';
+import { fakeResource } from '@coaster/testing';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import SelectEstablishment from './select-establishment';
@@ -24,14 +24,6 @@ describe('SelectEstablishment', () => {
     },
   ];
 
-  const establishmentListStoreMock = {
-    list: {
-      value: vi.fn().mockReturnValue(mockEstablishments),
-      isLoading: vi.fn().mockReturnValue(false),
-      hasValue: vi.fn().mockReturnValue(true),
-    },
-  };
-
   const currentUserMock = {
     current: {
       value: vi.fn().mockReturnValue({ role: Role.USER }),
@@ -46,7 +38,6 @@ describe('SelectEstablishment', () => {
         provideTranslateService(),
         provideRouter([]),
         { provide: Router, useValue: routerMock },
-        { provide: EstablishmentListStore, useValue: establishmentListStoreMock },
         { provide: CurrentUser, useValue: currentUserMock },
       ],
     }).compileComponents();
@@ -54,6 +45,7 @@ describe('SelectEstablishment', () => {
     vi.clearAllMocks();
 
     fixture = TestBed.createComponent(SelectEstablishment);
+    fixture.componentRef.setInput('establishments', fakeResource(mockEstablishments).resource);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
@@ -77,6 +69,14 @@ describe('SelectEstablishment', () => {
       const button = fixture.nativeElement.querySelector('button[mat-flat-button]');
       expect(button).toBeTruthy();
     });
+  });
+
+  it('should wait for the list rather than claim there are no establishments', () => {
+    fixture.componentRef.setInput('establishments', fakeResource<Establishment[]>().resource);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('[data-testid="empty-establishments-message"]')).toBeNull();
+    expect(fixture.nativeElement.querySelector('coaster-loading')).toBeTruthy();
   });
 
   describe('actions', () => {

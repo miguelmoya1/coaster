@@ -1,8 +1,10 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
-import { AdminAuditStore } from '@coaster/admin';
-import type { AdminAuditAction } from '@coaster/common';
+import { ActivatedRoute, Router } from '@angular/router';
+import { ADMIN_PAGE_SIZE, oneOf, pageOf, totalPagesOf } from '@coaster/admin';
+import type { AdminAuditAction, AdminAuditLogEntry, Paginated } from '@coaster/common';
+import type { PageResource } from '@coaster/core';
 import { AdminAuditAction as AuditAction } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Loading } from '../../../components/loading/loading';
@@ -21,22 +23,32 @@ const ACTION_FILTERS: (AdminAuditAction | undefined)[] = [undefined, ...Object.v
   },
 })
 export default class AdminAudit {
-  readonly #store = inject(AdminAuditStore);
+  public readonly audit = input.required<PageResource<Paginated<AdminAuditLogEntry>>>();
+  public readonly action = input<string>();
+  public readonly page = input<string>();
 
-  protected readonly entries = this.#store.entries;
-  protected readonly total = this.#store.total;
-  protected readonly page = this.#store.page;
-  protected readonly pageSize = this.#store.pageSize;
-  protected readonly totalPages = this.#store.totalPages;
-  protected readonly isLoading = this.#store.isLoading;
-  protected readonly hasLoaded = this.#store.hasLoaded;
-  protected readonly hasFilters = this.#store.hasFilters;
-  protected readonly action = this.#store.action;
+  readonly #router = inject(Router);
+  readonly #route = inject(ActivatedRoute);
+
+  readonly #loaded = computed(() => {
+    const audit = this.audit();
+    return audit.hasValue() ? audit.value() : undefined;
+  });
+
+  protected readonly entries = computed(() => this.#loaded()?.items ?? []);
+  protected readonly total = computed(() => this.#loaded()?.total ?? 0);
+  protected readonly currentPage = computed(() => pageOf(this.page()));
+  protected readonly pageSize = ADMIN_PAGE_SIZE.audit;
+  protected readonly totalPages = computed(() => totalPagesOf(this.total(), this.pageSize));
+  protected readonly isLoading = computed(() => this.audit().isLoading());
+  protected readonly hasLoaded = computed(() => this.audit().hasValue());
+  protected readonly selectedAction = computed(() => oneOf(Object.values(AuditAction), this.action()));
+  protected readonly hasFilters = computed(() => this.selectedAction() !== undefined);
 
   protected readonly actionFilters = ACTION_FILTERS;
 
   protected selectAction(action: AdminAuditAction | undefined) {
-    this.#store.setAction(action);
+    this.#query({ action: action ?? null, page: null });
   }
 
   protected filterLabel(action: AdminAuditAction | undefined): string {
@@ -44,14 +56,18 @@ export default class AdminAudit {
   }
 
   protected clearFilters() {
-    this.#store.clearFilters();
+    this.#query({ action: null, page: null });
   }
 
   protected goToPage(page: number) {
-    this.#store.goToPage(page);
+    this.#query({ page: Math.min(Math.max(1, page), this.totalPages()) });
   }
 
   protected reload() {
-    this.#store.reload();
+    this.audit().reload();
+  }
+
+  #query(queryParams: Record<string, string | number | null>) {
+    void this.#router.navigate([], { relativeTo: this.#route, queryParams, queryParamsHandling: 'merge' });
   }
 }

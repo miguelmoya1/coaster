@@ -9,9 +9,9 @@
     </button>
   </coaster-page-header>
 
-  @if (isLoading()) {
-    <coaster-loading />
-  } @else {
+  <coaster-resource-status [resource]="[menu(), products(), categories()]" />
+
+  @if (menu().hasValue()) {
     <section class="p-4 rounded-2xl bg-surface-container border border-outline-variant/20 mb-4">
       @if (isPublished()) {
         <div class="flex flex-col sm:flex-row gap-4 items-start">
@@ -241,7 +241,7 @@
               (change)="addItem(sectionIndex, $any($event.target).value); $any($event.target).value = ''"
             >
               <option value="">{{ 'menu.pick_product' | translate }}</option>
-              @for (product of products(); track product.id) {
+              @for (product of productList(); track product.id) {
                 <option [value]="product.id">{{ product.name }}</option>
               }
             </select>

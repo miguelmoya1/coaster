@@ -1,15 +1,22 @@
-import { Component, computed, effect, inject, input, signal, untracked, viewChild } from '@angular/core';
+import { Component, computed, effect, inject, input, linkedSignal, signal, untracked, viewChild } from '@angular/core';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
-import type { EstablishmentId, Language, MenuItemDraft, MenuSectionDraft, ProductId } from '@coaster/common';
+import type {
+  Category,
+  EstablishmentId,
+  Language,
+  MenuDraft,
+  MenuItemDraft,
+  MenuSectionDraft,
+  ProductId,
+} from '@coaster/common';
 import { LANGUAGE_NAMES, LANGUAGES } from '@coaster/common';
-import { ActionFeedback } from '@coaster/core';
-import { MenuStore } from '@coaster/menu';
-import { CategoriesStore } from '@coaster/categories';
-import { ProductsStore } from '@coaster/products';
+import { ActionFeedback, loadedOr, type PageResource } from '@coaster/core';
+import { ManageMenu } from '@coaster/menu';
+import type { Product } from '@coaster/products';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { LanguageSelect } from '../../../../../../components/language-select/language-select';
-import { Loading } from '../../../../../../components/loading/loading';
+import { ResourceStatus } from '../../../../../../components/resource-status/resource-status';
 import { PageContainer } from '../../../../../../components/page-container/page-container';
 import { PageHeader } from '../../../../../../components/page-header/page-header';
 import { QrCode } from '../../../../../../components/qr-code/qr-code';
@@ -24,7 +31,7 @@ import { CoasterInput } from '../../../../../../components/field/input.directive
     MatIconButton,
     LanguageSelect,
     TranslatePipe,
-    Loading,
+    ResourceStatus,
     PageContainer,
     PageHeader,
     PricePipe,
@@ -36,10 +43,11 @@ import { CoasterInput } from '../../../../../../components/field/input.directive
 })
 export default class MenuEditor {
   public readonly establishmentId = input.required<EstablishmentId>();
+  public readonly menu = input.required<PageResource<MenuDraft>>();
+  public readonly products = input.required<PageResource<Product[]>>();
+  public readonly categories = input.required<PageResource<Category[]>>();
 
-  readonly #menuStore = inject(MenuStore);
-  readonly #productsStore = inject(ProductsStore);
-  readonly #categoriesStore = inject(CategoriesStore);
+  readonly #manageMenu = inject(ManageMenu);
   readonly #feedback = inject(ActionFeedback);
   readonly #translate = inject(TranslateService);
 
@@ -51,8 +59,10 @@ export default class MenuEditor {
   protected readonly menuName = signal('');
   protected readonly offered = signal<Language[]>(['es']);
 
-  protected readonly isLoading = computed(() => this.#menuStore.draft.isLoading());
-  protected readonly draft = computed(() => (this.#menuStore.draft.hasValue() ? this.#menuStore.draft.value() : null));
+  protected readonly draft = linkedSignal<MenuDraft | null>(() => {
+    const menu = this.menu();
+    return menu.hasValue() ? (menu.value() ?? null) : null;
+  });
   protected readonly defaultLanguage = computed<Language>(() => this.draft()?.defaultLanguage ?? 'es');
   protected readonly slug = computed(() => this.draft()?.slug ?? '');
   protected readonly isPublished = computed(() => Boolean(this.draft()?.publishedAt));
@@ -67,9 +77,8 @@ export default class MenuEditor {
     this.languages.filter((language) => language !== this.defaultLanguage()),
   );
 
-  protected readonly products = computed(() =>
-    this.#productsStore.list.hasValue() ? this.#productsStore.list.value() : [],
-  );
+  protected readonly productList = computed(() => loadedOr(this.products(), []));
+  protected readonly categoryList = computed(() => loadedOr(this.categories(), []));
 
   protected readonly missingWording = computed(() =>
     this.offered().reduce((total, language) => {
@@ -86,13 +95,6 @@ export default class MenuEditor {
   protected readonly isDirty = computed(() => this.shapeOf() !== this.#savedShape());
 
   constructor() {
-    effect(() => {
-      const establishmentId = this.establishmentId();
-      this.#menuStore.setEstablishmentId(establishmentId);
-      this.#productsStore.setEstablishmentId(establishmentId);
-      this.#categoriesStore.setEstablishmentId(establishmentId);
-    });
-
     effect(() => {
       const draft = this.draft();
 
@@ -137,11 +139,11 @@ export default class MenuEditor {
   }
 
   protected productName(productId?: ProductId): string {
-    return this.products().find((product) => product.id === productId)?.name ?? '';
+    return this.productList().find((product) => product.id === productId)?.name ?? '';
   }
 
   protected priceOf(item: MenuItemDraft): number {
-    return item.price ?? this.products().find((product) => product.id === item.productId)?.price ?? 0;
+    return item.price ?? this.productList().find((product) => product.id === item.productId)?.price ?? 0;
   }
 
   protected isOffered(language: Language): boolean {
@@ -163,17 +165,15 @@ export default class MenuEditor {
     }
   }
 
-  protected readonly categories = computed(() =>
-    this.#categoriesStore.list.hasValue() ? this.#categoriesStore.list.value() : [],
+  protected readonly canFillFromCatalogue = computed(
+    () => this.sections().length === 0 && this.productList().length > 0,
   );
 
-  protected readonly canFillFromCatalogue = computed(() => this.sections().length === 0 && this.products().length > 0);
-
   protected fillFromCatalogue() {
-    const products = this.products();
+    const products = this.productList();
 
     this.sections.set(
-      this.categories()
+      this.categoryList()
         .map((category) => ({
           translations: { [this.defaultLanguage()]: { name: category.name } } as MenuSectionDraft['translations'],
           items: products
@@ -282,11 +282,13 @@ export default class MenuEditor {
 
   protected async save() {
     await this.run(async (establishmentId) => {
-      await this.#menuStore.save(establishmentId, {
-        name: this.menuName(),
-        languages: this.offered(),
-        sections: this.sections(),
-      });
+      this.draft.set(
+        await this.#manageMenu.save(establishmentId, {
+          name: this.menuName(),
+          languages: this.offered(),
+          sections: this.sections(),
+        }),
+      );
       this.#savedShape.set(this.shapeOf());
       this.#feedback.success(this.#translate.instant('menu.saved'));
     });
@@ -294,20 +296,24 @@ export default class MenuEditor {
 
   protected async publish() {
     await this.run(async (establishmentId) => {
-      await this.#menuStore.save(establishmentId, {
-        name: this.menuName(),
-        languages: this.offered(),
-        sections: this.sections(),
-      });
+      this.draft.set(
+        await this.#manageMenu.save(establishmentId, {
+          name: this.menuName(),
+          languages: this.offered(),
+          sections: this.sections(),
+        }),
+      );
       this.#savedShape.set(this.shapeOf());
-      await this.#menuStore.publish(establishmentId);
+      await this.#manageMenu.publish(establishmentId);
+      this.menu().reload();
       this.#feedback.success(this.#translate.instant('menu.published'));
     });
   }
 
   protected async unpublish() {
     await this.run(async (establishmentId) => {
-      await this.#menuStore.unpublish(establishmentId);
+      await this.#manageMenu.unpublish(establishmentId);
+      this.menu().reload();
       this.#feedback.success(this.#translate.instant('menu.unpublished'));
     });
   }

@@ -1,6 +1,6 @@
 import { Component, computed, inject, input, output, signal } from '@angular/core';
 import { MatChipListbox, MatChipListboxChange, MatChipOption } from '@angular/material/chips';
-import { Category } from '@coaster/common';
+import type { Category, EstablishmentId } from '@coaster/common';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { CreateCategoryForm } from '../create-category-form/create-category-form';
 import { CreateProductForm } from '../create-product-form/create-product-form';
@@ -25,19 +25,25 @@ type InventoryTabs = 'PRODUCT' | 'CATEGORY';
       @switch (currentTab()) {
         @case ('PRODUCT') {
           <coaster-create-product-form
+            [establishmentId]="establishmentId()"
             [categories]="categories()"
             (created)="created.emit()"
             (canceled)="canceled.emit()"
           />
         }
         @case ('CATEGORY') {
-          <coaster-create-category-form (canceled)="canceled.emit()" (created)="created.emit()" />
+          <coaster-create-category-form
+            [establishmentId]="establishmentId()"
+            (canceled)="canceled.emit()"
+            (created)="created.emit()"
+          />
         }
       }
     </div>
   `,
 })
 export class CreateInventorySheet {
+  public readonly establishmentId = input.required<EstablishmentId>();
   public readonly categories = input.required<Category[]>();
 
   public readonly canceled = output<void>();

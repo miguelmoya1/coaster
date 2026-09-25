@@ -1,8 +1,8 @@
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 import { MatCard, MatCardContent, MatCardHeader } from '@angular/material/card';
 import { MatIcon } from '@angular/material/icon';
-import type { EstablishmentId } from '@coaster/common';
-import { StatsStore } from '@coaster/stats';
+import type { EstablishmentStats } from '@coaster/common';
+import type { PageResource } from '@coaster/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Loading } from '../../../../../../components/loading/loading';
 import { PricePipe } from '../../../../pipes/price/price';
@@ -14,17 +14,11 @@ import { PricePipe } from '../../../../pipes/price/price';
   templateUrl: './weekly-chart-widget.html',
 })
 export class WeeklyChartWidget {
-  public readonly establishmentId = input.required<EstablishmentId>();
-
-  readonly #statsStore = inject(StatsStore);
-
-  readonly stats = this.#statsStore.stats;
+  public readonly stats = input.required<PageResource<EstablishmentStats>>();
 
   readonly chartPaths = computed(() => {
-    if (!this.stats.hasValue()) {
-      return { linePath: '', areaPath: '', points: [] };
-    }
-    const statsData = this.stats.value();
+    const stats = this.stats();
+    const statsData = stats.hasValue() ? stats.value() : undefined;
     if (!statsData) {
       return { linePath: '', areaPath: '', points: [] };
     }

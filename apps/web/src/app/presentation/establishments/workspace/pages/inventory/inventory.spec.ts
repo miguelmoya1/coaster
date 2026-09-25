@@ -2,9 +2,10 @@ import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { MyMemberStore } from '@coaster/establishment-members';
-import { CategoriesStore } from '@coaster/categories';
-import { EstablishmentRole } from '@coaster/common';
-import { Product, ProductsStore } from '@coaster/products';
+import { ManageCategories } from '@coaster/categories';
+import { EstablishmentRole, type Category } from '@coaster/common';
+import { ManageProducts, type Product } from '@coaster/products';
+import { fakeResource } from '@coaster/testing';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import Inventory from './inventory';
@@ -13,31 +14,10 @@ describe('Inventory', () => {
   let component: Inventory;
   let fixture: ComponentFixture<Inventory>;
 
-  const categoriesStoreMock = {
-    list: {
-      value: vi.fn().mockReturnValue([]),
-      isLoading: vi.fn().mockReturnValue(false),
-      hasValue: vi.fn().mockReturnValue(true),
-    },
-    setEstablishmentId: vi.fn(),
-    reloadCategories: vi.fn(),
-    create: vi.fn(),
-    update: vi.fn(),
-    delete: vi.fn(),
-  };
+  let products = fakeResource<Product[]>([]);
 
-  const productsStoreMock = {
-    list: {
-      value: vi.fn().mockReturnValue([]),
-      isLoading: vi.fn().mockReturnValue(false),
-      hasValue: vi.fn().mockReturnValue(true),
-    },
-    total: vi.fn().mockReturnValue(0),
-    criticalStock: vi.fn().mockReturnValue(0),
-    lowStock: vi.fn().mockReturnValue(0),
-    delete: vi.fn().mockResolvedValue(null),
-    setEstablishmentId: vi.fn(),
-  };
+  const manageProductsMock = { delete: vi.fn().mockResolvedValue(null) };
+  const manageCategoriesMock = { delete: vi.fn().mockResolvedValue(null) };
 
   const myMemberStoreMock = {
     myMember: {
@@ -57,8 +37,8 @@ describe('Inventory', () => {
       providers: [
         provideTranslateService(),
         provideRouter([]),
-        { provide: CategoriesStore, useValue: categoriesStoreMock },
-        { provide: ProductsStore, useValue: productsStoreMock },
+        { provide: ManageCategories, useValue: manageCategoriesMock },
+        { provide: ManageProducts, useValue: manageProductsMock },
         { provide: MyMemberStore, useValue: myMemberStoreMock },
       ],
     }).compileComponents();
@@ -66,7 +46,10 @@ describe('Inventory', () => {
     vi.clearAllMocks();
 
     fixture = TestBed.createComponent(Inventory);
+    products = fakeResource<Product[]>([]);
     fixture.componentRef.setInput('establishmentId', 'establishment-1');
+    fixture.componentRef.setInput('products', products.resource);
+    fixture.componentRef.setInput('categories', fakeResource<Category[]>([]).resource);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });
@@ -115,8 +98,7 @@ describe('Inventory', () => {
         { id: 'p-1', name: 'Vodka', categoryId: 'cat-1' },
         { id: 'p-2', name: 'Ron', categoryId: 'cat-2' },
       ] as Product[];
-      productsStoreMock.list.value.mockReturnValue(mockProducts);
-      productsStoreMock.list.hasValue.mockReturnValue(true);
+      products.resolve(mockProducts);
 
       component.selectedCategoryId.set('cat-1');
       expect(component.filteredProducts()).toEqual([mockProducts[0]]);
@@ -127,8 +109,7 @@ describe('Inventory', () => {
         { id: 'p-1', name: 'Vodka', categoryId: 'cat-1' },
         { id: 'p-2', name: 'Ron', categoryId: 'cat-2' },
       ] as Product[];
-      productsStoreMock.list.value.mockReturnValue(mockProducts);
-      productsStoreMock.list.hasValue.mockReturnValue(true);
+      products.resolve(mockProducts);
 
       component.selectedCategoryId.set('ALL');
       component.searchQuery.set('vod');
@@ -143,8 +124,7 @@ describe('Inventory', () => {
         { id: 'p-1', name: 'Vodka Superior', categoryId: 'cat-1' },
         { id: 'p-2', name: 'Vodka Barata', categoryId: 'cat-2' },
       ] as Product[];
-      productsStoreMock.list.value.mockReturnValue(mockProducts);
-      productsStoreMock.list.hasValue.mockReturnValue(true);
+      products.resolve(mockProducts);
 
       component.selectedCategoryId.set('cat-1');
       component.searchQuery.set('Vodka');
@@ -157,8 +137,7 @@ describe('Inventory', () => {
         { id: 'p-2', name: 'Absolut Vodka', categoryId: 'cat-1' },
         { id: 'p-3', name: 'Zinebra', categoryId: 'cat-1' },
       ] as Product[];
-      productsStoreMock.list.value.mockReturnValue(mockProducts);
-      productsStoreMock.list.hasValue.mockReturnValue(true);
+      products.resolve(mockProducts);
 
       component.selectedCategoryId.set('TEMP_VAL');
       component.selectedCategoryId.set('ALL');

@@ -1,4 +1,6 @@
 import { Routes } from '@angular/router';
+import { nonBlockingResources } from '@coaster/core';
+import { myEstablishmentsResource } from '@coaster/establishments';
 
 const routes: Routes = [
   {
@@ -8,6 +10,7 @@ const routes: Routes = [
       {
         path: 'select',
         loadComponent: () => import('./pages/select-establishment/select-establishment'),
+        resources: nonBlockingResources(() => ({ establishments: myEstablishmentsResource() })),
       },
       {
         path: 'create',

@@ -2,7 +2,8 @@ import { Component, effect, inject, input, output, signal } from '@angular/core'
 import { form, FormField, FormRoot, min, required } from '@angular/forms/signals';
 import { MatButton } from '@angular/material/button';
 import { handleErrorFormField } from '@coaster/core';
-import { Product, ProductsStore } from '@coaster/products';
+import type { EstablishmentId } from '@coaster/common';
+import { ManageProducts, type Product } from '@coaster/products';
 import { TranslatePipe } from '@ngx-translate/core';
 import { FormErrors } from '../../../../../../components/field/form-errors';
 import { NumberInput } from '../../../../../../components/number-input/number-input';
@@ -51,12 +52,13 @@ import { NumberInput } from '../../../../../../components/number-input/number-in
   `,
 })
 export class UpdateStockProductForm {
+  public readonly establishmentId = input.required<EstablishmentId>();
   public readonly product = input.required<Product>();
 
   public readonly canceled = output<void>();
   public readonly updated = output<void>();
 
-  readonly #productStore = inject(ProductsStore);
+  readonly #manageProducts = inject(ManageProducts);
 
   readonly #formBase = signal<{ currentStock: number }>({
     currentStock: 0,
@@ -74,7 +76,7 @@ export class UpdateStockProductForm {
           const payload = form().value();
 
           try {
-            await this.#productStore.updateStock(this.product().id, payload);
+            await this.#manageProducts.updateStock(this.establishmentId(), this.product().id, payload);
             this.updated.emit();
             return null;
           } catch (error) {

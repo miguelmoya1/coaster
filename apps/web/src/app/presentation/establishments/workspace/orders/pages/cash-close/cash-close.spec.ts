@@ -1,8 +1,8 @@
-import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import type { CashClose, CashClosePreview } from '@coaster/common';
 import { asCashCloseId, asEstablishmentId, asUserId, EstablishmentPermission } from '@coaster/common';
-import { CashCloseStore } from '@coaster/cash-close';
+import { ManageCashCloses } from '@coaster/cash-close';
+import { fakeResource } from '@coaster/testing';
 import { MyMemberStore } from '@coaster/establishment-members';
 import { CurrentEstablishmentStore } from '@coaster/establishments';
 import { PrintTicket } from '@coaster/printer';
@@ -49,22 +49,11 @@ describe('CashClosePage', () => {
   let fixture: ComponentFixture<CashClosePage>;
   let component: CashClosePage;
 
-  const preview = signal<CashClosePreview | undefined>(previewOf());
-  const history = signal<CashClose[]>([cashClose]);
+  let preview = fakeResource(previewOf());
+  let history = fakeResource<CashClose[]>([cashClose]);
   const granted = new Set<EstablishmentPermission>();
 
-  const storeMock = {
-    preview: {
-      value: preview,
-      hasValue: () => preview() !== undefined,
-      isLoading: () => false,
-    },
-    history: {
-      value: history,
-      hasValue: () => true,
-      isLoading: () => false,
-    },
-    setEstablishmentId: vi.fn(),
+  const manageMock = {
     close: vi.fn().mockResolvedValue(cashClose),
   };
   const confirmationMock = { confirm: vi.fn().mockResolvedValue(true) };
@@ -73,6 +62,8 @@ describe('CashClosePage', () => {
   const render = async () => {
     fixture = TestBed.createComponent(CashClosePage);
     fixture.componentRef.setInput('establishmentId', asEstablishmentId('establishment-1'));
+    fixture.componentRef.setInput('preview', preview.resource);
+    fixture.componentRef.setInput('history', history.resource);
     component = fixture.componentInstance;
     await fixture.whenStable();
   };
@@ -92,8 +83,8 @@ describe('CashClosePage', () => {
 
   beforeEach(async () => {
     vi.clearAllMocks();
-    preview.set(previewOf());
-    history.set([cashClose]);
+    preview = fakeResource(previewOf());
+    history = fakeResource<CashClose[]>([cashClose]);
     granted.clear();
     granted.add(EstablishmentPermission.ESTABLISHMENT_VIEW_FINANCIALS);
 
@@ -101,7 +92,7 @@ describe('CashClosePage', () => {
       imports: [CashClosePage],
       providers: [
         provideTranslateService(),
-        { provide: CashCloseStore, useValue: storeMock },
+        { provide: ManageCashCloses, useValue: manageMock },
         { provide: ConfirmationDialog, useValue: confirmationMock },
         { provide: PrintTicket, useValue: printMock },
         {
@@ -113,10 +104,12 @@ describe('CashClosePage', () => {
     }).compileComponents();
   });
 
-  it('should point the store at the establishment on screen', async () => {
+  it('should show progress while the till is being added up', async () => {
+    preview = fakeResource<CashClosePreview>();
     await render();
 
-    expect(storeMock.setEstablishmentId).toHaveBeenCalledWith('establishment-1');
+    expect(fixture.nativeElement.querySelector('coaster-loading')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('form')).toBeNull();
   });
 
   it('should offer the float the last close left, and expect it plus what was taken in cash', async () => {
@@ -136,7 +129,7 @@ describe('CashClosePage', () => {
   });
 
   it('should warn that open orders stay out, and how much of them is already in the drawer', async () => {
-    preview.set(previewOf({ openOrders: 2, openOrdersCharged: 550 }));
+    preview = fakeResource(previewOf({ openOrders: 2, openOrdersCharged: 550 }));
     await render();
 
     expect(text()).toContain('cash_close.open_orders_warning');
@@ -150,11 +143,13 @@ describe('CashClosePage', () => {
 
     await submit();
 
-    expect(storeMock.close).toHaveBeenCalledWith('establishment-1', {
+    expect(manageMock.close).toHaveBeenCalledWith('establishment-1', {
       openingFloat: 15000,
       countedCash: 56950,
       notes: undefined,
     });
+    expect(preview.reload).toHaveBeenCalled();
+    expect(history.reload).toHaveBeenCalled();
   });
 
   it('should not close when the confirmation is turned down', async () => {
@@ -163,7 +158,7 @@ describe('CashClosePage', () => {
 
     await submit();
 
-    expect(storeMock.close).not.toHaveBeenCalled();
+    expect(manageMock.close).not.toHaveBeenCalled();
   });
 
   it('should print a past close on the establishment printer', async () => {

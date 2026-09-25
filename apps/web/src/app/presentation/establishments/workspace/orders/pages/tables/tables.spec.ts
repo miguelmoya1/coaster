@@ -1,101 +1,93 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import type { Order, Table } from '@coaster/common';
+import { asEstablishmentId, asOrderId, asTableId, OrderStatus, TableStatus } from '@coaster/common';
 import { MyMemberStore } from '@coaster/establishment-members';
-import { ActiveOrdersStore } from '@coaster/orders';
-import { TablesStore } from '@coaster/tables';
+import { ManageTables } from '@coaster/tables';
+import { fakeResource } from '@coaster/testing';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { ConfirmationDialog } from '../../../../../components/confirm-dialog/confirmation-dialog.service';
 import Tables from './tables';
+
+const establishmentId = asEstablishmentId('establishment-1');
+
+const table = (id: string, status: TableStatus = TableStatus.FREE) =>
+  ({ id: asTableId(id), establishmentId, name: `Mesa ${id}`, status }) as Table;
+
+const order = (id: string, tableId: string | null, payableTotal: number) =>
+  ({
+    id: asOrderId(id),
+    establishmentId,
+    status: OrderStatus.OPEN,
+    tableId: tableId ? asTableId(tableId) : null,
+    payableTotal,
+    items: [],
+  }) as unknown as Order;
 
 describe('Tables', () => {
   let component: Tables;
   let fixture: ComponentFixture<Tables>;
 
-  const activeOrdersStoreMock = {
-    list: {
-      value: vi.fn().mockReturnValue([]),
-      isLoading: vi.fn().mockReturnValue(false),
-      hasValue: vi.fn().mockReturnValue(true),
-    },
-    openOrders: vi.fn().mockReturnValue([]),
-    totalOpen: signal(3),
-    totalRevenue: signal(0),
-    reloadOrders: vi.fn(),
-    setEstablishmentId: vi.fn(),
-  };
+  const manageTablesMock = { create: vi.fn(), delete: vi.fn().mockResolvedValue(undefined) };
+  const confirmationMock = { confirm: vi.fn().mockResolvedValue(true) };
 
-  const tablesStoreMock = {
-    tables: {
-      value: vi.fn().mockReturnValue([]),
-      isLoading: vi.fn().mockReturnValue(false),
-      hasValue: vi.fn().mockReturnValue(true),
-    },
-    freeCount: signal(0),
-    occupiedCount: signal(0),
-    setEstablishmentId: vi.fn(),
-    create: vi.fn(),
-    delete: vi.fn(),
-  };
-
-  const myMemberStoreMock = {
-    isOwner: signal(false),
+  const render = async (tables = fakeResource<Table[]>([]), orders = fakeResource<Order[]>([])) => {
+    fixture = TestBed.createComponent(Tables);
+    fixture.componentRef.setInput('establishmentId', establishmentId);
+    fixture.componentRef.setInput('tables', tables.resource);
+    fixture.componentRef.setInput('openOrders', orders.resource);
+    component = fixture.componentInstance;
+    await fixture.whenStable();
+    return { tables, orders };
   };
 
   beforeEach(async () => {
+    vi.clearAllMocks();
+
     await TestBed.configureTestingModule({
       imports: [Tables],
       providers: [
         provideTranslateService(),
         provideRouter([]),
-        { provide: ActiveOrdersStore, useValue: activeOrdersStoreMock },
-        { provide: TablesStore, useValue: tablesStoreMock },
-        { provide: MyMemberStore, useValue: myMemberStoreMock },
+        { provide: ManageTables, useValue: manageTablesMock },
+        { provide: ConfirmationDialog, useValue: confirmationMock },
+        { provide: MyMemberStore, useValue: { isOwner: signal(true) } },
       ],
     }).compileComponents();
-
-    vi.clearAllMocks();
-    fixture = TestBed.createComponent(Tables);
-    fixture.componentRef.setInput('establishmentId', 'establishment-1');
-    component = fixture.componentInstance;
-    await fixture.whenStable();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  it('should show progress while the tables are on their way, and no empty message yet', async () => {
+    await render(fakeResource<Table[]>());
+
+    expect(fixture.nativeElement.querySelector('coaster-loading')).toBeTruthy();
+    expect(fixture.nativeElement.textContent).not.toContain('orders.no_tables');
   });
 
-  describe('establishmentId input', () => {
-    it('should expose establishmentId with provided value', () => {
-      expect(component.establishmentId()).toBe('establishment-1');
-    });
+  it('should count free and occupied tables and open orders', async () => {
+    await render(
+      fakeResource([table('1'), table('2', TableStatus.OCCUPIED)]),
+      fakeResource([order('a', '2', 1100), order('b', null, 500)]),
+    );
+
+    expect(component['counts']()).toMatchObject({ free: 1, occupied: 1 });
+    expect(component['totalOpen']()).toBe(2);
   });
 
-  describe('rendering', () => {
-    it('should render status cards', () => {
-      fixture.detectChanges();
-      const cards = fixture.nativeElement.querySelectorAll('.grid mat-card');
-      expect(cards.length).toBeGreaterThanOrEqual(3);
-    });
+  it('should put what each table owes on its card, and bar orders apart', async () => {
+    await render(fakeResource([table('1'), table('2')]), fakeResource([order('a', '2', 1100), order('b', null, 500)]));
 
-    it('should render tables title', () => {
-      fixture.detectChanges();
-      const title = fixture.nativeElement.querySelector('.heading-2');
-      expect(title).toBeTruthy();
-    });
+    expect(component['tablesViewModel']().map((t) => t.orderAmount)).toEqual([undefined, 1100]);
+    expect(component['barOrdersViewModel']().map((o) => o.id)).toEqual(['b']);
   });
 
-  describe('computed properties', () => {
-    it('should return false for isOwner when no matching member', () => {
-      expect(component.isOwner()).toBe(false);
-    });
+  it('should delete a table after confirming, and bring the list up to date', async () => {
+    const { tables } = await render(fakeResource([table('1')]));
 
-    it('should return empty tables view model when no tables', () => {
-      expect(component['tablesViewModel']()).toEqual([]);
-    });
+    await component['handleDeleteTable'](table('1'));
 
-    it('should return empty establishment orders view model when no orders', () => {
-      expect(component['barOrdersViewModel']()).toEqual([]);
-    });
+    expect(manageTablesMock.delete).toHaveBeenCalledWith(establishmentId, '1');
+    expect(tables.reload).toHaveBeenCalled();
   });
 });

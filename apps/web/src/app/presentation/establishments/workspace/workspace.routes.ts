@@ -1,7 +1,15 @@
+import { signal } from '@angular/core';
 import { Routes } from '@angular/router';
 import { EstablishmentModule, EstablishmentPermission } from '@coaster/common';
+import { establishmentIdOf, nonBlockingResources } from '@coaster/core';
+import { membersResource, permissionGuard } from '@coaster/establishment-members';
 import { moduleGuard } from '@coaster/establishments';
-import { permissionGuard } from '@coaster/establishment-members';
+import { productsResource } from '@coaster/products';
+import { dayRangeOf, timeSheetRangeOf } from '@coaster/schedule';
+import { shiftsResource } from '@coaster/shifts';
+import { statsResource } from '@coaster/stats';
+import { currentWorkdayResource, myWorkdaysResource } from '@coaster/time-tracking';
+import { accessibleEstablishmentId, DASHBOARD_ACCESS } from './pages/dashboard/dashboard-access';
 
 const mainRoutes: Routes = [
   {
@@ -17,6 +25,21 @@ const mainRoutes: Routes = [
         path: 'dashboard',
         loadComponent: () => import('./pages/dashboard/dashboard'),
         canActivate: [permissionGuard(EstablishmentPermission.ESTABLISHMENT_VIEW_DASHBOARD)],
+        resources: nonBlockingResources((context) => {
+          const establishmentId = establishmentIdOf(context);
+          const allowed = (access: (typeof DASHBOARD_ACCESS)[keyof typeof DASHBOARD_ACCESS]) =>
+            accessibleEstablishmentId(establishmentId, access);
+          const now = new Date();
+
+          return {
+            stats: statsResource(allowed(DASHBOARD_ACCESS.takings)),
+            products: productsResource(allowed(DASHBOARD_ACCESS.inventory)),
+            todayShifts: shiftsResource(allowed(DASHBOARD_ACCESS.team), signal(dayRangeOf(now))),
+            members: membersResource(allowed(DASHBOARD_ACCESS.team)),
+            myWorkdays: myWorkdaysResource(allowed(DASHBOARD_ACCESS.clock), signal(timeSheetRangeOf(now, 'week'))),
+            runningWorkday: currentWorkdayResource(allowed(DASHBOARD_ACCESS.clock)),
+          };
+        }),
       },
       {
         path: 'pantry',

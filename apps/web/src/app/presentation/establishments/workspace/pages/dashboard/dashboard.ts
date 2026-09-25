@@ -1,13 +1,14 @@
 import { NgComponentOutlet } from '@angular/common';
-import { Component, computed, effect, inject, input, Type } from '@angular/core';
-import type { EstablishmentId } from '@coaster/common';
-import { EstablishmentModule, EstablishmentPermission } from '@coaster/common';
+import { Component, computed, inject, input, Type } from '@angular/core';
+import type { EstablishmentId, EstablishmentMember, EstablishmentStats, Shift, Workday } from '@coaster/common';
+import type { PageResource } from '@coaster/core';
 import { MyMemberStore } from '@coaster/establishment-members';
 import { ModulesStore } from '@coaster/establishments';
-import { StatsStore } from '@coaster/stats';
+import type { Product } from '@coaster/products';
 import { TranslatePipe } from '@ngx-translate/core';
 import { PageContainer } from '../../../../components/page-container/page-container';
 import { PageHeader } from '../../../../components/page-header/page-header';
+import { canAccess, DASHBOARD_ACCESS, type DashboardAccess } from './dashboard-access';
 import { InventoryAlertsWidget } from './widgets/inventory-alerts-widget/inventory-alerts-widget';
 import { MyShiftWidget } from './widgets/my-shift-widget/my-shift-widget';
 import { RevenueHistoryWidget } from './widgets/revenue-history-widget/revenue-history-widget';
@@ -18,8 +19,8 @@ import { WeeklyChartWidget } from './widgets/weekly-chart-widget/weekly-chart-wi
 
 interface DashboardWidget {
   component: Type<unknown>;
-  requiredPermission?: EstablishmentPermission;
-  requiredModule?: EstablishmentModule;
+  access: DashboardAccess;
+  inputs: Record<string, unknown>;
 }
 
 @Component({
@@ -32,21 +33,18 @@ interface DashboardWidget {
 })
 export class Dashboard {
   public readonly establishmentId = input.required<EstablishmentId>();
+  public readonly stats = input.required<PageResource<EstablishmentStats>>();
+  public readonly products = input.required<PageResource<Product[]>>();
+  public readonly todayShifts = input.required<PageResource<Shift[]>>();
+  public readonly members = input.required<PageResource<EstablishmentMember[]>>();
+  public readonly myWorkdays = input.required<PageResource<Workday[]>>();
+  public readonly runningWorkday = input.required<PageResource<Workday | null>>();
 
   readonly #myMemberStore = inject(MyMemberStore);
   readonly #modulesStore = inject(ModulesStore);
-  readonly #statsStore = inject(StatsStore);
 
-  constructor() {
-    effect(() => {
-      this.#statsStore.setEstablishmentId(this.canViewFinancials() ? this.establishmentId() : undefined);
-    });
-  }
-
-  readonly canViewFinancials = computed(
-    () =>
-      this.#myMemberStore.hasPermission(EstablishmentPermission.ESTABLISHMENT_VIEW_FINANCIALS) &&
-      this.#modulesStore.isModuleEnabled(EstablishmentModule.ORDERS),
+  readonly canViewFinancials = computed(() =>
+    canAccess(DASHBOARD_ACCESS.takings, this.#myMemberStore, this.#modulesStore),
   );
 
   readonly subtitleKey = computed(() =>
@@ -54,32 +52,36 @@ export class Dashboard {
   );
 
   readonly #businessWidgets = computed<DashboardWidget[]>(() => [
-    { component: SubscriptionWidget, requiredPermission: EstablishmentPermission.ESTABLISHMENT_MANAGE_BILLING },
     {
-      component: TodayTakingsWidget,
-      requiredPermission: EstablishmentPermission.ESTABLISHMENT_VIEW_FINANCIALS,
-      requiredModule: EstablishmentModule.ORDERS,
+      component: SubscriptionWidget,
+      access: DASHBOARD_ACCESS.billing,
+      inputs: { establishmentId: this.establishmentId() },
     },
-    {
-      component: WeeklyChartWidget,
-      requiredPermission: EstablishmentPermission.ESTABLISHMENT_VIEW_FINANCIALS,
-      requiredModule: EstablishmentModule.ORDERS,
-    },
-    {
-      component: RevenueHistoryWidget,
-      requiredPermission: EstablishmentPermission.ESTABLISHMENT_VIEW_FINANCIALS_HISTORY,
-      requiredModule: EstablishmentModule.ORDERS,
-    },
+    { component: TodayTakingsWidget, access: DASHBOARD_ACCESS.takings, inputs: { stats: this.stats() } },
+    { component: WeeklyChartWidget, access: DASHBOARD_ACCESS.takings, inputs: { stats: this.stats() } },
+    { component: RevenueHistoryWidget, access: DASHBOARD_ACCESS.takingsHistory, inputs: { stats: this.stats() } },
     {
       component: InventoryAlertsWidget,
-      requiredPermission: EstablishmentPermission.ESTABLISHMENT_VIEW_PRODUCTS,
-      requiredModule: EstablishmentModule.INVENTORY,
+      access: DASHBOARD_ACCESS.inventory,
+      inputs: { establishmentId: this.establishmentId(), products: this.products() },
     },
-    { component: TeamTodayWidget, requiredPermission: EstablishmentPermission.ESTABLISHMENT_CREATE_SHIFT },
+    {
+      component: TeamTodayWidget,
+      access: DASHBOARD_ACCESS.team,
+      inputs: { establishmentId: this.establishmentId(), shifts: this.todayShifts(), members: this.members() },
+    },
   ]);
 
   readonly #personalWidgets = computed<DashboardWidget[]>(() => [
-    { component: MyShiftWidget, requiredPermission: EstablishmentPermission.ESTABLISHMENT_CLOCK_IN },
+    {
+      component: MyShiftWidget,
+      access: DASHBOARD_ACCESS.clock,
+      inputs: {
+        establishmentId: this.establishmentId(),
+        myWorkdays: this.myWorkdays(),
+        runningWorkday: this.runningWorkday(),
+      },
+    },
   ]);
 
   readonly widgets = computed(() => {
@@ -87,16 +89,8 @@ export class Dashboard {
       ? [...this.#businessWidgets(), ...this.#personalWidgets()]
       : [...this.#personalWidgets(), ...this.#businessWidgets()];
 
-    return ordered
-      .filter(
-        (widget) =>
-          (!widget.requiredPermission || this.#myMemberStore.hasPermission(widget.requiredPermission)) &&
-          (!widget.requiredModule || this.#modulesStore.isModuleEnabled(widget.requiredModule)),
-      )
-      .map((widget) => widget.component);
+    return ordered.filter((widget) => canAccess(widget.access, this.#myMemberStore, this.#modulesStore));
   });
-
-  readonly widgetInputs = computed(() => ({ establishmentId: this.establishmentId() }));
 }
 
 export default Dashboard;

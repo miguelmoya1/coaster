@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { EstablishmentListStore } from '@coaster/establishments';
+import { CreateEstablishment as CreateEstablishmentService } from '@coaster/establishments';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import CreateEstablishment from './create-establishment';
@@ -10,8 +10,8 @@ describe('CreateEstablishment', () => {
   let fixture: ComponentFixture<CreateEstablishment>;
   let router: Router;
 
-  const establishmentListStoreMock = {
-    create: vi.fn(),
+  const createEstablishmentMock = {
+    execute: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -20,7 +20,7 @@ describe('CreateEstablishment', () => {
       providers: [
         provideTranslateService(),
         provideRouter([]),
-        { provide: EstablishmentListStore, useValue: establishmentListStoreMock },
+        { provide: CreateEstablishmentService, useValue: createEstablishmentMock },
       ],
     }).compileComponents();
 

@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import type { AccountSession, AccountSummary } from '@coaster/common';
 import { AccountRepository, Toast } from '@coaster/core';
+import { fakeResource } from '@coaster/testing';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ConfirmationDialog } from '../components/confirm-dialog/confirmation-dialog.service';
@@ -36,12 +37,13 @@ const session = (overrides: Partial<AccountSession> = {}): AccountSession => ({
 describe('Account', () => {
   let fixture: ComponentFixture<Account>;
 
+  let account = fakeResource(summary());
+  let sessions = fakeResource<AccountSession[]>([]);
+
   const repo = {
-    account: vi.fn(),
     requestEmailVerification: vi.fn(),
     setPassword: vi.fn(),
     unlink: vi.fn(),
-    sessions: vi.fn(),
     closeSession: vi.fn(),
     closeOtherSessions: vi.fn(),
   };
@@ -50,6 +52,8 @@ describe('Account', () => {
 
   const render = async () => {
     fixture = TestBed.createComponent(Account);
+    fixture.componentRef.setInput('account', account.resource);
+    fixture.componentRef.setInput('sessions', sessions.resource);
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
@@ -66,11 +70,11 @@ describe('Account', () => {
 
   beforeEach(async () => {
     vi.clearAllMocks();
-    repo.account.mockResolvedValue(summary());
+    account = fakeResource(summary());
     repo.requestEmailVerification.mockResolvedValue(undefined);
     repo.setPassword.mockResolvedValue(undefined);
     repo.unlink.mockResolvedValue(undefined);
-    repo.sessions.mockResolvedValue([session({ id: 'this-one', current: true }), session({ id: 'the-phone' })]);
+    sessions = fakeResource([session({ id: 'this-one', current: true }), session({ id: 'the-phone' })]);
     repo.closeSession.mockResolvedValue(undefined);
     repo.closeOtherSessions.mockResolvedValue(undefined);
     confirmation.confirm.mockResolvedValue(true);
@@ -97,7 +101,7 @@ describe('Account', () => {
     });
 
     it('should offer to send the link when it is not confirmed', async () => {
-      repo.account.mockResolvedValue(summary({ emailVerified: false }));
+      account = fakeResource(summary({ emailVerified: false }));
 
       await render();
       at('verify-btn').click();
@@ -155,7 +159,7 @@ describe('Account', () => {
     });
 
     it('should ask for nothing else when there is none yet', async () => {
-      repo.account.mockResolvedValue(summary({ hasPassword: false }));
+      account = fakeResource(summary({ hasPassword: false }));
 
       await render();
 
@@ -209,11 +213,11 @@ describe('Account', () => {
       await fixture.whenStable();
 
       expect(repo.unlink).toHaveBeenCalledWith('GOOGLE');
-      expect(repo.account).toHaveBeenCalledTimes(2);
+      expect(account.reload).toHaveBeenCalled();
     });
 
     it('should refuse to offer unlinking when it is the only way in', async () => {
-      repo.account.mockResolvedValue(summary({ hasPassword: false }));
+      account = fakeResource(summary({ hasPassword: false }));
 
       await render();
 
@@ -229,7 +233,7 @@ describe('Account', () => {
     });
 
     it('should say plainly when there are none', async () => {
-      repo.account.mockResolvedValue(summary({ identities: [] }));
+      account = fakeResource(summary({ identities: [] }));
 
       await render();
 
@@ -261,7 +265,7 @@ describe('Account', () => {
 
       expect(confirmation.confirm).toHaveBeenCalled();
       expect(repo.closeSession).toHaveBeenCalledWith('the-phone');
-      expect(repo.sessions).toHaveBeenCalledTimes(2);
+      expect(sessions.reload).toHaveBeenCalled();
       expect(toast.success).toHaveBeenCalledWith('account.sessions.closed');
     });
 
@@ -286,7 +290,7 @@ describe('Account', () => {
     });
 
     it('should not offer to close the others when there are none', async () => {
-      repo.sessions.mockResolvedValue([session({ id: 'this-one', current: true })]);
+      sessions = fakeResource<AccountSession[]>([session({ id: 'this-one', current: true })]);
 
       await render();
 
@@ -304,7 +308,7 @@ describe('Account', () => {
     });
 
     it('should tell a device apart even when nothing is known about it', async () => {
-      repo.sessions.mockResolvedValue([session({ id: 'odd-one', userAgent: null, ip: null })]);
+      sessions = fakeResource<AccountSession[]>([session({ id: 'odd-one', userAgent: null, ip: null })]);
 
       await render();
 
@@ -312,7 +316,7 @@ describe('Account', () => {
     });
 
     it('should recognise a phone as a phone', async () => {
-      repo.sessions.mockResolvedValue([session({ id: 'the-phone', userAgent: SAFARI_ON_IPHONE })]);
+      sessions = fakeResource<AccountSession[]>([session({ id: 'the-phone', userAgent: SAFARI_ON_IPHONE })]);
 
       await render();
 
@@ -321,7 +325,7 @@ describe('Account', () => {
     });
 
     it('should say plainly when there is nothing open', async () => {
-      repo.sessions.mockResolvedValue([]);
+      sessions = fakeResource<AccountSession[]>([]);
 
       await render();
 

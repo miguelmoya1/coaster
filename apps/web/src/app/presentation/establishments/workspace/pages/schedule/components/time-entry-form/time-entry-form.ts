@@ -2,10 +2,10 @@ import { ChangeDetectionStrategy, Component, computed, inject, input, linkedSign
 import { form, FormField, FormRoot, maxLength, minLength, required } from '@angular/forms/signals';
 import { MatButton } from '@angular/material/button';
 import { MatTimepicker, MatTimepickerInput, MatTimepickerToggle } from '@angular/material/timepicker';
-import type { EstablishmentMember, TimeEntry } from '@coaster/common';
+import type { EstablishmentId, EstablishmentMember, TimeEntry } from '@coaster/common';
 import { asTimeEntryId, asUserId, TimeEntryType } from '@coaster/common';
 import { handleErrorFormField } from '@coaster/core';
-import { TimeTrackingStore } from '@coaster/time-tracking';
+import { ManageTimeEntries } from '@coaster/time-tracking';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Field } from '../../../../../../components/field/field';
 import { FormErrors } from '../../../../../../components/field/form-errors';
@@ -100,8 +100,9 @@ const REASON_MIN_LENGTH = 5;
   `,
 })
 export class TimeEntryForm {
-  readonly #store = inject(TimeTrackingStore);
+  readonly #manageTimeEntries = inject(ManageTimeEntries);
 
+  public readonly establishmentId = input.required<EstablishmentId>();
   public readonly entry = input<TimeEntry>();
   public readonly members = input<EstablishmentMember[]>([]);
   public readonly workdayDate = input.required<string>();
@@ -170,10 +171,13 @@ export class TimeEntryForm {
     const existing = this.entry();
 
     if (existing) {
-      return this.#store.amend(asTimeEntryId(existing.id), { occurredAt: this.#occurredAt(time), reason });
+      return this.#manageTimeEntries.amend(this.establishmentId(), asTimeEntryId(existing.id), {
+        occurredAt: this.#occurredAt(time),
+        reason,
+      });
     }
 
-    return this.#store.createEntry({
+    return this.#manageTimeEntries.create(this.establishmentId(), {
       userId: asUserId(userId),
       type,
       occurredAt: this.#occurredAt(time),

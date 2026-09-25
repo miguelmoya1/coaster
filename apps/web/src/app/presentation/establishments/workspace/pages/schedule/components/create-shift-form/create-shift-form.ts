@@ -2,11 +2,11 @@ import { Component, computed, inject, input, output, signal } from '@angular/cor
 import { FormField, FormRoot, form, required } from '@angular/forms/signals';
 import { MatButton } from '@angular/material/button';
 import { MatTimepicker, MatTimepickerInput, MatTimepickerToggle } from '@angular/material/timepicker';
-import type { EstablishmentMember } from '@coaster/common';
+import type { EstablishmentId, EstablishmentMember } from '@coaster/common';
 import { asUserId } from '@coaster/common';
 import { DateFormatterService, handleErrorFormField } from '@coaster/core';
 import { ScheduleStateService } from '@coaster/schedule';
-import { ShiftsStore } from '@coaster/shifts';
+import { ManageShifts } from '@coaster/shifts';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Field } from '../../../../../../components/field/field';
 import { FormErrors } from '../../../../../../components/field/form-errors';
@@ -99,13 +99,14 @@ import { CoasterInput } from '../../../../../../components/field/input.directive
   `,
 })
 export class CreateShiftForm {
+  readonly establishmentId = input.required<EstablishmentId>();
   readonly members = input.required<EstablishmentMember[]>();
   readonly disabled = input(false);
 
   readonly canceled = output<void>();
   readonly created = output<void>();
 
-  readonly #shiftsStore = inject(ShiftsStore);
+  readonly #manageShifts = inject(ManageShifts);
   readonly #scheduleState = inject(ScheduleStateService);
   readonly #dateFormatter = inject(DateFormatterService);
 
@@ -164,7 +165,7 @@ export class CreateShiftForm {
           }
 
           try {
-            await this.#shiftsStore.create({
+            await this.#manageShifts.create(this.establishmentId(), {
               userId: asUserId(raw.userId),
               startTime: startTimeDate.toISOString(),
               endTime: endTimeDate.toISOString(),

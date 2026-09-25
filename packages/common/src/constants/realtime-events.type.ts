@@ -14,6 +14,7 @@ export type RealtimeEventPayloads = {
   productUpdated: Product;
   productStockChanged: Product;
   productDeleted: { id: ProductId };
+  catalogueImported: { establishmentId: EstablishmentId };
   categoryCreated: Category;
   categoryUpdated: Category;
   categoryDeleted: { id: CategoryId };
@@ -44,6 +45,7 @@ export const RealtimeEvents = {
   productUpdated: 'productUpdated',
   productStockChanged: 'productStockChanged',
   productDeleted: 'productDeleted',
+  catalogueImported: 'catalogueImported',
   categoryCreated: 'categoryCreated',
   categoryUpdated: 'categoryUpdated',
   categoryDeleted: 'categoryDeleted',

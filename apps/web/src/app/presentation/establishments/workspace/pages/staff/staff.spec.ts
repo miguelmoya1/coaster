@@ -3,7 +3,9 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { MyMemberStore } from '@coaster/establishment-members';
 import { EstablishmentRole } from '@coaster/common';
-import { MembersStore } from '@coaster/establishment-members';
+import { ManageMembers } from '@coaster/establishment-members';
+import type { EstablishmentMember } from '@coaster/common';
+import { fakeResource } from '@coaster/testing';
 import { EstablishmentSubscriptionStore } from '@coaster/establishment-subscription';
 
 import { provideTranslateService } from '@ngx-translate/core';
@@ -15,16 +17,12 @@ describe('Staff', () => {
   let component: Staff;
   let fixture: ComponentFixture<Staff>;
 
+  let members = fakeResource<EstablishmentMember[]>([]);
+
   const membersStoreMock = {
-    list: {
-      value: signal([]),
-      hasValue: signal(false),
-      isLoading: signal(false),
-    },
-    isOnlyOwner: vi.fn().mockReturnValue(false),
-    setEstablishmentId: vi.fn(),
     remove: vi.fn(),
     resendInvite: vi.fn(),
+    updateRole: vi.fn(),
   };
 
   const canManageBilling = signal(true);
@@ -76,7 +74,7 @@ describe('Staff', () => {
       providers: [
         provideTranslateService(),
         provideRouter([]),
-        { provide: MembersStore, useValue: membersStoreMock },
+        { provide: ManageMembers, useValue: membersStoreMock },
         { provide: MyMemberStore, useValue: myMemberStoreMock },
         { provide: ConfirmationDialog, useValue: confirmationDialogMock },
         { provide: EstablishmentSubscriptionStore, useValue: subscriptionStoreMock },
@@ -85,8 +83,10 @@ describe('Staff', () => {
 
     vi.clearAllMocks();
 
+    members = fakeResource<EstablishmentMember[]>([]);
     fixture = TestBed.createComponent(Staff);
     fixture.componentRef.setInput('establishmentId', 'establishment-1');
+    fixture.componentRef.setInput('members', members.resource);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });
@@ -154,7 +154,7 @@ describe('Staff', () => {
     });
 
     it('should return empty members array when list is empty', () => {
-      expect(component['members']()).toEqual([]);
+      expect(component['memberItems']()).toEqual([]);
     });
 
     it('should return undefined userMember when no matching member', () => {
@@ -162,10 +162,7 @@ describe('Staff', () => {
     });
 
     it('should calculate members correctly with permissions', () => {
-      membersStoreMock.list.hasValue.set(true);
-      membersStoreMock.list.value.set([
-        { id: 'm1', userId: 'u1', userName: 'Test User 1', role: EstablishmentRole.OWNER },
-      ] as any);
+      members.resolve([{ id: 'm1', userId: 'u1', userName: 'Test User 1', role: EstablishmentRole.OWNER }] as any);
       myMemberStoreMock.myMember.hasValue.set(true);
       myMemberStoreMock.myMember.value.set({
         userId: 'u1',
@@ -173,12 +170,11 @@ describe('Staff', () => {
         role: EstablishmentRole.OWNER,
       } as any);
       myMemberStoreMock.isOwner.set(false);
-      membersStoreMock.isOnlyOwner.mockReturnValue(false);
 
-      const members = component['members']();
-      expect(members.length).toBe(1);
-      expect(members[0].isCurrentUser).toBe(true);
-      expect(members[0].showDeleteButton).toBe(true);
+      const items = component['memberItems']();
+      expect(items.length).toBe(1);
+      expect(items[0].isCurrentUser).toBe(true);
+      expect(items[0].showDeleteButton).toBe(true);
     });
   });
 
@@ -202,7 +198,8 @@ describe('Staff', () => {
       });
 
       expect(confirmationDialogMock.confirm).toHaveBeenCalled();
-      expect(membersStoreMock.remove).toHaveBeenCalledWith('m1');
+      expect(membersStoreMock.remove).toHaveBeenCalledWith('establishment-1', 'm1');
+      expect(members.reload).toHaveBeenCalled();
     });
   });
 
@@ -226,8 +223,7 @@ describe('Staff', () => {
   });
   describe('a pending invitation', () => {
     const listPendingMember = () => {
-      membersStoreMock.list.hasValue.set(true);
-      membersStoreMock.list.value.set([
+      members.resolve([
         {
           id: 'm2',
           userId: 'u2',
@@ -245,7 +241,7 @@ describe('Staff', () => {
       canInvite.set(true);
       listPendingMember();
 
-      const [member] = component['members']();
+      const [member] = component['memberItems']();
 
       expect(member.isPending).toBe(true);
       expect(member.canResendInvite).toBe(true);
@@ -255,10 +251,10 @@ describe('Staff', () => {
       canInvite.set(false);
       listPendingMember();
 
-      expect(component['members']()[0].canResendInvite).toBe(false);
+      expect(component['memberItems']()[0].canResendInvite).toBe(false);
     });
 
-    it('should send it again through the store', async () => {
+    it('should send it again', async () => {
       membersStoreMock.resendInvite.mockResolvedValue(undefined);
 
       await (component as any).handleResendInvite({
@@ -266,7 +262,7 @@ describe('Staff', () => {
         userEmail: 'invited@test.com',
       });
 
-      expect(membersStoreMock.resendInvite).toHaveBeenCalledWith('m2');
+      expect(membersStoreMock.resendInvite).toHaveBeenCalledWith('establishment-1', 'm2');
     });
   });
 });

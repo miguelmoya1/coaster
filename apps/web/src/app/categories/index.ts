@@ -1,1 +1,2 @@
-export { CategoriesStore } from './store/categories.store';
+export { categoriesResource } from './resources/categories.resource';
+export { ManageCategories } from './services/manage-categories';

@@ -1,10 +1,16 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, debounced, effect, inject, input, linkedSignal, untracked } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AdminEstablishmentsStore } from '@coaster/admin';
-import type { EstablishmentBillingSource, EstablishmentId } from '@coaster/common';
-import { EstablishmentBillingSource as BillingSource } from '@coaster/common';
+import { ADMIN_PAGE_SIZE, oneOf, pageOf, searchOf, totalPagesOf } from '@coaster/admin';
+import type {
+  AdminEstablishmentSummary,
+  EstablishmentBillingSource,
+  EstablishmentId,
+  Paginated,
+} from '@coaster/common';
+import { EstablishmentBillingSource as BillingSource, SubscriptionStatus } from '@coaster/common';
+import type { PageResource } from '@coaster/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { CoasterInput } from '../../../components/field/input.directive';
 import { Loading } from '../../../components/loading/loading';
@@ -39,36 +45,57 @@ const BILLING_FILTERS: (EstablishmentBillingSource | undefined)[] = [
   },
 })
 export default class AdminEstablishments {
-  readonly #store = inject(AdminEstablishmentsStore);
-  readonly #router = inject(Router);
+  public readonly results = input.required<PageResource<Paginated<AdminEstablishmentSummary>>>();
+  public readonly q = input<string>();
+  public readonly billingSource = input<string>();
+  public readonly status = input<string>();
+  public readonly page = input<string>();
 
-  protected readonly establishments = this.#store.establishments;
-  protected readonly total = this.#store.total;
-  protected readonly page = this.#store.page;
-  protected readonly pageSize = this.#store.pageSize;
-  protected readonly totalPages = this.#store.totalPages;
-  protected readonly isLoading = this.#store.isLoading;
-  protected readonly hasLoaded = this.#store.hasLoaded;
-  protected readonly hasFilters = this.#store.hasFilters;
-  protected readonly searchQuery = this.#store.searchQuery;
-  protected readonly billingSource = this.#store.billingSource;
+  readonly #router = inject(Router);
+  readonly #route = inject(ActivatedRoute);
+
+  readonly #loaded = computed(() => {
+    const results = this.results();
+    return results.hasValue() ? results.value() : undefined;
+  });
+
+  protected readonly searchQuery = linkedSignal(() => this.q() ?? '');
+  readonly #typed = debounced(this.searchQuery, 400);
+
+  protected readonly establishments = computed(() => this.#loaded()?.items ?? []);
+  protected readonly total = computed(() => this.#loaded()?.total ?? 0);
+  protected readonly currentPage = computed(() => pageOf(this.page()));
+  protected readonly pageSize = ADMIN_PAGE_SIZE.establishments;
+  protected readonly totalPages = computed(() => totalPagesOf(this.total(), this.pageSize));
+  protected readonly isLoading = computed(() => this.results().isLoading() || this.#typed.status() === 'loading');
+  protected readonly hasLoaded = computed(() => this.results().hasValue());
+  protected readonly selectedBillingSource = computed(() => oneOf(Object.values(BillingSource), this.billingSource()));
+  protected readonly selectedStatus = computed(() => oneOf(Object.values(SubscriptionStatus), this.status()));
+  protected readonly hasFilters = computed(
+    () =>
+      Boolean(searchOf(this.searchQuery())) ||
+      this.selectedBillingSource() !== undefined ||
+      this.selectedStatus() !== undefined,
+  );
 
   protected readonly billingFilters = BILLING_FILTERS;
 
   constructor() {
-    const requested = inject(ActivatedRoute).snapshot.queryParamMap.get('billingSource');
+    effect(() => {
+      const typed = searchOf(this.#typed.value());
 
-    if (requested && BILLING_FILTERS.includes(requested as EstablishmentBillingSource)) {
-      this.#store.setBillingSource(requested as EstablishmentBillingSource);
-    }
+      if (typed !== searchOf(untracked(this.q))) {
+        untracked(() => this.#query({ q: typed ?? null, page: null }));
+      }
+    });
   }
 
   protected onSearch(event: Event) {
-    this.#store.setSearchQuery((event.target as HTMLInputElement).value);
+    this.searchQuery.set((event.target as HTMLInputElement).value);
   }
 
   protected selectBillingSource(source: EstablishmentBillingSource | undefined) {
-    this.#store.setBillingSource(source);
+    this.#query({ billingSource: source ?? null, page: null });
   }
 
   protected filterLabel(source: EstablishmentBillingSource | undefined): string {
@@ -76,11 +103,16 @@ export default class AdminEstablishments {
   }
 
   protected clearFilters() {
-    this.#store.clearFilters();
+    this.searchQuery.set('');
+    this.#query({ q: null, billingSource: null, status: null, page: null });
   }
 
   protected goToPage(page: number) {
-    this.#store.goToPage(page);
+    this.#query({ page: Math.min(Math.max(1, page), this.totalPages()) });
+  }
+
+  #query(queryParams: Record<string, string | number | null>) {
+    void this.#router.navigate([], { relativeTo: this.#route, queryParams, queryParamsHandling: 'merge' });
   }
 
   protected openEstablishment(establishmentId: EstablishmentId) {

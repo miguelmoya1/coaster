@@ -1,18 +1,27 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { Router, RouterLink } from '@angular/router';
-import { EstablishmentListStore } from '@coaster/establishments';
-import { CurrentUser } from '@coaster/core';
+import type { Establishment } from '@coaster/common';
+import { CurrentUser, type PageResource } from '@coaster/core';
 import { TranslatePipe } from '@ngx-translate/core';
-import { Loading } from '../../../components/loading/loading';
+import { ResourceStatus } from '../../../components/resource-status/resource-status';
 import { PageContainer } from '../../../components/page-container/page-container';
 import { PageHeader } from '../../../components/page-header/page-header';
 import { EstablishmentCard } from './components/establishment-card/establishment-card';
 
 @Component({
   selector: 'coaster-select-establishment',
-  imports: [EstablishmentCard, TranslatePipe, MatButton, MatIcon, RouterLink, Loading, PageContainer, PageHeader],
+  imports: [
+    EstablishmentCard,
+    TranslatePipe,
+    MatButton,
+    MatIcon,
+    RouterLink,
+    ResourceStatus,
+    PageContainer,
+    PageHeader,
+  ],
   templateUrl: './select-establishment.html',
   host: {
     class: 'block w-full flex-1 animate-in fade-in slide-in-from-bottom-4 duration-500',
@@ -20,10 +29,14 @@ import { EstablishmentCard } from './components/establishment-card/establishment
 })
 export default class SelectEstablishment {
   readonly #router = inject(Router);
-  readonly #establishmentListStore = inject(EstablishmentListStore);
   readonly #currentUser = inject(CurrentUser);
 
-  readonly establishments = this.#establishmentListStore.list;
+  public readonly establishments = input.required<PageResource<Establishment[]>>();
+
+  protected readonly list = computed(() => {
+    const establishments = this.establishments();
+    return establishments.hasValue() ? (establishments.value() ?? []) : [];
+  });
   readonly isAdmin = this.#currentUser.isAdmin;
 
   navigateToCreate() {

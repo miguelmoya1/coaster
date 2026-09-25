@@ -30,17 +30,19 @@
 </div>
 
 <div class="grid grid-cols-2 gap-3">
-  <coaster-stat-card [label]="'history.revenue' | translate" [value]="totalRevenue() | price" />
-  <coaster-stat-card [label]="'history.total_orders' | translate" [value]="totalClosed()" tone="secondary" />
-  <coaster-stat-card [label]="'history.cancelled' | translate" [value]="totalCancelled()" tone="error" />
-  <coaster-stat-card [label]="'history.avg_ticket' | translate" [value]="averageTicket() | price" tone="tertiary" />
+  <coaster-stat-card [label]="'history.revenue' | translate" [value]="summary().revenue | price" />
+  <coaster-stat-card [label]="'history.total_orders' | translate" [value]="summary().closed" tone="secondary" />
+  <coaster-stat-card [label]="'history.cancelled' | translate" [value]="summary().cancelled" tone="error" />
+  <coaster-stat-card
+    [label]="'history.avg_ticket' | translate"
+    [value]="summary().averageTicket | price"
+    tone="tertiary"
+  />
 </div>
 
 <h2 class="heading-2">{{ 'history.orders_list' | translate }}</h2>
 
-@if (isLoading()) {
-  <coaster-loading />
-}
+<coaster-resource-status [resource]="history()" />
 
 <div class="flex flex-col gap-3">
   @for (order of ordersViewModel(); track order.original.id) {
@@ -118,7 +120,7 @@
       </div>
     </div>
   } @empty {
-    @if (!isLoading()) {
+    @if (history().hasValue()) {
       <div class="text-center text-on-surface-variant py-8">
         {{ 'history.no_orders' | translate }}
       </div>

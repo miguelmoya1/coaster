@@ -38,6 +38,7 @@ describe('InviteMemberForm', () => {
     }).compileComponents();
 
     fixture = TestBed.createComponent(InviteMemberForm);
+    fixture.componentRef.setInput('establishmentId', 'establishment-1');
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

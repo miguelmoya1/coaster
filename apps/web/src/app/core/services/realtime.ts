@@ -34,6 +34,7 @@ export class Realtime implements OnDestroy {
   readonly productUpdated = signal<Product | null>(null);
   readonly productStockChanged = signal<Product | null>(null);
   readonly productDeleted = signal<{ id: string } | null>(null);
+  readonly catalogueImported = signal<{ establishmentId: string } | null>(null);
   readonly categoryCreated = signal<Category | null>(null);
   readonly categoryUpdated = signal<Category | null>(null);
   readonly categoryDeleted = signal<{ id: string } | null>(null);
@@ -61,6 +62,7 @@ export class Realtime implements OnDestroy {
     productUpdated: this.productUpdated,
     productStockChanged: this.productStockChanged,
     productDeleted: this.productDeleted,
+    catalogueImported: this.catalogueImported,
     categoryCreated: this.categoryCreated,
     categoryUpdated: this.categoryUpdated,
     categoryDeleted: this.categoryDeleted,

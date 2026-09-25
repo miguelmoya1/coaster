@@ -2,11 +2,12 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MyMemberStore } from '@coaster/establishment-members';
-import { ClockState } from '@coaster/common';
-import { TimeTrackingStore } from '@coaster/time-tracking';
-import { ExchangesStore } from '@coaster/exchanges';
-import { MembersStore } from '@coaster/establishment-members';
-import { ShiftsStore } from '@coaster/shifts';
+import type { EstablishmentMember, Shift, ShiftExchange, Workday } from '@coaster/common';
+import { ClockState, TimeEntryType } from '@coaster/common';
+import { ManageTimeEntries } from '@coaster/time-tracking';
+import { ManageExchanges } from '@coaster/exchanges';
+import { ManageShifts } from '@coaster/shifts';
+import { fakeResource } from '@coaster/testing';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ConfirmationDialog } from '../../../../components/confirm-dialog/confirmation-dialog.service';
@@ -16,25 +17,11 @@ describe('Schedule', () => {
   let component: Schedule;
   let fixture: ComponentFixture<Schedule>;
 
-  const membersStoreMock = {
-    list: {
-      value: vi.fn().mockReturnValue([]),
-      isLoading: vi.fn().mockReturnValue(false),
-      hasValue: vi.fn().mockReturnValue(true),
-    },
-    setEstablishmentId: vi.fn(),
-  };
-
-  const shiftsStoreMock = {
-    shifts: {
-      value: vi.fn().mockReturnValue([]),
-      isLoading: vi.fn().mockReturnValue(false),
-      hasValue: vi.fn().mockReturnValue(true),
-    },
-    setEstablishmentId: vi.fn(),
-    setDateRange: vi.fn(),
-    reload: vi.fn(),
-  };
+  let shifts = fakeResource<Shift[]>([]);
+  let exchanges = fakeResource<ShiftExchange[]>([]);
+  let myWorkdays = fakeResource<Workday[]>([]);
+  let runningWorkday = fakeResource<Workday | null>(null);
+  let teamWorkdays = fakeResource<Workday[]>([]);
 
   const myMemberStoreMock = {
     myMember: {
@@ -44,32 +31,22 @@ describe('Schedule', () => {
     hasPermission: vi.fn().mockReturnValue(false),
   };
 
+  const shiftsStoreMock = {
+    delete: vi.fn().mockResolvedValue(undefined),
+    create: vi.fn().mockResolvedValue(undefined),
+    listBetween: vi.fn().mockResolvedValue([]),
+  };
+
   const timeTrackingStoreMock = {
-    myWorkday: vi.fn().mockReturnValue(undefined),
-    clockState: vi.fn().mockReturnValue(ClockState.OUT),
-    teamWorkdays: {
-      value: vi.fn().mockReturnValue([]),
-      isLoading: vi.fn().mockReturnValue(false),
-      hasValue: vi.fn().mockReturnValue(true),
-    },
-    setEstablishmentId: vi.fn(),
-    setRange: vi.fn(),
-    setTeamEnabled: vi.fn(),
-    clock: vi.fn(),
+    clock: vi.fn().mockResolvedValue(undefined),
     exportCsv: vi.fn(),
     verifyIntegrity: vi.fn(),
   };
 
   const exchangesMock = {
-    exchanges: {
-      value: vi.fn().mockReturnValue([]),
-      isLoading: vi.fn().mockReturnValue(false),
-      hasValue: vi.fn().mockReturnValue(true),
-    },
-    setEstablishmentId: vi.fn(),
     accept: vi.fn(),
     request: vi.fn(),
-    reload: vi.fn(),
+    delete: vi.fn(),
   };
 
   const confirmationDialogMock = {
@@ -86,20 +63,31 @@ describe('Schedule', () => {
       providers: [
         provideTranslateService(),
         provideRouter([]),
-        { provide: MembersStore, useValue: membersStoreMock },
-        { provide: ShiftsStore, useValue: shiftsStoreMock },
+        { provide: ManageShifts, useValue: shiftsStoreMock },
         { provide: MyMemberStore, useValue: myMemberStoreMock },
-        { provide: ExchangesStore, useValue: exchangesMock },
+        { provide: ManageExchanges, useValue: exchangesMock },
         { provide: ConfirmationDialog, useValue: confirmationDialogMock },
-        { provide: TimeTrackingStore, useValue: timeTrackingStoreMock },
+        { provide: ManageTimeEntries, useValue: timeTrackingStoreMock },
         { provide: MatBottomSheet, useValue: bottomSheetMock },
       ],
     }).compileComponents();
 
     vi.clearAllMocks();
 
+    shifts = fakeResource<Shift[]>([]);
+    exchanges = fakeResource<ShiftExchange[]>([]);
+    myWorkdays = fakeResource<Workday[]>([]);
+    runningWorkday = fakeResource<Workday | null>(null);
+    teamWorkdays = fakeResource<Workday[]>([]);
+
     fixture = TestBed.createComponent(Schedule);
     fixture.componentRef.setInput('establishmentId', 'establishment-1');
+    fixture.componentRef.setInput('shifts', shifts.resource);
+    fixture.componentRef.setInput('exchanges', exchanges.resource);
+    fixture.componentRef.setInput('members', fakeResource<EstablishmentMember[]>([]).resource);
+    fixture.componentRef.setInput('myWorkdays', myWorkdays.resource);
+    fixture.componentRef.setInput('runningWorkday', runningWorkday.resource);
+    fixture.componentRef.setInput('teamWorkdays', teamWorkdays.resource);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });
@@ -187,48 +175,62 @@ describe('Schedule', () => {
       expect(updateSpy).toHaveBeenCalled();
     });
 
-    it('should delete a shift after confirmation', async () => {
-      (shiftsStoreMock as any).delete = vi.fn().mockResolvedValue(null);
-      const shift = { id: 's1' } as any;
+    it('should delete a shift after confirmation, and bring shifts and exchanges up to date', async () => {
       confirmationDialogMock.confirm.mockResolvedValue(true);
 
-      await (component as any).handleClickDeleteShift(shift);
+      await (component as any).handleClickDeleteShift({ id: 's1' });
 
-      expect(confirmationDialogMock.confirm).toHaveBeenCalled();
-      expect((shiftsStoreMock as any).delete).toHaveBeenCalledWith('s1');
-      expect(exchangesMock.reload).toHaveBeenCalled();
+      expect(shiftsStoreMock.delete).toHaveBeenCalledWith('establishment-1', 's1');
+      expect(shifts.reload).toHaveBeenCalled();
+      expect(exchanges.reload).toHaveBeenCalled();
     });
 
     it('should delete an exchange after confirmation', async () => {
-      (exchangesMock as any).delete = vi.fn().mockResolvedValue(null);
-      const exchange = { id: 'e1' } as any;
+      exchangesMock.delete.mockResolvedValue(null);
       confirmationDialogMock.confirm.mockResolvedValue(true);
 
-      await (component as any).handleClickDeleteExchange(exchange);
+      await (component as any).handleClickDeleteExchange({ id: 'e1' });
 
-      expect(confirmationDialogMock.confirm).toHaveBeenCalled();
-      expect((exchangesMock as any).delete).toHaveBeenCalledWith('e1');
-      expect(shiftsStoreMock.reload).toHaveBeenCalled();
+      expect(exchangesMock.delete).toHaveBeenCalledWith('establishment-1', 'e1');
+      expect(shifts.reload).toHaveBeenCalled();
     });
 
-    it('should handleOfferExchange correctly', async () => {
+    it('should offer a shift and bring shifts and exchanges up to date', async () => {
       exchangesMock.request.mockResolvedValue(null);
 
       await (component as any).handleOfferExchange('s1');
 
-      expect(exchangesMock.request).toHaveBeenCalledWith('s1', {});
-      expect(shiftsStoreMock.reload).toHaveBeenCalled();
-      expect(exchangesMock.reload).toHaveBeenCalled();
+      expect(exchangesMock.request).toHaveBeenCalledWith('establishment-1', 's1', {});
+      expect(shifts.reload).toHaveBeenCalled();
+      expect(exchanges.reload).toHaveBeenCalled();
     });
 
-    it('should handleAcceptExchange correctly', async () => {
+    it('should accept an exchange and bring shifts and exchanges up to date', async () => {
       exchangesMock.accept.mockResolvedValue(null);
 
       await (component as any).handleAcceptExchange('e1');
 
-      expect(exchangesMock.accept).toHaveBeenCalledWith('e1');
-      expect(shiftsStoreMock.reload).toHaveBeenCalled();
-      expect(exchangesMock.reload).toHaveBeenCalled();
+      expect(exchangesMock.accept).toHaveBeenCalledWith('establishment-1', 'e1');
+      expect(shifts.reload).toHaveBeenCalled();
+      expect(exchanges.reload).toHaveBeenCalled();
+    });
+  });
+
+  describe('clocking', () => {
+    it('should read the clock from the running workday', () => {
+      runningWorkday.resolve({ state: ClockState.IN, date: '2026-08-08' } as Workday);
+
+      expect(component.clockState()).toBe(ClockState.IN);
+    });
+
+    it('should go back to the server after a punch even when it is refused, instead of keeping a stale picture', async () => {
+      timeTrackingStoreMock.clock.mockRejectedValueOnce(new Error('INVALID_CLOCK_SEQUENCE'));
+
+      await (component as any).handleClock(TimeEntryType.CLOCK_IN);
+
+      expect(myWorkdays.reload).toHaveBeenCalled();
+      expect(runningWorkday.reload).toHaveBeenCalled();
+      expect(teamWorkdays.reload).toHaveBeenCalled();
     });
   });
 });

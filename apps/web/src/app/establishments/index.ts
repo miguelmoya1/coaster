@@ -4,7 +4,6 @@ export { establishmentArrayMapper, establishmentMapper, checkIsEstablishment } f
 export { CreateEstablishment } from './services/create-establishment';
 export { CurrentEstablishment } from './services/current-establishment';
 export { EstablishmentSettingsService } from './services/establishment-settings';
-export { MyEstablishments } from './services/my-establishments';
-export { EstablishmentListStore } from './store/establishment-list.store';
 export { CurrentEstablishmentStore } from './store/current-establishment.store';
 export { ModulesStore } from './store/modules.store';
+export { myEstablishmentsResource } from './resources/my-establishments.resource';

@@ -1,10 +1,6 @@
-@if (preview.isLoading() && !preview.hasValue()) {
-  <coaster-loading />
-}
+<coaster-resource-status [resource]="preview()" />
 
-@if (preview.hasValue()) {
-  @let current = preview.value();
-
+@if (current(); as current) {
   <p class="text-sm text-on-surface-variant">
     @if (current.since) {
       {{ 'cash_close.since' | translate: { date: when(current.since) } }}
@@ -120,7 +116,7 @@
   <h2 class="heading-2">{{ 'cash_close.history_title' | translate }}</h2>
 
   <div class="flex flex-col gap-3">
-    @for (cashClose of history.value() ?? []; track cashClose.id) {
+    @for (cashClose of historyList(); track cashClose.id) {
       <div class="rounded-2xl border border-outline-variant/20 bg-surface-container p-4 flex flex-col gap-2">
         <div class="flex items-center justify-between gap-2">
           <span class="font-bold text-on-surface">{{ when(cashClose.closedAt) }}</span>
@@ -159,7 +155,7 @@
         </div>
       </div>
     } @empty {
-      @if (!history.isLoading()) {
+      @if (history().hasValue()) {
         <div class="text-center text-on-surface-variant py-8">{{ 'cash_close.no_history' | translate }}</div>
       }
     }

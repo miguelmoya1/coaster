@@ -1,12 +1,12 @@
 import { DatePipe } from '@angular/common';
-import { Component, computed, effect, inject, input, signal } from '@angular/core';
+import { Component, computed, inject, input, signal } from '@angular/core';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { Router } from '@angular/router';
-import { AdminEstablishmentDetailStore } from '@coaster/admin';
-import type { EstablishmentId, EstablishmentMemberId } from '@coaster/common';
+import { ManagePlatform } from '@coaster/admin';
+import type { AdminEstablishmentDetail as Detail, EstablishmentId, EstablishmentMemberId } from '@coaster/common';
 import {
   DEFAULT_ESTABLISHMENT_MODULES,
   EstablishmentModule,
@@ -14,7 +14,7 @@ import {
   SubscriptionPlan,
   resolveModules,
 } from '@coaster/common';
-import { ActionFeedback } from '@coaster/core';
+import { ActionFeedback, type PageResource } from '@coaster/core';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { CoasterInput } from '../../../components/field/input.directive';
 import { PricePipe } from '../../../establishments/workspace/pipes/price/price';
@@ -53,22 +53,28 @@ import { StatusChip } from '../../components/status-chip/status-chip';
 })
 export default class AdminEstablishmentDetail {
   public readonly establishmentId = input.required<EstablishmentId>();
+  public readonly detail = input.required<PageResource<Detail>>();
 
-  readonly #store = inject(AdminEstablishmentDetailStore);
+  readonly #managePlatform = inject(ManagePlatform);
   readonly #grantDialog = inject(GrantPlanDialogService);
   readonly #confirm = inject(ConfirmationDialog);
   readonly #feedback = inject(ActionFeedback);
   readonly #translate = inject(TranslateService);
   readonly #router = inject(Router);
 
-  protected readonly establishment = this.#store.establishment;
-  protected readonly settings = this.#store.settings;
-  protected readonly subscription = this.#store.subscription;
-  protected readonly members = this.#store.members;
-  protected readonly counters = this.#store.counters;
-  protected readonly recentActivity = this.#store.recentActivity;
-  protected readonly isLoading = this.#store.isLoading;
-  protected readonly isSaving = this.#store.isSaving;
+  readonly #loaded = computed(() => {
+    const detail = this.detail();
+    return detail.hasValue() ? (detail.value() ?? null) : null;
+  });
+
+  protected readonly establishment = computed(() => this.#loaded()?.establishment ?? null);
+  protected readonly settings = computed(() => this.#loaded()?.settings ?? null);
+  protected readonly subscription = computed(() => this.#loaded()?.subscription ?? null);
+  protected readonly members = computed(() => this.#loaded()?.members ?? []);
+  protected readonly counters = computed(() => this.#loaded()?.counters ?? null);
+  protected readonly recentActivity = computed(() => this.#loaded()?.recentActivity ?? []);
+  protected readonly isLoading = computed(() => this.detail().isLoading());
+  protected readonly isSaving = signal(false);
 
   protected readonly moduleRows = [
     { module: EstablishmentModule.TIME_TRACKING, labelKey: 'settings.module_time_tracking', locked: true },
@@ -95,7 +101,7 @@ export default class AdminEstablishmentDetail {
     const next = resolveModules(on ? [...without, module] : without);
 
     this.#draftModules.set(next);
-    await this.#store.updateModules(next);
+    await this.#save(() => this.#managePlatform.updateModules(this.establishmentId(), next));
     this.#draftModules.set(null);
     this.#feedback.success(this.#translate.instant('admin.establishment_detail.modules_saved'));
   }
@@ -105,10 +111,6 @@ export default class AdminEstablishmentDetail {
   protected readonly renameValue = signal('');
 
   protected readonly manualGrant = computed(() => this.subscription()?.manualGrant ?? null);
-
-  constructor() {
-    effect(() => this.#store.setEstablishmentId(this.establishmentId()));
-  }
 
   protected startRename() {
     this.renameValue.set(this.establishment()?.name ?? '');
@@ -132,7 +134,7 @@ export default class AdminEstablishmentDetail {
     }
 
     try {
-      await this.#store.rename(name);
+      await this.#save(() => this.#managePlatform.rename(this.establishmentId(), name));
       this.isRenaming.set(false);
       this.#feedback.success(this.#translate.instant('admin.establishment_detail.rename_success'));
     } catch (error) {
@@ -154,11 +156,13 @@ export default class AdminEstablishmentDetail {
     }
 
     try {
-      await this.#store.grantPlan({
-        plan: SubscriptionPlan.PRO,
-        durationDays: result.durationDays,
-        reason: result.reason || undefined,
-      });
+      await this.#save(() =>
+        this.#managePlatform.grantPlan(this.establishmentId(), {
+          plan: SubscriptionPlan.PRO,
+          durationDays: result.durationDays,
+          reason: result.reason || undefined,
+        }),
+      );
       this.#feedback.success(this.#translate.instant('admin.establishment_detail.grant_success'));
     } catch (error) {
       this.#feedback.error(error);
@@ -183,7 +187,7 @@ export default class AdminEstablishmentDetail {
     }
 
     try {
-      await this.#store.revokePlan({});
+      await this.#save(() => this.#managePlatform.revokePlan(this.establishmentId(), {}));
       this.#feedback.success(this.#translate.instant('admin.establishment_detail.revoke_success'));
     } catch (error) {
       this.#feedback.error(error);
@@ -192,10 +196,25 @@ export default class AdminEstablishmentDetail {
 
   protected async changeMemberRole(memberId: EstablishmentMemberId, role: EstablishmentRole) {
     try {
-      await this.#store.updateMemberRole(memberId, role);
+      await this.#save(() => this.#managePlatform.updateMemberRole(this.establishmentId(), memberId, role));
       this.#feedback.success(this.#translate.instant('admin.establishment_detail.member_role_success'));
     } catch (error) {
       this.#feedback.error(error);
+    }
+  }
+
+  async #save(action: () => Promise<void>): Promise<void> {
+    if (this.isSaving()) {
+      return;
+    }
+
+    this.isSaving.set(true);
+
+    try {
+      await action();
+      this.detail().reload();
+    } finally {
+      this.isSaving.set(false);
     }
   }
 

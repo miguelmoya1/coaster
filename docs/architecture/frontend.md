@@ -1,6 +1,6 @@
 # Frontend architecture (Angular)
 
-Angular 22, standalone components, signals, zoneless change detection, Material and Tailwind.
+Angular 22.2, standalone components, signals, zoneless change detection, Material and Tailwind.
 
 ## Layers
 
@@ -39,8 +39,9 @@ requests failing at once produce one call to the API, not five.
 
 Domains mirror the backend modules (`apps/api/src`), so the front end's `establishment-subscription`
 corresponds to the API's. Each domain groups everything of its own: `data-access/` (HTTP
-repositories), `store/` (signal state), `services/`, `mappers/` and, where relevant, `guards/`,
-`directives/` and `dialogs/`.
+repositories), `resources/` (the factories routes read data through), `services/` (writes, as a
+`Manage<Thing>` service), `mappers/` and, where relevant, `store/` (session context only),
+`guards/`, `directives/` and `dialogs/`.
 
 Around an establishment the split is:
 
@@ -51,7 +52,7 @@ Around an establishment the split is:
 | `establishment-subscription` | subscription, checkout, customer portal, plan dialog and its directive                       |
 | `admin`                      | platform backoffice (establishments, users, beta testers, metrics, audit) and `adminGuard`   |
 | `time-tracking`              | clocking: own workday, team register, corrections and export                                 |
-| `schedule`                   | `ScheduleStateService`: selected date, view mode and the ranges derived from them            |
+| `schedule`                   | `ScheduleStateService` and the pure date and range helpers the rota's routes share           |
 | `categories`, `products`     | the catalogue                                                                                |
 | `catalogue`                  | importing the starter catalogue Coaster ships                                                |
 | `menu`                       | the menu editor's draft, publishing, and the public page's read                              |
@@ -75,25 +76,86 @@ itself (see `establishment-subscription/dialogs/select-plan-dialog/`).
 Each domain declares its public API in its `index.ts` and is consumed by alias (`@coaster/establishments`),
 never through relative paths that cross folders.
 
-#### Stores
+#### Page data comes from the route; the session comes from stores
 
-A store **never injects another store**. Those that depend on an establishment hold the id in their own signal
-and expose `setEstablishmentId()`:
+Two kinds of state, handled two different ways.
+
+**Session context** — who I am in this establishment, which modules it runs, the establishment
+itself, its subscription — is loaded once by the workspace layout and read anywhere by injection:
+`MyMemberStore`, `ModulesStore`, `CurrentEstablishmentStore`, `EstablishmentSubscriptionStore`. These
+are the only stores left, and a store **never injects another store**. The layout hands them the
+establishment id in an `effect` and clears it on cleanup; `permissionGuard` does the same for
+`MyMemberStore` before the layout exists.
+
+**Page data** — the tables, the orders of a day, the products, the rota — is declared on the route
+with **router resources** and reaches the page as an input. No page injects a store to read.
 
 ```ts
-readonly #currentEstablishmentId = signal<EstablishmentId | undefined>(undefined);
-readonly #resource = httpResource(() => this.#service.execute(this.#currentEstablishmentId()), { parse });
-public readonly currentEstablishmentId = this.#currentEstablishmentId.asReadonly();
-public setEstablishmentId(establishmentId: EstablishmentId | undefined) { this.#currentEstablishmentId.set(establishmentId); }
+// the route
+{
+  path: 'history',
+  loadComponent: () => import('./pages/history/history'),
+  resources: nonBlockingResources((context) => {
+    const date = queryParam(context, 'date');
+    return { history: orderHistoryResource(establishmentIdOf(context), computed(() => date() ?? todayIso())) };
+  }),
+}
+
+// the page
+public readonly history = input.required<PageResource<Order[]>>();
+public readonly date = input<string>();
 ```
 
-The presentation layer decides which establishment is active:
-`presentation/establishments/workspace/layouts/workspace-layout.ts` has an `effect` that hands the id to every
-workspace store and clears it on cleanup. `permissionGuard` does the same for `MyMemberStore` before
-the layout exists.
+The rules that make it work:
 
-Chaining stores created invisible coupling (a store stopped loading if another had not been
-initialised) and cycles between domains.
+- **Every resource is non-blocking.** `nonBlockingResources` wraps whatever a route returns, so the
+  rule lives in one place: navigation completes at once, the page renders, and it shows
+  `<coaster-resource-status>` (a progress bar, or the error with a retry) until the data is in.
+  Read values with `loadedOr(resource, fallback)`; `value()` **throws** on an errored resource. An
+  empty-state message is gated on `hasValue()`, or the page claims there is nothing while it is still
+  loading.
+- **Factories, not stores.** Each domain exports `xResource(signals…)` functions in `resources/`.
+  They run inside the route's own injector, which the router destroys when the route is left, so
+  every visit fetches fresh and nothing leaks. The route's `resources` function must stay pure: it
+  reads `context.params()` / `context.queryParams()` as signals and never calls anything imperative.
+- **A page only receives the resources of its own route**, not its parent's. With
+  `paramsInheritanceStrategy: 'always'` every route sees `establishmentId`, so each one declares what
+  it needs.
+- **Filters live in the URL.** The history day (`?date=`), the rota (`?date=&view=`), the public
+  menu's language (`?lang=`) and every admin list (`?q=&page=&…`) are query params. Changing a
+  filter is a navigation; the resource reacts to the param, and back/forward and shared links work.
+  The page reads the same params as inputs, parsed with the same helpers the route uses
+  (`scheduleDateOf`, `pageOf`, `oneOf`…), so the two can never disagree.
+- **Writes go through `Manage<Thing>` services** that take the establishment id explicitly, and the
+  page reloads what it shows afterwards with `resource().reload()`. The page receives a read-only
+  wrapper — `set` and `update` are not there — so an optimistic change is a `linkedSignal` of the
+  resource's value that the page sets and rolls back itself (see the tip and notes in
+  `order-detail`).
+- **Permissions can gate a request.** `permittedEstablishmentId(id, permission)` and, on the
+  dashboard, `accessibleEstablishmentId(id, access)` hand the resource `undefined` — so it never
+  asks — when the member may not read it. The dashboard's permission-and-module table
+  (`DASHBOARD_ACCESS`) is the one both the route and the component read.
+
+#### Realtime inside a resource
+
+Realtime events are signals holding **the last event received**. A resource created on every visit
+would process, on creation, an event from minutes ago, and an `update()` issued while the request is
+still in flight replaces the request. Both happened on the first attempt. So a factory always
+listens through `onRealtime(event, handler)`, which ignores the event already there when it starts,
+and changes its list through `updateLoaded(resource, updater)`, which does nothing until the resource
+has a value.
+
+Anything a realtime event does not cover — the starter catalogue import, for one — gets an event on
+the API (`catalogueImported`) rather than a manual reload from the component that caused it, so every
+device sees it.
+
+#### Error boundaries: not yet
+
+Angular 22.2 adds `@boundary { … } @error { … }` (developer preview), and the dashboard is exactly
+its case: a widget that throws should leave the rest on screen. It is not used yet because
+angular-eslint 22.5 — including its latest alpha — parses templates with a compiler older than
+22.2 and fails on the block, which would break lint in CI. Wrap each widget in
+`dashboard.html` once angular-eslint ships a compiler that knows it.
 
 ### `presentation/` — screens
 
@@ -168,7 +230,8 @@ npx tsc --noEmit -p tsconfig.spec.json
 ```
 
 In practice `npm test -w @coaster/web` is the better signal, because the Angular compiler catches
-template errors that raw `tsc` does not.
+template errors that raw `tsc` does not. `strictUnclaimedEventNames` is on, so a misspelt output in
+a template (`(userSelcted)`) fails the build instead of silently never firing.
 
 ## Aliases
 
@@ -229,10 +292,18 @@ version in its module cache; without restarting, it does not reload either. The 
 misleading: whatever was added to the package arrives as `undefined` and blows up far from the
 change.
 
-Two more container traps, both of which look like "my change did not apply":
+Three more container traps, all of which look like "my change did not apply":
 
 - **Adding an npm dependency.** `node_modules` are anonymous volumes, so the host install is
   invisible inside the container. Run `docker compose exec api npm install` (or `web`).
+- **Upgrading Angular.** The same volumes keep the old framework, and the dev server fails with
+  errors about APIs that plainly exist (`'resources' does not exist in type 'Route'`). Rebuild the
+  image and throw the volumes away:
+
+  ```bash
+  docker compose build web && docker compose up -d --force-recreate --renew-anon-volumes web
+  ```
+
 - **Adding or removing an export in `@coaster/common`.** Vite pre-bundles dependencies into
   `.angular/cache`, which `compose.yaml` keeps in a **named** volume that survives restarts, so the
   browser reported `does not provide an export named '...'` for a symbol that plainly existed. This

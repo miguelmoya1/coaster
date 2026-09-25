@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, input, signal } from '@angular/core';
 import { form, FormField, FormRoot, maxLength, minLength, required } from '@angular/forms/signals';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
@@ -10,6 +10,7 @@ import {
   describeUserAgent,
   getErrorMessage,
   handleErrorFormField,
+  type PageResource,
   Toast,
 } from '@coaster/core';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
@@ -67,7 +68,7 @@ const PASSWORD_MAX_LENGTH = 128;
         </a>
       </header>
 
-      @if (account(); as summary) {
+      @if (summary(); as summary) {
         <div class="grid items-start gap-6 lg:grid-cols-2">
           <div class="flex min-w-0 flex-col gap-6">
             <section
@@ -255,7 +256,7 @@ const PASSWORD_MAX_LENGTH = 128;
             }
           </div>
 
-          @if (sessions() === null) {
+          @if (sessionList() === null) {
             <div class="flex justify-center py-6"><coaster-spinner /></div>
           } @else {
             @for (device of devices(); track device.id) {
@@ -330,28 +331,40 @@ export default class Account {
 
   protected readonly OTHERS = 'others';
 
-  protected readonly account = signal<AccountSummary | null>(null);
-  protected readonly failed = signal('');
+  public readonly account = input.required<PageResource<AccountSummary>>();
+  public readonly sessions = input.required<PageResource<AccountSession[]>>();
+
+  protected readonly summary = computed(() => {
+    const account = this.account();
+    return account.hasValue() ? (account.value() ?? null) : null;
+  });
+  protected readonly failed = computed(() => {
+    const error = this.account().error();
+    return error ? getErrorMessage(error) : '';
+  });
   protected readonly sending = signal(false);
   protected readonly unlinking = signal(false);
   protected readonly formModel = signal({ password: '', currentPassword: '' });
-  protected readonly sessions = signal<AccountSession[] | null>(null);
+  protected readonly sessionList = computed<AccountSession[] | null>(() => {
+    const sessions = this.sessions();
+
+    if (sessions.status() === 'error') {
+      return [];
+    }
+
+    return sessions.hasValue() ? (sessions.value() ?? []) : null;
+  });
   protected readonly closing = signal('');
 
   protected readonly devices = computed<Device[]>(() =>
-    (this.sessions() ?? []).map((session) => this.#device(session)),
+    (this.sessionList() ?? []).map((session) => this.#device(session)),
   );
   protected readonly others = computed(() => this.devices().filter((device) => !device.current).length);
-
-  constructor() {
-    void this.#load();
-    void this.#loadSessions();
-  }
 
   readonly passwordForm = form(
     this.formModel,
     (credentials) => {
-      required(credentials.currentPassword, { when: () => this.account()?.hasPassword === true });
+      required(credentials.currentPassword, { when: () => this.summary()?.hasPassword === true });
       required(credentials.password);
       minLength(credentials.password, PASSWORD_MIN_LENGTH);
       maxLength(credentials.password, PASSWORD_MAX_LENGTH);
@@ -365,7 +378,7 @@ export default class Account {
             await this.#repo.setPassword(password, currentPassword || undefined);
             form().reset({ password: '', currentPassword: '' });
             this.#toast.success('account.password.saved');
-            await this.#load();
+            this.account().reload();
 
             return null;
           } catch (error) {
@@ -395,7 +408,7 @@ export default class Account {
     try {
       await this.#repo.closeSession(device.id);
       this.#toast.success('account.sessions.closed');
-      await this.#loadSessions();
+      this.sessions().reload();
     } catch (error) {
       this.#toast.error(getErrorMessage(error));
     } finally {
@@ -420,7 +433,7 @@ export default class Account {
     try {
       await this.#repo.closeOtherSessions();
       this.#toast.success('account.sessions.others_closed');
-      await this.#loadSessions();
+      this.sessions().reload();
     } catch (error) {
       this.#toast.error(getErrorMessage(error));
     } finally {
@@ -448,7 +461,7 @@ export default class Account {
 
     try {
       await this.#repo.unlink(provider);
-      await this.#load();
+      this.account().reload();
     } finally {
       this.unlinking.set(false);
     }
@@ -473,22 +486,5 @@ export default class Account {
     }
 
     return platform === 'iPad' ? 'tablet' : 'computer';
-  }
-
-  async #loadSessions(): Promise<void> {
-    try {
-      this.sessions.set(await this.#repo.sessions());
-    } catch (error) {
-      this.sessions.set([]);
-      this.#toast.error(getErrorMessage(error));
-    }
-  }
-
-  async #load(): Promise<void> {
-    try {
-      this.account.set(await this.#repo.account());
-    } catch (error) {
-      this.failed.set(getErrorMessage(error));
-    }
   }
 }

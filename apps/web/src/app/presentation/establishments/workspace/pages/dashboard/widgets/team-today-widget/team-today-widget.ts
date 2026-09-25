@@ -1,10 +1,9 @@
-import { Component, computed, effect, inject, input } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
-import type { EstablishmentId } from '@coaster/common';
+import type { EstablishmentId, EstablishmentMember, Shift } from '@coaster/common';
 import { EstablishmentRole } from '@coaster/common';
-import { MembersStore } from '@coaster/establishment-members';
-import { ShiftsStore } from '@coaster/shifts';
+import { loadedOr, type PageResource } from '@coaster/core';
 import { TranslatePipe } from '@ngx-translate/core';
 
 const ROLE_LABEL_KEYS: Record<EstablishmentRole, string> = {
@@ -23,43 +22,14 @@ const formatTime = (date: Date) => date.toLocaleTimeString([], { hour: '2-digit'
 })
 export class TeamTodayWidget {
   public readonly establishmentId = input.required<EstablishmentId>();
+  public readonly shifts = input.required<PageResource<Shift[]>>();
+  public readonly members = input.required<PageResource<EstablishmentMember[]>>();
 
-  readonly #membersStore = inject(MembersStore);
-  readonly #shiftsStore = inject(ShiftsStore);
-
-  constructor() {
-    effect(() => {
-      const establishmentId = this.establishmentId();
-      this.#membersStore.setEstablishmentId(establishmentId);
-      this.#shiftsStore.setEstablishmentId(establishmentId);
-    });
-
-    effect(() => {
-      const now = new Date();
-      const startIso = new Date(now.setHours(0, 0, 0, 0)).toISOString();
-      const endIso = new Date(now.setHours(23, 59, 59, 999)).toISOString();
-      this.#shiftsStore.setDateRange(startIso, endIso);
-    });
-  }
-
-  readonly totalAssignedToday = computed(() => {
-    if (!this.#shiftsStore.shifts.hasValue()) {
-      return 0;
-    }
-    return this.#shiftsStore.shifts.value()?.length ?? 0;
-  });
+  readonly totalAssignedToday = computed(() => loadedOr(this.shifts(), []).length);
 
   readonly scheduleOverview = computed(() => {
-    if (!this.#membersStore.list.hasValue() || !this.#shiftsStore.shifts.hasValue()) {
-      return [];
-    }
-
-    const shifts = this.#shiftsStore.shifts.value();
-    const members = this.#membersStore.list.value();
-
-    if (!shifts || !members) {
-      return [];
-    }
+    const shifts = loadedOr(this.shifts(), []);
+    const members = loadedOr(this.members(), []);
 
     const now = new Date();
 

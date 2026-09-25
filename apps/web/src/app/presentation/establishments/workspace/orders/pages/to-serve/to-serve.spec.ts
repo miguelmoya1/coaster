@@ -1,10 +1,10 @@
 import { asEstablishmentId, asOrderId, asOrderItemId, asProductId } from '@coaster/common';
-import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import type { Order, OrderItem } from '@coaster/common';
 import { DeliveryStatus, OrderStatus, PaymentMethod, PaymentStatus } from '@coaster/common';
-import { ActiveOrdersStore } from '@coaster/orders';
+import { ManageOrder } from '@coaster/orders';
+import { fakeResource } from '@coaster/testing';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import ToServe from './to-serve';
@@ -13,28 +13,23 @@ describe('ToServe', () => {
   let component: ToServe;
   let fixture: ComponentFixture<ToServe>;
 
-  const openOrdersSignal = signal<Order[]>([]);
+  let openOrders = fakeResource<Order[]>([]);
 
-  const activeOrdersStoreMock = {
-    openOrders: openOrdersSignal,
-    setEstablishmentId: vi.fn(),
+  const manageOrderMock = {
     bulkUpdate: vi.fn(),
   };
 
   beforeEach(async () => {
-    openOrdersSignal.set([]);
+    openOrders = fakeResource<Order[]>([]);
     await TestBed.configureTestingModule({
       imports: [ToServe],
-      providers: [
-        provideTranslateService(),
-        provideRouter([]),
-        { provide: ActiveOrdersStore, useValue: activeOrdersStoreMock },
-      ],
+      providers: [provideTranslateService(), provideRouter([]), { provide: ManageOrder, useValue: manageOrderMock }],
     }).compileComponents();
 
     vi.clearAllMocks();
     fixture = TestBed.createComponent(ToServe);
     fixture.componentRef.setInput('establishmentId', asEstablishmentId('establishment-1'));
+    fixture.componentRef.setInput('openOrders', openOrders.resource);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });
@@ -43,9 +38,13 @@ describe('ToServe', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should set establishment ID on the store', () => {
-    fixture.detectChanges();
-    expect(activeOrdersStoreMock.setEstablishmentId).toHaveBeenCalledWith(asEstablishmentId('establishment-1'));
+  it('should show progress until the open orders arrive, without claiming everything is served', async () => {
+    openOrders = fakeResource<Order[]>();
+    fixture.componentRef.setInput('openOrders', openOrders.resource);
+    await fixture.whenStable();
+
+    expect(fixture.nativeElement.querySelector('coaster-loading')).toBeTruthy();
+    expect(fixture.nativeElement.textContent).not.toContain('orders.all_served_title');
   });
 
   describe('ordersToServe filtering and sorting', () => {
@@ -95,7 +94,7 @@ describe('ToServe', () => {
         mockOrderItem('item-2', 3, 1, '2026-05-31T10:05:00Z'),
       ]);
 
-      openOrdersSignal.set([order1, order2]);
+      openOrders.resolve([order1, order2]);
       fixture.detectChanges();
 
       const result = component['ordersToServe']();
@@ -113,7 +112,7 @@ describe('ToServe', () => {
         mockOrderItem('item-old', 1, 0, '2026-05-31T10:00:00Z'),
       ]);
 
-      openOrdersSignal.set([orderNewer, orderOlder]);
+      openOrders.resolve([orderNewer, orderOlder]);
       fixture.detectChanges();
 
       const result = component['ordersToServe']();
@@ -185,11 +184,11 @@ describe('ToServe', () => {
     });
 
     it('should serve single item directly', async () => {
-      activeOrdersStoreMock.bulkUpdate.mockResolvedValue({});
+      manageOrderMock.bulkUpdate.mockResolvedValue({});
 
       await component['serveSingleItem']('order-1', item1);
 
-      expect(activeOrdersStoreMock.bulkUpdate).toHaveBeenCalledWith(
+      expect(manageOrderMock.bulkUpdate).toHaveBeenCalledWith(
         asEstablishmentId('establishment-1'),
         asOrderId('order-1'),
         {
@@ -199,7 +198,7 @@ describe('ToServe', () => {
     });
 
     it('should apply bulk serve partially across orders', async () => {
-      activeOrdersStoreMock.bulkUpdate.mockResolvedValue({});
+      manageOrderMock.bulkUpdate.mockResolvedValue({});
 
       component['toggleSelectItem']('order-1', item1);
       component['toggleSelectItem']('order-2', item2);
@@ -208,15 +207,15 @@ describe('ToServe', () => {
 
       await component['applySelectedChanges']();
 
-      expect(activeOrdersStoreMock.bulkUpdate).toHaveBeenCalledTimes(2);
-      expect(activeOrdersStoreMock.bulkUpdate).toHaveBeenCalledWith(
+      expect(manageOrderMock.bulkUpdate).toHaveBeenCalledTimes(2);
+      expect(manageOrderMock.bulkUpdate).toHaveBeenCalledWith(
         asEstablishmentId('establishment-1'),
         asOrderId('order-1'),
         {
           items: [{ itemId: asOrderItemId('item-1'), servedQuantity: 2 }],
         },
       );
-      expect(activeOrdersStoreMock.bulkUpdate).toHaveBeenCalledWith(
+      expect(manageOrderMock.bulkUpdate).toHaveBeenCalledWith(
         asEstablishmentId('establishment-1'),
         asOrderId('order-2'),
         {

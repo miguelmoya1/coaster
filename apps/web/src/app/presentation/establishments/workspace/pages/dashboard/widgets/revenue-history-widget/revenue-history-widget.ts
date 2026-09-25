@@ -1,8 +1,8 @@
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 import { MatCard, MatCardContent, MatCardHeader, MatCardSubtitle, MatCardTitle } from '@angular/material/card';
 import { MatIcon } from '@angular/material/icon';
-import type { EstablishmentId } from '@coaster/common';
-import { StatsStore } from '@coaster/stats';
+import type { EstablishmentStats } from '@coaster/common';
+import type { PageResource } from '@coaster/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Loading } from '../../../../../../components/loading/loading';
 import { PricePipe } from '../../../../pipes/price/price';
@@ -24,13 +24,12 @@ import { PricePipe } from '../../../../pipes/price/price';
   templateUrl: './revenue-history-widget.html',
 })
 export class RevenueHistoryWidget {
-  public readonly establishmentId = input.required<EstablishmentId>();
+  public readonly stats = input.required<PageResource<EstablishmentStats>>();
 
-  readonly #statsStore = inject(StatsStore);
-
-  readonly stats = this.#statsStore.stats;
-
-  readonly history = computed(() => (this.stats.hasValue() ? (this.stats.value()?.history ?? null) : null));
+  readonly history = computed(() => {
+    const stats = this.stats();
+    return stats.hasValue() ? (stats.value()?.history ?? null) : null;
+  });
 
   readonly currentMonthName = computed(() => {
     const monthName = new Date().toLocaleDateString(navigator.language, { month: 'long' });

@@ -1,3 +1,4 @@
+import { CatalogueImportedHandler } from './handlers/catalogue-imported.handler';
 import { CategoryCreatedHandler } from './handlers/category-created.handler';
 import { CategoryDeletedHandler } from './handlers/category-deleted.handler';
 import { CategoryUpdatedHandler } from './handlers/category-updated.handler';
@@ -25,6 +26,7 @@ import { TableCreatedHandler } from './handlers/table-created.handler';
 import { TableDeletedHandler } from './handlers/table-deleted.handler';
 import { TableUpdatedHandler } from './handlers/table-updated.handler';
 
+export * from './handlers/catalogue-imported.handler';
 export * from './handlers/category-created.handler';
 export * from './handlers/category-deleted.handler';
 export * from './handlers/category-updated.handler';
@@ -53,6 +55,7 @@ export * from './handlers/table-deleted.handler';
 export * from './handlers/table-updated.handler';
 
 export const RealtimeEventHandlers = [
+  CatalogueImportedHandler,
   CategoryCreatedHandler,
   CategoryDeletedHandler,
   CategoryUpdatedHandler,

@@ -10,7 +10,7 @@ import {
   TimeEntrySource,
   TimeEntryType,
 } from '@coaster/common';
-import { TimeTrackingStore } from '@coaster/time-tracking';
+import { ManageTimeEntries } from '@coaster/time-tracking';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { TimeEntryForm } from './time-entry-form';
@@ -49,13 +49,13 @@ describe('TimeEntryForm', () => {
   let component: TimeEntryForm;
   let store: {
     amend: ReturnType<typeof vi.fn>;
-    createEntry: ReturnType<typeof vi.fn>;
+    create: ReturnType<typeof vi.fn>;
   };
 
   beforeEach(async () => {
     store = {
       amend: vi.fn().mockResolvedValue(undefined),
-      createEntry: vi.fn().mockResolvedValue(undefined),
+      create: vi.fn().mockResolvedValue(undefined),
     };
 
     await TestBed.configureTestingModule({
@@ -64,11 +64,12 @@ describe('TimeEntryForm', () => {
         provideZonelessChangeDetection(),
         provideNativeDateAdapter(),
         provideTranslateService(),
-        { provide: TimeTrackingStore, useValue: store },
+        { provide: ManageTimeEntries, useValue: store },
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(TimeEntryForm);
+    fixture.componentRef.setInput('establishmentId', 'establishment-1');
     component = fixture.componentInstance;
   });
 
@@ -125,10 +126,11 @@ describe('TimeEntryForm', () => {
     await submitForm();
 
     expect(store.amend).toHaveBeenCalledWith(
+      'establishment-1',
       'entry-1',
       expect.objectContaining({ reason: 'El trabajador olvido fichar' }),
     );
-    expect(store.createEntry).not.toHaveBeenCalled();
+    expect(store.create).not.toHaveBeenCalled();
   });
 
   it('should place the amended hour on the workday it belongs to', async () => {
@@ -138,7 +140,7 @@ describe('TimeEntryForm', () => {
 
     await submitForm();
 
-    const [, dto] = store.amend.mock.calls[0];
+    const [, , dto] = store.amend.mock.calls[0];
     expect(new Date(dto.occurredAt).getHours()).toBe(7);
     expect(dto.occurredAt.slice(0, 4)).toBe('2026');
   });
@@ -155,7 +157,8 @@ describe('TimeEntryForm', () => {
 
     await submitForm();
 
-    expect(store.createEntry).toHaveBeenCalledWith(
+    expect(store.create).toHaveBeenCalledWith(
+      'establishment-1',
       expect.objectContaining({ userId: 'user-2', type: TimeEntryType.CLOCK_OUT, reason: 'El terminal estaba caido' }),
     );
   });

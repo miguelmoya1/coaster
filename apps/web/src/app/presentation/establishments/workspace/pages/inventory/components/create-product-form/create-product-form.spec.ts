@@ -1,8 +1,7 @@
 import { asEstablishmentId, asCategoryId } from '@coaster/common';
-import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import type { Category } from '@coaster/common';
-import { ProductsStore } from '@coaster/products';
+import { ManageProducts } from '@coaster/products';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CreateProductForm } from './create-product-form';
@@ -12,7 +11,6 @@ describe('CreateProductForm', () => {
   let fixture: ComponentFixture<CreateProductForm>;
   let productsStoreMock: {
     create: ReturnType<typeof vi.fn>;
-    currentEstablishmentId: ReturnType<typeof signal>;
   };
 
   const mockCategories: Category[] = [
@@ -22,15 +20,15 @@ describe('CreateProductForm', () => {
   beforeEach(async () => {
     productsStoreMock = {
       create: vi.fn().mockResolvedValue(null),
-      currentEstablishmentId: signal(asEstablishmentId('establishment-1')),
     };
 
     await TestBed.configureTestingModule({
       imports: [CreateProductForm],
-      providers: [{ provide: ProductsStore, useValue: productsStoreMock }, provideTranslateService()],
+      providers: [{ provide: ManageProducts, useValue: productsStoreMock }, provideTranslateService()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(CreateProductForm);
+    fixture.componentRef.setInput('establishmentId', 'establishment-1');
     component = fixture.componentInstance;
 
     fixture.componentRef.setInput('categories', mockCategories);
@@ -54,7 +52,7 @@ describe('CreateProductForm', () => {
       expect(cancelSpy).toHaveBeenCalled();
     });
 
-    it('should call ProductsStore.create when form is valid and submitted', async () => {
+    it('should call ManageProducts.create when form is valid and submitted', async () => {
       const f = component.form;
       f.name().value.set('New Beer');
       f.categoryId().value.set(asCategoryId('cat-1'));
@@ -72,7 +70,7 @@ describe('CreateProductForm', () => {
 
       await new Promise((resolve) => setTimeout(resolve, 0));
 
-      expect(productsStoreMock.create).toHaveBeenCalledWith({
+      expect(productsStoreMock.create).toHaveBeenCalledWith('establishment-1', {
         name: 'New Beer',
         allergens: [],
         icon: '',

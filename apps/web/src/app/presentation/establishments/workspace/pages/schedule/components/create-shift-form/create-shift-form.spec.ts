@@ -6,7 +6,7 @@ import type { EstablishmentMember } from '@coaster/common';
 import { EstablishmentRole } from '@coaster/common';
 import { DateFormatterService } from '@coaster/core';
 import { ScheduleStateService } from '@coaster/schedule';
-import { ShiftsStore } from '@coaster/shifts';
+import { ManageShifts } from '@coaster/shifts';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CreateShiftForm } from './create-shift-form';
@@ -14,7 +14,7 @@ import { CreateShiftForm } from './create-shift-form';
 describe('CreateShiftForm', () => {
   let component: CreateShiftForm;
   let fixture: ComponentFixture<CreateShiftForm>;
-  let mockShiftsStore: { create: ReturnType<typeof vi.fn> };
+  let mockManageShifts: { create: ReturnType<typeof vi.fn> };
 
   const mockMembers: EstablishmentMember[] = [
     {
@@ -31,7 +31,7 @@ describe('CreateShiftForm', () => {
   ];
 
   beforeEach(async () => {
-    mockShiftsStore = {
+    mockManageShifts = {
       create: vi.fn().mockResolvedValue(null),
     };
 
@@ -45,12 +45,13 @@ describe('CreateShiftForm', () => {
         provideTranslateService(),
         DateFormatterService,
         provideNativeDateAdapter(),
-        { provide: ShiftsStore, useValue: mockShiftsStore },
+        { provide: ManageShifts, useValue: mockManageShifts },
         { provide: ScheduleStateService, useValue: mockScheduleState },
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(CreateShiftForm);
+    fixture.componentRef.setInput('establishmentId', 'establishment-1');
     component = fixture.componentInstance;
 
     fixture.componentRef.setInput('members', mockMembers);
@@ -122,7 +123,7 @@ describe('CreateShiftForm', () => {
       const expectedEnd = new Date(selectedDate);
       expectedEnd.setHours(16, 0, 0, 0);
 
-      expect(mockShiftsStore.create).toHaveBeenCalledWith({
+      expect(mockManageShifts.create).toHaveBeenCalledWith('establishment-1', {
         userId: 'user-1',
         startTime: expectedStart.toISOString(),
         endTime: expectedEnd.toISOString(),

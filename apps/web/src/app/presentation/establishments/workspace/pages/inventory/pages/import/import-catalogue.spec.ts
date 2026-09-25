@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { CatalogueStore } from '@coaster/catalogue';
-import { CategoriesStore } from '@coaster/categories';
-import { ProductsStore } from '@coaster/products';
+import { ImportStarterCatalogue } from '@coaster/catalogue';
+import type { StarterCatalogueCategory } from '@coaster/common';
+import { fakeResource } from '@coaster/testing';
 import { Toast } from '@coaster/core';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -12,29 +12,17 @@ describe('ImportCatalogue', () => {
   let component: ImportCatalogue;
   let fixture: ComponentFixture<ImportCatalogue>;
 
-  const catalogueStoreMock = {
-    starter: {
-      value: vi.fn().mockReturnValue([
-        {
-          key: 'vinos_y_licores',
-          name: 'Licores',
-          icon: 'liquor',
-          products: [{ name: 'Vodka', price: 1500 }],
-        },
-      ]),
-      isLoading: vi.fn().mockReturnValue(false),
-      hasValue: vi.fn().mockReturnValue(true),
+  const starter = [
+    {
+      key: 'vinos_y_licores',
+      name: 'Licores',
+      icon: 'liquor',
+      products: [{ name: 'Vodka', price: 1500 }],
     },
-    setEstablishmentId: vi.fn(),
-    import: vi.fn().mockResolvedValue(undefined),
-  };
+  ] as StarterCatalogueCategory[];
 
-  const categoriesStoreMock = {
-    reloadCategories: vi.fn(),
-  };
-
-  const productsStoreMock = {
-    reloadProducts: vi.fn(),
+  const catalogueStoreMock = {
+    execute: vi.fn().mockResolvedValue(undefined),
   };
 
   const toastMock = {
@@ -48,9 +36,7 @@ describe('ImportCatalogue', () => {
       providers: [
         provideTranslateService(),
         provideRouter([{ path: 'establishments/:establishmentId/inventory', component: class {} }]),
-        { provide: CatalogueStore, useValue: catalogueStoreMock },
-        { provide: CategoriesStore, useValue: categoriesStoreMock },
-        { provide: ProductsStore, useValue: productsStoreMock },
+        { provide: ImportStarterCatalogue, useValue: catalogueStoreMock },
         { provide: Toast, useValue: toastMock },
       ],
     }).compileComponents();
@@ -59,16 +45,13 @@ describe('ImportCatalogue', () => {
 
     fixture = TestBed.createComponent(ImportCatalogue);
     fixture.componentRef.setInput('establishmentId', 'establishment-123');
+    fixture.componentRef.setInput('starter', fakeResource(starter).resource);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
-  });
-
-  it('should scope the catalogue to the establishment, since its language decides the wording', () => {
-    expect(catalogueStoreMock.setEstablishmentId).toHaveBeenCalledWith('establishment-123');
   });
 
   it('should read the categories with their products already nested', () => {
@@ -117,9 +100,7 @@ describe('ImportCatalogue', () => {
     component.toggleCategory('vinos_y_licores');
     await component.importSelected();
 
-    expect(catalogueStoreMock.import).toHaveBeenCalledWith('establishment-123', ['vinos_y_licores']);
-    expect(categoriesStoreMock.reloadCategories).toHaveBeenCalled();
-    expect(productsStoreMock.reloadProducts).toHaveBeenCalled();
+    expect(catalogueStoreMock.execute).toHaveBeenCalledWith('establishment-123', ['vinos_y_licores']);
     expect(toastMock.success).toHaveBeenCalled();
   });
 });

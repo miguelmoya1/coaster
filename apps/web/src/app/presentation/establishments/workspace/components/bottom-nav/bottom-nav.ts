@@ -32,7 +32,6 @@ interface NavItem {
       @for (item of visibleNavItems(); track item.value) {
         <a
           ngToolbarWidget
-          [value]="item.value"
           [routerLink]="item.link"
           [attr.aria-label]="item.labelKey | translate"
           [title]="item.labelKey | translate"

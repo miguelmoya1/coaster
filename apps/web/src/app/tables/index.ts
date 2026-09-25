@@ -1,2 +1,4 @@
 export { TableStatusPipe } from './pipes/table-status';
-export { TablesStore } from './store/tables.store';
+export { tablesResource } from './resources/tables.resource';
+export { ManageTables } from './services/manage-tables';
+export { tableCounts } from './utils/table-counts';

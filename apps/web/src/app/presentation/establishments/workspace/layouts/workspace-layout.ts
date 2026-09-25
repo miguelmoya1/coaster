@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { RouterOutlet } from '@angular/router';
 import type { EstablishmentId } from '@coaster/common';
 import { CurrentUser, Realtime } from '@coaster/core';
-import { MembersStore, MyMemberStore } from '@coaster/establishment-members';
+import { MyMemberStore } from '@coaster/establishment-members';
 import { EstablishmentSubscriptionStore } from '@coaster/establishment-subscription';
 import { CurrentEstablishmentStore, ModulesStore } from '@coaster/establishments';
 import { AiAssistantPanel } from '../components/ai-assistant/ai-assistant-panel';
@@ -55,7 +55,6 @@ export default class WorkspaceLayout {
   readonly #dialog = inject(MatDialog);
   #onboardingShown = false;
   readonly #myMemberStore = inject(MyMemberStore);
-  readonly #membersStore = inject(MembersStore);
   readonly #establishmentSubscriptionStore = inject(EstablishmentSubscriptionStore);
   readonly #realtime = inject(Realtime);
   readonly #aiVoiceService = inject(AiVoiceService);
@@ -111,7 +110,6 @@ export default class WorkspaceLayout {
       this.#currentEstablishmentStore.setEstablishmentId(establishmentId);
       this.#modulesStore.setEstablishmentId(establishmentId);
       this.#realtime.watch(establishmentId);
-      this.#membersStore.setEstablishmentId(establishmentId);
       this.#myMemberStore.setEstablishmentId(establishmentId);
       this.#establishmentSubscriptionStore.setEstablishmentId(establishmentId);
 
@@ -119,7 +117,6 @@ export default class WorkspaceLayout {
         this.#currentEstablishmentStore.setEstablishmentId(undefined);
         this.#modulesStore.setEstablishmentId(undefined);
         this.#realtime.unwatch(establishmentId);
-        this.#membersStore.setEstablishmentId(undefined);
         this.#myMemberStore.setEstablishmentId(undefined);
         this.#establishmentSubscriptionStore.setEstablishmentId(undefined);
       });

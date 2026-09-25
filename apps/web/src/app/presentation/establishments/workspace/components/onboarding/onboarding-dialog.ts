@@ -1,17 +1,10 @@
 import { Component, inject, signal } from '@angular/core';
-import {
-  MatDialogRef,
-  MAT_DIALOG_DATA,
-  MatDialogContent,
-  MatDialogTitle,
-} from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialogContent, MatDialogTitle } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import type { EstablishmentId } from '@coaster/common';
 import { DEFAULT_ESTABLISHMENT_MODULES } from '@coaster/common';
-import { CategoriesStore } from '@coaster/categories';
 import { ModulesStore } from '@coaster/establishments';
-import { ProductsStore } from '@coaster/products';
-import { CatalogueStore } from '@coaster/catalogue';
+import { ImportStarterCatalogue } from '@coaster/catalogue';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Spinner } from '../../../../components/spinner/spinner';
 
@@ -28,9 +21,7 @@ export interface OnboardingDialogData {
 export class OnboardingDialog {
   readonly #dialogRef = inject(MatDialogRef<OnboardingDialog>);
   readonly #modulesStore = inject(ModulesStore);
-  readonly #catalogueStore = inject(CatalogueStore);
-  readonly #categoriesStore = inject(CategoriesStore);
-  readonly #productsStore = inject(ProductsStore);
+  readonly #importStarterCatalogue = inject(ImportStarterCatalogue);
 
   protected readonly data = inject<OnboardingDialogData>(MAT_DIALOG_DATA);
   protected readonly isSaving = signal(false);
@@ -46,10 +37,7 @@ export class OnboardingDialog {
       await this.#modulesStore.save(DEFAULT_ESTABLISHMENT_MODULES);
 
       if (importCatalogue) {
-        await this.#catalogueStore.import(this.data.establishmentId);
-
-        this.#categoriesStore.reloadCategories();
-        this.#productsStore.reloadProducts();
+        await this.#importStarterCatalogue.execute(this.data.establishmentId);
       }
 
       this.#dialogRef.close(true);

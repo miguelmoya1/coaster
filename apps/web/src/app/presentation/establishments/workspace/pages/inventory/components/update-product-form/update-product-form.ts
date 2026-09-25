@@ -1,10 +1,10 @@
 import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { form, FormField, FormRoot, max, maxLength, min, minLength, required } from '@angular/forms/signals';
 import { MatButton } from '@angular/material/button';
-import type { Category, UpdateProductDto } from '@coaster/common';
+import type { Category, EstablishmentId, UpdateProductDto } from '@coaster/common';
 import { ALLERGENS, asCategoryId, DEFAULT_TAX_RATE, grossFromNet, toBasisPoints, toPercentage } from '@coaster/common';
 import { handleErrorFormField } from '@coaster/core';
-import { Product, ProductsStore } from '@coaster/products';
+import { ManageProducts, type Product } from '@coaster/products';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ChipSelect } from '../../../../../../components/chip-select/chip-select';
 import { Field } from '../../../../../../components/field/field';
@@ -117,9 +117,9 @@ export class UpdateProductForm {
   public readonly canceled = output<void>();
   public readonly edited = output<void>();
 
-  readonly #productStore = inject(ProductsStore);
+  readonly #manageProducts = inject(ManageProducts);
   readonly #translate = inject(TranslateService);
-  readonly establishmentId = this.#productStore.currentEstablishmentId;
+  readonly establishmentId = input.required<EstablishmentId>();
 
   protected readonly categoryOptions = computed(() => {
     return this.categories().map((c) => ({
@@ -186,7 +186,7 @@ export class UpdateProductForm {
           };
 
           try {
-            await this.#productStore.update(this.product().id, payload);
+            await this.#manageProducts.update(this.establishmentId(), this.product().id, payload);
             this.edited.emit();
             return null;
           } catch (error) {

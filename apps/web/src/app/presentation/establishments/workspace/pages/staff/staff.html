@@ -22,12 +22,10 @@
     </div>
   }
 
-  @if (membersLoading()) {
-    <coaster-loading />
-  }
+  <coaster-resource-status [resource]="members()" />
 
   <div class="flex flex-col gap-3">
-    @for (member of members(); track member.id) {
+    @for (member of memberItems(); track member.id) {
       <coaster-staff-member-card
         [staffName]="member.userName"
         [staffEmail]="member.userEmail"
@@ -45,11 +43,13 @@
         (resendInviteClicked)="handleResendInvite(member)"
       />
     } @empty {
-      <p
-        class="text-on-surface-variant text-sm py-8 text-center bg-surface-container rounded-xl border border-dashed border-outline-variant"
-      >
-        {{ 'members.staff.no_members' | translate }}
-      </p>
+      @if (members().hasValue()) {
+        <p
+          class="text-on-surface-variant text-sm py-8 text-center bg-surface-container rounded-xl border border-dashed border-outline-variant"
+        >
+          {{ 'members.staff.no_members' | translate }}
+        </p>
+      }
     }
   </div>
 

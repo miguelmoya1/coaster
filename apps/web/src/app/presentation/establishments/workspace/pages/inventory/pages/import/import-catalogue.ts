@@ -1,15 +1,13 @@
 import { LowerCasePipe } from '@angular/common';
-import { Component, computed, effect, inject, input, signal } from '@angular/core';
+import { Component, computed, inject, input, signal } from '@angular/core';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { Router } from '@angular/router';
-import { CategoriesStore } from '@coaster/categories';
-import type { EstablishmentId } from '@coaster/common';
-import { ActionFeedback } from '@coaster/core';
-import { ProductsStore } from '@coaster/products';
-import { CatalogueStore } from '@coaster/catalogue';
+import { ImportStarterCatalogue } from '@coaster/catalogue';
+import type { EstablishmentId, StarterCatalogueCategory } from '@coaster/common';
+import { ActionFeedback, loadedOr, type PageResource } from '@coaster/core';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { Loading } from '../../../../../../components/loading/loading';
+import { ResourceStatus } from '../../../../../../components/resource-status/resource-status';
 import { PageHeader } from '../../../../../../components/page-header/page-header';
 
 import { PricePipe } from '../../../../pipes/price/price';
@@ -24,7 +22,7 @@ import { CoasterInput } from '../../../../../../components/field/input.directive
     TranslatePipe,
     MatButton,
     MatIconButton,
-    Loading,
+    ResourceStatus,
     PricePipe,
     LowerCasePipe,
     PageHeader,
@@ -37,25 +35,16 @@ import { CoasterInput } from '../../../../../../components/field/input.directive
 })
 export default class ImportCatalogue {
   public readonly establishmentId = input.required<EstablishmentId>();
+  public readonly starter = input.required<PageResource<StarterCatalogueCategory[]>>();
 
-  readonly #catalogueStore = inject(CatalogueStore);
-  readonly #categoriesStore = inject(CategoriesStore);
-  readonly #productsStore = inject(ProductsStore);
+  readonly #importStarterCatalogue = inject(ImportStarterCatalogue);
   readonly #feedback = inject(ActionFeedback);
   readonly #router = inject(Router);
   readonly #translate = inject(TranslateService);
 
-  constructor() {
-    effect(() => {
-      this.#catalogueStore.setEstablishmentId(this.establishmentId());
-    });
-  }
-
   readonly searchQuery = signal<string>('');
   readonly selectedCategoryKeys = signal<Set<string>>(new Set());
   readonly isSubmitting = signal(false);
-
-  readonly isLoading = computed(() => this.#catalogueStore.starter.isLoading());
 
   readonly selectedCategoriesCount = computed(() => this.selectedCategoryKeys().size);
   readonly selectedProductsCount = computed(() => {
@@ -66,7 +55,7 @@ export default class ImportCatalogue {
       .reduce((total, cat) => total + cat.products.length, 0);
   });
 
-  readonly starterCategories = computed(() => this.#catalogueStore.starter.value() ?? []);
+  readonly starterCategories = computed(() => loadedOr(this.starter(), []));
 
   readonly filteredCategories = computed(() => {
     const categories = this.starterCategories();
@@ -125,14 +114,11 @@ export default class ImportCatalogue {
     this.isSubmitting.set(true);
 
     try {
-      await this.#catalogueStore.import(establishmentId, keys);
+      await this.#importStarterCatalogue.execute(establishmentId, keys);
       this.isSubmitting.set(false);
 
       const translationResult = this.#translate.instant('inventory.import_success');
       this.#feedback.success(translationResult);
-
-      this.#categoriesStore.reloadCategories();
-      this.#productsStore.reloadProducts();
 
       this.#router.navigate(['/establishments', establishmentId, 'inventory']);
     } catch (error) {
