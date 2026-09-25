@@ -8,6 +8,7 @@ import { PaymentStatus } from '../constants/payment-status.type';
 import { Role } from '../constants/role.type';
 import { ShiftExchangeStatus } from '../constants/shift-exchange-status.type';
 import { TableStatus } from '../constants/table-status.type';
+import type { CashCloseId } from '../interfaces/cash-close.interface';
 import type { EstablishmentMemberId } from '../interfaces/establishment-member.interface';
 import type { EstablishmentId } from '../interfaces/establishment.interface';
 import type { CategoryId } from '../interfaces/category.interface';
@@ -20,6 +21,7 @@ import type { UserId } from '../interfaces/user.interface';
 
 export const asEstablishmentId = (id: string): EstablishmentId => id as EstablishmentId;
 export const asEstablishmentMemberId = (id: string): EstablishmentMemberId => id as EstablishmentMemberId;
+export const asCashCloseId = (id: string): CashCloseId => id as CashCloseId;
 export const asCategoryId = (id: string): CategoryId => id as CategoryId;
 export const asOrderId = (id: string): OrderId => id as OrderId;
 export const asOrderItemId = (id: string): OrderItemId => id as OrderItemId;

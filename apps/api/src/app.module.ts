@@ -4,6 +4,7 @@ import { AuthModule } from '@coaster/auth';
 import { EstablishmentMembersModule } from '@coaster/establishment-members';
 import { EstablishmentSubscriptionModule } from '@coaster/establishment-subscription';
 import { EstablishmentsModule } from '@coaster/establishments';
+import { CashClosesModule } from '@coaster/cash-closes';
 import { CategoriesModule } from '@coaster/categories';
 import { CacheModule, SecurityModule, ThrottlerCacheStorage } from '@coaster/core';
 import { DbModule } from '@coaster/core/db';
@@ -59,6 +60,7 @@ import { ThrottlerGuard, ThrottlerModule, seconds } from '@nestjs/throttler';
     MenuModule,
     TablesModule,
     OrdersModule,
+    CashClosesModule,
     StatsModule,
     PrinterModule,
     SecurityModule,

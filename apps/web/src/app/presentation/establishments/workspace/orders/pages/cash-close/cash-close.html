@@ -1,0 +1,167 @@
+@if (preview.isLoading() && !preview.hasValue()) {
+  <coaster-loading />
+}
+
+@if (preview.hasValue()) {
+  @let current = preview.value();
+
+  <p class="text-sm text-on-surface-variant">
+    @if (current.since) {
+      {{ 'cash_close.since' | translate: { date: when(current.since) } }}
+    } @else {
+      {{ 'cash_close.since_start' | translate }}
+    }
+  </p>
+
+  @if (current.openOrders > 0) {
+    <div class="flex gap-3 rounded-2xl border border-tertiary/30 bg-tertiary/10 p-4 text-sm text-on-surface">
+      <mat-icon class="text-tertiary shrink-0">info</mat-icon>
+      <div class="flex flex-col gap-1">
+        <span>{{ 'cash_close.open_orders_warning' | translate: { count: current.openOrders } }}</span>
+        @if (current.openOrdersCharged > 0) {
+          <span class="text-on-surface-variant">
+            {{ 'cash_close.open_orders_charged' | translate: { amount: (current.openOrdersCharged | price) } }}
+          </span>
+        }
+      </div>
+    </div>
+  }
+
+  <div class="grid grid-cols-2 gap-3">
+    <coaster-stat-card [label]="'cash_close.cash' | translate" [value]="current.cashAmount | price" />
+    <coaster-stat-card [label]="'cash_close.card' | translate" [value]="current.cardAmount | price" tone="tertiary" />
+    <coaster-stat-card
+      [label]="'cash_close.closed_orders' | translate"
+      [value]="current.closedOrders"
+      tone="secondary"
+    />
+    <coaster-stat-card [label]="'cash_close.tips' | translate" [value]="current.tipAmount | price" tone="secondary" />
+    @if (current.cancelledOrders > 0) {
+      <coaster-stat-card
+        class="col-span-2"
+        [label]="'cash_close.cancelled_orders' | translate"
+        [value]="current.cancelledOrders + ' · ' + (current.cancelledAmount | price)"
+        tone="error"
+      />
+    }
+  </div>
+
+  <form
+    [formRoot]="form"
+    class="flex flex-col gap-4 rounded-2xl border border-outline-variant/20 bg-surface-container p-4"
+  >
+    <h2 class="heading-2">{{ 'cash_close.count_title' | translate }}</h2>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <coaster-number-input
+        [formField]="form.openingFloat"
+        [label]="'cash_close.opening_float' | translate"
+        [hint]="'cash_close.opening_float_hint' | translate"
+        [step]="10"
+      />
+      <coaster-number-input
+        [formField]="form.countedCash"
+        [label]="'cash_close.counted_cash' | translate"
+        [hint]="'cash_close.counted_cash_hint' | translate"
+        [step]="1"
+      />
+    </div>
+
+    <coaster-field [label]="'cash_close.notes' | translate">
+      <textarea
+        coasterInput
+        rows="2"
+        [formField]="form.notes"
+        [placeholder]="'cash_close.notes_placeholder' | translate"
+      ></textarea>
+    </coaster-field>
+
+    <div class="flex flex-col gap-1 text-sm">
+      <div class="flex justify-between text-on-surface-variant">
+        <span>{{ 'cash_close.expected' | translate }}</span>
+        <span class="font-bold text-on-surface">{{ expectedCash() | price }}</span>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-on-surface-variant">{{ 'cash_close.difference' | translate }}</span>
+        <span
+          class="font-black"
+          [class.text-secondary]="difference() === 0"
+          [class.text-error]="difference() < 0"
+          [class.text-tertiary]="difference() > 0"
+        >
+          {{ difference() | price }}
+          ·
+          @if (difference() === 0) {
+            {{ 'cash_close.balanced' | translate }}
+          } @else if (difference() < 0) {
+            {{ 'cash_close.short' | translate }}
+          } @else {
+            {{ 'cash_close.over' | translate }}
+          }
+        </span>
+      </div>
+    </div>
+
+    <coaster-form-errors [errors]="form().errors()" />
+
+    <button
+      mat-flat-button
+      type="submit"
+      coasterRequireSubscription
+      [establishmentId]="establishmentId()"
+      [disabled]="form().invalid() || form().submitting()"
+    >
+      {{ 'cash_close.close' | translate }}
+    </button>
+  </form>
+}
+
+@if (canSeeHistory()) {
+  <h2 class="heading-2">{{ 'cash_close.history_title' | translate }}</h2>
+
+  <div class="flex flex-col gap-3">
+    @for (cashClose of history.value() ?? []; track cashClose.id) {
+      <div class="rounded-2xl border border-outline-variant/20 bg-surface-container p-4 flex flex-col gap-2">
+        <div class="flex items-center justify-between gap-2">
+          <span class="font-bold text-on-surface">{{ when(cashClose.closedAt) }}</span>
+          <span
+            class="text-xs font-semibold px-2 py-0.5 rounded-full"
+            [class]="
+              cashClose.difference === 0
+                ? 'bg-secondary/20 text-secondary'
+                : cashClose.difference < 0
+                  ? 'bg-error/20 text-error'
+                  : 'bg-tertiary/20 text-tertiary'
+            "
+          >
+            {{ cashClose.difference | price }}
+          </span>
+        </div>
+
+        <div class="flex flex-wrap gap-x-4 gap-y-1 text-sm text-on-surface-variant">
+          <span>{{ 'cash_close.cash' | translate }} {{ cashClose.cashAmount | price }}</span>
+          <span>{{ 'cash_close.card' | translate }} {{ cashClose.cardAmount | price }}</span>
+          <span>{{ 'cash_close.closed_orders' | translate }} {{ cashClose.closedOrders }}</span>
+        </div>
+
+        @if (cashClose.notes) {
+          <p class="text-sm text-on-surface">{{ cashClose.notes }}</p>
+        }
+
+        <div class="flex items-center justify-between gap-2">
+          <span class="text-xs text-on-surface-variant">
+            {{ 'cash_close.closed_by' | translate: { name: cashClose.closedByName } }}
+          </span>
+          <button mat-stroked-button type="button" [disabled]="printingId() !== null" (click)="print(cashClose)">
+            <mat-icon>print</mat-icon>
+            {{ 'cash_close.print' | translate }}
+          </button>
+        </div>
+      </div>
+    } @empty {
+      @if (!history.isLoading()) {
+        <div class="text-center text-on-surface-variant py-8">{{ 'cash_close.no_history' | translate }}</div>
+      }
+    }
+  </div>
+}

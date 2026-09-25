@@ -26,6 +26,7 @@
       "@coaster/admin": ["./src/admin/index.ts"],
       "@coaster/ai": ["./src/ai/index.ts"],
       "@coaster/auth": ["./src/auth/index.ts"],
+      "@coaster/cash-closes": ["./src/cash-closes/index.ts"],
       "@coaster/catalogue": ["./src/catalogue/index.ts"],
       "@coaster/menu": ["./src/menu/index.ts"],
       "@coaster/establishment-members": ["./src/establishment-members/index.ts"],

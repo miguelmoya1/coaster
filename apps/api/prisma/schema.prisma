@@ -204,6 +204,7 @@ model DbUser {
   sessions          DbAuthSession[]
   authTokens        DbAuthToken[]
   authEvents        DbAuthEvent[]
+  cashCloses        DbCashClose[]
 
   @@map("User")
 }
@@ -343,6 +344,7 @@ model DbEstablishment {
   menus         DbMenu[]
   invoices      DbInvoice[]
   orderAudits   DbOrderAuditLog[]
+  cashCloses    DbCashClose[]
 
   @@map("Establishment")
 }
@@ -567,12 +569,15 @@ model DbOrder {
   notes           String?
   ticketNotes     String?
   tipAmount       Int                 @default(0)
+  cashCloseId     String?
+  cashClose       DbCashClose?        @relation(fields: [cashCloseId], references: [id], onDelete: NoAction)
   createdAt       DateTime            @default(now())
   updatedAt       DateTime            @updatedAt
 
   invoices DbInvoice[]
 
   @@index([establishmentId, status])
+  @@index([cashCloseId])
   @@index([establishmentId, createdAt])
   @@index([establishmentId, createdById, createdAt])
   @@index([tableId])
@@ -604,6 +609,29 @@ model DbOrderItem {
   @@index([orderId])
   @@index([productId])
   @@map("OrderItem")
+}
+
+model DbCashClose {
+  id              String          @id @default(uuid())
+  establishmentId String
+  establishment   DbEstablishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+  closedById      String
+  closedBy        DbUser          @relation(fields: [closedById], references: [id], onDelete: Restrict)
+  since           DateTime?
+  closedAt        DateTime        @default(now())
+  closedOrders    Int
+  cancelledOrders Int
+  cancelledAmount Int
+  cashAmount      Int
+  cardAmount      Int
+  tipAmount       Int
+  openingFloat    Int
+  countedCash     Int
+  notes           String?
+  orders          DbOrder[]
+
+  @@index([establishmentId, closedAt])
+  @@map("CashClose")
 }
 
 model DbPrinterConfig {

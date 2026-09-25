@@ -35,6 +35,7 @@ const STAFF_PERMISSIONS: EstablishmentPermission[] = [
 
 const MANAGER_PERMISSIONS: EstablishmentPermission[] = [
   'establishment:view-financials',
+  'establishment:close-cash',
 
   'establishment:invite-member',
 

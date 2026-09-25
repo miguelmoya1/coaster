@@ -74,6 +74,7 @@ export const ModelName = {
   DbTable: 'DbTable',
   DbOrder: 'DbOrder',
   DbOrderItem: 'DbOrderItem',
+  DbCashClose: 'DbCashClose',
   DbPrinterConfig: 'DbPrinterConfig',
   DbPrintJob: 'DbPrintJob',
   DbEstablishmentSubscription: 'DbEstablishmentSubscription',
@@ -400,6 +401,7 @@ export const DbOrderScalarFieldEnum = {
   notes: 'notes',
   ticketNotes: 'ticketNotes',
   tipAmount: 'tipAmount',
+  cashCloseId: 'cashCloseId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -428,6 +430,26 @@ export const DbOrderItemScalarFieldEnum = {
 } as const
 
 export type DbOrderItemScalarFieldEnum = (typeof DbOrderItemScalarFieldEnum)[keyof typeof DbOrderItemScalarFieldEnum]
+
+
+export const DbCashCloseScalarFieldEnum = {
+  id: 'id',
+  establishmentId: 'establishmentId',
+  closedById: 'closedById',
+  since: 'since',
+  closedAt: 'closedAt',
+  closedOrders: 'closedOrders',
+  cancelledOrders: 'cancelledOrders',
+  cancelledAmount: 'cancelledAmount',
+  cashAmount: 'cashAmount',
+  cardAmount: 'cardAmount',
+  tipAmount: 'tipAmount',
+  openingFloat: 'openingFloat',
+  countedCash: 'countedCash',
+  notes: 'notes'
+} as const
+
+export type DbCashCloseScalarFieldEnum = (typeof DbCashCloseScalarFieldEnum)[keyof typeof DbCashCloseScalarFieldEnum]
 
 
 export const DbPrinterConfigScalarFieldEnum = {

@@ -18,6 +18,7 @@ export const EstablishmentPermission = {
   ESTABLISHMENT_DELETE_ORDER: 'establishment:delete-order',
   ESTABLISHMENT_DELETE_ORDER_ITEM: 'establishment:delete-order-item',
   ESTABLISHMENT_CHECKOUT_ORDER: 'establishment:checkout-order',
+  ESTABLISHMENT_CLOSE_CASH: 'establishment:close-cash',
   ESTABLISHMENT_CANCEL_ORDER: 'establishment:cancel-order',
   ESTABLISHMENT_MOVE_ORDER_TABLE: 'establishment:move-order-table',
   ESTABLISHMENT_MERGE_ORDERS: 'establishment:merge-orders',

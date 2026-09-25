@@ -420,6 +420,7 @@ export const ModelName = {
   DbTable: 'DbTable',
   DbOrder: 'DbOrder',
   DbOrderItem: 'DbOrderItem',
+  DbCashClose: 'DbCashClose',
   DbPrinterConfig: 'DbPrinterConfig',
   DbPrintJob: 'DbPrintJob',
   DbEstablishmentSubscription: 'DbEstablishmentSubscription',
@@ -443,7 +444,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "dbOrderAdjustment" | "dbUser" | "dbAuthIdentity" | "dbAuthSession" | "dbAuthToken" | "dbAuthEvent" | "dbBetaTester" | "dbEstablishment" | "dbEstablishmentSettings" | "dbPrinterPairing" | "dbAiUsage" | "dbUserPreferences" | "dbEstablishmentMember" | "dbShift" | "dbShiftExchange" | "dbMenu" | "dbMenuSection" | "dbMenuItem" | "dbCategory" | "dbProduct" | "dbTable" | "dbOrder" | "dbOrderItem" | "dbPrinterConfig" | "dbPrintJob" | "dbEstablishmentSubscription" | "dbTimeEntry" | "dbAdminAuditLog" | "dbInvoice" | "dbInvoiceTaxLine" | "dbOrderAuditLog"
+    modelProps: "dbOrderAdjustment" | "dbUser" | "dbAuthIdentity" | "dbAuthSession" | "dbAuthToken" | "dbAuthEvent" | "dbBetaTester" | "dbEstablishment" | "dbEstablishmentSettings" | "dbPrinterPairing" | "dbAiUsage" | "dbUserPreferences" | "dbEstablishmentMember" | "dbShift" | "dbShiftExchange" | "dbMenu" | "dbMenuSection" | "dbMenuItem" | "dbCategory" | "dbProduct" | "dbTable" | "dbOrder" | "dbOrderItem" | "dbCashClose" | "dbPrinterConfig" | "dbPrintJob" | "dbEstablishmentSubscription" | "dbTimeEntry" | "dbAdminAuditLog" | "dbInvoice" | "dbInvoiceTaxLine" | "dbOrderAuditLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2149,6 +2150,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    DbCashClose: {
+      payload: Prisma.$DbCashClosePayload<ExtArgs>
+      fields: Prisma.DbCashCloseFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DbCashCloseFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbCashClosePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DbCashCloseFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbCashClosePayload>
+        }
+        findFirst: {
+          args: Prisma.DbCashCloseFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbCashClosePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DbCashCloseFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbCashClosePayload>
+        }
+        findMany: {
+          args: Prisma.DbCashCloseFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbCashClosePayload>[]
+        }
+        create: {
+          args: Prisma.DbCashCloseCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbCashClosePayload>
+        }
+        createMany: {
+          args: Prisma.DbCashCloseCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DbCashCloseCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbCashClosePayload>[]
+        }
+        delete: {
+          args: Prisma.DbCashCloseDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbCashClosePayload>
+        }
+        update: {
+          args: Prisma.DbCashCloseUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbCashClosePayload>
+        }
+        deleteMany: {
+          args: Prisma.DbCashCloseDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DbCashCloseUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DbCashCloseUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbCashClosePayload>[]
+        }
+        upsert: {
+          args: Prisma.DbCashCloseUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbCashClosePayload>
+        }
+        aggregate: {
+          args: Prisma.DbCashCloseAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDbCashClose>
+        }
+        groupBy: {
+          args: Prisma.DbCashCloseGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DbCashCloseGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DbCashCloseCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DbCashCloseCountAggregateOutputType> | number
+        }
+      }
+    }
     DbPrinterConfig: {
       payload: Prisma.$DbPrinterConfigPayload<ExtArgs>
       fields: Prisma.DbPrinterConfigFieldRefs
@@ -3080,6 +3155,7 @@ export const DbOrderScalarFieldEnum = {
   notes: 'notes',
   ticketNotes: 'ticketNotes',
   tipAmount: 'tipAmount',
+  cashCloseId: 'cashCloseId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -3108,6 +3184,26 @@ export const DbOrderItemScalarFieldEnum = {
 } as const
 
 export type DbOrderItemScalarFieldEnum = (typeof DbOrderItemScalarFieldEnum)[keyof typeof DbOrderItemScalarFieldEnum]
+
+
+export const DbCashCloseScalarFieldEnum = {
+  id: 'id',
+  establishmentId: 'establishmentId',
+  closedById: 'closedById',
+  since: 'since',
+  closedAt: 'closedAt',
+  closedOrders: 'closedOrders',
+  cancelledOrders: 'cancelledOrders',
+  cancelledAmount: 'cancelledAmount',
+  cashAmount: 'cashAmount',
+  cardAmount: 'cardAmount',
+  tipAmount: 'tipAmount',
+  openingFloat: 'openingFloat',
+  countedCash: 'countedCash',
+  notes: 'notes'
+} as const
+
+export type DbCashCloseScalarFieldEnum = (typeof DbCashCloseScalarFieldEnum)[keyof typeof DbCashCloseScalarFieldEnum]
 
 
 export const DbPrinterConfigScalarFieldEnum = {
@@ -3911,6 +4007,7 @@ export type GlobalOmitConfig = {
   dbTable?: Prisma.DbTableOmit
   dbOrder?: Prisma.DbOrderOmit
   dbOrderItem?: Prisma.DbOrderItemOmit
+  dbCashClose?: Prisma.DbCashCloseOmit
   dbPrinterConfig?: Prisma.DbPrinterConfigOmit
   dbPrintJob?: Prisma.DbPrintJobOmit
   dbEstablishmentSubscription?: Prisma.DbEstablishmentSubscriptionOmit

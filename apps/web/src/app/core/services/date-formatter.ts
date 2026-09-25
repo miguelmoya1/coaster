@@ -54,6 +54,10 @@ export class DateFormatterService {
     return format(date, 'd MMM', { locale: this.#locale });
   }
 
+  public formatDateTime(iso: string): string {
+    return format(new Date(iso), 'd MMM yyyy, HH:mm', { locale: this.#locale });
+  }
+
   public formatTime(iso: string): string {
     return format(new Date(iso), 'HH:mm');
   }

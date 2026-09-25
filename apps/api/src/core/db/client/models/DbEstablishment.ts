@@ -213,6 +213,7 @@ export type DbEstablishmentWhereInput = {
   menus?: Prisma.DbMenuListRelationFilter
   invoices?: Prisma.DbInvoiceListRelationFilter
   orderAudits?: Prisma.DbOrderAuditLogListRelationFilter
+  cashCloses?: Prisma.DbCashCloseListRelationFilter
 }
 
 export type DbEstablishmentOrderByWithRelationInput = {
@@ -238,6 +239,7 @@ export type DbEstablishmentOrderByWithRelationInput = {
   menus?: Prisma.DbMenuOrderByRelationAggregateInput
   invoices?: Prisma.DbInvoiceOrderByRelationAggregateInput
   orderAudits?: Prisma.DbOrderAuditLogOrderByRelationAggregateInput
+  cashCloses?: Prisma.DbCashCloseOrderByRelationAggregateInput
 }
 
 export type DbEstablishmentWhereUniqueInput = Prisma.AtLeast<{
@@ -266,6 +268,7 @@ export type DbEstablishmentWhereUniqueInput = Prisma.AtLeast<{
   menus?: Prisma.DbMenuListRelationFilter
   invoices?: Prisma.DbInvoiceListRelationFilter
   orderAudits?: Prisma.DbOrderAuditLogListRelationFilter
+  cashCloses?: Prisma.DbCashCloseListRelationFilter
 }, "id">
 
 export type DbEstablishmentOrderByWithAggregationInput = {
@@ -317,6 +320,7 @@ export type DbEstablishmentCreateInput = {
   menus?: Prisma.DbMenuCreateNestedManyWithoutEstablishmentInput
   invoices?: Prisma.DbInvoiceCreateNestedManyWithoutEstablishmentInput
   orderAudits?: Prisma.DbOrderAuditLogCreateNestedManyWithoutEstablishmentInput
+  cashCloses?: Prisma.DbCashCloseCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentUncheckedCreateInput = {
@@ -342,6 +346,7 @@ export type DbEstablishmentUncheckedCreateInput = {
   menus?: Prisma.DbMenuUncheckedCreateNestedManyWithoutEstablishmentInput
   invoices?: Prisma.DbInvoiceUncheckedCreateNestedManyWithoutEstablishmentInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedCreateNestedManyWithoutEstablishmentInput
+  cashCloses?: Prisma.DbCashCloseUncheckedCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentUpdateInput = {
@@ -367,6 +372,7 @@ export type DbEstablishmentUpdateInput = {
   menus?: Prisma.DbMenuUpdateManyWithoutEstablishmentNestedInput
   invoices?: Prisma.DbInvoiceUpdateManyWithoutEstablishmentNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUpdateManyWithoutEstablishmentNestedInput
+  cashCloses?: Prisma.DbCashCloseUpdateManyWithoutEstablishmentNestedInput
 }
 
 export type DbEstablishmentUncheckedUpdateInput = {
@@ -392,6 +398,7 @@ export type DbEstablishmentUncheckedUpdateInput = {
   menus?: Prisma.DbMenuUncheckedUpdateManyWithoutEstablishmentNestedInput
   invoices?: Prisma.DbInvoiceUncheckedUpdateManyWithoutEstablishmentNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedUpdateManyWithoutEstablishmentNestedInput
+  cashCloses?: Prisma.DbCashCloseUncheckedUpdateManyWithoutEstablishmentNestedInput
 }
 
 export type DbEstablishmentCreateManyInput = {
@@ -585,6 +592,20 @@ export type DbEstablishmentUpdateOneRequiredWithoutOrdersNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.DbEstablishmentUpdateToOneWithWhereWithoutOrdersInput, Prisma.DbEstablishmentUpdateWithoutOrdersInput>, Prisma.DbEstablishmentUncheckedUpdateWithoutOrdersInput>
 }
 
+export type DbEstablishmentCreateNestedOneWithoutCashClosesInput = {
+  create?: Prisma.XOR<Prisma.DbEstablishmentCreateWithoutCashClosesInput, Prisma.DbEstablishmentUncheckedCreateWithoutCashClosesInput>
+  connectOrCreate?: Prisma.DbEstablishmentCreateOrConnectWithoutCashClosesInput
+  connect?: Prisma.DbEstablishmentWhereUniqueInput
+}
+
+export type DbEstablishmentUpdateOneRequiredWithoutCashClosesNestedInput = {
+  create?: Prisma.XOR<Prisma.DbEstablishmentCreateWithoutCashClosesInput, Prisma.DbEstablishmentUncheckedCreateWithoutCashClosesInput>
+  connectOrCreate?: Prisma.DbEstablishmentCreateOrConnectWithoutCashClosesInput
+  upsert?: Prisma.DbEstablishmentUpsertWithoutCashClosesInput
+  connect?: Prisma.DbEstablishmentWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.DbEstablishmentUpdateToOneWithWhereWithoutCashClosesInput, Prisma.DbEstablishmentUpdateWithoutCashClosesInput>, Prisma.DbEstablishmentUncheckedUpdateWithoutCashClosesInput>
+}
+
 export type DbEstablishmentCreateNestedOneWithoutPrinterInput = {
   create?: Prisma.XOR<Prisma.DbEstablishmentCreateWithoutPrinterInput, Prisma.DbEstablishmentUncheckedCreateWithoutPrinterInput>
   connectOrCreate?: Prisma.DbEstablishmentCreateOrConnectWithoutPrinterInput
@@ -691,6 +712,7 @@ export type DbEstablishmentCreateWithoutSettingsInput = {
   menus?: Prisma.DbMenuCreateNestedManyWithoutEstablishmentInput
   invoices?: Prisma.DbInvoiceCreateNestedManyWithoutEstablishmentInput
   orderAudits?: Prisma.DbOrderAuditLogCreateNestedManyWithoutEstablishmentInput
+  cashCloses?: Prisma.DbCashCloseCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentUncheckedCreateWithoutSettingsInput = {
@@ -715,6 +737,7 @@ export type DbEstablishmentUncheckedCreateWithoutSettingsInput = {
   menus?: Prisma.DbMenuUncheckedCreateNestedManyWithoutEstablishmentInput
   invoices?: Prisma.DbInvoiceUncheckedCreateNestedManyWithoutEstablishmentInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedCreateNestedManyWithoutEstablishmentInput
+  cashCloses?: Prisma.DbCashCloseUncheckedCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentCreateOrConnectWithoutSettingsInput = {
@@ -755,6 +778,7 @@ export type DbEstablishmentUpdateWithoutSettingsInput = {
   menus?: Prisma.DbMenuUpdateManyWithoutEstablishmentNestedInput
   invoices?: Prisma.DbInvoiceUpdateManyWithoutEstablishmentNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUpdateManyWithoutEstablishmentNestedInput
+  cashCloses?: Prisma.DbCashCloseUpdateManyWithoutEstablishmentNestedInput
 }
 
 export type DbEstablishmentUncheckedUpdateWithoutSettingsInput = {
@@ -779,6 +803,7 @@ export type DbEstablishmentUncheckedUpdateWithoutSettingsInput = {
   menus?: Prisma.DbMenuUncheckedUpdateManyWithoutEstablishmentNestedInput
   invoices?: Prisma.DbInvoiceUncheckedUpdateManyWithoutEstablishmentNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedUpdateManyWithoutEstablishmentNestedInput
+  cashCloses?: Prisma.DbCashCloseUncheckedUpdateManyWithoutEstablishmentNestedInput
 }
 
 export type DbEstablishmentCreateWithoutPairingsInput = {
@@ -803,6 +828,7 @@ export type DbEstablishmentCreateWithoutPairingsInput = {
   menus?: Prisma.DbMenuCreateNestedManyWithoutEstablishmentInput
   invoices?: Prisma.DbInvoiceCreateNestedManyWithoutEstablishmentInput
   orderAudits?: Prisma.DbOrderAuditLogCreateNestedManyWithoutEstablishmentInput
+  cashCloses?: Prisma.DbCashCloseCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentUncheckedCreateWithoutPairingsInput = {
@@ -827,6 +853,7 @@ export type DbEstablishmentUncheckedCreateWithoutPairingsInput = {
   menus?: Prisma.DbMenuUncheckedCreateNestedManyWithoutEstablishmentInput
   invoices?: Prisma.DbInvoiceUncheckedCreateNestedManyWithoutEstablishmentInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedCreateNestedManyWithoutEstablishmentInput
+  cashCloses?: Prisma.DbCashCloseUncheckedCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentCreateOrConnectWithoutPairingsInput = {
@@ -867,6 +894,7 @@ export type DbEstablishmentUpdateWithoutPairingsInput = {
   menus?: Prisma.DbMenuUpdateManyWithoutEstablishmentNestedInput
   invoices?: Prisma.DbInvoiceUpdateManyWithoutEstablishmentNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUpdateManyWithoutEstablishmentNestedInput
+  cashCloses?: Prisma.DbCashCloseUpdateManyWithoutEstablishmentNestedInput
 }
 
 export type DbEstablishmentUncheckedUpdateWithoutPairingsInput = {
@@ -891,6 +919,7 @@ export type DbEstablishmentUncheckedUpdateWithoutPairingsInput = {
   menus?: Prisma.DbMenuUncheckedUpdateManyWithoutEstablishmentNestedInput
   invoices?: Prisma.DbInvoiceUncheckedUpdateManyWithoutEstablishmentNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedUpdateManyWithoutEstablishmentNestedInput
+  cashCloses?: Prisma.DbCashCloseUncheckedUpdateManyWithoutEstablishmentNestedInput
 }
 
 export type DbEstablishmentCreateWithoutAiUsageInput = {
@@ -915,6 +944,7 @@ export type DbEstablishmentCreateWithoutAiUsageInput = {
   menus?: Prisma.DbMenuCreateNestedManyWithoutEstablishmentInput
   invoices?: Prisma.DbInvoiceCreateNestedManyWithoutEstablishmentInput
   orderAudits?: Prisma.DbOrderAuditLogCreateNestedManyWithoutEstablishmentInput
+  cashCloses?: Prisma.DbCashCloseCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentUncheckedCreateWithoutAiUsageInput = {
@@ -939,6 +969,7 @@ export type DbEstablishmentUncheckedCreateWithoutAiUsageInput = {
   menus?: Prisma.DbMenuUncheckedCreateNestedManyWithoutEstablishmentInput
   invoices?: Prisma.DbInvoiceUncheckedCreateNestedManyWithoutEstablishmentInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedCreateNestedManyWithoutEstablishmentInput
+  cashCloses?: Prisma.DbCashCloseUncheckedCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentCreateOrConnectWithoutAiUsageInput = {
@@ -979,6 +1010,7 @@ export type DbEstablishmentUpdateWithoutAiUsageInput = {
   menus?: Prisma.DbMenuUpdateManyWithoutEstablishmentNestedInput
   invoices?: Prisma.DbInvoiceUpdateManyWithoutEstablishmentNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUpdateManyWithoutEstablishmentNestedInput
+  cashCloses?: Prisma.DbCashCloseUpdateManyWithoutEstablishmentNestedInput
 }
 
 export type DbEstablishmentUncheckedUpdateWithoutAiUsageInput = {
@@ -1003,6 +1035,7 @@ export type DbEstablishmentUncheckedUpdateWithoutAiUsageInput = {
   menus?: Prisma.DbMenuUncheckedUpdateManyWithoutEstablishmentNestedInput
   invoices?: Prisma.DbInvoiceUncheckedUpdateManyWithoutEstablishmentNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedUpdateManyWithoutEstablishmentNestedInput
+  cashCloses?: Prisma.DbCashCloseUncheckedUpdateManyWithoutEstablishmentNestedInput
 }
 
 export type DbEstablishmentCreateWithoutMembersInput = {
@@ -1027,6 +1060,7 @@ export type DbEstablishmentCreateWithoutMembersInput = {
   menus?: Prisma.DbMenuCreateNestedManyWithoutEstablishmentInput
   invoices?: Prisma.DbInvoiceCreateNestedManyWithoutEstablishmentInput
   orderAudits?: Prisma.DbOrderAuditLogCreateNestedManyWithoutEstablishmentInput
+  cashCloses?: Prisma.DbCashCloseCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentUncheckedCreateWithoutMembersInput = {
@@ -1051,6 +1085,7 @@ export type DbEstablishmentUncheckedCreateWithoutMembersInput = {
   menus?: Prisma.DbMenuUncheckedCreateNestedManyWithoutEstablishmentInput
   invoices?: Prisma.DbInvoiceUncheckedCreateNestedManyWithoutEstablishmentInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedCreateNestedManyWithoutEstablishmentInput
+  cashCloses?: Prisma.DbCashCloseUncheckedCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentCreateOrConnectWithoutMembersInput = {
@@ -1091,6 +1126,7 @@ export type DbEstablishmentUpdateWithoutMembersInput = {
   menus?: Prisma.DbMenuUpdateManyWithoutEstablishmentNestedInput
   invoices?: Prisma.DbInvoiceUpdateManyWithoutEstablishmentNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUpdateManyWithoutEstablishmentNestedInput
+  cashCloses?: Prisma.DbCashCloseUpdateManyWithoutEstablishmentNestedInput
 }
 
 export type DbEstablishmentUncheckedUpdateWithoutMembersInput = {
@@ -1115,6 +1151,7 @@ export type DbEstablishmentUncheckedUpdateWithoutMembersInput = {
   menus?: Prisma.DbMenuUncheckedUpdateManyWithoutEstablishmentNestedInput
   invoices?: Prisma.DbInvoiceUncheckedUpdateManyWithoutEstablishmentNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedUpdateManyWithoutEstablishmentNestedInput
+  cashCloses?: Prisma.DbCashCloseUncheckedUpdateManyWithoutEstablishmentNestedInput
 }
 
 export type DbEstablishmentCreateWithoutShiftsInput = {
@@ -1139,6 +1176,7 @@ export type DbEstablishmentCreateWithoutShiftsInput = {
   menus?: Prisma.DbMenuCreateNestedManyWithoutEstablishmentInput
   invoices?: Prisma.DbInvoiceCreateNestedManyWithoutEstablishmentInput
   orderAudits?: Prisma.DbOrderAuditLogCreateNestedManyWithoutEstablishmentInput
+  cashCloses?: Prisma.DbCashCloseCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentUncheckedCreateWithoutShiftsInput = {
@@ -1163,6 +1201,7 @@ export type DbEstablishmentUncheckedCreateWithoutShiftsInput = {
   menus?: Prisma.DbMenuUncheckedCreateNestedManyWithoutEstablishmentInput
   invoices?: Prisma.DbInvoiceUncheckedCreateNestedManyWithoutEstablishmentInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedCreateNestedManyWithoutEstablishmentInput
+  cashCloses?: Prisma.DbCashCloseUncheckedCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentCreateOrConnectWithoutShiftsInput = {
@@ -1203,6 +1242,7 @@ export type DbEstablishmentUpdateWithoutShiftsInput = {
   menus?: Prisma.DbMenuUpdateManyWithoutEstablishmentNestedInput
   invoices?: Prisma.DbInvoiceUpdateManyWithoutEstablishmentNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUpdateManyWithoutEstablishmentNestedInput
+  cashCloses?: Prisma.DbCashCloseUpdateManyWithoutEstablishmentNestedInput
 }
 
 export type DbEstablishmentUncheckedUpdateWithoutShiftsInput = {
@@ -1227,6 +1267,7 @@ export type DbEstablishmentUncheckedUpdateWithoutShiftsInput = {
   menus?: Prisma.DbMenuUncheckedUpdateManyWithoutEstablishmentNestedInput
   invoices?: Prisma.DbInvoiceUncheckedUpdateManyWithoutEstablishmentNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedUpdateManyWithoutEstablishmentNestedInput
+  cashCloses?: Prisma.DbCashCloseUncheckedUpdateManyWithoutEstablishmentNestedInput
 }
 
 export type DbEstablishmentCreateWithoutMenusInput = {
@@ -1251,6 +1292,7 @@ export type DbEstablishmentCreateWithoutMenusInput = {
   timeEntries?: Prisma.DbTimeEntryCreateNestedManyWithoutEstablishmentInput
   invoices?: Prisma.DbInvoiceCreateNestedManyWithoutEstablishmentInput
   orderAudits?: Prisma.DbOrderAuditLogCreateNestedManyWithoutEstablishmentInput
+  cashCloses?: Prisma.DbCashCloseCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentUncheckedCreateWithoutMenusInput = {
@@ -1275,6 +1317,7 @@ export type DbEstablishmentUncheckedCreateWithoutMenusInput = {
   timeEntries?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutEstablishmentInput
   invoices?: Prisma.DbInvoiceUncheckedCreateNestedManyWithoutEstablishmentInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedCreateNestedManyWithoutEstablishmentInput
+  cashCloses?: Prisma.DbCashCloseUncheckedCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentCreateOrConnectWithoutMenusInput = {
@@ -1315,6 +1358,7 @@ export type DbEstablishmentUpdateWithoutMenusInput = {
   timeEntries?: Prisma.DbTimeEntryUpdateManyWithoutEstablishmentNestedInput
   invoices?: Prisma.DbInvoiceUpdateManyWithoutEstablishmentNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUpdateManyWithoutEstablishmentNestedInput
+  cashCloses?: Prisma.DbCashCloseUpdateManyWithoutEstablishmentNestedInput
 }
 
 export type DbEstablishmentUncheckedUpdateWithoutMenusInput = {
@@ -1339,6 +1383,7 @@ export type DbEstablishmentUncheckedUpdateWithoutMenusInput = {
   timeEntries?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutEstablishmentNestedInput
   invoices?: Prisma.DbInvoiceUncheckedUpdateManyWithoutEstablishmentNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedUpdateManyWithoutEstablishmentNestedInput
+  cashCloses?: Prisma.DbCashCloseUncheckedUpdateManyWithoutEstablishmentNestedInput
 }
 
 export type DbEstablishmentCreateWithoutCategoriesInput = {
@@ -1363,6 +1408,7 @@ export type DbEstablishmentCreateWithoutCategoriesInput = {
   menus?: Prisma.DbMenuCreateNestedManyWithoutEstablishmentInput
   invoices?: Prisma.DbInvoiceCreateNestedManyWithoutEstablishmentInput
   orderAudits?: Prisma.DbOrderAuditLogCreateNestedManyWithoutEstablishmentInput
+  cashCloses?: Prisma.DbCashCloseCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentUncheckedCreateWithoutCategoriesInput = {
@@ -1387,6 +1433,7 @@ export type DbEstablishmentUncheckedCreateWithoutCategoriesInput = {
   menus?: Prisma.DbMenuUncheckedCreateNestedManyWithoutEstablishmentInput
   invoices?: Prisma.DbInvoiceUncheckedCreateNestedManyWithoutEstablishmentInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedCreateNestedManyWithoutEstablishmentInput
+  cashCloses?: Prisma.DbCashCloseUncheckedCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentCreateOrConnectWithoutCategoriesInput = {
@@ -1427,6 +1474,7 @@ export type DbEstablishmentUpdateWithoutCategoriesInput = {
   menus?: Prisma.DbMenuUpdateManyWithoutEstablishmentNestedInput
   invoices?: Prisma.DbInvoiceUpdateManyWithoutEstablishmentNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUpdateManyWithoutEstablishmentNestedInput
+  cashCloses?: Prisma.DbCashCloseUpdateManyWithoutEstablishmentNestedInput
 }
 
 export type DbEstablishmentUncheckedUpdateWithoutCategoriesInput = {
@@ -1451,6 +1499,7 @@ export type DbEstablishmentUncheckedUpdateWithoutCategoriesInput = {
   menus?: Prisma.DbMenuUncheckedUpdateManyWithoutEstablishmentNestedInput
   invoices?: Prisma.DbInvoiceUncheckedUpdateManyWithoutEstablishmentNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedUpdateManyWithoutEstablishmentNestedInput
+  cashCloses?: Prisma.DbCashCloseUncheckedUpdateManyWithoutEstablishmentNestedInput
 }
 
 export type DbEstablishmentCreateWithoutTablesInput = {
@@ -1475,6 +1524,7 @@ export type DbEstablishmentCreateWithoutTablesInput = {
   menus?: Prisma.DbMenuCreateNestedManyWithoutEstablishmentInput
   invoices?: Prisma.DbInvoiceCreateNestedManyWithoutEstablishmentInput
   orderAudits?: Prisma.DbOrderAuditLogCreateNestedManyWithoutEstablishmentInput
+  cashCloses?: Prisma.DbCashCloseCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentUncheckedCreateWithoutTablesInput = {
@@ -1499,6 +1549,7 @@ export type DbEstablishmentUncheckedCreateWithoutTablesInput = {
   menus?: Prisma.DbMenuUncheckedCreateNestedManyWithoutEstablishmentInput
   invoices?: Prisma.DbInvoiceUncheckedCreateNestedManyWithoutEstablishmentInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedCreateNestedManyWithoutEstablishmentInput
+  cashCloses?: Prisma.DbCashCloseUncheckedCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentCreateOrConnectWithoutTablesInput = {
@@ -1539,6 +1590,7 @@ export type DbEstablishmentUpdateWithoutTablesInput = {
   menus?: Prisma.DbMenuUpdateManyWithoutEstablishmentNestedInput
   invoices?: Prisma.DbInvoiceUpdateManyWithoutEstablishmentNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUpdateManyWithoutEstablishmentNestedInput
+  cashCloses?: Prisma.DbCashCloseUpdateManyWithoutEstablishmentNestedInput
 }
 
 export type DbEstablishmentUncheckedUpdateWithoutTablesInput = {
@@ -1563,6 +1615,7 @@ export type DbEstablishmentUncheckedUpdateWithoutTablesInput = {
   menus?: Prisma.DbMenuUncheckedUpdateManyWithoutEstablishmentNestedInput
   invoices?: Prisma.DbInvoiceUncheckedUpdateManyWithoutEstablishmentNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedUpdateManyWithoutEstablishmentNestedInput
+  cashCloses?: Prisma.DbCashCloseUncheckedUpdateManyWithoutEstablishmentNestedInput
 }
 
 export type DbEstablishmentCreateWithoutOrdersInput = {
@@ -1587,6 +1640,7 @@ export type DbEstablishmentCreateWithoutOrdersInput = {
   menus?: Prisma.DbMenuCreateNestedManyWithoutEstablishmentInput
   invoices?: Prisma.DbInvoiceCreateNestedManyWithoutEstablishmentInput
   orderAudits?: Prisma.DbOrderAuditLogCreateNestedManyWithoutEstablishmentInput
+  cashCloses?: Prisma.DbCashCloseCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentUncheckedCreateWithoutOrdersInput = {
@@ -1611,6 +1665,7 @@ export type DbEstablishmentUncheckedCreateWithoutOrdersInput = {
   menus?: Prisma.DbMenuUncheckedCreateNestedManyWithoutEstablishmentInput
   invoices?: Prisma.DbInvoiceUncheckedCreateNestedManyWithoutEstablishmentInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedCreateNestedManyWithoutEstablishmentInput
+  cashCloses?: Prisma.DbCashCloseUncheckedCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentCreateOrConnectWithoutOrdersInput = {
@@ -1651,6 +1706,7 @@ export type DbEstablishmentUpdateWithoutOrdersInput = {
   menus?: Prisma.DbMenuUpdateManyWithoutEstablishmentNestedInput
   invoices?: Prisma.DbInvoiceUpdateManyWithoutEstablishmentNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUpdateManyWithoutEstablishmentNestedInput
+  cashCloses?: Prisma.DbCashCloseUpdateManyWithoutEstablishmentNestedInput
 }
 
 export type DbEstablishmentUncheckedUpdateWithoutOrdersInput = {
@@ -1665,6 +1721,123 @@ export type DbEstablishmentUncheckedUpdateWithoutOrdersInput = {
   shifts?: Prisma.DbShiftUncheckedUpdateManyWithoutEstablishmentNestedInput
   categories?: Prisma.DbCategoryUncheckedUpdateManyWithoutEstablishmentNestedInput
   tables?: Prisma.DbTableUncheckedUpdateManyWithoutEstablishmentNestedInput
+  printer?: Prisma.DbPrinterConfigUncheckedUpdateOneWithoutEstablishmentNestedInput
+  printJobs?: Prisma.DbPrintJobUncheckedUpdateManyWithoutEstablishmentNestedInput
+  billing?: Prisma.DbEstablishmentSubscriptionUncheckedUpdateOneWithoutEstablishmentNestedInput
+  settings?: Prisma.DbEstablishmentSettingsUncheckedUpdateOneWithoutEstablishmentNestedInput
+  aiUsage?: Prisma.DbAiUsageUncheckedUpdateManyWithoutEstablishmentNestedInput
+  pairings?: Prisma.DbPrinterPairingUncheckedUpdateManyWithoutEstablishmentNestedInput
+  timeEntries?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutEstablishmentNestedInput
+  menus?: Prisma.DbMenuUncheckedUpdateManyWithoutEstablishmentNestedInput
+  invoices?: Prisma.DbInvoiceUncheckedUpdateManyWithoutEstablishmentNestedInput
+  orderAudits?: Prisma.DbOrderAuditLogUncheckedUpdateManyWithoutEstablishmentNestedInput
+  cashCloses?: Prisma.DbCashCloseUncheckedUpdateManyWithoutEstablishmentNestedInput
+}
+
+export type DbEstablishmentCreateWithoutCashClosesInput = {
+  id?: string
+  name: string
+  taxId?: string | null
+  legalName?: string | null
+  fiscalAddress?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  members?: Prisma.DbEstablishmentMemberCreateNestedManyWithoutEstablishmentInput
+  shifts?: Prisma.DbShiftCreateNestedManyWithoutEstablishmentInput
+  categories?: Prisma.DbCategoryCreateNestedManyWithoutEstablishmentInput
+  tables?: Prisma.DbTableCreateNestedManyWithoutEstablishmentInput
+  orders?: Prisma.DbOrderCreateNestedManyWithoutEstablishmentInput
+  printer?: Prisma.DbPrinterConfigCreateNestedOneWithoutEstablishmentInput
+  printJobs?: Prisma.DbPrintJobCreateNestedManyWithoutEstablishmentInput
+  billing?: Prisma.DbEstablishmentSubscriptionCreateNestedOneWithoutEstablishmentInput
+  settings?: Prisma.DbEstablishmentSettingsCreateNestedOneWithoutEstablishmentInput
+  aiUsage?: Prisma.DbAiUsageCreateNestedManyWithoutEstablishmentInput
+  pairings?: Prisma.DbPrinterPairingCreateNestedManyWithoutEstablishmentInput
+  timeEntries?: Prisma.DbTimeEntryCreateNestedManyWithoutEstablishmentInput
+  menus?: Prisma.DbMenuCreateNestedManyWithoutEstablishmentInput
+  invoices?: Prisma.DbInvoiceCreateNestedManyWithoutEstablishmentInput
+  orderAudits?: Prisma.DbOrderAuditLogCreateNestedManyWithoutEstablishmentInput
+}
+
+export type DbEstablishmentUncheckedCreateWithoutCashClosesInput = {
+  id?: string
+  name: string
+  taxId?: string | null
+  legalName?: string | null
+  fiscalAddress?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  members?: Prisma.DbEstablishmentMemberUncheckedCreateNestedManyWithoutEstablishmentInput
+  shifts?: Prisma.DbShiftUncheckedCreateNestedManyWithoutEstablishmentInput
+  categories?: Prisma.DbCategoryUncheckedCreateNestedManyWithoutEstablishmentInput
+  tables?: Prisma.DbTableUncheckedCreateNestedManyWithoutEstablishmentInput
+  orders?: Prisma.DbOrderUncheckedCreateNestedManyWithoutEstablishmentInput
+  printer?: Prisma.DbPrinterConfigUncheckedCreateNestedOneWithoutEstablishmentInput
+  printJobs?: Prisma.DbPrintJobUncheckedCreateNestedManyWithoutEstablishmentInput
+  billing?: Prisma.DbEstablishmentSubscriptionUncheckedCreateNestedOneWithoutEstablishmentInput
+  settings?: Prisma.DbEstablishmentSettingsUncheckedCreateNestedOneWithoutEstablishmentInput
+  aiUsage?: Prisma.DbAiUsageUncheckedCreateNestedManyWithoutEstablishmentInput
+  pairings?: Prisma.DbPrinterPairingUncheckedCreateNestedManyWithoutEstablishmentInput
+  timeEntries?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutEstablishmentInput
+  menus?: Prisma.DbMenuUncheckedCreateNestedManyWithoutEstablishmentInput
+  invoices?: Prisma.DbInvoiceUncheckedCreateNestedManyWithoutEstablishmentInput
+  orderAudits?: Prisma.DbOrderAuditLogUncheckedCreateNestedManyWithoutEstablishmentInput
+}
+
+export type DbEstablishmentCreateOrConnectWithoutCashClosesInput = {
+  where: Prisma.DbEstablishmentWhereUniqueInput
+  create: Prisma.XOR<Prisma.DbEstablishmentCreateWithoutCashClosesInput, Prisma.DbEstablishmentUncheckedCreateWithoutCashClosesInput>
+}
+
+export type DbEstablishmentUpsertWithoutCashClosesInput = {
+  update: Prisma.XOR<Prisma.DbEstablishmentUpdateWithoutCashClosesInput, Prisma.DbEstablishmentUncheckedUpdateWithoutCashClosesInput>
+  create: Prisma.XOR<Prisma.DbEstablishmentCreateWithoutCashClosesInput, Prisma.DbEstablishmentUncheckedCreateWithoutCashClosesInput>
+  where?: Prisma.DbEstablishmentWhereInput
+}
+
+export type DbEstablishmentUpdateToOneWithWhereWithoutCashClosesInput = {
+  where?: Prisma.DbEstablishmentWhereInput
+  data: Prisma.XOR<Prisma.DbEstablishmentUpdateWithoutCashClosesInput, Prisma.DbEstablishmentUncheckedUpdateWithoutCashClosesInput>
+}
+
+export type DbEstablishmentUpdateWithoutCashClosesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  taxId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fiscalAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  members?: Prisma.DbEstablishmentMemberUpdateManyWithoutEstablishmentNestedInput
+  shifts?: Prisma.DbShiftUpdateManyWithoutEstablishmentNestedInput
+  categories?: Prisma.DbCategoryUpdateManyWithoutEstablishmentNestedInput
+  tables?: Prisma.DbTableUpdateManyWithoutEstablishmentNestedInput
+  orders?: Prisma.DbOrderUpdateManyWithoutEstablishmentNestedInput
+  printer?: Prisma.DbPrinterConfigUpdateOneWithoutEstablishmentNestedInput
+  printJobs?: Prisma.DbPrintJobUpdateManyWithoutEstablishmentNestedInput
+  billing?: Prisma.DbEstablishmentSubscriptionUpdateOneWithoutEstablishmentNestedInput
+  settings?: Prisma.DbEstablishmentSettingsUpdateOneWithoutEstablishmentNestedInput
+  aiUsage?: Prisma.DbAiUsageUpdateManyWithoutEstablishmentNestedInput
+  pairings?: Prisma.DbPrinterPairingUpdateManyWithoutEstablishmentNestedInput
+  timeEntries?: Prisma.DbTimeEntryUpdateManyWithoutEstablishmentNestedInput
+  menus?: Prisma.DbMenuUpdateManyWithoutEstablishmentNestedInput
+  invoices?: Prisma.DbInvoiceUpdateManyWithoutEstablishmentNestedInput
+  orderAudits?: Prisma.DbOrderAuditLogUpdateManyWithoutEstablishmentNestedInput
+}
+
+export type DbEstablishmentUncheckedUpdateWithoutCashClosesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  taxId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fiscalAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  members?: Prisma.DbEstablishmentMemberUncheckedUpdateManyWithoutEstablishmentNestedInput
+  shifts?: Prisma.DbShiftUncheckedUpdateManyWithoutEstablishmentNestedInput
+  categories?: Prisma.DbCategoryUncheckedUpdateManyWithoutEstablishmentNestedInput
+  tables?: Prisma.DbTableUncheckedUpdateManyWithoutEstablishmentNestedInput
+  orders?: Prisma.DbOrderUncheckedUpdateManyWithoutEstablishmentNestedInput
   printer?: Prisma.DbPrinterConfigUncheckedUpdateOneWithoutEstablishmentNestedInput
   printJobs?: Prisma.DbPrintJobUncheckedUpdateManyWithoutEstablishmentNestedInput
   billing?: Prisma.DbEstablishmentSubscriptionUncheckedUpdateOneWithoutEstablishmentNestedInput
@@ -1699,6 +1872,7 @@ export type DbEstablishmentCreateWithoutPrinterInput = {
   menus?: Prisma.DbMenuCreateNestedManyWithoutEstablishmentInput
   invoices?: Prisma.DbInvoiceCreateNestedManyWithoutEstablishmentInput
   orderAudits?: Prisma.DbOrderAuditLogCreateNestedManyWithoutEstablishmentInput
+  cashCloses?: Prisma.DbCashCloseCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentUncheckedCreateWithoutPrinterInput = {
@@ -1723,6 +1897,7 @@ export type DbEstablishmentUncheckedCreateWithoutPrinterInput = {
   menus?: Prisma.DbMenuUncheckedCreateNestedManyWithoutEstablishmentInput
   invoices?: Prisma.DbInvoiceUncheckedCreateNestedManyWithoutEstablishmentInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedCreateNestedManyWithoutEstablishmentInput
+  cashCloses?: Prisma.DbCashCloseUncheckedCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentCreateOrConnectWithoutPrinterInput = {
@@ -1763,6 +1938,7 @@ export type DbEstablishmentUpdateWithoutPrinterInput = {
   menus?: Prisma.DbMenuUpdateManyWithoutEstablishmentNestedInput
   invoices?: Prisma.DbInvoiceUpdateManyWithoutEstablishmentNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUpdateManyWithoutEstablishmentNestedInput
+  cashCloses?: Prisma.DbCashCloseUpdateManyWithoutEstablishmentNestedInput
 }
 
 export type DbEstablishmentUncheckedUpdateWithoutPrinterInput = {
@@ -1787,6 +1963,7 @@ export type DbEstablishmentUncheckedUpdateWithoutPrinterInput = {
   menus?: Prisma.DbMenuUncheckedUpdateManyWithoutEstablishmentNestedInput
   invoices?: Prisma.DbInvoiceUncheckedUpdateManyWithoutEstablishmentNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedUpdateManyWithoutEstablishmentNestedInput
+  cashCloses?: Prisma.DbCashCloseUncheckedUpdateManyWithoutEstablishmentNestedInput
 }
 
 export type DbEstablishmentCreateWithoutPrintJobsInput = {
@@ -1811,6 +1988,7 @@ export type DbEstablishmentCreateWithoutPrintJobsInput = {
   menus?: Prisma.DbMenuCreateNestedManyWithoutEstablishmentInput
   invoices?: Prisma.DbInvoiceCreateNestedManyWithoutEstablishmentInput
   orderAudits?: Prisma.DbOrderAuditLogCreateNestedManyWithoutEstablishmentInput
+  cashCloses?: Prisma.DbCashCloseCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentUncheckedCreateWithoutPrintJobsInput = {
@@ -1835,6 +2013,7 @@ export type DbEstablishmentUncheckedCreateWithoutPrintJobsInput = {
   menus?: Prisma.DbMenuUncheckedCreateNestedManyWithoutEstablishmentInput
   invoices?: Prisma.DbInvoiceUncheckedCreateNestedManyWithoutEstablishmentInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedCreateNestedManyWithoutEstablishmentInput
+  cashCloses?: Prisma.DbCashCloseUncheckedCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentCreateOrConnectWithoutPrintJobsInput = {
@@ -1875,6 +2054,7 @@ export type DbEstablishmentUpdateWithoutPrintJobsInput = {
   menus?: Prisma.DbMenuUpdateManyWithoutEstablishmentNestedInput
   invoices?: Prisma.DbInvoiceUpdateManyWithoutEstablishmentNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUpdateManyWithoutEstablishmentNestedInput
+  cashCloses?: Prisma.DbCashCloseUpdateManyWithoutEstablishmentNestedInput
 }
 
 export type DbEstablishmentUncheckedUpdateWithoutPrintJobsInput = {
@@ -1899,6 +2079,7 @@ export type DbEstablishmentUncheckedUpdateWithoutPrintJobsInput = {
   menus?: Prisma.DbMenuUncheckedUpdateManyWithoutEstablishmentNestedInput
   invoices?: Prisma.DbInvoiceUncheckedUpdateManyWithoutEstablishmentNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedUpdateManyWithoutEstablishmentNestedInput
+  cashCloses?: Prisma.DbCashCloseUncheckedUpdateManyWithoutEstablishmentNestedInput
 }
 
 export type DbEstablishmentCreateWithoutBillingInput = {
@@ -1923,6 +2104,7 @@ export type DbEstablishmentCreateWithoutBillingInput = {
   menus?: Prisma.DbMenuCreateNestedManyWithoutEstablishmentInput
   invoices?: Prisma.DbInvoiceCreateNestedManyWithoutEstablishmentInput
   orderAudits?: Prisma.DbOrderAuditLogCreateNestedManyWithoutEstablishmentInput
+  cashCloses?: Prisma.DbCashCloseCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentUncheckedCreateWithoutBillingInput = {
@@ -1947,6 +2129,7 @@ export type DbEstablishmentUncheckedCreateWithoutBillingInput = {
   menus?: Prisma.DbMenuUncheckedCreateNestedManyWithoutEstablishmentInput
   invoices?: Prisma.DbInvoiceUncheckedCreateNestedManyWithoutEstablishmentInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedCreateNestedManyWithoutEstablishmentInput
+  cashCloses?: Prisma.DbCashCloseUncheckedCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentCreateOrConnectWithoutBillingInput = {
@@ -1987,6 +2170,7 @@ export type DbEstablishmentUpdateWithoutBillingInput = {
   menus?: Prisma.DbMenuUpdateManyWithoutEstablishmentNestedInput
   invoices?: Prisma.DbInvoiceUpdateManyWithoutEstablishmentNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUpdateManyWithoutEstablishmentNestedInput
+  cashCloses?: Prisma.DbCashCloseUpdateManyWithoutEstablishmentNestedInput
 }
 
 export type DbEstablishmentUncheckedUpdateWithoutBillingInput = {
@@ -2011,6 +2195,7 @@ export type DbEstablishmentUncheckedUpdateWithoutBillingInput = {
   menus?: Prisma.DbMenuUncheckedUpdateManyWithoutEstablishmentNestedInput
   invoices?: Prisma.DbInvoiceUncheckedUpdateManyWithoutEstablishmentNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedUpdateManyWithoutEstablishmentNestedInput
+  cashCloses?: Prisma.DbCashCloseUncheckedUpdateManyWithoutEstablishmentNestedInput
 }
 
 export type DbEstablishmentCreateWithoutTimeEntriesInput = {
@@ -2035,6 +2220,7 @@ export type DbEstablishmentCreateWithoutTimeEntriesInput = {
   menus?: Prisma.DbMenuCreateNestedManyWithoutEstablishmentInput
   invoices?: Prisma.DbInvoiceCreateNestedManyWithoutEstablishmentInput
   orderAudits?: Prisma.DbOrderAuditLogCreateNestedManyWithoutEstablishmentInput
+  cashCloses?: Prisma.DbCashCloseCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentUncheckedCreateWithoutTimeEntriesInput = {
@@ -2059,6 +2245,7 @@ export type DbEstablishmentUncheckedCreateWithoutTimeEntriesInput = {
   menus?: Prisma.DbMenuUncheckedCreateNestedManyWithoutEstablishmentInput
   invoices?: Prisma.DbInvoiceUncheckedCreateNestedManyWithoutEstablishmentInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedCreateNestedManyWithoutEstablishmentInput
+  cashCloses?: Prisma.DbCashCloseUncheckedCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentCreateOrConnectWithoutTimeEntriesInput = {
@@ -2099,6 +2286,7 @@ export type DbEstablishmentUpdateWithoutTimeEntriesInput = {
   menus?: Prisma.DbMenuUpdateManyWithoutEstablishmentNestedInput
   invoices?: Prisma.DbInvoiceUpdateManyWithoutEstablishmentNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUpdateManyWithoutEstablishmentNestedInput
+  cashCloses?: Prisma.DbCashCloseUpdateManyWithoutEstablishmentNestedInput
 }
 
 export type DbEstablishmentUncheckedUpdateWithoutTimeEntriesInput = {
@@ -2123,6 +2311,7 @@ export type DbEstablishmentUncheckedUpdateWithoutTimeEntriesInput = {
   menus?: Prisma.DbMenuUncheckedUpdateManyWithoutEstablishmentNestedInput
   invoices?: Prisma.DbInvoiceUncheckedUpdateManyWithoutEstablishmentNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedUpdateManyWithoutEstablishmentNestedInput
+  cashCloses?: Prisma.DbCashCloseUncheckedUpdateManyWithoutEstablishmentNestedInput
 }
 
 export type DbEstablishmentCreateWithoutInvoicesInput = {
@@ -2147,6 +2336,7 @@ export type DbEstablishmentCreateWithoutInvoicesInput = {
   timeEntries?: Prisma.DbTimeEntryCreateNestedManyWithoutEstablishmentInput
   menus?: Prisma.DbMenuCreateNestedManyWithoutEstablishmentInput
   orderAudits?: Prisma.DbOrderAuditLogCreateNestedManyWithoutEstablishmentInput
+  cashCloses?: Prisma.DbCashCloseCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentUncheckedCreateWithoutInvoicesInput = {
@@ -2171,6 +2361,7 @@ export type DbEstablishmentUncheckedCreateWithoutInvoicesInput = {
   timeEntries?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutEstablishmentInput
   menus?: Prisma.DbMenuUncheckedCreateNestedManyWithoutEstablishmentInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedCreateNestedManyWithoutEstablishmentInput
+  cashCloses?: Prisma.DbCashCloseUncheckedCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentCreateOrConnectWithoutInvoicesInput = {
@@ -2211,6 +2402,7 @@ export type DbEstablishmentUpdateWithoutInvoicesInput = {
   timeEntries?: Prisma.DbTimeEntryUpdateManyWithoutEstablishmentNestedInput
   menus?: Prisma.DbMenuUpdateManyWithoutEstablishmentNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUpdateManyWithoutEstablishmentNestedInput
+  cashCloses?: Prisma.DbCashCloseUpdateManyWithoutEstablishmentNestedInput
 }
 
 export type DbEstablishmentUncheckedUpdateWithoutInvoicesInput = {
@@ -2235,6 +2427,7 @@ export type DbEstablishmentUncheckedUpdateWithoutInvoicesInput = {
   timeEntries?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutEstablishmentNestedInput
   menus?: Prisma.DbMenuUncheckedUpdateManyWithoutEstablishmentNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedUpdateManyWithoutEstablishmentNestedInput
+  cashCloses?: Prisma.DbCashCloseUncheckedUpdateManyWithoutEstablishmentNestedInput
 }
 
 export type DbEstablishmentCreateWithoutOrderAuditsInput = {
@@ -2259,6 +2452,7 @@ export type DbEstablishmentCreateWithoutOrderAuditsInput = {
   timeEntries?: Prisma.DbTimeEntryCreateNestedManyWithoutEstablishmentInput
   menus?: Prisma.DbMenuCreateNestedManyWithoutEstablishmentInput
   invoices?: Prisma.DbInvoiceCreateNestedManyWithoutEstablishmentInput
+  cashCloses?: Prisma.DbCashCloseCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentUncheckedCreateWithoutOrderAuditsInput = {
@@ -2283,6 +2477,7 @@ export type DbEstablishmentUncheckedCreateWithoutOrderAuditsInput = {
   timeEntries?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutEstablishmentInput
   menus?: Prisma.DbMenuUncheckedCreateNestedManyWithoutEstablishmentInput
   invoices?: Prisma.DbInvoiceUncheckedCreateNestedManyWithoutEstablishmentInput
+  cashCloses?: Prisma.DbCashCloseUncheckedCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentCreateOrConnectWithoutOrderAuditsInput = {
@@ -2323,6 +2518,7 @@ export type DbEstablishmentUpdateWithoutOrderAuditsInput = {
   timeEntries?: Prisma.DbTimeEntryUpdateManyWithoutEstablishmentNestedInput
   menus?: Prisma.DbMenuUpdateManyWithoutEstablishmentNestedInput
   invoices?: Prisma.DbInvoiceUpdateManyWithoutEstablishmentNestedInput
+  cashCloses?: Prisma.DbCashCloseUpdateManyWithoutEstablishmentNestedInput
 }
 
 export type DbEstablishmentUncheckedUpdateWithoutOrderAuditsInput = {
@@ -2347,6 +2543,7 @@ export type DbEstablishmentUncheckedUpdateWithoutOrderAuditsInput = {
   timeEntries?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutEstablishmentNestedInput
   menus?: Prisma.DbMenuUncheckedUpdateManyWithoutEstablishmentNestedInput
   invoices?: Prisma.DbInvoiceUncheckedUpdateManyWithoutEstablishmentNestedInput
+  cashCloses?: Prisma.DbCashCloseUncheckedUpdateManyWithoutEstablishmentNestedInput
 }
 
 
@@ -2367,6 +2564,7 @@ export type DbEstablishmentCountOutputType = {
   menus: number
   invoices: number
   orderAudits: number
+  cashCloses: number
 }
 
 export type DbEstablishmentCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2382,6 +2580,7 @@ export type DbEstablishmentCountOutputTypeSelect<ExtArgs extends runtime.Types.E
   menus?: boolean | DbEstablishmentCountOutputTypeCountMenusArgs
   invoices?: boolean | DbEstablishmentCountOutputTypeCountInvoicesArgs
   orderAudits?: boolean | DbEstablishmentCountOutputTypeCountOrderAuditsArgs
+  cashCloses?: boolean | DbEstablishmentCountOutputTypeCountCashClosesArgs
 }
 
 /**
@@ -2478,6 +2677,13 @@ export type DbEstablishmentCountOutputTypeCountOrderAuditsArgs<ExtArgs extends r
   where?: Prisma.DbOrderAuditLogWhereInput
 }
 
+/**
+ * DbEstablishmentCountOutputType without action
+ */
+export type DbEstablishmentCountOutputTypeCountCashClosesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.DbCashCloseWhereInput
+}
+
 
 export type DbEstablishmentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -2502,6 +2708,7 @@ export type DbEstablishmentSelect<ExtArgs extends runtime.Types.Extensions.Inter
   menus?: boolean | Prisma.DbEstablishment$menusArgs<ExtArgs>
   invoices?: boolean | Prisma.DbEstablishment$invoicesArgs<ExtArgs>
   orderAudits?: boolean | Prisma.DbEstablishment$orderAuditsArgs<ExtArgs>
+  cashCloses?: boolean | Prisma.DbEstablishment$cashClosesArgs<ExtArgs>
   _count?: boolean | Prisma.DbEstablishmentCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["dbEstablishment"]>
 
@@ -2552,6 +2759,7 @@ export type DbEstablishmentInclude<ExtArgs extends runtime.Types.Extensions.Inte
   menus?: boolean | Prisma.DbEstablishment$menusArgs<ExtArgs>
   invoices?: boolean | Prisma.DbEstablishment$invoicesArgs<ExtArgs>
   orderAudits?: boolean | Prisma.DbEstablishment$orderAuditsArgs<ExtArgs>
+  cashCloses?: boolean | Prisma.DbEstablishment$cashClosesArgs<ExtArgs>
   _count?: boolean | Prisma.DbEstablishmentCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type DbEstablishmentIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -2575,6 +2783,7 @@ export type $DbEstablishmentPayload<ExtArgs extends runtime.Types.Extensions.Int
     menus: Prisma.$DbMenuPayload<ExtArgs>[]
     invoices: Prisma.$DbInvoicePayload<ExtArgs>[]
     orderAudits: Prisma.$DbOrderAuditLogPayload<ExtArgs>[]
+    cashCloses: Prisma.$DbCashClosePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2993,6 +3202,7 @@ export interface Prisma__DbEstablishmentClient<T, Null = never, ExtArgs extends 
   menus<T extends Prisma.DbEstablishment$menusArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbEstablishment$menusArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DbMenuPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   invoices<T extends Prisma.DbEstablishment$invoicesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbEstablishment$invoicesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DbInvoicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   orderAudits<T extends Prisma.DbEstablishment$orderAuditsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbEstablishment$orderAuditsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DbOrderAuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  cashCloses<T extends Prisma.DbEstablishment$cashClosesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbEstablishment$cashClosesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DbCashClosePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3764,6 +3974,30 @@ export type DbEstablishment$orderAuditsArgs<ExtArgs extends runtime.Types.Extens
   take?: number
   skip?: number
   distinct?: Prisma.DbOrderAuditLogScalarFieldEnum | Prisma.DbOrderAuditLogScalarFieldEnum[]
+}
+
+/**
+ * DbEstablishment.cashCloses
+ */
+export type DbEstablishment$cashClosesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the DbCashClose
+   */
+  select?: Prisma.DbCashCloseSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the DbCashClose
+   */
+  omit?: Prisma.DbCashCloseOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DbCashCloseInclude<ExtArgs> | null
+  where?: Prisma.DbCashCloseWhereInput
+  orderBy?: Prisma.DbCashCloseOrderByWithRelationInput | Prisma.DbCashCloseOrderByWithRelationInput[]
+  cursor?: Prisma.DbCashCloseWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.DbCashCloseScalarFieldEnum | Prisma.DbCashCloseScalarFieldEnum[]
 }
 
 /**

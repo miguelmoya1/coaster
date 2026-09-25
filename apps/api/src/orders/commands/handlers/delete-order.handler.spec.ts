@@ -1,4 +1,4 @@
-import { OrderStatus, asEstablishmentId, asOrderId } from '@coaster/common';
+import { ErrorCodes, OrderStatus, asEstablishmentId, asOrderId } from '@coaster/common';
 import { BadRequestException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -45,6 +45,22 @@ describe('DeleteOrderHandler', () => {
     await expect(
       handler.execute(new DeleteOrderCommand(asEstablishmentId('establishment-1'), asOrderId('order-1'))),
     ).rejects.toThrow(BadRequestException);
+  });
+
+  it('should refuse to delete an order that a cash close already counted', async () => {
+    repository.findOwnedById.mockResolvedValue({
+      id: 'order-1',
+      establishmentId: 'establishment-1',
+      status: OrderStatus.CLOSED,
+      cashCloseId: 'cash-close-1',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    await expect(
+      handler.execute(new DeleteOrderCommand(asEstablishmentId('establishment-1'), asOrderId('order-1'))),
+    ).rejects.toThrow(ErrorCodes.ORDER_IN_CASH_CLOSE);
+    expect(repository.deleteOrder).not.toHaveBeenCalled();
   });
 
   it("should delete today's closed order successfully", async () => {

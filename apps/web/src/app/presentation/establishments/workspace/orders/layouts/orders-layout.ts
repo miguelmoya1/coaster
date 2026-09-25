@@ -1,6 +1,8 @@
-import { Component, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import type { EstablishmentId } from '@coaster/common';
+import { EstablishmentPermission } from '@coaster/common';
+import { MyMemberStore } from '@coaster/establishment-members';
 import { TranslatePipe } from '@ngx-translate/core';
 import { PageContainer } from '../../../../components/page-container/page-container';
 import { PageHeader } from '../../../../components/page-header/page-header';
@@ -36,6 +38,15 @@ import { PageHeader } from '../../../../components/page-header/page-header';
         >
           {{ 'history.title' | translate }}
         </a>
+        @if (canCloseCash()) {
+          <a
+            class="flex-1 min-w-0 text-center py-2.5 px-2 rounded-xl font-bold text-xs sm:text-sm text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer truncate"
+            [routerLink]="['/establishments', establishmentId(), 'orders', 'cash-close']"
+            routerLinkActive="text-on-primary! bg-primary"
+          >
+            {{ 'cash_close.tab' | translate }}
+          </a>
+        }
       </div>
 
       <router-outlet />
@@ -47,6 +58,12 @@ import { PageHeader } from '../../../../components/page-header/page-header';
 })
 class OrdersLayout {
   public readonly establishmentId = input.required<EstablishmentId>();
+
+  readonly #myMember = inject(MyMemberStore);
+
+  protected readonly canCloseCash = computed(() =>
+    this.#myMember.hasPermission(EstablishmentPermission.ESTABLISHMENT_CLOSE_CASH),
+  );
 }
 
 export default OrdersLayout;

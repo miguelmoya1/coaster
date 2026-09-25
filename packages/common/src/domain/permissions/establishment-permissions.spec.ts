@@ -22,6 +22,7 @@ const MANAGER_MUST_NOT_HAVE: EstablishmentPermission[] = [
 const STAFF_MUST_NOT_HAVE: EstablishmentPermission[] = [
   ...MANAGER_MUST_NOT_HAVE,
   EstablishmentPermission.ESTABLISHMENT_VIEW_FINANCIALS,
+  EstablishmentPermission.ESTABLISHMENT_CLOSE_CASH,
   EstablishmentPermission.ESTABLISHMENT_INVITE_MEMBER,
   EstablishmentPermission.ESTABLISHMENT_CREATE_CATEGORY,
   EstablishmentPermission.ESTABLISHMENT_UPDATE_CATEGORY,

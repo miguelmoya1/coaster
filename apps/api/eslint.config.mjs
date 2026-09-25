@@ -64,6 +64,7 @@ export default defineConfig(
               group: [
                 '@coaster/ai',
                 '@coaster/auth',
+                '@coaster/cash-closes',
                 '@coaster/categories',
                 '@coaster/email',
                 '@coaster/establishment-members',

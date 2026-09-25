@@ -13,10 +13,17 @@ export class PrintTicket {
   readonly #printerRepository = inject(PrinterRepository);
 
   public async execute(order: Order, establishmentName?: string): Promise<void> {
-    const payload = this.buildTicketPayload(order, establishmentName);
-    const { jobId } = await this.#printerRepository.printTicket(order.establishmentId, payload);
+    await this.print(order.establishmentId, this.buildTicketPayload(order, establishmentName));
+  }
 
-    await this.waitUntilPrinted(order.establishmentId, jobId);
+  public async executeText(establishmentId: string, rawText: string): Promise<void> {
+    await this.print(establishmentId, { type: 'raw', rawText });
+  }
+
+  private async print(establishmentId: string, payload: PrintTicketPayloadDto): Promise<void> {
+    const { jobId } = await this.#printerRepository.printTicket(establishmentId, payload);
+
+    await this.waitUntilPrinted(establishmentId, jobId);
   }
 
   private async waitUntilPrinted(establishmentId: string, jobId: string): Promise<void> {

@@ -17,6 +17,7 @@
       "@coaster/establishment-members": ["./src/app/establishment-members/index.ts"],
       "@coaster/establishment-subscription": ["./src/app/establishment-subscription/index.ts"],
       "@coaster/establishments": ["./src/app/establishments/index.ts"],
+      "@coaster/cash-close": ["./src/app/cash-close/index.ts"],
       "@coaster/categories": ["./src/app/categories/index.ts"],
       "@coaster/core": ["./src/app/core/index.ts"],
       "@coaster/env": ["./src/environments/environment.ts"],

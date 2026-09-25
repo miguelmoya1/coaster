@@ -253,6 +253,7 @@ export type DbUserWhereInput = {
   sessions?: Prisma.DbAuthSessionListRelationFilter
   authTokens?: Prisma.DbAuthTokenListRelationFilter
   authEvents?: Prisma.DbAuthEventListRelationFilter
+  cashCloses?: Prisma.DbCashCloseListRelationFilter
 }
 
 export type DbUserOrderByWithRelationInput = {
@@ -283,6 +284,7 @@ export type DbUserOrderByWithRelationInput = {
   sessions?: Prisma.DbAuthSessionOrderByRelationAggregateInput
   authTokens?: Prisma.DbAuthTokenOrderByRelationAggregateInput
   authEvents?: Prisma.DbAuthEventOrderByRelationAggregateInput
+  cashCloses?: Prisma.DbCashCloseOrderByRelationAggregateInput
 }
 
 export type DbUserWhereUniqueInput = Prisma.AtLeast<{
@@ -316,6 +318,7 @@ export type DbUserWhereUniqueInput = Prisma.AtLeast<{
   sessions?: Prisma.DbAuthSessionListRelationFilter
   authTokens?: Prisma.DbAuthTokenListRelationFilter
   authEvents?: Prisma.DbAuthEventListRelationFilter
+  cashCloses?: Prisma.DbCashCloseListRelationFilter
 }, "id" | "email" | "firebaseUid">
 
 export type DbUserOrderByWithAggregationInput = {
@@ -382,6 +385,7 @@ export type DbUserCreateInput = {
   sessions?: Prisma.DbAuthSessionCreateNestedManyWithoutUserInput
   authTokens?: Prisma.DbAuthTokenCreateNestedManyWithoutUserInput
   authEvents?: Prisma.DbAuthEventCreateNestedManyWithoutUserInput
+  cashCloses?: Prisma.DbCashCloseCreateNestedManyWithoutClosedByInput
 }
 
 export type DbUserUncheckedCreateInput = {
@@ -412,6 +416,7 @@ export type DbUserUncheckedCreateInput = {
   sessions?: Prisma.DbAuthSessionUncheckedCreateNestedManyWithoutUserInput
   authTokens?: Prisma.DbAuthTokenUncheckedCreateNestedManyWithoutUserInput
   authEvents?: Prisma.DbAuthEventUncheckedCreateNestedManyWithoutUserInput
+  cashCloses?: Prisma.DbCashCloseUncheckedCreateNestedManyWithoutClosedByInput
 }
 
 export type DbUserUpdateInput = {
@@ -442,6 +447,7 @@ export type DbUserUpdateInput = {
   sessions?: Prisma.DbAuthSessionUpdateManyWithoutUserNestedInput
   authTokens?: Prisma.DbAuthTokenUpdateManyWithoutUserNestedInput
   authEvents?: Prisma.DbAuthEventUpdateManyWithoutUserNestedInput
+  cashCloses?: Prisma.DbCashCloseUpdateManyWithoutClosedByNestedInput
 }
 
 export type DbUserUncheckedUpdateInput = {
@@ -472,6 +478,7 @@ export type DbUserUncheckedUpdateInput = {
   sessions?: Prisma.DbAuthSessionUncheckedUpdateManyWithoutUserNestedInput
   authTokens?: Prisma.DbAuthTokenUncheckedUpdateManyWithoutUserNestedInput
   authEvents?: Prisma.DbAuthEventUncheckedUpdateManyWithoutUserNestedInput
+  cashCloses?: Prisma.DbCashCloseUncheckedUpdateManyWithoutClosedByNestedInput
 }
 
 export type DbUserCreateManyInput = {
@@ -748,6 +755,20 @@ export type DbUserUpdateOneWithoutCreatedOrdersNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.DbUserUpdateToOneWithWhereWithoutCreatedOrdersInput, Prisma.DbUserUpdateWithoutCreatedOrdersInput>, Prisma.DbUserUncheckedUpdateWithoutCreatedOrdersInput>
 }
 
+export type DbUserCreateNestedOneWithoutCashClosesInput = {
+  create?: Prisma.XOR<Prisma.DbUserCreateWithoutCashClosesInput, Prisma.DbUserUncheckedCreateWithoutCashClosesInput>
+  connectOrCreate?: Prisma.DbUserCreateOrConnectWithoutCashClosesInput
+  connect?: Prisma.DbUserWhereUniqueInput
+}
+
+export type DbUserUpdateOneRequiredWithoutCashClosesNestedInput = {
+  create?: Prisma.XOR<Prisma.DbUserCreateWithoutCashClosesInput, Prisma.DbUserUncheckedCreateWithoutCashClosesInput>
+  connectOrCreate?: Prisma.DbUserCreateOrConnectWithoutCashClosesInput
+  upsert?: Prisma.DbUserUpsertWithoutCashClosesInput
+  connect?: Prisma.DbUserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.DbUserUpdateToOneWithWhereWithoutCashClosesInput, Prisma.DbUserUpdateWithoutCashClosesInput>, Prisma.DbUserUncheckedUpdateWithoutCashClosesInput>
+}
+
 export type DbUserCreateNestedOneWithoutTimeEntriesInput = {
   create?: Prisma.XOR<Prisma.DbUserCreateWithoutTimeEntriesInput, Prisma.DbUserUncheckedCreateWithoutTimeEntriesInput>
   connectOrCreate?: Prisma.DbUserCreateOrConnectWithoutTimeEntriesInput
@@ -831,6 +852,7 @@ export type DbUserCreateWithoutIdentitiesInput = {
   sessions?: Prisma.DbAuthSessionCreateNestedManyWithoutUserInput
   authTokens?: Prisma.DbAuthTokenCreateNestedManyWithoutUserInput
   authEvents?: Prisma.DbAuthEventCreateNestedManyWithoutUserInput
+  cashCloses?: Prisma.DbCashCloseCreateNestedManyWithoutClosedByInput
 }
 
 export type DbUserUncheckedCreateWithoutIdentitiesInput = {
@@ -860,6 +882,7 @@ export type DbUserUncheckedCreateWithoutIdentitiesInput = {
   sessions?: Prisma.DbAuthSessionUncheckedCreateNestedManyWithoutUserInput
   authTokens?: Prisma.DbAuthTokenUncheckedCreateNestedManyWithoutUserInput
   authEvents?: Prisma.DbAuthEventUncheckedCreateNestedManyWithoutUserInput
+  cashCloses?: Prisma.DbCashCloseUncheckedCreateNestedManyWithoutClosedByInput
 }
 
 export type DbUserCreateOrConnectWithoutIdentitiesInput = {
@@ -905,6 +928,7 @@ export type DbUserUpdateWithoutIdentitiesInput = {
   sessions?: Prisma.DbAuthSessionUpdateManyWithoutUserNestedInput
   authTokens?: Prisma.DbAuthTokenUpdateManyWithoutUserNestedInput
   authEvents?: Prisma.DbAuthEventUpdateManyWithoutUserNestedInput
+  cashCloses?: Prisma.DbCashCloseUpdateManyWithoutClosedByNestedInput
 }
 
 export type DbUserUncheckedUpdateWithoutIdentitiesInput = {
@@ -934,6 +958,7 @@ export type DbUserUncheckedUpdateWithoutIdentitiesInput = {
   sessions?: Prisma.DbAuthSessionUncheckedUpdateManyWithoutUserNestedInput
   authTokens?: Prisma.DbAuthTokenUncheckedUpdateManyWithoutUserNestedInput
   authEvents?: Prisma.DbAuthEventUncheckedUpdateManyWithoutUserNestedInput
+  cashCloses?: Prisma.DbCashCloseUncheckedUpdateManyWithoutClosedByNestedInput
 }
 
 export type DbUserCreateWithoutSessionsInput = {
@@ -963,6 +988,7 @@ export type DbUserCreateWithoutSessionsInput = {
   identities?: Prisma.DbAuthIdentityCreateNestedManyWithoutUserInput
   authTokens?: Prisma.DbAuthTokenCreateNestedManyWithoutUserInput
   authEvents?: Prisma.DbAuthEventCreateNestedManyWithoutUserInput
+  cashCloses?: Prisma.DbCashCloseCreateNestedManyWithoutClosedByInput
 }
 
 export type DbUserUncheckedCreateWithoutSessionsInput = {
@@ -992,6 +1018,7 @@ export type DbUserUncheckedCreateWithoutSessionsInput = {
   identities?: Prisma.DbAuthIdentityUncheckedCreateNestedManyWithoutUserInput
   authTokens?: Prisma.DbAuthTokenUncheckedCreateNestedManyWithoutUserInput
   authEvents?: Prisma.DbAuthEventUncheckedCreateNestedManyWithoutUserInput
+  cashCloses?: Prisma.DbCashCloseUncheckedCreateNestedManyWithoutClosedByInput
 }
 
 export type DbUserCreateOrConnectWithoutSessionsInput = {
@@ -1037,6 +1064,7 @@ export type DbUserUpdateWithoutSessionsInput = {
   identities?: Prisma.DbAuthIdentityUpdateManyWithoutUserNestedInput
   authTokens?: Prisma.DbAuthTokenUpdateManyWithoutUserNestedInput
   authEvents?: Prisma.DbAuthEventUpdateManyWithoutUserNestedInput
+  cashCloses?: Prisma.DbCashCloseUpdateManyWithoutClosedByNestedInput
 }
 
 export type DbUserUncheckedUpdateWithoutSessionsInput = {
@@ -1066,6 +1094,7 @@ export type DbUserUncheckedUpdateWithoutSessionsInput = {
   identities?: Prisma.DbAuthIdentityUncheckedUpdateManyWithoutUserNestedInput
   authTokens?: Prisma.DbAuthTokenUncheckedUpdateManyWithoutUserNestedInput
   authEvents?: Prisma.DbAuthEventUncheckedUpdateManyWithoutUserNestedInput
+  cashCloses?: Prisma.DbCashCloseUncheckedUpdateManyWithoutClosedByNestedInput
 }
 
 export type DbUserCreateWithoutAuthTokensInput = {
@@ -1095,6 +1124,7 @@ export type DbUserCreateWithoutAuthTokensInput = {
   identities?: Prisma.DbAuthIdentityCreateNestedManyWithoutUserInput
   sessions?: Prisma.DbAuthSessionCreateNestedManyWithoutUserInput
   authEvents?: Prisma.DbAuthEventCreateNestedManyWithoutUserInput
+  cashCloses?: Prisma.DbCashCloseCreateNestedManyWithoutClosedByInput
 }
 
 export type DbUserUncheckedCreateWithoutAuthTokensInput = {
@@ -1124,6 +1154,7 @@ export type DbUserUncheckedCreateWithoutAuthTokensInput = {
   identities?: Prisma.DbAuthIdentityUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.DbAuthSessionUncheckedCreateNestedManyWithoutUserInput
   authEvents?: Prisma.DbAuthEventUncheckedCreateNestedManyWithoutUserInput
+  cashCloses?: Prisma.DbCashCloseUncheckedCreateNestedManyWithoutClosedByInput
 }
 
 export type DbUserCreateOrConnectWithoutAuthTokensInput = {
@@ -1169,6 +1200,7 @@ export type DbUserUpdateWithoutAuthTokensInput = {
   identities?: Prisma.DbAuthIdentityUpdateManyWithoutUserNestedInput
   sessions?: Prisma.DbAuthSessionUpdateManyWithoutUserNestedInput
   authEvents?: Prisma.DbAuthEventUpdateManyWithoutUserNestedInput
+  cashCloses?: Prisma.DbCashCloseUpdateManyWithoutClosedByNestedInput
 }
 
 export type DbUserUncheckedUpdateWithoutAuthTokensInput = {
@@ -1198,6 +1230,7 @@ export type DbUserUncheckedUpdateWithoutAuthTokensInput = {
   identities?: Prisma.DbAuthIdentityUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.DbAuthSessionUncheckedUpdateManyWithoutUserNestedInput
   authEvents?: Prisma.DbAuthEventUncheckedUpdateManyWithoutUserNestedInput
+  cashCloses?: Prisma.DbCashCloseUncheckedUpdateManyWithoutClosedByNestedInput
 }
 
 export type DbUserCreateWithoutAuthEventsInput = {
@@ -1227,6 +1260,7 @@ export type DbUserCreateWithoutAuthEventsInput = {
   identities?: Prisma.DbAuthIdentityCreateNestedManyWithoutUserInput
   sessions?: Prisma.DbAuthSessionCreateNestedManyWithoutUserInput
   authTokens?: Prisma.DbAuthTokenCreateNestedManyWithoutUserInput
+  cashCloses?: Prisma.DbCashCloseCreateNestedManyWithoutClosedByInput
 }
 
 export type DbUserUncheckedCreateWithoutAuthEventsInput = {
@@ -1256,6 +1290,7 @@ export type DbUserUncheckedCreateWithoutAuthEventsInput = {
   identities?: Prisma.DbAuthIdentityUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.DbAuthSessionUncheckedCreateNestedManyWithoutUserInput
   authTokens?: Prisma.DbAuthTokenUncheckedCreateNestedManyWithoutUserInput
+  cashCloses?: Prisma.DbCashCloseUncheckedCreateNestedManyWithoutClosedByInput
 }
 
 export type DbUserCreateOrConnectWithoutAuthEventsInput = {
@@ -1301,6 +1336,7 @@ export type DbUserUpdateWithoutAuthEventsInput = {
   identities?: Prisma.DbAuthIdentityUpdateManyWithoutUserNestedInput
   sessions?: Prisma.DbAuthSessionUpdateManyWithoutUserNestedInput
   authTokens?: Prisma.DbAuthTokenUpdateManyWithoutUserNestedInput
+  cashCloses?: Prisma.DbCashCloseUpdateManyWithoutClosedByNestedInput
 }
 
 export type DbUserUncheckedUpdateWithoutAuthEventsInput = {
@@ -1330,6 +1366,7 @@ export type DbUserUncheckedUpdateWithoutAuthEventsInput = {
   identities?: Prisma.DbAuthIdentityUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.DbAuthSessionUncheckedUpdateManyWithoutUserNestedInput
   authTokens?: Prisma.DbAuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  cashCloses?: Prisma.DbCashCloseUncheckedUpdateManyWithoutClosedByNestedInput
 }
 
 export type DbUserCreateWithoutBetaInvitesInput = {
@@ -1359,6 +1396,7 @@ export type DbUserCreateWithoutBetaInvitesInput = {
   sessions?: Prisma.DbAuthSessionCreateNestedManyWithoutUserInput
   authTokens?: Prisma.DbAuthTokenCreateNestedManyWithoutUserInput
   authEvents?: Prisma.DbAuthEventCreateNestedManyWithoutUserInput
+  cashCloses?: Prisma.DbCashCloseCreateNestedManyWithoutClosedByInput
 }
 
 export type DbUserUncheckedCreateWithoutBetaInvitesInput = {
@@ -1388,6 +1426,7 @@ export type DbUserUncheckedCreateWithoutBetaInvitesInput = {
   sessions?: Prisma.DbAuthSessionUncheckedCreateNestedManyWithoutUserInput
   authTokens?: Prisma.DbAuthTokenUncheckedCreateNestedManyWithoutUserInput
   authEvents?: Prisma.DbAuthEventUncheckedCreateNestedManyWithoutUserInput
+  cashCloses?: Prisma.DbCashCloseUncheckedCreateNestedManyWithoutClosedByInput
 }
 
 export type DbUserCreateOrConnectWithoutBetaInvitesInput = {
@@ -1433,6 +1472,7 @@ export type DbUserUpdateWithoutBetaInvitesInput = {
   sessions?: Prisma.DbAuthSessionUpdateManyWithoutUserNestedInput
   authTokens?: Prisma.DbAuthTokenUpdateManyWithoutUserNestedInput
   authEvents?: Prisma.DbAuthEventUpdateManyWithoutUserNestedInput
+  cashCloses?: Prisma.DbCashCloseUpdateManyWithoutClosedByNestedInput
 }
 
 export type DbUserUncheckedUpdateWithoutBetaInvitesInput = {
@@ -1462,6 +1502,7 @@ export type DbUserUncheckedUpdateWithoutBetaInvitesInput = {
   sessions?: Prisma.DbAuthSessionUncheckedUpdateManyWithoutUserNestedInput
   authTokens?: Prisma.DbAuthTokenUncheckedUpdateManyWithoutUserNestedInput
   authEvents?: Prisma.DbAuthEventUncheckedUpdateManyWithoutUserNestedInput
+  cashCloses?: Prisma.DbCashCloseUncheckedUpdateManyWithoutClosedByNestedInput
 }
 
 export type DbUserCreateWithoutPreferencesInput = {
@@ -1491,6 +1532,7 @@ export type DbUserCreateWithoutPreferencesInput = {
   sessions?: Prisma.DbAuthSessionCreateNestedManyWithoutUserInput
   authTokens?: Prisma.DbAuthTokenCreateNestedManyWithoutUserInput
   authEvents?: Prisma.DbAuthEventCreateNestedManyWithoutUserInput
+  cashCloses?: Prisma.DbCashCloseCreateNestedManyWithoutClosedByInput
 }
 
 export type DbUserUncheckedCreateWithoutPreferencesInput = {
@@ -1520,6 +1562,7 @@ export type DbUserUncheckedCreateWithoutPreferencesInput = {
   sessions?: Prisma.DbAuthSessionUncheckedCreateNestedManyWithoutUserInput
   authTokens?: Prisma.DbAuthTokenUncheckedCreateNestedManyWithoutUserInput
   authEvents?: Prisma.DbAuthEventUncheckedCreateNestedManyWithoutUserInput
+  cashCloses?: Prisma.DbCashCloseUncheckedCreateNestedManyWithoutClosedByInput
 }
 
 export type DbUserCreateOrConnectWithoutPreferencesInput = {
@@ -1565,6 +1608,7 @@ export type DbUserUpdateWithoutPreferencesInput = {
   sessions?: Prisma.DbAuthSessionUpdateManyWithoutUserNestedInput
   authTokens?: Prisma.DbAuthTokenUpdateManyWithoutUserNestedInput
   authEvents?: Prisma.DbAuthEventUpdateManyWithoutUserNestedInput
+  cashCloses?: Prisma.DbCashCloseUpdateManyWithoutClosedByNestedInput
 }
 
 export type DbUserUncheckedUpdateWithoutPreferencesInput = {
@@ -1594,6 +1638,7 @@ export type DbUserUncheckedUpdateWithoutPreferencesInput = {
   sessions?: Prisma.DbAuthSessionUncheckedUpdateManyWithoutUserNestedInput
   authTokens?: Prisma.DbAuthTokenUncheckedUpdateManyWithoutUserNestedInput
   authEvents?: Prisma.DbAuthEventUncheckedUpdateManyWithoutUserNestedInput
+  cashCloses?: Prisma.DbCashCloseUncheckedUpdateManyWithoutClosedByNestedInput
 }
 
 export type DbUserCreateWithoutMembershipsInput = {
@@ -1623,6 +1668,7 @@ export type DbUserCreateWithoutMembershipsInput = {
   sessions?: Prisma.DbAuthSessionCreateNestedManyWithoutUserInput
   authTokens?: Prisma.DbAuthTokenCreateNestedManyWithoutUserInput
   authEvents?: Prisma.DbAuthEventCreateNestedManyWithoutUserInput
+  cashCloses?: Prisma.DbCashCloseCreateNestedManyWithoutClosedByInput
 }
 
 export type DbUserUncheckedCreateWithoutMembershipsInput = {
@@ -1652,6 +1698,7 @@ export type DbUserUncheckedCreateWithoutMembershipsInput = {
   sessions?: Prisma.DbAuthSessionUncheckedCreateNestedManyWithoutUserInput
   authTokens?: Prisma.DbAuthTokenUncheckedCreateNestedManyWithoutUserInput
   authEvents?: Prisma.DbAuthEventUncheckedCreateNestedManyWithoutUserInput
+  cashCloses?: Prisma.DbCashCloseUncheckedCreateNestedManyWithoutClosedByInput
 }
 
 export type DbUserCreateOrConnectWithoutMembershipsInput = {
@@ -1697,6 +1744,7 @@ export type DbUserUpdateWithoutMembershipsInput = {
   sessions?: Prisma.DbAuthSessionUpdateManyWithoutUserNestedInput
   authTokens?: Prisma.DbAuthTokenUpdateManyWithoutUserNestedInput
   authEvents?: Prisma.DbAuthEventUpdateManyWithoutUserNestedInput
+  cashCloses?: Prisma.DbCashCloseUpdateManyWithoutClosedByNestedInput
 }
 
 export type DbUserUncheckedUpdateWithoutMembershipsInput = {
@@ -1726,6 +1774,7 @@ export type DbUserUncheckedUpdateWithoutMembershipsInput = {
   sessions?: Prisma.DbAuthSessionUncheckedUpdateManyWithoutUserNestedInput
   authTokens?: Prisma.DbAuthTokenUncheckedUpdateManyWithoutUserNestedInput
   authEvents?: Prisma.DbAuthEventUncheckedUpdateManyWithoutUserNestedInput
+  cashCloses?: Prisma.DbCashCloseUncheckedUpdateManyWithoutClosedByNestedInput
 }
 
 export type DbUserCreateWithoutShiftsInput = {
@@ -1755,6 +1804,7 @@ export type DbUserCreateWithoutShiftsInput = {
   sessions?: Prisma.DbAuthSessionCreateNestedManyWithoutUserInput
   authTokens?: Prisma.DbAuthTokenCreateNestedManyWithoutUserInput
   authEvents?: Prisma.DbAuthEventCreateNestedManyWithoutUserInput
+  cashCloses?: Prisma.DbCashCloseCreateNestedManyWithoutClosedByInput
 }
 
 export type DbUserUncheckedCreateWithoutShiftsInput = {
@@ -1784,6 +1834,7 @@ export type DbUserUncheckedCreateWithoutShiftsInput = {
   sessions?: Prisma.DbAuthSessionUncheckedCreateNestedManyWithoutUserInput
   authTokens?: Prisma.DbAuthTokenUncheckedCreateNestedManyWithoutUserInput
   authEvents?: Prisma.DbAuthEventUncheckedCreateNestedManyWithoutUserInput
+  cashCloses?: Prisma.DbCashCloseUncheckedCreateNestedManyWithoutClosedByInput
 }
 
 export type DbUserCreateOrConnectWithoutShiftsInput = {
@@ -1829,6 +1880,7 @@ export type DbUserUpdateWithoutShiftsInput = {
   sessions?: Prisma.DbAuthSessionUpdateManyWithoutUserNestedInput
   authTokens?: Prisma.DbAuthTokenUpdateManyWithoutUserNestedInput
   authEvents?: Prisma.DbAuthEventUpdateManyWithoutUserNestedInput
+  cashCloses?: Prisma.DbCashCloseUpdateManyWithoutClosedByNestedInput
 }
 
 export type DbUserUncheckedUpdateWithoutShiftsInput = {
@@ -1858,6 +1910,7 @@ export type DbUserUncheckedUpdateWithoutShiftsInput = {
   sessions?: Prisma.DbAuthSessionUncheckedUpdateManyWithoutUserNestedInput
   authTokens?: Prisma.DbAuthTokenUncheckedUpdateManyWithoutUserNestedInput
   authEvents?: Prisma.DbAuthEventUncheckedUpdateManyWithoutUserNestedInput
+  cashCloses?: Prisma.DbCashCloseUncheckedUpdateManyWithoutClosedByNestedInput
 }
 
 export type DbUserCreateWithoutShiftRequestsInput = {
@@ -1887,6 +1940,7 @@ export type DbUserCreateWithoutShiftRequestsInput = {
   sessions?: Prisma.DbAuthSessionCreateNestedManyWithoutUserInput
   authTokens?: Prisma.DbAuthTokenCreateNestedManyWithoutUserInput
   authEvents?: Prisma.DbAuthEventCreateNestedManyWithoutUserInput
+  cashCloses?: Prisma.DbCashCloseCreateNestedManyWithoutClosedByInput
 }
 
 export type DbUserUncheckedCreateWithoutShiftRequestsInput = {
@@ -1916,6 +1970,7 @@ export type DbUserUncheckedCreateWithoutShiftRequestsInput = {
   sessions?: Prisma.DbAuthSessionUncheckedCreateNestedManyWithoutUserInput
   authTokens?: Prisma.DbAuthTokenUncheckedCreateNestedManyWithoutUserInput
   authEvents?: Prisma.DbAuthEventUncheckedCreateNestedManyWithoutUserInput
+  cashCloses?: Prisma.DbCashCloseUncheckedCreateNestedManyWithoutClosedByInput
 }
 
 export type DbUserCreateOrConnectWithoutShiftRequestsInput = {
@@ -1950,6 +2005,7 @@ export type DbUserCreateWithoutShiftApprovalsInput = {
   sessions?: Prisma.DbAuthSessionCreateNestedManyWithoutUserInput
   authTokens?: Prisma.DbAuthTokenCreateNestedManyWithoutUserInput
   authEvents?: Prisma.DbAuthEventCreateNestedManyWithoutUserInput
+  cashCloses?: Prisma.DbCashCloseCreateNestedManyWithoutClosedByInput
 }
 
 export type DbUserUncheckedCreateWithoutShiftApprovalsInput = {
@@ -1979,6 +2035,7 @@ export type DbUserUncheckedCreateWithoutShiftApprovalsInput = {
   sessions?: Prisma.DbAuthSessionUncheckedCreateNestedManyWithoutUserInput
   authTokens?: Prisma.DbAuthTokenUncheckedCreateNestedManyWithoutUserInput
   authEvents?: Prisma.DbAuthEventUncheckedCreateNestedManyWithoutUserInput
+  cashCloses?: Prisma.DbCashCloseUncheckedCreateNestedManyWithoutClosedByInput
 }
 
 export type DbUserCreateOrConnectWithoutShiftApprovalsInput = {
@@ -2024,6 +2081,7 @@ export type DbUserUpdateWithoutShiftRequestsInput = {
   sessions?: Prisma.DbAuthSessionUpdateManyWithoutUserNestedInput
   authTokens?: Prisma.DbAuthTokenUpdateManyWithoutUserNestedInput
   authEvents?: Prisma.DbAuthEventUpdateManyWithoutUserNestedInput
+  cashCloses?: Prisma.DbCashCloseUpdateManyWithoutClosedByNestedInput
 }
 
 export type DbUserUncheckedUpdateWithoutShiftRequestsInput = {
@@ -2053,6 +2111,7 @@ export type DbUserUncheckedUpdateWithoutShiftRequestsInput = {
   sessions?: Prisma.DbAuthSessionUncheckedUpdateManyWithoutUserNestedInput
   authTokens?: Prisma.DbAuthTokenUncheckedUpdateManyWithoutUserNestedInput
   authEvents?: Prisma.DbAuthEventUncheckedUpdateManyWithoutUserNestedInput
+  cashCloses?: Prisma.DbCashCloseUncheckedUpdateManyWithoutClosedByNestedInput
 }
 
 export type DbUserUpsertWithoutShiftApprovalsInput = {
@@ -2093,6 +2152,7 @@ export type DbUserUpdateWithoutShiftApprovalsInput = {
   sessions?: Prisma.DbAuthSessionUpdateManyWithoutUserNestedInput
   authTokens?: Prisma.DbAuthTokenUpdateManyWithoutUserNestedInput
   authEvents?: Prisma.DbAuthEventUpdateManyWithoutUserNestedInput
+  cashCloses?: Prisma.DbCashCloseUpdateManyWithoutClosedByNestedInput
 }
 
 export type DbUserUncheckedUpdateWithoutShiftApprovalsInput = {
@@ -2122,6 +2182,7 @@ export type DbUserUncheckedUpdateWithoutShiftApprovalsInput = {
   sessions?: Prisma.DbAuthSessionUncheckedUpdateManyWithoutUserNestedInput
   authTokens?: Prisma.DbAuthTokenUncheckedUpdateManyWithoutUserNestedInput
   authEvents?: Prisma.DbAuthEventUncheckedUpdateManyWithoutUserNestedInput
+  cashCloses?: Prisma.DbCashCloseUncheckedUpdateManyWithoutClosedByNestedInput
 }
 
 export type DbUserCreateWithoutCreatedOrdersInput = {
@@ -2151,6 +2212,7 @@ export type DbUserCreateWithoutCreatedOrdersInput = {
   sessions?: Prisma.DbAuthSessionCreateNestedManyWithoutUserInput
   authTokens?: Prisma.DbAuthTokenCreateNestedManyWithoutUserInput
   authEvents?: Prisma.DbAuthEventCreateNestedManyWithoutUserInput
+  cashCloses?: Prisma.DbCashCloseCreateNestedManyWithoutClosedByInput
 }
 
 export type DbUserUncheckedCreateWithoutCreatedOrdersInput = {
@@ -2180,6 +2242,7 @@ export type DbUserUncheckedCreateWithoutCreatedOrdersInput = {
   sessions?: Prisma.DbAuthSessionUncheckedCreateNestedManyWithoutUserInput
   authTokens?: Prisma.DbAuthTokenUncheckedCreateNestedManyWithoutUserInput
   authEvents?: Prisma.DbAuthEventUncheckedCreateNestedManyWithoutUserInput
+  cashCloses?: Prisma.DbCashCloseUncheckedCreateNestedManyWithoutClosedByInput
 }
 
 export type DbUserCreateOrConnectWithoutCreatedOrdersInput = {
@@ -2225,6 +2288,7 @@ export type DbUserUpdateWithoutCreatedOrdersInput = {
   sessions?: Prisma.DbAuthSessionUpdateManyWithoutUserNestedInput
   authTokens?: Prisma.DbAuthTokenUpdateManyWithoutUserNestedInput
   authEvents?: Prisma.DbAuthEventUpdateManyWithoutUserNestedInput
+  cashCloses?: Prisma.DbCashCloseUpdateManyWithoutClosedByNestedInput
 }
 
 export type DbUserUncheckedUpdateWithoutCreatedOrdersInput = {
@@ -2248,6 +2312,143 @@ export type DbUserUncheckedUpdateWithoutCreatedOrdersInput = {
   auditLogs?: Prisma.DbAdminAuditLogUncheckedUpdateManyWithoutActorNestedInput
   timeEntries?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutUserNestedInput
   timeEntryEdits?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutActorNestedInput
+  betaInvites?: Prisma.DbBetaTesterUncheckedUpdateManyWithoutInvitedByNestedInput
+  orderAudits?: Prisma.DbOrderAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  identities?: Prisma.DbAuthIdentityUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.DbAuthSessionUncheckedUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.DbAuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  authEvents?: Prisma.DbAuthEventUncheckedUpdateManyWithoutUserNestedInput
+  cashCloses?: Prisma.DbCashCloseUncheckedUpdateManyWithoutClosedByNestedInput
+}
+
+export type DbUserCreateWithoutCashClosesInput = {
+  id?: string
+  email: string
+  firebaseUid?: string | null
+  passwordHash?: string | null
+  passwordUpdatedAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
+  name: string
+  photoUrl?: string | null
+  active?: boolean
+  role?: $Enums.DbRole
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  preferences?: Prisma.DbUserPreferencesCreateNestedOneWithoutUserInput
+  memberships?: Prisma.DbEstablishmentMemberCreateNestedManyWithoutUserInput
+  shifts?: Prisma.DbShiftCreateNestedManyWithoutUserInput
+  shiftRequests?: Prisma.DbShiftExchangeCreateNestedManyWithoutRequesterInput
+  shiftApprovals?: Prisma.DbShiftExchangeCreateNestedManyWithoutTargetInput
+  auditLogs?: Prisma.DbAdminAuditLogCreateNestedManyWithoutActorInput
+  timeEntries?: Prisma.DbTimeEntryCreateNestedManyWithoutUserInput
+  timeEntryEdits?: Prisma.DbTimeEntryCreateNestedManyWithoutActorInput
+  createdOrders?: Prisma.DbOrderCreateNestedManyWithoutCreatedByInput
+  betaInvites?: Prisma.DbBetaTesterCreateNestedManyWithoutInvitedByInput
+  orderAudits?: Prisma.DbOrderAuditLogCreateNestedManyWithoutActorInput
+  identities?: Prisma.DbAuthIdentityCreateNestedManyWithoutUserInput
+  sessions?: Prisma.DbAuthSessionCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.DbAuthTokenCreateNestedManyWithoutUserInput
+  authEvents?: Prisma.DbAuthEventCreateNestedManyWithoutUserInput
+}
+
+export type DbUserUncheckedCreateWithoutCashClosesInput = {
+  id?: string
+  email: string
+  firebaseUid?: string | null
+  passwordHash?: string | null
+  passwordUpdatedAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
+  name: string
+  photoUrl?: string | null
+  active?: boolean
+  role?: $Enums.DbRole
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  preferences?: Prisma.DbUserPreferencesUncheckedCreateNestedOneWithoutUserInput
+  memberships?: Prisma.DbEstablishmentMemberUncheckedCreateNestedManyWithoutUserInput
+  shifts?: Prisma.DbShiftUncheckedCreateNestedManyWithoutUserInput
+  shiftRequests?: Prisma.DbShiftExchangeUncheckedCreateNestedManyWithoutRequesterInput
+  shiftApprovals?: Prisma.DbShiftExchangeUncheckedCreateNestedManyWithoutTargetInput
+  auditLogs?: Prisma.DbAdminAuditLogUncheckedCreateNestedManyWithoutActorInput
+  timeEntries?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutUserInput
+  timeEntryEdits?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutActorInput
+  createdOrders?: Prisma.DbOrderUncheckedCreateNestedManyWithoutCreatedByInput
+  betaInvites?: Prisma.DbBetaTesterUncheckedCreateNestedManyWithoutInvitedByInput
+  orderAudits?: Prisma.DbOrderAuditLogUncheckedCreateNestedManyWithoutActorInput
+  identities?: Prisma.DbAuthIdentityUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.DbAuthSessionUncheckedCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.DbAuthTokenUncheckedCreateNestedManyWithoutUserInput
+  authEvents?: Prisma.DbAuthEventUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type DbUserCreateOrConnectWithoutCashClosesInput = {
+  where: Prisma.DbUserWhereUniqueInput
+  create: Prisma.XOR<Prisma.DbUserCreateWithoutCashClosesInput, Prisma.DbUserUncheckedCreateWithoutCashClosesInput>
+}
+
+export type DbUserUpsertWithoutCashClosesInput = {
+  update: Prisma.XOR<Prisma.DbUserUpdateWithoutCashClosesInput, Prisma.DbUserUncheckedUpdateWithoutCashClosesInput>
+  create: Prisma.XOR<Prisma.DbUserCreateWithoutCashClosesInput, Prisma.DbUserUncheckedCreateWithoutCashClosesInput>
+  where?: Prisma.DbUserWhereInput
+}
+
+export type DbUserUpdateToOneWithWhereWithoutCashClosesInput = {
+  where?: Prisma.DbUserWhereInput
+  data: Prisma.XOR<Prisma.DbUserUpdateWithoutCashClosesInput, Prisma.DbUserUncheckedUpdateWithoutCashClosesInput>
+}
+
+export type DbUserUpdateWithoutCashClosesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  role?: Prisma.EnumDbRoleFieldUpdateOperationsInput | $Enums.DbRole
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferences?: Prisma.DbUserPreferencesUpdateOneWithoutUserNestedInput
+  memberships?: Prisma.DbEstablishmentMemberUpdateManyWithoutUserNestedInput
+  shifts?: Prisma.DbShiftUpdateManyWithoutUserNestedInput
+  shiftRequests?: Prisma.DbShiftExchangeUpdateManyWithoutRequesterNestedInput
+  shiftApprovals?: Prisma.DbShiftExchangeUpdateManyWithoutTargetNestedInput
+  auditLogs?: Prisma.DbAdminAuditLogUpdateManyWithoutActorNestedInput
+  timeEntries?: Prisma.DbTimeEntryUpdateManyWithoutUserNestedInput
+  timeEntryEdits?: Prisma.DbTimeEntryUpdateManyWithoutActorNestedInput
+  createdOrders?: Prisma.DbOrderUpdateManyWithoutCreatedByNestedInput
+  betaInvites?: Prisma.DbBetaTesterUpdateManyWithoutInvitedByNestedInput
+  orderAudits?: Prisma.DbOrderAuditLogUpdateManyWithoutActorNestedInput
+  identities?: Prisma.DbAuthIdentityUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.DbAuthSessionUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.DbAuthTokenUpdateManyWithoutUserNestedInput
+  authEvents?: Prisma.DbAuthEventUpdateManyWithoutUserNestedInput
+}
+
+export type DbUserUncheckedUpdateWithoutCashClosesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  role?: Prisma.EnumDbRoleFieldUpdateOperationsInput | $Enums.DbRole
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferences?: Prisma.DbUserPreferencesUncheckedUpdateOneWithoutUserNestedInput
+  memberships?: Prisma.DbEstablishmentMemberUncheckedUpdateManyWithoutUserNestedInput
+  shifts?: Prisma.DbShiftUncheckedUpdateManyWithoutUserNestedInput
+  shiftRequests?: Prisma.DbShiftExchangeUncheckedUpdateManyWithoutRequesterNestedInput
+  shiftApprovals?: Prisma.DbShiftExchangeUncheckedUpdateManyWithoutTargetNestedInput
+  auditLogs?: Prisma.DbAdminAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  timeEntries?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutUserNestedInput
+  timeEntryEdits?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutActorNestedInput
+  createdOrders?: Prisma.DbOrderUncheckedUpdateManyWithoutCreatedByNestedInput
   betaInvites?: Prisma.DbBetaTesterUncheckedUpdateManyWithoutInvitedByNestedInput
   orderAudits?: Prisma.DbOrderAuditLogUncheckedUpdateManyWithoutActorNestedInput
   identities?: Prisma.DbAuthIdentityUncheckedUpdateManyWithoutUserNestedInput
@@ -2283,6 +2484,7 @@ export type DbUserCreateWithoutTimeEntriesInput = {
   sessions?: Prisma.DbAuthSessionCreateNestedManyWithoutUserInput
   authTokens?: Prisma.DbAuthTokenCreateNestedManyWithoutUserInput
   authEvents?: Prisma.DbAuthEventCreateNestedManyWithoutUserInput
+  cashCloses?: Prisma.DbCashCloseCreateNestedManyWithoutClosedByInput
 }
 
 export type DbUserUncheckedCreateWithoutTimeEntriesInput = {
@@ -2312,6 +2514,7 @@ export type DbUserUncheckedCreateWithoutTimeEntriesInput = {
   sessions?: Prisma.DbAuthSessionUncheckedCreateNestedManyWithoutUserInput
   authTokens?: Prisma.DbAuthTokenUncheckedCreateNestedManyWithoutUserInput
   authEvents?: Prisma.DbAuthEventUncheckedCreateNestedManyWithoutUserInput
+  cashCloses?: Prisma.DbCashCloseUncheckedCreateNestedManyWithoutClosedByInput
 }
 
 export type DbUserCreateOrConnectWithoutTimeEntriesInput = {
@@ -2346,6 +2549,7 @@ export type DbUserCreateWithoutTimeEntryEditsInput = {
   sessions?: Prisma.DbAuthSessionCreateNestedManyWithoutUserInput
   authTokens?: Prisma.DbAuthTokenCreateNestedManyWithoutUserInput
   authEvents?: Prisma.DbAuthEventCreateNestedManyWithoutUserInput
+  cashCloses?: Prisma.DbCashCloseCreateNestedManyWithoutClosedByInput
 }
 
 export type DbUserUncheckedCreateWithoutTimeEntryEditsInput = {
@@ -2375,6 +2579,7 @@ export type DbUserUncheckedCreateWithoutTimeEntryEditsInput = {
   sessions?: Prisma.DbAuthSessionUncheckedCreateNestedManyWithoutUserInput
   authTokens?: Prisma.DbAuthTokenUncheckedCreateNestedManyWithoutUserInput
   authEvents?: Prisma.DbAuthEventUncheckedCreateNestedManyWithoutUserInput
+  cashCloses?: Prisma.DbCashCloseUncheckedCreateNestedManyWithoutClosedByInput
 }
 
 export type DbUserCreateOrConnectWithoutTimeEntryEditsInput = {
@@ -2420,6 +2625,7 @@ export type DbUserUpdateWithoutTimeEntriesInput = {
   sessions?: Prisma.DbAuthSessionUpdateManyWithoutUserNestedInput
   authTokens?: Prisma.DbAuthTokenUpdateManyWithoutUserNestedInput
   authEvents?: Prisma.DbAuthEventUpdateManyWithoutUserNestedInput
+  cashCloses?: Prisma.DbCashCloseUpdateManyWithoutClosedByNestedInput
 }
 
 export type DbUserUncheckedUpdateWithoutTimeEntriesInput = {
@@ -2449,6 +2655,7 @@ export type DbUserUncheckedUpdateWithoutTimeEntriesInput = {
   sessions?: Prisma.DbAuthSessionUncheckedUpdateManyWithoutUserNestedInput
   authTokens?: Prisma.DbAuthTokenUncheckedUpdateManyWithoutUserNestedInput
   authEvents?: Prisma.DbAuthEventUncheckedUpdateManyWithoutUserNestedInput
+  cashCloses?: Prisma.DbCashCloseUncheckedUpdateManyWithoutClosedByNestedInput
 }
 
 export type DbUserUpsertWithoutTimeEntryEditsInput = {
@@ -2489,6 +2696,7 @@ export type DbUserUpdateWithoutTimeEntryEditsInput = {
   sessions?: Prisma.DbAuthSessionUpdateManyWithoutUserNestedInput
   authTokens?: Prisma.DbAuthTokenUpdateManyWithoutUserNestedInput
   authEvents?: Prisma.DbAuthEventUpdateManyWithoutUserNestedInput
+  cashCloses?: Prisma.DbCashCloseUpdateManyWithoutClosedByNestedInput
 }
 
 export type DbUserUncheckedUpdateWithoutTimeEntryEditsInput = {
@@ -2518,6 +2726,7 @@ export type DbUserUncheckedUpdateWithoutTimeEntryEditsInput = {
   sessions?: Prisma.DbAuthSessionUncheckedUpdateManyWithoutUserNestedInput
   authTokens?: Prisma.DbAuthTokenUncheckedUpdateManyWithoutUserNestedInput
   authEvents?: Prisma.DbAuthEventUncheckedUpdateManyWithoutUserNestedInput
+  cashCloses?: Prisma.DbCashCloseUncheckedUpdateManyWithoutClosedByNestedInput
 }
 
 export type DbUserCreateWithoutAuditLogsInput = {
@@ -2547,6 +2756,7 @@ export type DbUserCreateWithoutAuditLogsInput = {
   sessions?: Prisma.DbAuthSessionCreateNestedManyWithoutUserInput
   authTokens?: Prisma.DbAuthTokenCreateNestedManyWithoutUserInput
   authEvents?: Prisma.DbAuthEventCreateNestedManyWithoutUserInput
+  cashCloses?: Prisma.DbCashCloseCreateNestedManyWithoutClosedByInput
 }
 
 export type DbUserUncheckedCreateWithoutAuditLogsInput = {
@@ -2576,6 +2786,7 @@ export type DbUserUncheckedCreateWithoutAuditLogsInput = {
   sessions?: Prisma.DbAuthSessionUncheckedCreateNestedManyWithoutUserInput
   authTokens?: Prisma.DbAuthTokenUncheckedCreateNestedManyWithoutUserInput
   authEvents?: Prisma.DbAuthEventUncheckedCreateNestedManyWithoutUserInput
+  cashCloses?: Prisma.DbCashCloseUncheckedCreateNestedManyWithoutClosedByInput
 }
 
 export type DbUserCreateOrConnectWithoutAuditLogsInput = {
@@ -2621,6 +2832,7 @@ export type DbUserUpdateWithoutAuditLogsInput = {
   sessions?: Prisma.DbAuthSessionUpdateManyWithoutUserNestedInput
   authTokens?: Prisma.DbAuthTokenUpdateManyWithoutUserNestedInput
   authEvents?: Prisma.DbAuthEventUpdateManyWithoutUserNestedInput
+  cashCloses?: Prisma.DbCashCloseUpdateManyWithoutClosedByNestedInput
 }
 
 export type DbUserUncheckedUpdateWithoutAuditLogsInput = {
@@ -2650,6 +2862,7 @@ export type DbUserUncheckedUpdateWithoutAuditLogsInput = {
   sessions?: Prisma.DbAuthSessionUncheckedUpdateManyWithoutUserNestedInput
   authTokens?: Prisma.DbAuthTokenUncheckedUpdateManyWithoutUserNestedInput
   authEvents?: Prisma.DbAuthEventUncheckedUpdateManyWithoutUserNestedInput
+  cashCloses?: Prisma.DbCashCloseUncheckedUpdateManyWithoutClosedByNestedInput
 }
 
 export type DbUserCreateWithoutOrderAuditsInput = {
@@ -2679,6 +2892,7 @@ export type DbUserCreateWithoutOrderAuditsInput = {
   sessions?: Prisma.DbAuthSessionCreateNestedManyWithoutUserInput
   authTokens?: Prisma.DbAuthTokenCreateNestedManyWithoutUserInput
   authEvents?: Prisma.DbAuthEventCreateNestedManyWithoutUserInput
+  cashCloses?: Prisma.DbCashCloseCreateNestedManyWithoutClosedByInput
 }
 
 export type DbUserUncheckedCreateWithoutOrderAuditsInput = {
@@ -2708,6 +2922,7 @@ export type DbUserUncheckedCreateWithoutOrderAuditsInput = {
   sessions?: Prisma.DbAuthSessionUncheckedCreateNestedManyWithoutUserInput
   authTokens?: Prisma.DbAuthTokenUncheckedCreateNestedManyWithoutUserInput
   authEvents?: Prisma.DbAuthEventUncheckedCreateNestedManyWithoutUserInput
+  cashCloses?: Prisma.DbCashCloseUncheckedCreateNestedManyWithoutClosedByInput
 }
 
 export type DbUserCreateOrConnectWithoutOrderAuditsInput = {
@@ -2753,6 +2968,7 @@ export type DbUserUpdateWithoutOrderAuditsInput = {
   sessions?: Prisma.DbAuthSessionUpdateManyWithoutUserNestedInput
   authTokens?: Prisma.DbAuthTokenUpdateManyWithoutUserNestedInput
   authEvents?: Prisma.DbAuthEventUpdateManyWithoutUserNestedInput
+  cashCloses?: Prisma.DbCashCloseUpdateManyWithoutClosedByNestedInput
 }
 
 export type DbUserUncheckedUpdateWithoutOrderAuditsInput = {
@@ -2782,6 +2998,7 @@ export type DbUserUncheckedUpdateWithoutOrderAuditsInput = {
   sessions?: Prisma.DbAuthSessionUncheckedUpdateManyWithoutUserNestedInput
   authTokens?: Prisma.DbAuthTokenUncheckedUpdateManyWithoutUserNestedInput
   authEvents?: Prisma.DbAuthEventUncheckedUpdateManyWithoutUserNestedInput
+  cashCloses?: Prisma.DbCashCloseUncheckedUpdateManyWithoutClosedByNestedInput
 }
 
 
@@ -2804,6 +3021,7 @@ export type DbUserCountOutputType = {
   sessions: number
   authTokens: number
   authEvents: number
+  cashCloses: number
 }
 
 export type DbUserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2821,6 +3039,7 @@ export type DbUserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions
   sessions?: boolean | DbUserCountOutputTypeCountSessionsArgs
   authTokens?: boolean | DbUserCountOutputTypeCountAuthTokensArgs
   authEvents?: boolean | DbUserCountOutputTypeCountAuthEventsArgs
+  cashCloses?: boolean | DbUserCountOutputTypeCountCashClosesArgs
 }
 
 /**
@@ -2931,6 +3150,13 @@ export type DbUserCountOutputTypeCountAuthEventsArgs<ExtArgs extends runtime.Typ
   where?: Prisma.DbAuthEventWhereInput
 }
 
+/**
+ * DbUserCountOutputType without action
+ */
+export type DbUserCountOutputTypeCountCashClosesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.DbCashCloseWhereInput
+}
+
 
 export type DbUserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -2960,6 +3186,7 @@ export type DbUserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   sessions?: boolean | Prisma.DbUser$sessionsArgs<ExtArgs>
   authTokens?: boolean | Prisma.DbUser$authTokensArgs<ExtArgs>
   authEvents?: boolean | Prisma.DbUser$authEventsArgs<ExtArgs>
+  cashCloses?: boolean | Prisma.DbUser$cashClosesArgs<ExtArgs>
   _count?: boolean | Prisma.DbUserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["dbUser"]>
 
@@ -3025,6 +3252,7 @@ export type DbUserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   sessions?: boolean | Prisma.DbUser$sessionsArgs<ExtArgs>
   authTokens?: boolean | Prisma.DbUser$authTokensArgs<ExtArgs>
   authEvents?: boolean | Prisma.DbUser$authEventsArgs<ExtArgs>
+  cashCloses?: boolean | Prisma.DbUser$cashClosesArgs<ExtArgs>
   _count?: boolean | Prisma.DbUserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type DbUserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -3048,6 +3276,7 @@ export type $DbUserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     sessions: Prisma.$DbAuthSessionPayload<ExtArgs>[]
     authTokens: Prisma.$DbAuthTokenPayload<ExtArgs>[]
     authEvents: Prisma.$DbAuthEventPayload<ExtArgs>[]
+    cashCloses: Prisma.$DbCashClosePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -3471,6 +3700,7 @@ export interface Prisma__DbUserClient<T, Null = never, ExtArgs extends runtime.T
   sessions<T extends Prisma.DbUser$sessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbUser$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DbAuthSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   authTokens<T extends Prisma.DbUser$authTokensArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbUser$authTokensArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DbAuthTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   authEvents<T extends Prisma.DbUser$authEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbUser$authEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DbAuthEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  cashCloses<T extends Prisma.DbUser$cashClosesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbUser$cashClosesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DbCashClosePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4257,6 +4487,30 @@ export type DbUser$authEventsArgs<ExtArgs extends runtime.Types.Extensions.Inter
   take?: number
   skip?: number
   distinct?: Prisma.DbAuthEventScalarFieldEnum | Prisma.DbAuthEventScalarFieldEnum[]
+}
+
+/**
+ * DbUser.cashCloses
+ */
+export type DbUser$cashClosesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the DbCashClose
+   */
+  select?: Prisma.DbCashCloseSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the DbCashClose
+   */
+  omit?: Prisma.DbCashCloseOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DbCashCloseInclude<ExtArgs> | null
+  where?: Prisma.DbCashCloseWhereInput
+  orderBy?: Prisma.DbCashCloseOrderByWithRelationInput | Prisma.DbCashCloseOrderByWithRelationInput[]
+  cursor?: Prisma.DbCashCloseWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.DbCashCloseScalarFieldEnum | Prisma.DbCashCloseScalarFieldEnum[]
 }
 
 /**

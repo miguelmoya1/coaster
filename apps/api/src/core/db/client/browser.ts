@@ -133,6 +133,11 @@ export type DbOrder = Prisma.DbOrderModel
  */
 export type DbOrderItem = Prisma.DbOrderItemModel
 /**
+ * Model DbCashClose
+ * 
+ */
+export type DbCashClose = Prisma.DbCashCloseModel
+/**
  * Model DbPrinterConfig
  * 
  */

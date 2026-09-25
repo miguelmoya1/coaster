@@ -209,4 +209,14 @@ describe('PrintTicket', () => {
     const payload: PrintTicketPayloadDto = printerRepositoryMock.printTicket.mock.calls[0][1];
     expect(payload.establishmentName).toBe('Establishment Central');
   });
+
+  it('should send free text as a raw ticket and wait for it like any other', async () => {
+    await service.executeText('establishment-100', 'CIERRE DE CAJA');
+
+    expect(printerRepositoryMock.printTicket).toHaveBeenCalledWith('establishment-100', {
+      type: 'raw',
+      rawText: 'CIERRE DE CAJA',
+    });
+    expect(printerRepositoryMock.getJob).toHaveBeenCalledWith('establishment-100', 'job-1');
+  });
 });

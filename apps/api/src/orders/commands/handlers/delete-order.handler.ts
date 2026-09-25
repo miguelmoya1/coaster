@@ -26,6 +26,10 @@ export class DeleteOrderHandler implements ICommandHandler<DeleteOrderCommand, v
       throw new BadRequestException(ErrorCodes.ORDER_NOT_OPEN);
     }
 
+    if (order.cashCloseId) {
+      throw new BadRequestException(ErrorCodes.ORDER_IN_CASH_CLOSE);
+    }
+
     const today = Temporal.Now.plainDateISO('UTC');
     const orderDate = Temporal.Instant.fromEpochMilliseconds(order.createdAt.getTime())
       .toZonedDateTimeISO('UTC')
