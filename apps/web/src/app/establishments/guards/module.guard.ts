@@ -1,42 +1,25 @@
 import { inject } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
-import { CanActivateFn, Router } from '@angular/router';
-import { EstablishmentModule, asEstablishmentId } from '@coaster/common';
-import { combineLatest, filter, map, switchMap, take, timer } from 'rxjs';
+import { CanActivateFn, RedirectCommand, Router } from '@angular/router';
+import { EstablishmentModule } from '@coaster/common';
+import { establishmentIdIn } from '@coaster/core';
 import { ModulesStore } from '../store/modules.store';
 
-export const moduleGuard = (module: EstablishmentModule): CanActivateFn => {
-  return (route) => {
+export const moduleGuard =
+  (module: EstablishmentModule): CanActivateFn =>
+  async (route) => {
     const modulesStore = inject(ModulesStore);
     const router = inject(Router);
 
-    let establishmentId = route.paramMap.get('establishmentId');
-    let parent = route.parent;
-    while (!establishmentId && parent) {
-      establishmentId = parent.paramMap.get('establishmentId');
-      parent = parent.parent;
-    }
-
+    const establishmentId = establishmentIdIn(route);
     if (!establishmentId) {
-      return router.createUrlTree(['/establishments/select']);
+      throw new RedirectCommand(router.createUrlTree(['/establishments/select']));
     }
 
-    const cleanId = asEstablishmentId(establishmentId);
+    await modulesStore.loadedFor(establishmentId);
 
-    if (modulesStore.currentEstablishmentId() !== cleanId) {
-      modulesStore.setEstablishmentId(cleanId);
+    if (!modulesStore.isModuleEnabled(module)) {
+      throw new RedirectCommand(router.createUrlTree(['/establishments', establishmentId, 'dashboard']));
     }
 
-    const isLoading$ = toObservable(modulesStore.settings.isLoading);
-    const currentId$ = toObservable(modulesStore.currentEstablishmentId);
-
-    return timer(0).pipe(
-      switchMap(() => combineLatest([isLoading$, currentId$])),
-      filter(([isLoading, currentId]) => !isLoading && currentId === cleanId),
-      take(1),
-      map(() =>
-        modulesStore.isModuleEnabled(module) ? true : router.createUrlTree(['/establishments', cleanId, 'dashboard']),
-      ),
-    );
+    return true;
   };
-};

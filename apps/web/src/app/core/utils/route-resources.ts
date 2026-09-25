@@ -1,6 +1,6 @@
 import { computed, type Resource, type Signal, type WritableResource } from '@angular/core';
-import { nonBlocking, type ResourceContext, type ResourceResult } from '@angular/router';
-import type { EstablishmentId } from '@coaster/common';
+import { nonBlocking, type ActivatedRouteSnapshot, type ResourceContext, type ResourceResult } from '@angular/router';
+import { asEstablishmentId, type EstablishmentId } from '@coaster/common';
 
 export type PageResource<T> = Resource<T | undefined> & Pick<WritableResource<T | undefined>, 'reload'>;
 
@@ -17,6 +17,18 @@ export const queryParam = (context: ResourceContext, name: string): Signal<strin
 
 export const establishmentIdOf = (context: ResourceContext): Signal<EstablishmentId | undefined> =>
   routeParam<EstablishmentId>(context, 'establishmentId');
+
+export const establishmentIdIn = (route: ActivatedRouteSnapshot): EstablishmentId | undefined => {
+  for (let current: ActivatedRouteSnapshot | null = route; current; current = current.parent) {
+    const establishmentId = current.paramMap.get('establishmentId');
+
+    if (establishmentId) {
+      return asEstablishmentId(establishmentId);
+    }
+  }
+
+  return undefined;
+};
 
 export const loadedOr = <T>(resource: PageResource<T>, fallback: T): T =>
   resource.hasValue() ? (resource.value() ?? fallback) : fallback;

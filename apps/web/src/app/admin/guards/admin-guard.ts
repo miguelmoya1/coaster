@@ -1,23 +1,25 @@
-import { inject } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
-import { CanActivateFn, Router } from '@angular/router';
+import { inject, Injector } from '@angular/core';
+import { CanActivateFn, RedirectCommand, Router } from '@angular/router';
 import { Role } from '@coaster/common';
-import { Auth, CurrentUser } from '@coaster/core';
-import { filter, firstValueFrom } from 'rxjs';
+import { Auth, CurrentUser, until } from '@coaster/core';
 
 export const adminGuard: CanActivateFn = async () => {
   const authService = inject(Auth);
   const currentUser = inject(CurrentUser);
   const router = inject(Router);
-  const loaded$ = toObservable(currentUser.current.value).pipe(filter((loaded) => loaded !== undefined));
+  const injector = inject(Injector);
 
   await authService.ensureRestored();
 
   if (!authService.isAuthenticated()) {
-    return router.createUrlTree(['/login']);
+    throw new RedirectCommand(router.createUrlTree(['/login']));
   }
 
-  const user = await firstValueFrom(loaded$);
+  await until(() => currentUser.current.value() !== undefined, injector);
 
-  return user?.role === Role.ADMIN || router.createUrlTree(['/establishments/select']);
+  if (currentUser.current.value()?.role !== Role.ADMIN) {
+    throw new RedirectCommand(router.createUrlTree(['/establishments/select']));
+  }
+
+  return true;
 };

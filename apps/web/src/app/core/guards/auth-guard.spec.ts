@@ -1,6 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRouteSnapshot, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
+import { redirectOf } from '@coaster/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Auth } from '../services/auth';
 import { authGuard } from './auth-guard';
@@ -21,7 +22,9 @@ describe('authGuard', () => {
   };
 
   const run = () =>
-    TestBed.runInInjectionContext(() => authGuard(activatedRouteSnapshotMock, routerStateSnapshotMock));
+    TestBed.runInInjectionContext(() =>
+      authGuard(activatedRouteSnapshotMock, routerStateSnapshotMock),
+    ) as Promise<unknown>;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -43,7 +46,7 @@ describe('authGuard', () => {
   it('should send a stranger to the login page', async () => {
     isAuthenticated.set(false);
 
-    const result = (await run()) as UrlTree & { path: string[] };
+    const result = (await redirectOf(run() as Promise<unknown>)) as UrlTree & { path: string[] };
 
     expect(routerMock.createUrlTree).toHaveBeenCalledWith(['/login']);
     expect(result.path).toEqual(['/login']);

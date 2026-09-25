@@ -26,5 +26,6 @@ export * from './utils/money.utils';
 export * from './utils/realtime-resource';
 export * from './utils/route-resources';
 export * from './utils/sse.utils';
+export * from './utils/until';
 export * from './utils/user-agent.utils';
 export * from './utils/user.utils';

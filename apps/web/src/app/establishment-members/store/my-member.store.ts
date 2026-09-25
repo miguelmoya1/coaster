@@ -1,8 +1,8 @@
 import { httpResource } from '@angular/common/http';
-import { computed, effect, inject, Service, signal } from '@angular/core';
+import { computed, effect, inject, Injector, Service, signal } from '@angular/core';
 import type { EstablishmentId } from '@coaster/common';
 import { EstablishmentPermission, EstablishmentRole, hasPermission } from '@coaster/common';
-import { Realtime } from '@coaster/core';
+import { Realtime, until } from '@coaster/core';
 import { memberMapper } from '../mappers/member.mapper';
 import { MyMember } from '../services/my-member';
 
@@ -10,6 +10,7 @@ import { MyMember } from '../services/my-member';
 export class MyMemberStore {
   readonly #myMember = inject(MyMember);
   readonly #realtime = inject(Realtime);
+  readonly #injector = inject(Injector);
   readonly #currentEstablishmentId = signal<EstablishmentId | undefined>(undefined);
 
   readonly #myMemberResource = httpResource(() => this.#myMember.execute(this.#currentEstablishmentId()), {
@@ -48,6 +49,17 @@ export class MyMemberStore {
 
   public setEstablishmentId(establishmentId: EstablishmentId | undefined) {
     this.#currentEstablishmentId.set(establishmentId);
+  }
+
+  public loadedFor(establishmentId: EstablishmentId): Promise<void> {
+    if (this.#currentEstablishmentId() !== establishmentId) {
+      this.#currentEstablishmentId.set(establishmentId);
+    }
+
+    return until(
+      () => this.#currentEstablishmentId() === establishmentId && !this.#myMemberResource.isLoading(),
+      this.#injector,
+    );
   }
 
   public reloadMyMember() {

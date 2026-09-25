@@ -1,63 +1,39 @@
-import { ModulesStore } from '@coaster/establishments';
-import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRouteSnapshot, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
-import { MyMemberStore } from '@coaster/establishment-members';
 import { EstablishmentPermission } from '@coaster/common';
-import { firstValueFrom, Observable } from 'rxjs';
+import { ModulesStore } from '@coaster/establishments';
+import { redirectOf } from '@coaster/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { MyMemberStore } from '../store/my-member.store';
 import { permissionGuard } from './permission.guard';
 
-const modulesStoreMock = {
-  currentEstablishmentId: signal(undefined).asReadonly(),
-  settings: { isLoading: signal(false).asReadonly() },
-  setEstablishmentId: vi.fn(),
-  isModuleEnabled: vi.fn((): boolean => true),
-};
+type Redirect = UrlTree & { path: string[] };
+
+const route = (establishmentId: string | null, parentEstablishmentId: string | null = null) =>
+  ({
+    paramMap: { get: (key: string) => (key === 'establishmentId' ? establishmentId : null) },
+    parent: parentEstablishmentId
+      ? { paramMap: { get: (key: string) => (key === 'establishmentId' ? parentEstablishmentId : null) }, parent: null }
+      : null,
+  }) as unknown as ActivatedRouteSnapshot;
 
 describe('permissionGuard', () => {
-  const isLoading = signal(false);
-  const currentId = signal<string | undefined>('establishment-1');
-  const hasPermissionMock = vi.fn(() => true);
-
-  const setEstablishmentIdMock = vi.fn((id: string | undefined) => currentId.set(id));
-
   const myMemberStoreMock = {
-    myMember: {
-      isLoading: isLoading.asReadonly(),
-    },
-    currentEstablishmentId: currentId.asReadonly(),
-    setEstablishmentId: setEstablishmentIdMock,
-    hasPermission: hasPermissionMock,
+    loadedFor: vi.fn().mockResolvedValue(undefined),
+    hasPermission: vi.fn<(permission: EstablishmentPermission) => boolean>(() => true),
   };
+  const modulesStoreMock = { isModuleEnabled: vi.fn(() => true) };
+  const routerMock = { createUrlTree: vi.fn((path: string[]) => ({ path }) as unknown as UrlTree) };
 
-  const routerMock = {
-    createUrlTree: vi.fn((path: string[]) => ({ path }) as unknown as UrlTree),
-  };
-
-  const getMockRoute = (establishmentId: string | null, parentEstablishmentId: string | null = null) => {
-    const parentRoute = parentEstablishmentId
-      ? {
-          paramMap: {
-            get: vi.fn((key: string) => (key === 'establishmentId' ? parentEstablishmentId : null)),
-          },
-          parent: null,
-        }
-      : null;
-
-    return {
-      paramMap: {
-        get: vi.fn((key: string) => (key === 'establishmentId' ? establishmentId : null)),
-      },
-      parent: parentRoute,
-    } as unknown as ActivatedRouteSnapshot;
-  };
+  const run = (target: ActivatedRouteSnapshot) =>
+    TestBed.runInInjectionContext(() =>
+      permissionGuard(EstablishmentPermission.ESTABLISHMENT_VIEW_PRODUCTS)(target, {} as RouterStateSnapshot),
+    ) as Promise<unknown>;
 
   beforeEach(() => {
-    isLoading.set(false);
-    currentId.set('establishment-1');
-    hasPermissionMock.mockReturnValue(true);
     vi.clearAllMocks();
+    myMemberStoreMock.hasPermission.mockReturnValue(true);
+    modulesStoreMock.isModuleEnabled.mockReturnValue(true);
 
     TestBed.configureTestingModule({
       providers: [
@@ -68,139 +44,65 @@ describe('permissionGuard', () => {
     });
   });
 
-  it('should allow navigation if user has permission', async () => {
-    const route = getMockRoute('establishment-1');
-    const result = await TestBed.runInInjectionContext(() => {
-      const guard = permissionGuard(EstablishmentPermission.ESTABLISHMENT_VIEW_PRODUCTS)(
-        route,
-        {} as unknown as RouterStateSnapshot,
-      );
-      return firstValueFrom(guard as Observable<boolean | UrlTree>);
-    });
+  it('should let through whoever holds the permission, once their membership is loaded', async () => {
+    await expect(run(route('establishment-1'))).resolves.toBe(true);
 
-    expect(result).toBe(true);
-    expect(hasPermissionMock).toHaveBeenCalledWith(EstablishmentPermission.ESTABLISHMENT_VIEW_PRODUCTS);
+    expect(myMemberStoreMock.loadedFor).toHaveBeenCalledWith('establishment-1');
+    expect(myMemberStoreMock.hasPermission).toHaveBeenCalledWith(EstablishmentPermission.ESTABLISHMENT_VIEW_PRODUCTS);
   });
 
-  it('should redirect to orders if user lacks permission but has orders permission', async () => {
-    hasPermissionMock.mockImplementation(
-      (perm?: EstablishmentPermission) => perm === EstablishmentPermission.ESTABLISHMENT_VIEW_ORDERS,
+  it('should decide only after the membership has loaded', async () => {
+    let finishLoading!: () => void;
+    myMemberStoreMock.loadedFor.mockReturnValueOnce(new Promise<void>((resolve) => (finishLoading = resolve)));
+    const guard = run(route('establishment-1'));
+
+    expect(myMemberStoreMock.hasPermission).not.toHaveBeenCalled();
+
+    finishLoading();
+    await expect(guard).resolves.toBe(true);
+  });
+
+  it('should find the establishment in a parent route', async () => {
+    await run(route(null, 'establishment-parent'));
+
+    expect(myMemberStoreMock.loadedFor).toHaveBeenCalledWith('establishment-parent');
+  });
+
+  it('should send someone without it to the first place they may go', async () => {
+    myMemberStoreMock.hasPermission.mockImplementation(
+      (permission) => permission === EstablishmentPermission.ESTABLISHMENT_VIEW_ORDERS,
     );
-    const route = getMockRoute('establishment-1');
 
-    const result = await TestBed.runInInjectionContext(() => {
-      const guard = permissionGuard(EstablishmentPermission.ESTABLISHMENT_VIEW_PRODUCTS)(
-        route,
-        {} as unknown as RouterStateSnapshot,
-      );
-      return firstValueFrom(guard as Observable<boolean | UrlTree>);
-    });
+    const redirect = (await redirectOf(run(route('establishment-1')))) as Redirect;
 
-    expect(routerMock.createUrlTree).toHaveBeenCalledWith(['/establishments', 'establishment-1', 'orders']);
-    expect((result as unknown as { path: string[] }).path).toEqual(['/establishments', 'establishment-1', 'orders']);
+    expect(redirect.path).toEqual(['/establishments', 'establishment-1', 'orders']);
   });
 
   it('should not fall back to orders in an establishment that does not run that module', async () => {
-    hasPermissionMock.mockImplementation(
-      (perm?: EstablishmentPermission) =>
-        perm === EstablishmentPermission.ESTABLISHMENT_VIEW_ORDERS ||
-        perm === EstablishmentPermission.ESTABLISHMENT_VIEW_SHIFTS,
+    myMemberStoreMock.hasPermission.mockImplementation(
+      (permission) =>
+        permission === EstablishmentPermission.ESTABLISHMENT_VIEW_ORDERS ||
+        permission === EstablishmentPermission.ESTABLISHMENT_VIEW_SHIFTS,
     );
-    modulesStoreMock.isModuleEnabled.mockImplementation(() => false);
-    const route = getMockRoute('establishment-1');
+    modulesStoreMock.isModuleEnabled.mockReturnValue(false);
 
-    const result = await TestBed.runInInjectionContext(() => {
-      const guard = permissionGuard(EstablishmentPermission.ESTABLISHMENT_VIEW_PRODUCTS)(
-        route,
-        {} as unknown as RouterStateSnapshot,
-      );
-      return firstValueFrom(guard as Observable<boolean | UrlTree>);
-    });
+    const redirect = (await redirectOf(run(route('establishment-1')))) as Redirect;
 
-    expect((result as unknown as { path: string[] }).path).toEqual(['/establishments', 'establishment-1', 'schedule']);
+    expect(redirect.path).toEqual(['/establishments', 'establishment-1', 'schedule']);
   });
 
-  it('should redirect to select if user lacks permission and lacks orders permission', async () => {
-    hasPermissionMock.mockReturnValue(false);
-    const route = getMockRoute('establishment-1');
+  it('should send someone who may go nowhere back to the establishment picker', async () => {
+    myMemberStoreMock.hasPermission.mockReturnValue(false);
 
-    const result = await TestBed.runInInjectionContext(() => {
-      const guard = permissionGuard(EstablishmentPermission.ESTABLISHMENT_VIEW_PRODUCTS)(
-        route,
-        {} as unknown as RouterStateSnapshot,
-      );
-      return firstValueFrom(guard as Observable<boolean | UrlTree>);
-    });
+    const redirect = (await redirectOf(run(route('establishment-1')))) as Redirect;
 
-    expect(routerMock.createUrlTree).toHaveBeenCalledWith(['/establishments/select']);
-    expect((result as unknown as { path: string[] }).path).toEqual(['/establishments/select']);
+    expect(redirect.path).toEqual(['/establishments/select']);
   });
 
-  it('should set the establishment ID on its own store if it does not match the route establishment ID', async () => {
-    currentId.set('establishment-2');
-    const route = getMockRoute('establishment-1');
+  it('should send a route with no establishment to the picker without loading anything', async () => {
+    const redirect = (await redirectOf(run(route(null)))) as Redirect;
 
-    const guardPromise = TestBed.runInInjectionContext(() => {
-      const guard = permissionGuard(EstablishmentPermission.ESTABLISHMENT_VIEW_PRODUCTS)(
-        route,
-        {} as unknown as RouterStateSnapshot,
-      );
-      return firstValueFrom(guard as Observable<boolean | UrlTree>);
-    });
-
-    expect(setEstablishmentIdMock).toHaveBeenCalledWith('establishment-1');
-
-    const result = await guardPromise;
-    expect(result).toBe(true);
-  });
-
-  it('should wait for members resource to load if it is loading', async () => {
-    isLoading.set(true);
-    const route = getMockRoute('establishment-1');
-
-    const guardPromise = TestBed.runInInjectionContext(() => {
-      const guard = permissionGuard(EstablishmentPermission.ESTABLISHMENT_VIEW_PRODUCTS)(
-        route,
-        {} as unknown as RouterStateSnapshot,
-      );
-      return firstValueFrom(guard as Observable<boolean | UrlTree>);
-    });
-
-    isLoading.set(false);
-
-    const result = await guardPromise;
-    expect(result).toBe(true);
-  });
-
-  it('should find establishmentId in parent route snapshot if not present in child', async () => {
-    const route = getMockRoute(null, 'establishment-parent');
-
-    currentId.set('establishment-other');
-
-    const result = await TestBed.runInInjectionContext(() => {
-      const guard = permissionGuard(EstablishmentPermission.ESTABLISHMENT_VIEW_PRODUCTS)(
-        route,
-        {} as unknown as RouterStateSnapshot,
-      );
-      return firstValueFrom(guard as Observable<boolean | UrlTree>);
-    });
-
-    expect(setEstablishmentIdMock).toHaveBeenCalledWith('establishment-parent');
-    expect(result).toBe(true);
-  });
-
-  it('should redirect to root if no establishmentId is found in active route or parent routes', async () => {
-    const route = getMockRoute(null, null);
-
-    const result = await TestBed.runInInjectionContext(() => {
-      const guard = permissionGuard(EstablishmentPermission.ESTABLISHMENT_VIEW_PRODUCTS)(
-        route,
-        {} as unknown as RouterStateSnapshot,
-      );
-      return guard as unknown as Promise<boolean | UrlTree>;
-    });
-
-    expect(routerMock.createUrlTree).toHaveBeenCalledWith(['/establishments/select']);
-    expect((result as unknown as { path: string[] }).path).toEqual(['/establishments/select']);
+    expect(redirect.path).toEqual(['/establishments/select']);
+    expect(myMemberStoreMock.loadedFor).not.toHaveBeenCalled();
   });
 });

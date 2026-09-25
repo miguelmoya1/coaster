@@ -1,9 +1,8 @@
 import { inject } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
-import { CanActivateFn, Router } from '@angular/router';
-import { EstablishmentModule, EstablishmentPermission, asEstablishmentId } from '@coaster/common';
+import { CanActivateFn, RedirectCommand, Router } from '@angular/router';
+import { EstablishmentModule, EstablishmentPermission } from '@coaster/common';
+import { establishmentIdIn } from '@coaster/core';
 import { ModulesStore } from '@coaster/establishments';
-import { combineLatest, filter, map, switchMap, take, timer } from 'rxjs';
 import { MyMemberStore } from '../store/my-member.store';
 
 const FALLBACKS: { permission: EstablishmentPermission; module?: EstablishmentModule; path: string }[] = [
@@ -13,54 +12,32 @@ const FALLBACKS: { permission: EstablishmentPermission; module?: EstablishmentMo
   { permission: EstablishmentPermission.ESTABLISHMENT_VIEW_MEMBERS, path: 'staff' },
 ];
 
-export const permissionGuard = (permission: EstablishmentPermission): CanActivateFn => {
-  return (route) => {
+export const permissionGuard =
+  (permission: EstablishmentPermission): CanActivateFn =>
+  async (route) => {
     const myMemberStore = inject(MyMemberStore);
     const modulesStore = inject(ModulesStore);
     const router = inject(Router);
 
-    let establishmentId = route.paramMap.get('establishmentId');
-    let parent = route.parent;
-    while (!establishmentId && parent) {
-      establishmentId = parent.paramMap.get('establishmentId');
-      parent = parent.parent;
-    }
-
+    const establishmentId = establishmentIdIn(route);
     if (!establishmentId) {
-      return router.createUrlTree(['/establishments/select']);
+      throw new RedirectCommand(router.createUrlTree(['/establishments/select']));
     }
 
-    const cleanEstablishmentId = asEstablishmentId(establishmentId);
+    await myMemberStore.loadedFor(establishmentId);
 
-    if (myMemberStore.currentEstablishmentId() !== cleanEstablishmentId) {
-      myMemberStore.setEstablishmentId(cleanEstablishmentId);
+    if (myMemberStore.hasPermission(permission)) {
+      return true;
     }
 
-    const isLoading$ = toObservable(myMemberStore.myMember.isLoading);
-    const currentEstablishmentId$ = toObservable(myMemberStore.currentEstablishmentId);
+    const fallback = FALLBACKS.find(
+      (candidate) =>
+        candidate.permission !== permission &&
+        myMemberStore.hasPermission(candidate.permission) &&
+        (!candidate.module || modulesStore.isModuleEnabled(candidate.module)),
+    );
 
-    return timer(0).pipe(
-      switchMap(() => combineLatest([isLoading$, currentEstablishmentId$])),
-      filter(([isLoading, currentEstablishmentId]) => !isLoading && currentEstablishmentId === cleanEstablishmentId),
-      take(1),
-      map(() => {
-        if (myMemberStore.hasPermission(permission)) {
-          return true;
-        }
-
-        const fallback = FALLBACKS.find(
-          (candidate) =>
-            candidate.permission !== permission &&
-            myMemberStore.hasPermission(candidate.permission) &&
-            (!candidate.module || modulesStore.isModuleEnabled(candidate.module)),
-        );
-
-        if (fallback) {
-          return router.createUrlTree(['/establishments', cleanEstablishmentId, fallback.path]);
-        }
-
-        return router.createUrlTree(['/establishments/select']);
-      }),
+    throw new RedirectCommand(
+      router.createUrlTree(fallback ? ['/establishments', establishmentId, fallback.path] : ['/establishments/select']),
     );
   };
-};
