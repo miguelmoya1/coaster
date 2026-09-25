@@ -6,15 +6,15 @@ import type {
   AdminBetaTestersQuery,
   AdminEstablishmentsQuery,
   AdminUsersQuery,
+  BetaTesterId,
   EstablishmentId,
+  EstablishmentSettings,
   GrantEstablishmentPlanDto,
   RenameEstablishmentDto,
   RevokeEstablishmentPlanDto,
-  BetaTesterId,
   UpdateAdminUserDto,
-  UserId,
-  EstablishmentSettings,
   UpdateEstablishmentSettingsDto,
+  UserId,
 } from '@coaster/common';
 import { firstValueFrom } from 'rxjs';
 
