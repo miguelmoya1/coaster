@@ -396,3 +396,62 @@ ahí, y contradice lo que dice `docs/operations/environments.md`.
 
 Se arregla creando el bucket de beta (las tres órdenes están en ese documento) o poniendo la
 variable explícitamente, para dejar claro que apunta a producción a propósito.
+
+## Comandas a cocina y barra: planeado, sin empezar
+
+La siguiente del módulo de sala después del cierre de caja. Hoy la impresora solo saca el ticket
+de cobro, y quien pide un plato se lo tiene que cantar a cocina o apuntarlo a mano. La pestaña «Por
+servir» ayuda en sala, pero cocina no la mira.
+
+### Lo que hay y lo que falta
+
+El puente de Go conoce **una sola impresora**: la detecta al arrancar
+(`internal/infrastructure/printer/manager.go`) y todo lo que llega por el relay va a ella.
+`PrintJob` no dice a qué impresora va, y `PrinterConfig` es una fila por establecimiento. El
+renderer ya sabe imprimir texto libre (`type: 'raw'`), así que el formato de la comanda no necesita
+un tipo nuevo en el puente para empezar.
+
+### El modelo
+
+```
+PrinterStation   establishmentId, name, target        («Cocina», «Barra»)
+Category       + stationId?                            a dónde va lo de esta categoría
+PrintJob       + stationId?                            null = la impresora del ticket, como hoy
+OrderItem      + sentQuantity                          cuánto de la línea ya salió a cocina
+```
+
+La estación va en la **categoría**, no en el producto, por la misma razón que el IVA: las cañas van
+todas a barra y los platos todos a cocina, y la excepción se decide cuando exista, no antes. Una
+categoría sin estación no manda comanda a ninguna parte, que es exactamente lo que pasa hoy.
+
+`sentQuantity` es lo que evita mandar dos veces lo mismo: añadir tres cañas a una mesa que ya tenía
+dos manda solo las tres nuevas. Es el mismo patrón que `servedQuantity` y `paidQuantity`.
+
+### Cuándo sale la comanda
+
+Al guardar los productos de la comanda, sin un botón aparte: es lo que hace cualquier TPV de bar
+y lo que evita que alguien se olvide de «enviar». Lo que se imprime es la diferencia entre
+`quantity` y `sentQuantity` de cada línea, agrupada por estación, con la mesa, la hora, quién la
+pidió y las notas de cada línea. Las `notes` de la línea sí van a cocina, que es para lo que
+están; las `notes` de la comanda siguen siendo internas y no se imprimen nunca.
+
+Quitar una línea que ya salió a cocina imprime una **anulación** en esa estación, para que no se
+cocine algo que nadie va a pagar.
+
+### El puente
+
+Es la parte que no comprime, porque hay que publicar un binario nuevo y que cada local lo
+actualice (el autoupdate verificado ya existe):
+
+1. Varias impresoras de red por IP, cada una con el nombre de su estación, configuradas desde la
+   aplicación y no desde el equipo: el puente las recibe de la API al arrancar.
+2. El relay reclama trabajos con su `stationId` y los manda a la impresora que toca.
+3. Si una estación no contesta, el trabajo falla con su error y se ve en la aplicación, igual que
+   hoy el ticket. No hay reenvío a otra impresora: que la comanda de cocina salga en barra sin que
+   nadie lo sepa es peor que un error visible.
+
+### El orden
+
+Esquema y API primero (estaciones, `sentQuantity`, el cálculo de qué sale), con la impresión en
+la impresora de siempre mientras el puente no sepa de estaciones: ya sirve en un bar con una sola
+impresora en barra. Después el puente, y al final la pantalla de estaciones en Ajustes.
