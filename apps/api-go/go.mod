@@ -14,6 +14,9 @@ require (
 )
 
 require (
+	cloud.google.com/go/auth v0.23.3 // indirect
+	cloud.google.com/go/auth/oauth2adapt v0.2.8 // indirect
+	cloud.google.com/go/compute/metadata v0.9.1 // indirect
 	dario.cat/mergo v1.0.2 // indirect
 	github.com/Azure/go-ansiterm v0.0.0-20250102033503-faa5f7b0171c // indirect
 	github.com/Microsoft/go-winio v0.6.2 // indirect
@@ -36,7 +39,10 @@ require (
 	github.com/go-ole/go-ole v1.3.0 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
+	github.com/google/s2a-go v0.1.10 // indirect
 	github.com/google/uuid v1.6.0 // indirect
+	github.com/googleapis/enterprise-certificate-proxy v0.3.22 // indirect
+	github.com/googleapis/gax-go/v2 v2.24.1 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
@@ -68,8 +74,14 @@ require (
 	go.opentelemetry.io/otel/metric v1.44.0 // indirect
 	go.opentelemetry.io/otel/trace v1.44.0 // indirect
 	go.uber.org/atomic v1.11.0 // indirect
+	golang.org/x/net v0.59.0 // indirect
+	golang.org/x/oauth2 v0.37.0 // indirect
 	golang.org/x/sync v0.23.0 // indirect
 	golang.org/x/sys v0.48.0 // indirect
 	golang.org/x/text v0.42.0 // indirect
+	google.golang.org/api v0.299.0 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20260921155816-b14227669459 // indirect
+	google.golang.org/grpc v1.84.0 // indirect
+	google.golang.org/protobuf v1.36.12 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
