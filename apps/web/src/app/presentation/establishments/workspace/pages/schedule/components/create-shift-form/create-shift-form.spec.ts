@@ -21,7 +21,6 @@ describe('CreateShiftForm', () => {
       userId: asUserId('user-1'),
       userName: 'John Doe',
       role: EstablishmentRole.OWNER,
-      permissions: [],
       establishmentId: asEstablishmentId('establishment-1'),
       active: true,
       id: asEstablishmentMemberId('member-1'),

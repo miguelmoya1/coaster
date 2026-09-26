@@ -58,7 +58,6 @@ describe('GetMemberMeHandler', () => {
       userId,
       establishmentId,
       role: DbEstablishmentRole.STAFF,
-      permissions: expect.any(Array),
       active: true,
       pending: false,
       userName: 'John Doe',

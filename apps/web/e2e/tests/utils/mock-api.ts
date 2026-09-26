@@ -105,7 +105,6 @@ export async function setupMockApi(page: Page) {
           userId: 'test-user-123',
           establishmentId: 'establishment-123',
           role: EstablishmentRole.OWNER,
-          permissions: ['VIEW_DASHBOARD', 'VIEW_PRODUCTS', 'VIEW_SHIFTS', 'VIEW_MEMBERS', 'VIEW_ORDERS'],
           active: true,
           userName: 'Test User',
           userImage: '',

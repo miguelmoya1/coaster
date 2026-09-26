@@ -4,7 +4,6 @@ import {
   asEstablishmentMemberId,
   asEstablishmentRole,
   asUserId,
-  getRolePermissions,
 } from '@coaster/common';
 
 export const isInvitePending = (user: { passwordUpdatedAt?: Date | null; _count?: { identities: number } }): boolean =>
@@ -31,7 +30,6 @@ export const EstablishmentMembersMapper = {
       userId: asUserId(member.userId),
       establishmentId: asEstablishmentId(member.establishmentId),
       role,
-      permissions: getRolePermissions(role),
       active: member.active,
       pending: isInvitePending(member.user),
       userName: member.user.name,

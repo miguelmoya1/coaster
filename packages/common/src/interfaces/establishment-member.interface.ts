@@ -1,4 +1,3 @@
-import { EstablishmentPermissionType } from '../constants/establishment-permissions.type';
 import { EstablishmentRole } from '../constants/establishment-role.type';
 import { EstablishmentId } from './establishment.interface';
 import { Brand } from './brand.type';
@@ -11,7 +10,6 @@ export interface EstablishmentMember {
   userId: UserId;
   establishmentId: EstablishmentId;
   role: EstablishmentRole;
-  permissions: EstablishmentPermissionType[];
   active: boolean;
   pending?: boolean;
   createdAt?: string;

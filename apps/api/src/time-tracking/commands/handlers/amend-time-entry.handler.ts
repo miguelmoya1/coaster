@@ -7,7 +7,7 @@ import type {
   TimeEntryType,
   UserId,
 } from '@coaster/common';
-import { EstablishmentPermission, ErrorCodes, Role, TimeEntryAction, asUserId } from '@coaster/common';
+import { EstablishmentPermission, ErrorCodes, Role, TimeEntryAction, asUserId, hasPermission } from '@coaster/common';
 import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler, QueryBus } from '@nestjs/cqrs';
 import { TimeEntriesReadRepository } from '../../data-access/time-entries.read.repository';
@@ -99,6 +99,6 @@ export class AmendTimeEntryHandler implements ICommandHandler<AmendTimeEntryComm
     );
     const member = members.find((candidate) => candidate.userId === userId);
 
-    return member?.permissions.includes(EstablishmentPermission.ESTABLISHMENT_MANAGE_TIME_ENTRIES) ?? false;
+    return member ? hasPermission(member.role, EstablishmentPermission.ESTABLISHMENT_MANAGE_TIME_ENTRIES) : false;
   }
 }

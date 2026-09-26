@@ -1,6 +1,6 @@
 import type { User } from '@coaster/common';
 import {
-  EstablishmentPermission,
+  EstablishmentRole,
   ErrorCodes,
   TimeEntryAction,
   TimeEntrySource,
@@ -92,7 +92,7 @@ describe('AmendTimeEntryHandler', () => {
       execute: vi
         .fn()
         .mockResolvedValue([
-          { userId: 'manager-1', permissions: [EstablishmentPermission.ESTABLISHMENT_MANAGE_TIME_ENTRIES] },
+          { userId: 'manager-1', role: EstablishmentRole.MANAGER },
         ]),
     };
     eventBus = { publish: vi.fn() };
@@ -177,7 +177,7 @@ describe('AmendTimeEntryHandler', () => {
 
   it('should let a worker fix the hour on a mark of their own', async () => {
     const worker: User = { ...actor, id: asUserId('user-1'), name: 'Luis', email: 'luis@establishment.com' };
-    queryBus.execute.mockResolvedValue([{ userId: 'user-1', permissions: [] }]);
+    queryBus.execute.mockResolvedValue([{ userId: 'user-1', role: EstablishmentRole.STAFF }]);
 
     await handler.execute(
       new AmendTimeEntryCommand(establishmentId, asTimeEntryId('entry-1'), worker, {
@@ -193,7 +193,7 @@ describe('AmendTimeEntryHandler', () => {
 
   it('should stop a worker from touching somebody elses hours', async () => {
     const worker: User = { ...actor, id: asUserId('user-9'), name: 'Marta', email: 'marta@establishment.com' };
-    queryBus.execute.mockResolvedValue([{ userId: 'user-9', permissions: [] }]);
+    queryBus.execute.mockResolvedValue([{ userId: 'user-9', role: EstablishmentRole.STAFF }]);
 
     await expect(
       handler.execute(

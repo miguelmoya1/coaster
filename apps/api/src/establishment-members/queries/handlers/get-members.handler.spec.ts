@@ -1,4 +1,4 @@
-import { asEstablishmentId, asEstablishmentRole, getRolePermissions } from '@coaster/common';
+import { asEstablishmentId } from '@coaster/common';
 import { DbEstablishmentRole } from '@coaster/core/db';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -51,7 +51,6 @@ describe('GetMembersHandler', () => {
         establishmentId: 'establishment-1',
         active: true,
         role: DbEstablishmentRole.OWNER,
-        permissions: getRolePermissions(asEstablishmentRole(DbEstablishmentRole.OWNER)),
         pending: false,
         userName: 'admin',
         userImage: 'http://user-1.jpg',

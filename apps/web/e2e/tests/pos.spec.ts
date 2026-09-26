@@ -18,7 +18,6 @@ test.describe('POS Flow', () => {
       userId: 'test-user-123',
       establishmentId,
       role: EstablishmentRole.OWNER,
-      permissions: [],
       active: true,
       userName: 'Test User',
       userImage: '',

@@ -52,7 +52,6 @@ describe('EstablishmentMembersController', () => {
       userId: asUserId('user-1'),
       establishmentId: asEstablishmentId('establishment-1'),
       role: EstablishmentRole.STAFF,
-      permissions: [],
       active: true,
       userName: 'John Doe',
       userImage: '',

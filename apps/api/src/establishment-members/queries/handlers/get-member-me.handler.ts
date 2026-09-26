@@ -22,7 +22,6 @@ export class GetMemberMeHandler implements IQueryHandler<GetMemberMeQuery, Estab
           role: EstablishmentRole.OWNER,
           active: true,
           pending: false,
-          permissions: [],
           userName: query.user.name,
           userEmail: query.user.email,
           userImage: query.user.photoUrl || '',

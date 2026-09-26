@@ -23,7 +23,6 @@ describe('Inventory', () => {
     myMember: {
       value: vi.fn().mockReturnValue({
         role: EstablishmentRole.STAFF,
-        permissions: [],
       }),
       hasValue: vi.fn().mockReturnValue(true),
     },
