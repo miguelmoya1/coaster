@@ -152,7 +152,7 @@ Actualizar esta tabla al terminar cada paquete.
 | P2e Cobros | ⬜ Pendiente | |
 | P2f Realtime | ⬜ Pendiente | |
 | P3 IA | ⬜ Pendiente | |
-| P4 Arnés e2e | ⬜ Pendiente | |
+| P4 Arnés e2e | ✅ Hecho | `E2E_TARGET=go` lanza los e2e de `apps/api` contra Go: el `globalSetup` compila el binario, cada archivo arranca su servidor detrás de un proxy que pone `/api/v1` y un JWT de verdad, buzón de test y claves de Google por HTTP, `e2e-paquetes.txt`, `scripts/e2e-go.sh` y job de CI `api-go-e2e`. Lo que falta en Go está en «Convenciones de P4» |
 | P5 Salida | ⬜ Pendiente | |
 
 ## Siguiente paso
@@ -229,6 +229,68 @@ Lo que P0 deja hecho y cómo se usa desde P1 en adelante.
 - `main` deja de aceptar conexiones con SIGTERM y espera hasta 8 s a las que están abiertas.
   Un stream SSE no acaba solo: P2f tiene que cerrarlo con `server.RegisterOnShutdown`.
 
+## Convenciones de P4
+
+Cómo se lanzan los e2e de `apps/api/test` contra el servidor Go y qué tiene que hacer cada
+paquete para que los suyos pasen.
+
+**Lanzarlos en local** (hace falta Docker, Node 26 por `Temporal` y el Go de `go.mod`; en
+local `export GOTOOLCHAIN=go1.27.0`)
+- Contra Nest, como siempre: `npm run test:e2e -w @coaster/api`.
+- Contra Go, los directorios de `e2e-paquetes.txt`: `apps/api-go/scripts/e2e-go.sh`, desde la
+  raíz del repo. Los argumentos extra van a vitest (`-t 'nombre del test'`).
+- Contra Go, un directorio cualquiera: `E2E_TARGET=go npm run test:e2e -w @coaster/api -- test/orders`.
+
+**Cómo funciona** (`apps/api/test/utils/go-app.ts`)
+- Con `E2E_TARGET=go`, `setup.e2e.ts` compila `./cmd/api` una vez (`go build`) después de las
+  migraciones. Cada archivo e2e arranca su propio proceso Go en un puerto libre, igual que
+  hoy arranca su propia app de Nest, así el rate limit en memoria no pasa de un archivo a otro.
+- El proceso recibe el entorno del test (`DATABASE_URL` del testcontainer, `AUTH_JWT_SECRET`,
+  `PRINTER_JWT_SECRET`, `GOOGLE_CLIENT_ID`, `PWNED_PASSWORDS_ENABLED=false`, `REDIS_URL=` vacío)
+  más `PORT`, `PUBLIC_DIR=apps/api/public`, `TEST_MAILBOX_URL` y `GOOGLE_CERTS_URL`.
+- `testSetup.app.getHttpServer()` es un proxy en el proceso del test que:
+  - pasa `/api/...` a `/api/v1/...` (el Nest de los e2e no tiene versión; producción y Go sí).
+    Por eso un mensaje como `Cannot GET /api/v1/x` lleva la versión;
+  - cambia `x-e2e-user-id` (o `mockUser` si no viene) por `Authorization: Bearer <jwt>`,
+    firmado con el `AccessTokenService` de Nest: `sub`, `sid = e2e-session-<id>`, `iss coaster`,
+    `aud coaster-api`, 15 min. Si la petición ya trae `authorization` (la impresora), no la toca;
+  - deja pasar los streams SSE y cierra la petición a Go cuando el test cancela.
+- Prisma sigue preparando los datos y `clearDatabase` vacía las tablas, como con Nest.
+- `testSetup.app.get(...)` lanza un error: con Go no hay servicios dentro del proceso.
+
+**Lo que cambia respecto a `MockAuthGuard`**
+- El usuario del test tiene que **existir en la base de datos y estar activo**, y su `role` es
+  el de la base de datos, no el de `mockUser`/`actAs`. Los e2e ya crean sus usuarios; si uno
+  falla solo por esto, se salta en modo Go con `it.skipIf(isGoTarget)` y un comentario.
+- El `AuthGuard` de Nest no comprueba que la sesión exista, así que el arnés no crea filas de
+  `AuthSession`. P1 tiene que copiar eso tal cual (si Go comprobara la sesión, el arnés
+  tendría que crearla).
+
+**Lo que Nest hace dentro del proceso y cómo se cubre en Go**
+
+| e2e | Depende de | Cómo se cubre en Go | Paquete |
+|---|---|---|---|
+| `auth/account`, `auth/account-recovery`, `establishment-members/*` (3) | `TestMailbox` (el `AUTH_MAILER` sustituido) | Con `TEST_MAILBOX_URL`, Go no manda emails: hace `POST` de `{"kind","to","token"}` a esa URL y espera el 2xx antes de seguir, igual que Nest espera al mailer. `kind` es `invite`, `verifyEmail`, `resetPassword` o `passwordChanged`; `token` va en todos menos `passwordChanged`. El arnés ya tiene el servidor que lo recibe y lo mete en `testSetup.mailbox` | P1 hace el adaptador de test del puerto de email (los emails de auth son los primeros); P2e hace el de Resend contra el mismo puerto; P2b lo usa para las invitaciones |
+| `auth/google` | `vi.stubGlobal('fetch')` con las claves públicas | Con `GOOGLE_CERTS_URL`, Go pide las claves a esa URL en lugar de a `https://www.googleapis.com/oauth2/v3/certs` (con `idtoken.NewValidator` y `option.WithHTTPClient` con un `RoundTripper` que cambia la URL). El arnés ya sirve ahí lo que devuelve el `fetch` falso del test | P1 |
+| `realtime` | `app.get(RealtimeService).publish/revoke` (3 tests) | Se saltan en modo Go. Los otros dos (403 y apertura del stream) sí van contra Go. P2f cubre publicar y revocar en sus tests de Go | P2f |
+| `ai` | `vi.mock('ai')` | Nada: el test acepta 201 o 500, y sin `AI_GATEWAY_API_KEY` Go puede responder 500. Si P3 quiere probar la respuesta, puede leer una URL base del gateway de una variable de test y el arnés servir una respuesta falsa compatible con OpenAI | P3 |
+| `admin` | `MockAuthGuard` deja pasar a un usuario inactivo | «should refuse demoting the last admin» se salta en modo Go: con un token de verdad es un 401 | — |
+| Stripe | — | Ningún e2e llama a Stripe (`admin` solo lee las columnas de Stripe en la base de datos) | — |
+
+- `TEST_MAILBOX_URL` y `GOOGLE_CERTS_URL` son **solo para tests**: `config.Load` tiene que
+  fallar si alguna viene con `NODE_ENV=production`. Las añade a `Config` el paquete que las use.
+- Sin `REDIS_URL`, Go no cachea, igual que Nest: nada de caché en memoria para lo que Nest
+  guarda en Redis (usuario, rol, suscripción), porque `clearDatabase` no llega a ella y un test
+  leería los datos del anterior.
+
+**Cuando un paquete termina**
+- Añade a `e2e-paquetes.txt` sus directorios de `apps/api/test` (uno por línea, por ejemplo
+  `test/orders`) y comprueba en local que `scripts/e2e-go.sh` pasa. El job `api-go-e2e` del CI
+  lanza esa lista; con la lista vacía pasa sin hacer nada.
+- Un test que no puede ir contra Go se salta solo en modo Go, con `it.skipIf(isGoTarget)` o
+  `describe.skipIf(isGoTarget)` (`isGoTarget` sale de `test/utils/e2e-setup`) y un comentario
+  con el motivo. Nunca se salta contra Nest.
+
 ## Ejecución con agentes
 
 Los paquetes los ejecuta un agente orquestador que lanza subagentes. Se hace en olas:
@@ -291,6 +353,8 @@ Para lanzarlos contra el servidor Go:
 3. Prisma puede seguir preparando los datos de prueba, porque la base de datos es la misma.
 
 Así los 32 archivos e2e sirven para comprobar la paridad sin reescribirlos.
+
+Hecho en P4: cómo se lanza y qué falta en Go está en «Convenciones de P4».
 
 ## Riesgos
 
