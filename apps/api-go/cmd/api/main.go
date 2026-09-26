@@ -59,6 +59,9 @@ func run() error {
 	bus := event.NewBus()
 	defer bus.Wait()
 
+	var realtime ports.Realtime = event.NopRealtime{}
+	_ = realtime
+
 	redisClient := cache.NewClient(cfg.RedisURL)
 	if redisClient != nil {
 		defer redisClient.Close()

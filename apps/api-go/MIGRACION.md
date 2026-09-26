@@ -231,6 +231,28 @@ Lo que P0 deja hecho y cómo se usa desde P1 en adelante.
 - `main` deja de aceptar conexiones con SIGTERM y espera hasta 8 s a las que están abiertas.
   Un stream SSE no acaba solo: P2f tiene que cerrarlo con `server.RegisterOnShutdown`.
 
+## Convenciones para la ola de P2
+
+**Eventos entre paquetes**
+- Cada evento de Nest (`<módulo>/events/impl/*.event.ts`) es un struct en
+  `domain/<entidad>_events.go` del paquete dueño de la entidad, con los mismos campos, y
+  `Name()` devuelve el nombre de la clase de Nest (`"OrderCreatedEvent"`). El servicio lo
+  publica con `ports.EventPublisher` después de guardar.
+- El dueño del evento escribe también sus suscriptores, aunque en Nest estén en otro módulo:
+  los de `realtime/events/handlers/` (con `ports.Realtime`), los de caché y los de auditoría.
+  Así nadie depende de un struct que otro paquete está escribiendo a la vez. Si el suscriptor
+  necesita algo de otro paquete (por ejemplo, sincronizar los asientos de Stripe al cambiar un
+  miembro), se apunta en el informe y el orquestador lo cablea entre olas.
+- `ports.Realtime` (`Publish(establishmentID, evento, payload)` y `Revoke(establishmentID,
+  userID)`) es `RealtimeService` de Nest. Los nombres de evento están en
+  `domain/realtime_events.go`. En `main.go` la variable `realtime` es `event.NopRealtime{}`
+  hasta que P2f cambie esa línea por la implementación de verdad.
+
+**Servicios y handlers**
+- La decisión de «Decisiones tomadas» se mantiene: los handlers reciben el servicio concreto
+  (`*service.OrderService`). P1 usa interfaces pequeñas en los handlers de auth para sus
+  tests; está pendiente de revisar con Miguel y no se copia en P2.
+
 ## Convenciones de P1
 
 Cómo se protege una ruta y cómo lee el handler quién llama. Todo está en
