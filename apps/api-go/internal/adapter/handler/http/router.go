@@ -20,6 +20,10 @@ type RouterConfig struct {
 // Handlers holds one handler per entity. Each package adds its field here and one line
 // in NewRouter that registers its routes.
 type Handlers struct {
+	// Guard runs the rate limit and the route checks; every handler registers through it.
+	Guard   *middleware.Guard
+	Auth    *AuthHandler
+	Account *AccountHandler
 }
 
 // NewRouter registers every route under /api/v1 and wraps them in the global middlewares.
@@ -27,6 +31,11 @@ func NewRouter(cfg RouterConfig, handlers Handlers) (http.Handler, error) {
 	mux := http.NewServeMux()
 
 	mux.Handle("GET /public/", staticFiles(cfg.PublicDir))
+
+	if handlers.Guard != nil {
+		handlers.Auth.RegisterRoutes(mux, handlers.Guard)
+		handlers.Account.RegisterRoutes(mux, handlers.Guard)
+	}
 
 	return withGlobalMiddlewares(cfg, withNestNotFound(mux))
 }

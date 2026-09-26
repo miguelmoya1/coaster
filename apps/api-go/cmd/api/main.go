@@ -11,10 +11,18 @@ import (
 	"syscall"
 	"time"
 
+	"api-go/internal/adapter/cache"
+	"api-go/internal/adapter/email"
 	"api-go/internal/adapter/event"
+	"api-go/internal/adapter/google"
 	httphandler "api-go/internal/adapter/handler/http"
+	"api-go/internal/adapter/handler/middleware"
+	"api-go/internal/adapter/pwned"
 	"api-go/internal/adapter/repository"
 	"api-go/internal/config"
+	"api-go/internal/core/domain"
+	"api-go/internal/core/ports"
+	"api-go/internal/service"
 )
 
 // Cloud Run waits 10 seconds after SIGTERM before killing the container.
@@ -51,9 +59,68 @@ func run() error {
 	bus := event.NewBus()
 	defer bus.Wait()
 
+	redisClient := cache.NewClient(cfg.RedisURL)
+	if redisClient != nil {
+		defer redisClient.Close()
+	}
+	valueCache := cache.NewCache(redisClient)
+
+	authUsers := repository.NewAuthUserRepository(pool)
+	authSessions := repository.NewAuthSessionRepository(pool)
+	authTokens := repository.NewAuthTokenRepository(pool)
+	authIdentities := repository.NewAuthIdentityRepository(pool)
+
+	googleVerifier, err := google.NewVerifier(ctx, cfg.GoogleClientID, cfg.GoogleCertsURL)
+	if err != nil {
+		return err
+	}
+
+	var mailer ports.Mailer = email.NewLogMailer(cfg.FrontendURL, cfg.IsProduction)
+	if cfg.TestMailboxURL != "" {
+		mailer = email.NewTestMailbox(cfg.TestMailboxURL)
+	}
+
+	pwnedPasswords := pwned.NewPasswords(cfg.PwnedPasswordsEnabled)
+
+	accessTokens := service.NewAccessTokenService(cfg.AuthJWTSecret, authUsers, valueCache)
+	security := service.NewSecurityService(repository.NewSecurityRepository(pool), valueCache, nil)
+	authEvents := service.NewAuthEventService(repository.NewAuthEventRepository(pool))
+	bus.Subscribe(domain.AuthEventName, authEvents.Record)
+
+	authService := service.NewAuthService(service.AuthDependencies{
+		Users:           authUsers,
+		Identities:      authIdentities,
+		Tokens:          authTokens,
+		SessionRepo:     authSessions,
+		Sessions:        service.NewSessionService(authSessions, accessTokens, bus),
+		Google:          googleVerifier,
+		Pwned:           pwnedPasswords,
+		Attempts:        cache.NewLoginAttempts(redisClient),
+		Mailer:          mailer,
+		Events:          bus,
+		Cache:           valueCache,
+		BetaAllowlistOn: cfg.BetaAllowlistEnabled,
+	})
+	accountService := service.NewAccountService(service.AccountDependencies{
+		Users:      authUsers,
+		Identities: authIdentities,
+		Tokens:     authTokens,
+		Sessions:   authSessions,
+		Pwned:      pwnedPasswords,
+		Mailer:     mailer,
+		Events:     bus,
+		Cache:      valueCache,
+	})
+
+	handlers := httphandler.Handlers{
+		Guard:   middleware.NewGuard(accessTokens, security, cache.NewRateLimiter(redisClient), cfg.TrustProxyHops),
+		Auth:    httphandler.NewAuthHandler(authService, cfg.IsProduction),
+		Account: httphandler.NewAccountHandler(accountService),
+	}
+
 	router, err := httphandler.NewRouter(
 		httphandler.RouterConfig{CORSOrigins: cfg.CORSOrigins, PublicDir: cfg.PublicDir},
-		httphandler.Handlers{},
+		handlers,
 	)
 	if err != nil {
 		return err
