@@ -31,7 +31,6 @@ project/
 │   │       ├── storage/             # Almacenamiento de archivos (GCS, S3…)
 │   │       └── ai/                  # Proveedor de IA
 │   ├── scripts/                     # Migraciones SQL y scripts auxiliares
-│   ├── .env                         # Configuración local (fuera de git)
 │   ├── go.mod
 │   └── go.sum
 └── .gitignore
@@ -72,8 +71,8 @@ El código privado de la aplicación. Go impide que otro módulo importe lo que 
 
 #### `internal/config/`
 
-Lee la configuración, ya sea del archivo `.env` o de las variables de entorno, y la expone
-en un struct. Es el único sitio donde se leen variables de entorno.
+Lee las variables de entorno y las expone en un struct. Es el único sitio donde se leen.
+No hay lector de `.env`: en local es Docker Compose quien las carga (`env_file`).
 
 #### `internal/core/`
 
@@ -82,20 +81,24 @@ librería externa.
 
 - **`domain/`**: las entidades del negocio (structs), los inputs para crearlas o
   modificarlas y los errores de negocio (`ErrNotFound`, `ErrInvalidPayload`…).
-- **`ports/`**: las **interfaces** que conectan las capas.
+- **`ports/`**: las **interfaces** de lo que los servicios necesitan de fuera. Solo eso.
   - `XxxRepository`: lo que el negocio necesita de la persistencia.
-  - `XxxService`: lo que el negocio ofrece a los handlers.
   - Una interfaz por cada servicio externo (`PaymentGateway`, `Mailer`, `FileStorage`…).
   - `EventPublisher`: para avisar de que algo ha pasado (ver más abajo).
+
+  Los servicios **no** tienen interfaz: el handler recibe el struct concreto
+  (`*service.OrderService`). Solo habría una implementación, y en Go la interfaz la declara
+  quien la consume, cuando la necesita. Para ver de un vistazo lo que ofrece un servicio:
+  `go doc ./internal/service OrderService`.
 
 #### `internal/service/`
 
 La **lógica de negocio** o casos de uso. Hay un servicio por entidad y cada método es un
 caso de uso: no hace falta separar comandos y consultas en clases distintas (CQRS).
 
-Los servicios implementan las interfaces `XxxService` y solo usan interfaces de `ports`, así
-que nunca saben qué base de datos o qué proveedor hay detrás. Aquí se valida, se normaliza y
-se aplican las reglas.
+Los servicios son structs concretos que solo usan interfaces de `ports`, así que nunca saben
+qué base de datos o qué proveedor hay detrás. Aquí se valida, se normaliza y se aplican las
+reglas. Un servicio puede llamar a otro directamente, porque están en el mismo paquete.
 
 #### `internal/adapter/`
 
@@ -113,6 +116,8 @@ Las **implementaciones concretas** que conectan el núcleo con el mundo exterior
 - **`repository/`**: la persistencia.
   - `client.go` crea el pool de conexiones.
   - `xxx_repository.go` hay uno por entidad. Implementa las interfaces `XxxRepository`.
+  - Las **transacciones** empiezan y terminan dentro de un método del repositorio, como en
+    `apps/api`. Así los servicios no necesitan saber nada de transacciones.
   - `queries/` guarda el SQL, un archivo por consulta (ver más abajo).
 - **`cache/`, `payment/`, `email/`, `storage/`, `ai/`**: un adaptador por servicio externo.
   Cada uno implementa su interfaz de `ports`, así que se puede cambiar de proveedor sin tocar
@@ -206,7 +211,7 @@ HTTP → middleware → handler → service → repository → base de datos
 | Paso | Archivo |
 |---|---|
 | 1. Entidad, inputs y errores | `internal/core/domain/xxx.go` |
-| 2. Interfaces de repositorio y servicio | `internal/core/ports/xxx.go` |
+| 2. Interfaz del repositorio | `internal/core/ports/xxx.go` |
 | 3. Lógica de negocio | `internal/service/xxx_service.go` |
 | 4. Consultas SQL | `internal/adapter/repository/queries/xxx/*.sql` |
 | 5. Persistencia | `internal/adapter/repository/xxx_repository.go` + migración en `scripts/` |
