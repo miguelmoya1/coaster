@@ -1,0 +1,1 @@
+SELECT EXISTS (SELECT 1 FROM "BetaTester" WHERE email = $1)
