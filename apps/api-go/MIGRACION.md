@@ -157,8 +157,10 @@ Actualizar esta tabla al terminar cada paquete.
 
 ## Siguiente paso
 
-Ola 2: **P1 Auth y permisos** y **P4 Arnés e2e**, en paralelo. Antes de empezar, leer
-«Convenciones de P0», justo debajo.
+Ola 3: **P2a Catálogo**, **P2b Local y personas**, **P2c Turnos y fichajes**, **P2d Pedidos**,
+**P2e Cobros** y **P2f Realtime**, en paralelo. Antes de empezar, leer «Convenciones de P0»,
+«Convenciones de P1» y «Convenciones de P4». Cada paquete añade sus directorios de
+`apps/api/test` a `e2e-paquetes.txt` cuando pasan contra Go.
 
 ## Convenciones de P0
 
