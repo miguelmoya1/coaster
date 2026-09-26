@@ -6,6 +6,9 @@ import { AppModule } from '../../src/app.module';
 import cookie from '@fastify/cookie';
 import { AUTH_MAILER } from '@coaster/core';
 import { AuthGuard, OptionalAuthGuard } from '../../src/auth';
+import { ConfigService } from '@nestjs/config';
+import { isGoTarget } from './e2e-target';
+import { GoApp } from './go-app';
 import {
   DbService,
   DbEstablishmentModule,
@@ -13,6 +16,8 @@ import {
   DbSubscriptionPlan,
   DbSubscriptionStatus,
 } from '../../src/core/db';
+
+export { isGoTarget };
 
 const TRIAL_DAYS = 14;
 
@@ -112,6 +117,11 @@ export class E2eTestSetup {
   public readonly mailbox = new TestMailbox();
 
   async setup() {
+    if (isGoTarget) {
+      await this.#setupGo();
+      return;
+    }
+
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     })
@@ -143,6 +153,19 @@ export class E2eTestSetup {
     await this.app.getHttpAdapter().getInstance().ready();
 
     this.prisma = this.app.get(DbService);
+  }
+
+  /** Against Go the tests keep Prisma for their data and reach the API through `GoApp`. */
+  async #setupGo() {
+    this.prisma = new DbService({ get: (key: string) => process.env[key] } as unknown as ConfigService);
+    await this.prisma.$connect();
+
+    const app = await GoApp.start({
+      defaultUserId: mockUser.id,
+      deliver: (email) => this.mailbox.sent.push(email as SentEmail),
+    });
+
+    this.app = app as unknown as NestFastifyApplication;
   }
 
   async createEstablishment(
@@ -200,6 +223,10 @@ export class E2eTestSetup {
   async teardown() {
     if (this.app) {
       await this.app.close();
+    }
+
+    if (isGoTarget && this.prisma) {
+      await this.prisma.$disconnect();
     }
   }
 

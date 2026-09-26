@@ -1,7 +1,9 @@
 import { PostgreSqlContainer, StartedPostgreSqlContainer } from '@testcontainers/postgresql';
 import { execSync } from 'child_process';
 import { randomBytes } from 'crypto';
+import { tmpdir } from 'os';
 import * as path from 'path';
+import { GO_BINARY_ENV, isGoTarget } from './utils/e2e-target';
 
 let container: StartedPostgreSqlContainer;
 
@@ -70,6 +72,29 @@ export async function setup() {
     console.error('❌ Error applying Prisma migrations:', err);
     throw err;
   }
+
+  if (isGoTarget) {
+    buildGoServer();
+  }
+}
+
+/**
+ * Built once for the whole run; each test file then starts its own server from it (see `GoApp`).
+ * `go` has to be on the PATH, with the toolchain `apps/api-go/go.mod` asks for.
+ */
+function buildGoServer() {
+  const binary = path.join(tmpdir(), 'coaster-api-go-e2e');
+
+  console.log('⏳ Building the Go server...');
+
+  execSync(`go build -o "${binary}" ./cmd/api`, {
+    cwd: path.resolve(__dirname, '../../api-go'),
+    stdio: 'inherit',
+  });
+
+  process.env[GO_BINARY_ENV] = binary;
+
+  console.log(`✅ Go server built: ${binary}`);
 }
 
 export async function teardown() {
