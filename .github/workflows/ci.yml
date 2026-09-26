@@ -76,6 +76,28 @@ jobs:
       - name: 🧪 Go Unit Tests (Printer Service)
         run: cd apps/printer-service && go test -v ./... -cover
 
+  api-go:
+    name: 🐹 API en Go
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/api-go
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🐹 Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: apps/api-go/go.mod
+          cache-dependency-path: apps/api-go/go.sum
+
+      - name: 🔎 go vet
+        run: go vet ./...
+
+      - name: 🧪 go test
+        run: go test ./...
+
   deploy-backend:
     name: 🚀 Deploy Backend & Migrate DB
     needs: build-and-test

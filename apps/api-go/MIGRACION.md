@@ -143,7 +143,7 @@ Actualizar esta tabla al terminar cada paquete.
 |---|---|---|
 | Documentación y estructura de carpetas | ✅ Hecho | `ESTRUCTURA.md`, `LIBRERIAS.md`, este archivo y `.gitkeep` en cada carpeta |
 | Revisión de `LIBRERIAS.md` | ✅ Hecho | 27-sep-2026. Solo quedan por confirmar los modelos de respaldo de la IA (P3) |
-| P0 Base | ⬜ Pendiente | |
+| P0 Base | ✅ Hecho | Esqueleto, config, pool y arnés de Postgres, contrato HTTP de Nest (errores, 404, validación), helmet, CORS, gzip, `/public/`, `EventPublisher` en memoria, Dockerfile, servicio `api-go` en compose y job de CI |
 | P1 Auth y permisos | ⬜ Pendiente | |
 | P2a Catálogo | ⬜ Pendiente | |
 | P2b Local y personas | ⬜ Pendiente | |
@@ -157,77 +157,77 @@ Actualizar esta tabla al terminar cada paquete.
 
 ## Siguiente paso
 
-Empezar **P0 Base**. Estas son las respuestas de Nest que hay que copiar, sacadas del
-contenedor de desarrollo:
+Ola 2: **P1 Auth y permisos** y **P4 Arnés e2e**, en paralelo. Antes de empezar, leer
+«Convenciones de P0», justo debajo.
 
-```
-404 de ruta     {"message":"Cannot GET /api/v1/nope","error":"Not Found","statusCode":404}
-JSON roto       {"statusCode":400,"message":"Body is not valid JSON but content-type is set to 'application/json'"}
-Validación      {"message":["property foo should not exist","email must be an email",…],"error":"Bad Request","statusCode":400}
-Error sin controlar  {"statusCode":500,"message":"Internal server error"}
-```
+## Convenciones de P0
 
-Cabeceras de helmet en **todas** las respuestas, también en los errores y en el preflight:
+Lo que P0 deja hecho y cómo se usa desde P1 en adelante.
 
-```
-Content-Security-Policy: default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests
-Cross-Origin-Opener-Policy: same-origin
-Cross-Origin-Resource-Policy: same-origin
-Origin-Agent-Cluster: ?1
-Referrer-Policy: no-referrer
-Strict-Transport-Security: max-age=31536000; includeSubDomains
-X-Content-Type-Options: nosniff
-X-DNS-Prefetch-Control: off
-X-Download-Options: noopen
-X-Frame-Options: SAMEORIGIN
-X-Permitted-Cross-Domain-Policies: none
-X-XSS-Protection: 0
-```
+**Arrancar y probar**
+- `go vet ./...` y `go test ./...` desde `apps/api-go`. Los tests de `repository/` levantan
+  `postgres:18-alpine` con testcontainers, así que necesitan Docker.
+- En local: `docker compose up db redis api-go`. Go escucha en `http://localhost:3001` y Nest
+  sigue en el 3000, contra la misma base de datos.
+- `go run ./cmd/api` necesita `DATABASE_URL`, `AUTH_JWT_SECRET` y `PUBLIC_DIR=../api/public`.
+  `PUBLIC_DIR` es la única variable que Nest no tiene: en la imagen es `/app/public`.
 
-CORS: `vary: Origin` y `access-control-allow-credentials: true` siempre. El preflight de un
-origen permitido responde 204 con `access-control-allow-origin: <origen>`,
-`access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS` y
-`access-control-allow-headers: Content-Type, Authorization, Last-Event-ID`.
+**Errores**
+- Los servicios devuelven `domain.NotFound(domain.CodeX)`, `domain.Forbidden(…)`, etc.
+  (`domain/errors.go`). Los códigos están en `domain/error_codes.go` y un test comprueba que
+  coinciden con `@coaster/common`: si se añade uno allí, hay que añadirlo aquí.
+- El handler hace `writeError(w, err)`. Un `domain.Error` sale con el cuerpo de Nest y su
+  estado; cualquier otro error se registra con `slog` y sale como el 500 genérico.
+- `domain.TooManyRequests` sale sin `error`, como el `HttpException` con un string de Nest, y
+  `domain.PaymentRequired` sale con `errorCode`, como el 402 de `SubscriptionActiveGuard`.
+- Los middlewares (paquete `middleware`) escriben con `middleware.WriteError`, que es lo que
+  usa `writeError` por dentro. Está en `middleware` porque `http` importa `middleware` y no
+  al revés.
 
-**A. Esqueleto y base de datos**
-- `go.mod` con `module api-go` (como `apps/printer-service`) y `go 1.27`.
-- `cmd/api/main.go`: config → pool → servicios → router → servidor, con apagado ordenado al
-  recibir SIGTERM (Cloud Run da 10 s). `PORT` por defecto 3000.
-- `internal/config`: **todas** las variables de `apps/api/README.md` de una vez, para que los
-  paquetes en paralelo no choquen en ese archivo. Falla al arrancar sin `DATABASE_URL` o
-  `AUTH_JWT_SECRET`, como Nest.
-- `repository/client.go` con el pool de pgx.
-- `repository/main_test.go`: `TestMain` que levanta `postgres:18-alpine` con testcontainers,
-  aplica las `migration.sql` de Prisma en orden y ofrece un helper para vaciar las tablas
-  entre tests.
+**Handlers y rutas**
+- Cada entidad tiene su `xxx_handler.go` con un método que registra sus rutas en el
+  `*http.ServeMux`, con el prefijo `apiPrefix` (`"GET " + apiPrefix + "/orders/{id}"`).
+  En `router.go` se añade el campo al struct `Handlers` y una línea en `NewRouter`.
+- Una ruta que no existe, o con otro método, responde el 404 de Nest sin hacer nada.
+- Respuestas con `writeJSON(w, status, v)`: sin escapar `<>&` y sin salto de línea final,
+  como `JSON.stringify`. Nest responde 201 a los `POST` salvo que el controlador diga otra
+  cosa con `@HttpCode`.
+- Las fechas del JSON van como `domain.Time`, que escribe `2026-09-27T10:00:00.000Z` como
+  `toISOString` y se puede leer y escribir directamente con pgx.
 
-**B. Contrato HTTP**
-- `domain/errors.go`: un error con un tipo abstracto (`NotFound`, `BadRequest`,
-  `Unauthorized`, `Forbidden`…) y un código. El handler traduce el tipo a HTTP. Van por
-  separado porque en Nest el mismo código sale con estados distintos (`MEMBER_NOT_FOUND` es
-  404 o 403).
-- `domain/error_codes.go`: las constantes de `ErrorCodes`, con un test que lee
-  `packages/common/src/constants/error.types.ts` y falla si no coinciden.
-- `handler/http/response.go`: `writeJSON`; `writeError` con las tres formas de Nest (con
-  `error`, sin `error` como el 429 de `HttpException` con un string, y el 500 genérico);
-  `decodeJSON`, que rechaza los campos desconocidos y traduce los errores de validator al
-  texto de class-validator.
-- `router.go`: todo bajo `/api/v1`. Las rutas que no existen y los métodos que no coinciden
-  (que en Go dan 405) responden el 404 `Cannot <MÉTODO> <ruta>` de Nest.
-- Tests de tabla con las respuestas de arriba.
+**Cuerpos de petición** (`decodeJSON(r, &input)`, en `validation.go`)
+- Un struct con `json` y `validate`. `msg` cambia el texto de una regla, como el
+  `{ message: ErrorCodes.X }` de class-validator; `type` es el texto para un valor que falta
+  o es de otro tipo:
+  ```go
+  type createEstablishmentRequest struct {
+  	Name  string  `json:"name" validate:"required,min=3,max=50" msg:"required=REQUIRED,min=MIN_LENGTH,max=MAX_LENGTH,type=INVALID_TYPE"`
+  	Phone *string `json:"phone" validate:"omitnil,max=20"`
+  }
+  ```
+- `@IsOptional` es un puntero con `omitnil`. Un campo sin `omitnil` tiene que venir y no
+  ser `null`.
+- Un struct anidado se valida solo; un slice necesita `dive` para validar sus elementos
+  (`@ValidateNested`, o `{ each: true }` si son valores).
+- Reglas con el texto de class-validator ya traducido: `required`, `min`, `max`, `gte`, `lte`
+  (según sea texto, número o slice), `oneof`, `email`, `uuid`, `uuid4`, `latitude`,
+  `longitude`, `ip`, `unique` e `iso8601` (propia). Una regla nueva se registra en
+  `newValidator` y su texto en `defaultRuleMessage`.
 
-**C. Middlewares, eventos y entrega**
-- Recuperación de panics (500 de Nest y `slog`), cabeceras de helmet, CORS propio, gzip con
-  gzhttp (umbral de 1 KB, sin comprimir `text/event-stream`) y `/public/` con
-  `http.FileServer` sin listado de directorios.
-- `ports/events.go` con `EventPublisher` y su implementación en memoria en `adapter/event/`.
-  En P0 no publica nadie: es para que los P2 no la escriban cada uno por su lado.
-- Dockerfile multietapa sobre `distroless/static:nonroot` que copia `apps/api/public`.
-- Servicio `api-go` en `compose.yaml` en el puerto 3001, con `env_file: apps/api/.env` y la
-  misma base de datos y Redis.
-- Job de CI con `go vet ./...` y `go test ./...` para `apps/api-go`. Va aparte de
-  `build-and-test`, para que un fallo de Go no bloquee el despliegue de `api-beta`. Sin
-  despliegue de Go.
+**Eventos**
+- `ports.Event` tiene `Name()`; `ports.EventPublisher` tiene `Publish(ctx, event)`.
+- `event.Bus` es la implementación en memoria: `Subscribe(nombre, handler)` y cada handler
+  corre en su goroutine con un contexto que no se cancela al acabar la petición. `main`
+  espera a que terminen al apagar (`bus.Wait()`).
+
+**Base de datos**
+- `repository.NewPool` en `client.go`. En los tests de `repository/`, `testPool` ya tiene
+  todas las migraciones de Prisma aplicadas y `resetDB(t)` vacía las tablas.
+- Las tablas y columnas son las de Prisma, con comillas: `"User"`, `"createdAt"`.
+
+**Apagado**
+- `main` deja de aceptar conexiones con SIGTERM y espera hasta 8 s a las que están abiertas.
+  Un stream SSE no acaba solo: P2f tiene que cerrarlo con `server.RegisterOnShutdown`.
 
 ## Ejecución con agentes
 
@@ -271,6 +271,13 @@ Lo que Go hace distinto de Nest a propósito o porque no se ha podido copiar.
 | Paquete | Diferencia | Por qué |
 |---|---|---|
 | P0 | El orden de `message` en los errores de validación puede cambiar | validator se para en la primera regla que falla de cada campo |
+| P0 | Si un valor es del tipo equivocado (o falta), solo se devuelven esos errores y los de campos desconocidos, no los del resto de reglas | Sin el tipo correcto no se puede rellenar el struct para pasarle validator |
+| P0 | Los campos desconocidos salen en orden alfabético, no en el del cuerpo | Go lee el cuerpo en un mapa, que no guarda el orden |
+| P0 | No hay conversión implícita de tipos: `"5"` en un campo numérico es un error | Nest usa `enableImplicitConversion`, pero `apps/web` ya manda los tipos correctos |
+| P0 | `iso8601` acepta fecha, o fecha y hora con segundos, fracción y zona opcionales; no semanas ni días del año | Es lo que manda `apps/web`, y Go no tiene la expresión regular de validator.js |
+| P0 | Solo gzip, sin deflate | gzhttp solo hace gzip, y todos los navegadores lo aceptan |
+| P0 | Un cuerpo que no es JSON responde 415 | Fastify acepta también `text/plain`; ningún endpoint lo usa |
+| P0 | Sin Swagger en `/api/docs` | Descartado en `LIBRERIAS.md`; solo existía fuera de producción |
 
 ## Comprobar que Go se comporta igual que Nest
 

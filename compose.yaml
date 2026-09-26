@@ -52,6 +52,29 @@ services:
       - /app/apps/api/node_modules
       - /app/packages/common/node_modules
 
+  api-go:
+    build:
+      context: .
+      dockerfile: ./apps/api-go/Dockerfile
+    ports:
+      - '3001:8080'
+    env_file:
+      - path: ./apps/api/.env
+        required: false
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgres://admin:admin@db:5432/coaster
+      - REDIS_URL=redis://redis:6379
+      - TRUST_PROXY_HOPS=0
+      - BETA_ALLOWLIST_ENABLED=${BETA_ALLOWLIST_ENABLED:-false}
+      - CORS_ORIGINS=${CORS_ORIGINS:-}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
   web:
     build:
       context: .
