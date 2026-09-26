@@ -2,3 +2,4 @@
 # y scripts/e2e-go.sh). Uno por línea, relativo a apps/api. Cada paquete añade los suyos al
 # terminar. Las líneas vacías y las que empiezan por # no cuentan.
 test/harness
+test/auth

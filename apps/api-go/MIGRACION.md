@@ -144,7 +144,7 @@ Actualizar esta tabla al terminar cada paquete.
 | Documentación y estructura de carpetas | ✅ Hecho | `ESTRUCTURA.md`, `LIBRERIAS.md`, este archivo y `.gitkeep` en cada carpeta |
 | Revisión de `LIBRERIAS.md` | ✅ Hecho | 27-sep-2026. Solo quedan por confirmar los modelos de respaldo de la IA (P3) |
 | P0 Base | ✅ Hecho | Esqueleto, config, pool y arnés de Postgres, contrato HTTP de Nest (errores, 404, validación), helmet, CORS, gzip, `/public/`, `EventPublisher` en memoria, Dockerfile, servicio `api-go` en compose y job de CI |
-| P1 Auth y permisos | ⬜ Pendiente | |
+| P1 Auth y permisos | ✅ Hecho | `/auth` y `/account` completos (registro, login, Google, refresh con rotación y detección de reutilización, recuperación, verificación, invitaciones, sesiones, identidades), JWT, argon2 compatible con `@node-rs/argon2`, guard de rutas (rate limit, suscripción, auth, admin, permisos, módulos), caché y rate limit en Redis con respaldo en memoria, bloqueo de login, Have I Been Pwned, email a log o al buzón de test. `test/auth` pasa contra Go; `test/permissions` y `test/modules` esperan a las rutas de P2. Faltan: el refresco de la suscripción desde Stripe (`SubscriptionRefresher`, P2e) y Resend (P2e) |
 | P2a Catálogo | ⬜ Pendiente | |
 | P2b Local y personas | ⬜ Pendiente | |
 | P2c Turnos y fichajes | ⬜ Pendiente | |
@@ -228,6 +228,71 @@ Lo que P0 deja hecho y cómo se usa desde P1 en adelante.
 **Apagado**
 - `main` deja de aceptar conexiones con SIGTERM y espera hasta 8 s a las que están abiertas.
   Un stream SSE no acaba solo: P2f tiene que cerrarlo con `server.RegisterOnShutdown`.
+
+## Convenciones de P1
+
+Cómo se protege una ruta y cómo lee el handler quién llama. Todo está en
+`adapter/handler/middleware` (`guard.go`, `rules.go`, `request_context.go`).
+
+**Registrar una ruta**
+- Todas las rutas se registran con `handle(mux, guard, "MÉTODO /ruta", h.metodo, reglas...)`
+  (`routes.go`), una línea por ruta en el `RegisterRoutes(mux, guard)` del handler. `handle`
+  pone `apiPrefix` y pasa la ruta por `Guard.Protect`. **Ninguna ruta se registra sin el
+  guard**, porque el rate limit global y la comprobación de suscripción son globales en Nest.
+- En `router.go` el handler se añade al struct `Handlers` y su `RegisterRoutes` dentro del
+  bloque `if handlers.Guard != nil`.
+  ```go
+  func (h *OrderHandler) RegisterRoutes(mux *http.ServeMux, guard *middleware.Guard) {
+  	handle(mux, guard, "GET /establishments/{establishmentId}/orders", h.list,
+  		middleware.Permissions(domain.PermissionViewOrders), middleware.Modules(domain.ModuleOrders))
+  }
+
+  func (h *AuthHandler) RegisterRoutes(mux *http.ServeMux, guard *middleware.Guard) {
+  	handle(mux, guard, "POST /auth/login", h.login, middleware.Throttle(10, time.Minute))
+  }
+  ```
+
+**Reglas** (el equivalente de cada decorador de Nest)
+| Nest | Go |
+|---|---|
+| `@UseGuards(AuthGuard)` | `middleware.RequireAuth()` → 401 `INVALID_CREDENTIALS` sin token válido o con el usuario inactivo |
+| `@UseGuards(OptionalAuthGuard)` | `middleware.OptionalAuth()` |
+| `@UseGuards(AuthGuard, AdminGuard)` + `@Admin()` | `middleware.Admin()` (ya incluye la auth) → 403 `UNAUTHORIZED` |
+| `@UseGuards(AuthGuard, EstablishmentPermissionsGuard)` + `@EstablishmentPermissions(a, b)` | `middleware.Permissions(a, b)` (ya incluye la auth). Sin argumentos solo pide ser miembro activo, como el guard sin decorador |
+| `EstablishmentModulesGuard` + `@EstablishmentModules(m)` | `middleware.Modules(m)` → 403 `MODULE_NOT_ENABLED` |
+| `@SkipSubscriptionCheck()` | `middleware.SkipSubscriptionCheck()` |
+| `@Throttle({ default: { limit, ttl } })` | `middleware.Throttle(limit, ttl)`; sin ella, 300 por minuto |
+| `@SkipThrottle()` | `middleware.SkipThrottle()` |
+
+- El local es **siempre** el parámetro `{establishmentId}` de la ruta, como en Nest
+  (`request.params.establishmentId`). Si la ruta lo llama de otra forma, los guards no lo ven.
+- Las comprobaciones corren en el orden de Nest: rate limit, suscripción (solo escrituras con
+  `{establishmentId}`, 402 con `errorCode`; un admin de la plataforma pasa), auth, admin,
+  permisos (un admin de la plataforma los tiene todos) y módulos. El cuerpo se valida después,
+  en el handler.
+
+**Leer quién llama en el handler**
+- `middleware.CurrentUser(r.Context())` → `*domain.User` (`@CurrentUser`). Con
+  `OptionalAuth` puede ser `nil`.
+- `middleware.CurrentSession(r.Context())` → `*domain.SessionClaims` (`sub`, `sid`,
+  `@CurrentSession`). Solo con `RequireAuth`, `Admin` o `Permissions`.
+- `middleware.EstablishmentPermissionsOf(r.Context())` → los permisos del usuario en el local
+  (`@EstablishmentPermissionsOf`). Solo con `Permissions`.
+- `middleware.ClientIP(r.Context())` → la IP con `TRUST_PROXY_HOPS` (`request.ip`).
+- En los tests de un handler se puede meter el usuario con `middleware.WithCurrentUser`.
+
+**Caché y servicios compartidos**
+- `ports.Cache` (`adapter/cache`) guarda como Nest (`{"v": ...}`, 8 h) en las mismas claves, así
+  que Nest y Go pueden compartir Redis. Sin `REDIS_URL` no cachea nada. Las claves están en
+  `service/cache.go`: un servicio que cambia el rol de un usuario, un miembro, los módulos o la
+  suscripción de un local hace `cache.Forget(...)` de su clave después de guardar.
+- `service.SecurityService` responde las comprobaciones de permisos, módulos y suscripción.
+  P2e le pasa su `ports.SubscriptionRefresher` en `main.go` (hoy va `nil`).
+- Los emails van por `ports.Mailer`. Hoy `email.LogMailer` solo los escribe en el log (con el
+  enlace fuera de producción) y, con `TEST_MAILBOX_URL`, `email.TestMailbox` los manda al arnés
+  de los e2e. P2e añade el de Resend y lo elige en `main.go`.
+- Los eventos de auth (`domain.AuthEventOccurred`) se guardan en `AuthEvent` desde un
+  suscriptor del bus (`AuthEventService.Record`).
 
 ## Convenciones de P4
 
@@ -340,6 +405,14 @@ Lo que Go hace distinto de Nest a propósito o porque no se ha podido copiar.
 | P0 | Solo gzip, sin deflate | gzhttp solo hace gzip, y todos los navegadores lo aceptan |
 | P0 | Un cuerpo que no es JSON responde 415 | Fastify acepta también `text/plain`; ningún endpoint lo usa |
 | P0 | Sin Swagger en `/api/docs` | Descartado en `LIBRERIAS.md`; solo existía fuera de producción |
+| P1 | Sin `RESEND_API_KEY` los emails de auth se escriben en el log en lugar de fallar | Resend llega en P2e; hasta entonces el flujo funciona en local y en beta |
+| P1 | El contador del rate limit va por patrón de ruta e IP, no por clase y método del controlador | En Go no hay clases; como la clave es otra, Nest y Go no comparten contadores en el mismo Redis |
+| P1 | Un cuerpo que no es JSON válido responde 400 después del rate limit y de los guards, no antes | Fastify lee el cuerpo antes de los guards; en Go lo lee el handler |
+| P1 | El `aud` del JWT va como lista (`["coaster-api"]`) | Es como lo escribe golang-jwt; jose en Nest lo acepta igual |
+| P1 | La IP sin proxy delante es `1.2.3.4` y no `::ffff:1.2.3.4` | Go no pone el prefijo IPv6 en las conexiones IPv4. En Cloud Run se lee de `X-Forwarded-For` y sale igual |
+| P1 | Un token de Google vale hasta el mismo segundo de `exp` (jose lo rechaza en ese segundo) y las claves se guardan lo que diga `Cache-Control` | Lo hace `idtoken`; el emisor, `RS256` y `nbf` se comprueban a mano |
+| P1 | Los atributos de la cookie salen en otro orden (`Path; Expires; HttpOnly; Secure; SameSite`) | Es el orden de `net/http`; los navegadores no lo miran |
+| P1 | Sin `SubscriptionRefresher`: una suscripción caducada en la base de datos no se comprueba contra Stripe antes del 402 | Llega con P2e |
 
 ## Comprobar que Go se comporta igual que Nest
 
