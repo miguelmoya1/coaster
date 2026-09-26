@@ -2,7 +2,7 @@ import { RealtimeEvents } from '@coaster/common';
 import { RealtimeService } from '../../src/realtime';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { DbEstablishmentRole } from '../../src/core/db';
-import { E2eTestSetup, mockUser } from '../utils/e2e-setup';
+import { E2eTestSetup, isGoTarget, mockUser } from '../utils/e2e-setup';
 
 const staff = {
   id: '00000000-0000-4000-8000-0000000000b1',
@@ -101,7 +101,8 @@ describe('Realtime stream (e2e)', () => {
     await response.body?.cancel();
   });
 
-  it('should deliver an event published for that establishment', async () => {
+  // Publishes through the RealtimeService inside Nest, which a test cannot reach in the Go server.
+  it.skipIf(isGoTarget)('should deliver an event published for that establishment', async () => {
     const response = await open(staff.id);
     const frames = readFrames(response, (seen) => seen.includes('orderCreated'));
 
@@ -117,7 +118,8 @@ describe('Realtime stream (e2e)', () => {
     expect(await frames).toContain('event: orderCreated\ndata: {"id":"order-2"}');
   });
 
-  it('should not leak an event meant for another establishment', async () => {
+  // Publishes through the RealtimeService inside Nest, which a test cannot reach in the Go server.
+  it.skipIf(isGoTarget)('should not leak an event meant for another establishment', async () => {
     const other = await testSetup.createEstablishment('Another Bar');
     const response = await open(staff.id);
     const frames = readFrames(response, (seen) => seen.includes('orderCreated'));
@@ -135,7 +137,8 @@ describe('Realtime stream (e2e)', () => {
     expect(seen).toContain('orderCreated');
   });
 
-  it('should close the stream of a user whose access is revoked', async () => {
+  // Revokes through the RealtimeService inside Nest, which a test cannot reach in the Go server.
+  it.skipIf(isGoTarget)('should close the stream of a user whose access is revoked', async () => {
     const response = await open(staff.id);
 
     await new Promise((resolve) => setTimeout(resolve, 50));
