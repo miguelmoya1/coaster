@@ -54,6 +54,10 @@ type Config struct {
 	AIGatewayAPIKey        string
 	AIMonthlyMessages      string
 	AITrialMonthlyMessages string
+
+	// Only for the e2e against Go: where to post emails and where to read Google's keys.
+	TestMailboxURL string
+	GoogleCertsURL string
 }
 
 // Load reads the environment. It fails without DATABASE_URL or AUTH_JWT_SECRET, as Nest does.
@@ -96,6 +100,9 @@ func Load() (Config, error) {
 		AIGatewayAPIKey:        os.Getenv("AI_GATEWAY_API_KEY"),
 		AIMonthlyMessages:      os.Getenv("AI_MONTHLY_MESSAGES"),
 		AITrialMonthlyMessages: os.Getenv("AI_TRIAL_MONTHLY_MESSAGES"),
+
+		TestMailboxURL: os.Getenv("TEST_MAILBOX_URL"),
+		GoogleCertsURL: os.Getenv("GOOGLE_CERTS_URL"),
 	}
 
 	if cfg.DatabaseURL == "" {
@@ -104,6 +111,10 @@ func Load() (Config, error) {
 
 	if cfg.AuthJWTSecret == "" {
 		return Config{}, errors.New("AUTH_JWT_SECRET environment variable is required")
+	}
+
+	if isProduction && (cfg.TestMailboxURL != "" || cfg.GoogleCertsURL != "") {
+		return Config{}, errors.New("TEST_MAILBOX_URL and GOOGLE_CERTS_URL are only for tests and cannot be set in production")
 	}
 
 	return cfg, nil

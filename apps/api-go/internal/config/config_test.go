@@ -94,3 +94,37 @@ func TestTrustProxyHops(t *testing.T) {
 		}
 	}
 }
+
+func TestTestOnlyVariablesFailInProduction(t *testing.T) {
+	tests := []struct {
+		name        string
+		nodeEnv     string
+		mailboxURL  string
+		certsURL    string
+		wantFailure bool
+	}{
+		{name: "mailbox in development", nodeEnv: "development", mailboxURL: "http://127.0.0.1:1"},
+		{name: "certs in development", nodeEnv: "development", certsURL: "http://127.0.0.1:2"},
+		{name: "none in production", nodeEnv: "production"},
+		{name: "mailbox in production", nodeEnv: "production", mailboxURL: "http://127.0.0.1:1", wantFailure: true},
+		{name: "certs in production", nodeEnv: "production", certsURL: "http://127.0.0.1:2", wantFailure: true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Setenv("DATABASE_URL", "postgres://db")
+			t.Setenv("AUTH_JWT_SECRET", "secret")
+			t.Setenv("NODE_ENV", tt.nodeEnv)
+			t.Setenv("TEST_MAILBOX_URL", tt.mailboxURL)
+			t.Setenv("GOOGLE_CERTS_URL", tt.certsURL)
+
+			cfg, err := Load()
+			if (err != nil) != tt.wantFailure {
+				t.Fatalf("Load() error = %v, want failure %v", err, tt.wantFailure)
+			}
+			if err == nil && (cfg.TestMailboxURL != tt.mailboxURL || cfg.GoogleCertsURL != tt.certsURL) {
+				t.Fatalf("Load() = %+v", cfg)
+			}
+		})
+	}
+}
