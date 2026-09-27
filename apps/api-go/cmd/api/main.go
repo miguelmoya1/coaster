@@ -17,6 +17,7 @@ import (
 	"api-go/internal/adapter/google"
 	httphandler "api-go/internal/adapter/handler/http"
 	"api-go/internal/adapter/handler/middleware"
+	"api-go/internal/adapter/payment"
 	"api-go/internal/adapter/pwned"
 	"api-go/internal/adapter/repository"
 	"api-go/internal/config"
@@ -83,6 +84,9 @@ func run() error {
 	}
 
 	var mailer ports.Mailer = email.NewLogMailer(cfg.FrontendURL, cfg.IsProduction)
+	if cfg.ResendAPIKey != "" {
+		mailer = email.NewResendMailer(cfg.ResendAPIKey, cfg.EmailFrom, cfg.FrontendURL)
+	}
 	if cfg.TestMailboxURL != "" {
 		mailer = email.NewTestMailbox(cfg.TestMailboxURL)
 	}
@@ -90,7 +94,28 @@ func run() error {
 	pwnedPasswords := pwned.NewPasswords(cfg.PwnedPasswordsEnabled)
 
 	accessTokens := service.NewAccessTokenService(cfg.AuthJWTSecret, authUsers, valueCache)
-	security := service.NewSecurityService(repository.NewSecurityRepository(pool), valueCache, nil)
+	subscriptions := service.NewSubscriptionService(service.SubscriptionDependencies{
+		Repo:     repository.NewEstablishmentSubscriptionRepository(pool),
+		Payments: payment.NewStripeGateway(cfg.StripeSecretKey, cfg.StripeWebhookSecret),
+		Cache:    valueCache,
+		Events:   bus,
+		Realtime: realtime,
+		Billing: service.BillingConfig{
+			PricePro:            cfg.StripePricePro,
+			PriceProLegacy:      cfg.StripePriceProLegacy,
+			BasePriceCents:      cfg.ProBasePriceCents,
+			IncludedSeats:       cfg.ProIncludedSeats,
+			ExtraSeatPriceCents: cfg.ProExtraSeatPriceCents,
+			FrontendURL:         cfg.FrontendURL,
+		},
+	})
+	for _, name := range domain.SubscriptionEventNames {
+		bus.Subscribe(name, subscriptions.ForgetCache)
+		bus.Subscribe(name, subscriptions.PublishRealtime)
+	}
+	bus.Subscribe(domain.DuplicateSubscriptionDetectedEventName, subscriptions.ReportDuplicate)
+
+	security := service.NewSecurityService(repository.NewSecurityRepository(pool), valueCache, subscriptions)
 	authEvents := service.NewAuthEventService(repository.NewAuthEventRepository(pool))
 	bus.Subscribe(domain.AuthEventName, authEvents.Record)
 
@@ -124,6 +149,9 @@ func run() error {
 		Auth:     httphandler.NewAuthHandler(authService, cfg.IsProduction),
 		Account:  httphandler.NewAccountHandler(accountService),
 		Realtime: httphandler.NewRealtimeHandler(realtimeService),
+
+		EstablishmentSubscription: httphandler.NewEstablishmentSubscriptionHandler(subscriptions),
+		StripeWebhook:             httphandler.NewStripeWebhookHandler(subscriptions),
 	}
 
 	router, err := httphandler.NewRouter(
