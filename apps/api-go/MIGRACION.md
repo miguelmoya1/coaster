@@ -150,7 +150,7 @@ Actualizar esta tabla al terminar cada paquete.
 | P2b-2 Miembros e invitaciones | ✅ Hecho | `/establishments/{establishmentId}/members`: `GET me` (con el propietario inventado de un admin), `GET`, invitar (la cadena de sagas de Nest es `EstablishmentMemberService.Invite`: quién concede OWNER, «ya es miembro», usuario por email y miembro en una transacción), reenviar la invitación, cambiar el rol y quitar (borrado lógico). Eventos `MemberInvited`, `MemberRemoved` y `MemberRoleChanged` con sus suscriptores: caché de la membresía, email de invitación, realtime (con `Revoke` al quitar), `AdminAction` cuando un admin de la plataforma cambia un rol, y `SyncSeatsOnMemberChange` al invitar y al quitar. Para P3: `List`, `Invite` y `Remove` son `GetMembersQuery`, `InviteMemberCommand` y `RemoveMemberCommand`. `establishment-members` y `member-roles` pasan contra Go; `access-revocation` necesita `GET /establishments` (P2b-1) y `GET /orders` (P2d-1) |
 | P2b-3 Admin | ✅ Hecho | `/admin/overview` (métricas), `/admin/audit`, `/admin/users` (lista, detalle y cambio de rol o activación), `/admin/beta-testers` (lista, alta y baja) y `/admin/establishments` (lista con filtros de facturación, detalle con ajustes, suscripción, miembros, contadores y actividad, renombrar, módulos, y conceder y revocar un plan a mano). SQL propio para leer usuarios, miembros, suscripciones, pedidos, mesas, catálogo y ajustes. `AdminAuditService.RecordAction` guarda cada `AdminAction` (también los de P2b-2); conceder o revocar publica `SubscriptionOverridden`, cambiar un usuario `UserUpdated` y cambiar los módulos olvida su caché. `test/admin`: 20 pasan contra Go, 3 esperan a `/members` (P2b-2) y `/tables` (P2d-1), y «should let a lapsed establishment write again» se salta contra Go (ver «Convenciones de P4»). No está en `e2e-paquetes.txt`: lo añade el orquestador en la integración |
 | P2c Turnos y fichajes | ✅ Hecho | Turnos, intercambios (traspaso en una transacción) y fichajes: fichar, alta manual, corrección y anulación como revisiones, cadena de hashes compatible con Nest con el mismo advisory lock, jornadas con el cuadrante y sus discrepancias, hoja de horas, CSV e integridad. Realtime de `ShiftCreated/Deleted` y auditoría de los fichajes que toca un admin. `test/shifts` y `test/time-tracking` pasan contra Go |
-| P2d-1 Pedidos y mesas | ⏳ En marcha | Ola 3b. `orders` y `tables`. `test/orders` y `test/tables` |
+| P2d-1 Pedidos y mesas | ✅ Hecho | `orders` (16 rutas) y `tables` (4), todas con el módulo ORDERS. Las nueve transacciones de Nest viven en `OrderRepository`: el bulk bloquea el pedido con `FOR UPDATE`, el checkout lo reclama con un `UPDATE … WHERE status = 'OPEN'` y el estado de la mesa cambia en la misma transacción. Totales con `CalculatePricing`, los 11 eventos de pedidos y los 3 de mesas, stock como `orders.sagas.ts` (`OrderStock`, con `ProductService.AdjustStock`) y realtime de `order-*`, `orders-merged` y `table-*` (`OrderRealtime`). `test/orders` y `test/tables` pasan contra Go; lo que usan P2d-3 y P3 está en «Convenciones de P2d-1» |
 | P2d-2 Impresoras | ✅ Hecho | Rutas del puente sin usuario (`/printer`: `check-version` con el sha256 de `public/downloads`, `download`, `pair`, `register-ip`, `jobs/next` con long-poll de 25 s y `jobs/{jobId}/result`), autenticadas con `X-Device-Key` comparada en tiempo constante, y del local con el módulo ORDERS (`/establishments/{id}/printer`: `jobs`, `jobs/{jobId}`, `connection`, `status`, `pairing` y `device-key`). Reclamar un trabajo es buscar y actualizar si sigue `PENDING`; los reclamados sin resultado vuelven a la cola a los 2 min o fallan al tercer intento. El token de `connection` (HS256 `{establishmentId}`, 8 días) lo valida un test con la comprobación de `apps/printer-service`. `config.Load` exige `PRINTER_JWT_SECRET` y el long-poll se suelta al apagar (`PrinterService.StopWaiting`). `test/printer` y `test/printers` pasan contra Go |
 | P2d-3 Cierres de caja y estadísticas | ✅ Hecho | Ola 3b. `/establishments/{id}/cash-closes` (lista de los 60 últimos, `preview` y cierre en una transacción con `FOR UPDATE` del local) y `/establishments/{id}/stats` (sin módulo; el histórico según `EstablishmentPermissionsOf`). `CashCloseTotalsOf`, arqueo y `EstablishmentStatsOf` en el dominio, comprobados contra Nest con los mismos pedidos, en UTC y en `Europe/Madrid`. SQL propio sobre `"Order"`, `"OrderItem"` y `"OrderAdjustment"`. Para P3: `StatsService.EstablishmentStats(ctx, establishmentID, includeHistory)` es `GetEstablishmentStatsQuery` (en `main.go`, `statsService`). `test/cash-closes` y `test/stats` crean pedidos por HTTP: quedan fuera de `e2e-paquetes.txt` hasta la integración con P2d-1 (los tests que no usan pedidos ya pasan contra Go) |
 | P2e Cobros | ✅ Hecho | `/establishments/{id}/establishment-subscription` (lectura, asientos, Checkout y portal), `/stripe/webhook` con firma, refresco desde Stripe (`SubscriptionRefresher` ya cableado), sincronización de asientos como método (`SyncSeatsOnMemberChange`, falta suscribirlo a los eventos de miembros de P2b), eventos `Subscription*` y `DuplicateSubscriptionDetected` con sus suscriptores (caché, realtime y log), y emails con Resend. Ningún directorio de `apps/api/test` es solo suyo: el test del portal de `test/permissions` pasa contra Go |
@@ -519,6 +519,66 @@ Cómo se manda algo por tiempo real desde otro paquete.
 - Al hacer rebase, en `main.go`, `router.go`, `e2e-paquetes.txt` y `MIGRACION.md` se quedan las
   líneas de los dos lados.
 
+## Convenciones de P2d-1
+
+**Servicios** (un método por comando o consulta de Nest). Los comandos devuelven solo `error`,
+como el `void` de Nest: para leer cómo queda un pedido, `Get`.
+- `service.OrderService`:
+  - `List(ctx, establishmentID, status)` es `GetOrdersByEstablishmentIdQuery`: los pedidos, del
+    más nuevo al más viejo. Con `status` vacío, todos; la IA pide `domain.OrderOpen`.
+  - `ListByDate(ctx, establishmentID, "2026-09-27")` es `GetOrdersByDateQuery` (el día en UTC).
+  - `Get(ctx, establishmentID, orderID)` es `GetOrderByIdQuery`.
+  - `Create(ctx, establishmentID, CreateOrderInput{CreatedByID, TableID, Items, Notes,
+    Adjustments, TipAmount})`; `CreatedByID` es quien abre el pedido (`""` para nadie).
+  - `AddItems(ctx, establishmentID, orderID, AddOrderItemsInput{Items, Notes, ClearNotes})`.
+  - `BulkUpdate(ctx, establishmentID, orderID, []domain.OrderItemUpdate)`: servir y cobrar
+    líneas (`PaidQuantity`, `ServedQuantity` y `PaymentMethod`; `nil` deja el campo como está).
+  - `Checkout(ctx, establishmentID, orderID, domain.PaymentCash o domain.PaymentCard)`,
+    `Cancel(ctx, establishmentID, orderID)`, `MoveTable(ctx, establishmentID, orderID, tableID)`,
+    `Merge(ctx, establishmentID, MergeOrdersInput{OrderIDs, TargetTableID})`,
+    `RemoveItem(ctx, establishmentID, orderID, itemID)`, `Delete(ctx, establishmentID, orderID)`,
+    `UpdateTip(ctx, establishmentID, orderID, céntimos)`, `UpdateNotes`, `UpdateItemNotes`,
+    `AddAdjustment(ctx, establishmentID, orderID, OrderAdjustmentInput{Target, Type, Value,
+    Reason, ItemID})` y `RemoveAdjustment(ctx, establishmentID, orderID, adjustmentID)`.
+- `service.TableService`: `List(ctx, establishmentID)`, `Create(ctx, establishmentID, name)`,
+  `Update(ctx, establishmentID, tableID, *name)` y `Delete(ctx, establishmentID, tableID)`.
+- Los servicios no miran permisos ni módulos: en HTTP los pone el guard y la IA (P3) los
+  comprueba antes de llamar, como el `runner` de las herramientas de Nest. Sí comprueban todo lo
+  demás (que el pedido sea del local, que siga abierto, cantidades, propina negativa…), porque la
+  IA no pasa por los DTOs.
+- Los errores son `domain.Error` con el código de Nest (`ORDER_NOT_FOUND`, `ORDER_NOT_OPEN`,
+  `TABLE_ALREADY_OCCUPIED`…) o con uno de los textos sueltos de `domain.Message*`
+  (`NEGATIVE_TOTAL_NOT_ALLOWED`, `Adjustment not found`…), que Nest manda sin código.
+
+**Dinero y totales**
+- Todo va en céntimos. `domain.Order` trae los totales de `CalculatePricing` (`netTotal`,
+  `taxBreakdown`, `orderTotal`, `payableTotal`…), y `OrderRow.Pricing()` los calcula desde una fila.
+- Al cobrar, `amountPaidCash` y `amountPaidCard` guardan lo cobrado con IVA y descuentos **y con
+  la propina**, que además está en `tipAmount`: lo facturado es `amountPaidCash + amountPaidCard -
+  tipAmount`, como en `get-establishment-stats` de Nest. El bulk suma cada unidad pagada al precio
+  de su línea con descuentos e IVA.
+- Un pedido con `cashCloseId` no se puede borrar (`ORDER_IN_CASH_CLOSE`); esa columna la escribe
+  P2d-3 con su propio SQL.
+
+**JSON y base de datos**
+- Las fechas de `Order`, `OrderItem` y `OrderAdjustment` son `domain.Instant`, porque el mapper de
+  Nest usa `Temporal.Instant.toString`; las de `Table` son `domain.Time` (`toISOString`).
+- `productName` es el nombre actual del producto (no `productNameAtPurchase`), y `tableName` el
+  que guarda el pedido o, si no tiene, el de su mesa.
+- Comprobado contra Prisma: las líneas creadas a la vez comparten `createdAt` (y su orden entre
+  ellas depende del `id`), y las escrituras anidadas (notas de una línea, añadir o quitar un
+  ajuste) o vacías no tocan el `updatedAt` del pedido. Go hace lo mismo.
+
+**Eventos**
+- Están en `domain/order_events.go` y `domain/table_events.go`, con `Name()` igual a la clase de
+  Nest. `OrderStock.Adjust` (suscrito a `service.OrderStockEvents`) mueve el stock y
+  `OrderRealtime.Forward` (a `service.OrderRealtimeEvents`) manda el realtime. Quien tenga que
+  reaccionar a un pedido cobrado se suscribe a `OrderClosedEvent`, que lleva el pedido ya cerrado.
+
+**Validación**
+- Regla nueva `percentage`, el `PercentageWithinRange` de `AddOrderAdjustmentDto`: si el campo
+  `Type` del mismo struct es `PERCENTAGE`, el valor no pasa de 100.
+
 ## Ejecución con agentes
 
 Los paquetes los ejecuta un agente orquestador que lanza subagentes. Se hace en olas:
@@ -613,6 +673,11 @@ Lo que Go hace distinto de Nest a propósito o porque no se ha podido copiar.
 | P2b-3 | En `PATCH /admin/users/{id}`, un `active: null` junto a un cambio de rol se ignora; Nest pasa el `null` a Prisma y responde 500 | Como en P2a: un campo que no admite nulos no distingue `null` de ausente |
 | P2b-3 | `page` y `pageSize` de la query se leen con `strconv.ParseFloat`: `0x10`, `0b1` u `0o7` son `INVALID_TYPE` (`Number()` los acepta) y una página por encima de 2^53 se queda en 2^53 | Nadie los manda así; los enteros, decimales y el vacío se leen como `Number()` |
 | P2b-3 | Las longitudes máximas (`q`, `targetId`, `email`, `note`, `name`, `reason`) cuentan caracteres (runas), no unidades UTF-16 | Como en P2c; solo cambia con emojis y otros caracteres fuera del plano básico |
+| P2d-1 | `GET /orders?date=` solo lee `YYYY-MM-DD`; cualquier otra cosa responde 500, como una fecha que `Temporal.PlainDate.from` no entiende | `PlainDate.from` acepta además fecha y hora y otras formas ISO; `apps/web` y la IA mandan `YYYY-MM-DD` |
+| P2d-1 | `null` en `notes`/`ticketNotes` de `PATCH /orders/{id}/notes` o en `name` de `PATCH /tables/{id}` se ignora como si no viniera; Nest responde 500 (`.trim()` de `null`, o Prisma con `null` en una columna que no lo admite) | El mismo criterio que P2a; `apps/web` manda texto. En `POST /orders/{id}/items`, `notes: null` sí vacía las notas, como en Nest |
+| P2d-1 | Las notas del pedido y de las líneas y el motivo de un ajuste se cortan a 500 caracteres (runas), y `@MaxLength(500)` también cuenta runas, no unidades UTF-16. `trim` no quita el BOM (U+FEFF) | Solo cambia con emojis y otros caracteres fuera del plano básico |
+| P2d-1 | Los ajustes de un pedido salen ordenados por `createdAt` e `id` | Nest los pide sin `orderBy` y salen en el orden en que Postgres los devuelva |
+| P2d-1 | En `orderIds` de `POST /orders/merge`, cada id que no es UUID da su propio `INVALID_TYPE`; class-validator da uno por campo | validator comprueba cada elemento con `dive`. Viene de P0 y pasa igual con cualquier `{ each: true }` |
 
 ## Comprobar que Go se comporta igual que Nest
 
