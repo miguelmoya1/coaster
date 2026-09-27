@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 	"time"
 
@@ -221,6 +222,16 @@ func run() error {
 	handlers.CashClose = httphandler.NewCashCloseHandler(service.NewCashCloseService(repository.NewCashCloseRepository(pool)))
 	handlers.Stats = httphandler.NewStatsHandler(statsService)
 
+	printerService := service.NewPrinterService(
+		repository.NewPrinterConfigRepository(pool),
+		repository.NewPrinterPairingRepository(pool),
+		repository.NewPrintJobRepository(pool),
+		cfg.PrinterJWTSecret,
+	)
+	printerReleases := service.NewPrinterReleaseService(os.DirFS(filepath.Join(cfg.PublicDir, "downloads")), cfg.PublicURL)
+	handlers.Printer = httphandler.NewPrinterHandler(printerService, printerReleases)
+	handlers.PrinterConnection = httphandler.NewPrinterConnectionHandler(printerService)
+
 	router, err := httphandler.NewRouter(
 		httphandler.RouterConfig{CORSOrigins: cfg.CORSOrigins, PublicDir: cfg.PublicDir},
 		handlers,
@@ -235,6 +246,7 @@ func run() error {
 		ReadHeaderTimeout: 10 * time.Second,
 	}
 	server.RegisterOnShutdown(realtimeService.CloseAll)
+	server.RegisterOnShutdown(printerService.StopWaiting)
 
 	serverErr := make(chan error, 1)
 	go func() {
