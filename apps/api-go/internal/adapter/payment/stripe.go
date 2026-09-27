@@ -16,9 +16,6 @@ import (
 	"api-go/internal/core/domain"
 )
 
-// maxNetworkRetries is how many times a failed call is retried, as the Node SDK does.
-const maxNetworkRetries = 1
-
 // StripeGateway is ports.PaymentGateway on Stripe (StripeApi, StripeClient and
 // StripeWebhookGuard in Nest).
 type StripeGateway struct {
@@ -30,8 +27,7 @@ type StripeGateway struct {
 // NewStripeGateway builds the gateway. Without a secret key every call fails with the
 // error of that call, as in Nest, but the API still starts.
 func NewStripeGateway(secretKey, webhookSecret string) *StripeGateway {
-	backends := stripe.NewBackendsWithConfig(&stripe.BackendConfig{MaxNetworkRetries: stripe.Int64(maxNetworkRetries)})
-	return newStripeGateway(secretKey, webhookSecret, backends)
+	return newStripeGateway(secretKey, webhookSecret, stripe.NewBackendsWithConfig(&stripe.BackendConfig{}))
 }
 
 func newStripeGateway(secretKey, webhookSecret string, backends *stripe.Backends) *StripeGateway {
