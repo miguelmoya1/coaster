@@ -32,7 +32,21 @@ func newValidator() *validator.Validate {
 		panic(err)
 	}
 
+	if err := v.RegisterValidation("percentage", isPercentageWithinRange); err != nil {
+		panic(err)
+	}
+
 	return v
+}
+
+// isPercentageWithinRange is PercentageWithinRange of AddOrderAdjustmentDto: when the
+// struct's Type is PERCENTAGE, the value is at most 100.
+func isPercentageWithinRange(fl validator.FieldLevel) bool {
+	adjustmentType := fl.Parent().FieldByName("Type")
+	if !adjustmentType.IsValid() || adjustmentType.String() != "PERCENTAGE" {
+		return true
+	}
+	return fl.Field().Int() <= 100
 }
 
 // iso8601Pattern accepts the forms of ISO 8601 the web app sends: a date, or a date and time
