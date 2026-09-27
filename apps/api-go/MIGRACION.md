@@ -108,7 +108,7 @@ P0 Base ──► P1 Auth y permisos ──┬──► P2a Catálogo ───�
 | P2d Pedidos | Pedidos (`FOR UPDATE`), mesas, cierres de caja, estadísticas, impresoras | P1 |
 | P2e Cobros | Stripe, suscripciones, webhooks, emails (Resend) | P1 |
 | P2f Realtime | SSE, bus en Redis, replay, suscriptores de eventos | P1 |
-| P3 IA | AI Gateway, bucle de herramientas, cuota | P2a, P2d, P2c |
+| P3 IA | AI Gateway, bucle de herramientas, cuota | P2a, P2b, P2c, P2d (sus herramientas usan miembros, pedidos, mesas y estadísticas) |
 | P4 Arnés e2e | Adaptar los e2e de `apps/api` para lanzarlos también contra Go, y un job de CI que lo haga | P0 |
 | P5 Salida | Paridad completa, migración base de goose, infraestructura, beta en paralelo, cambio en producción | Todo |
 
@@ -146,21 +146,33 @@ Actualizar esta tabla al terminar cada paquete.
 | P0 Base | ✅ Hecho | Esqueleto, config, pool y arnés de Postgres, contrato HTTP de Nest (errores, 404, validación), helmet, CORS, gzip, `/public/`, `EventPublisher` en memoria, Dockerfile, servicio `api-go` en compose y job de CI |
 | P1 Auth y permisos | ✅ Hecho | `/auth` y `/account` completos (registro, login, Google, refresh con rotación y detección de reutilización, recuperación, verificación, invitaciones, sesiones, identidades), JWT, argon2 compatible con `@node-rs/argon2`, guard de rutas (rate limit, suscripción, auth, admin, permisos, módulos), caché y rate limit en Redis con respaldo en memoria, bloqueo de login, Have I Been Pwned, email a log o al buzón de test. `test/auth` pasa contra Go; `test/permissions` y `test/modules` esperan a las rutas de P2. Faltan: el refresco de la suscripción desde Stripe (`SubscriptionRefresher`, P2e) y Resend (P2e) |
 | P2a Catálogo | ✅ Hecho | Categorías, productos (con `AdjustStock` para pedidos e IA), catálogo inicial, carta (borrador, publicar, carta pública por `slug` con `lang` y agotados) y URLs firmadas de subida a GCS (`adapter/storage`, cliente perezoso). Eventos `Category*`, `Product*` y `CatalogueImportedEvent` con su suscriptor de realtime. `test/categories`, `test/products`, `test/catalogue` y `test/menu` pasan contra Go |
-| P2b Local y personas | ⬜ Pendiente | |
+| P2b-1 Locales y usuarios | ⏳ En marcha | Ola 3b. `establishments` y `users`. `test/establishments` y `test/users` |
+| P2b-2 Miembros e invitaciones | ⏳ En marcha | Ola 3b. `establishment-members` y el cableado de `SyncSeatsOnMemberChange`. `test/establishment-members` (`access-revocation` necesita P2d-1) |
+| P2b-3 Admin | ⏳ En marcha | Ola 3b. `admin`. `test/admin` necesita las mesas de P2d-1 |
 | P2c Turnos y fichajes | ✅ Hecho | Turnos, intercambios (traspaso en una transacción) y fichajes: fichar, alta manual, corrección y anulación como revisiones, cadena de hashes compatible con Nest con el mismo advisory lock, jornadas con el cuadrante y sus discrepancias, hoja de horas, CSV e integridad. Realtime de `ShiftCreated/Deleted` y auditoría de los fichajes que toca un admin. `test/shifts` y `test/time-tracking` pasan contra Go |
-| P2d Pedidos | ⬜ Pendiente | |
+| P2d-1 Pedidos y mesas | ⏳ En marcha | Ola 3b. `orders` y `tables`. `test/orders` y `test/tables` |
+| P2d-2 Impresoras | ⏳ En marcha | Ola 3b. `printer`. `test/printer` y `test/printers` |
+| P2d-3 Cierres de caja y estadísticas | ⏳ En marcha | Ola 3b. `cash-closes` y `stats`. Sus e2e crean pedidos por HTTP: se comprueban en la integración, con P2d-1 en `dev` |
 | P2e Cobros | ✅ Hecho | `/establishments/{id}/establishment-subscription` (lectura, asientos, Checkout y portal), `/stripe/webhook` con firma, refresco desde Stripe (`SubscriptionRefresher` ya cableado), sincronización de asientos como método (`SyncSeatsOnMemberChange`, falta suscribirlo a los eventos de miembros de P2b), eventos `Subscription*` y `DuplicateSubscriptionDetected` con sus suscriptores (caché, realtime y log), y emails con Resend. Ningún directorio de `apps/api/test` es solo suyo: el test del portal de `test/permissions` pasa contra Go |
 | P2f Realtime | ✅ Hecho | `GET /establishments/{establishmentId}/events` (SSE con `: open`, heartbeat de 25 s, cierre a los 30 min y `Last-Event-ID`), `service.RealtimeService` (implementa `ports.Realtime`: registro de streams por local, `Publish`, `Revoke`), bus en Redis compatible con Nest (canal `coaster:realtime`, replay de 2 min en `realtime:<id>:replay`), sin Redis solo en este proceso, cierre de streams al apagar. `test/realtime` pasa contra Go (publicar y revocar, en los tests de Go). Los suscriptores de `realtime/events/handlers/` los escribe cada paquete |
-| P3 IA | ⬜ Pendiente | |
+| P3 IA | ⬜ Pendiente | Se lanza en cuanto P2d-1 esté en `dev` |
 | P4 Arnés e2e | ✅ Hecho | `E2E_TARGET=go` lanza los e2e de `apps/api` contra Go: el `globalSetup` compila el binario, cada archivo arranca su servidor detrás de un proxy que pone `/api/v1` y un JWT de verdad, buzón de test y claves de Google por HTTP, `e2e-paquetes.txt`, `scripts/e2e-go.sh` y job de CI `api-go-e2e`. Lo que falta en Go está en «Convenciones de P4» |
 | P5 Salida | ⬜ Pendiente | |
 
 ## Siguiente paso
 
-Ola 3: **P2a Catálogo**, **P2b Local y personas**, **P2c Turnos y fichajes**, **P2d Pedidos**,
-**P2e Cobros** y **P2f Realtime**, en paralelo. Antes de empezar, leer «Convenciones de P0»,
-«Convenciones de P1» y «Convenciones de P4». Cada paquete añade sus directorios de
-`apps/api/test` a `e2e-paquetes.txt` cuando pasan contra Go.
+Ola 3b: lo que queda de P2, partido en seis subpaquetes que van a la vez, cada uno en su
+sesión de Claude Code en la nube: **P2b-1 Locales y usuarios**, **P2b-2 Miembros e
+invitaciones**, **P2b-3 Admin**, **P2d-1 Pedidos y mesas**, **P2d-2 Impresoras** y **P2d-3
+Cierres de caja y estadísticas**. Antes de empezar, leer todas las «Convenciones», en especial
+«Convenciones de la ola 3b». Cada subpaquete añade a `e2e-paquetes.txt` los directorios de
+`apps/api/test` que pasan contra Go.
+
+Después, el orquestador:
+1. Lanza **P3 IA** en cuanto P2d-1 esté en `dev`.
+2. Hace la integración: añade a `e2e-paquetes.txt` los e2e que necesitan varios subpaquetes
+   (`test/admin`, `access-revocation`, `test/cash-closes`, `test/stats`, `test/permissions` y
+   `test/modules`) y arregla lo que salga.
 
 ## Convenciones de P0
 
@@ -466,6 +478,46 @@ Cómo se manda algo por tiempo real desde otro paquete.
 - Los fakes de los tests de `service` y `handler/http` comparten paquete con los de los demás
   paquetes P2: llevan el nombre de la entidad (`fakeProductRepo`, `catalogRealtimeFake`) para no chocar.
 
+## Convenciones de la ola 3b
+
+**Lo que ya está hecho para que los subpaquetes no escriban lo mismo a la vez**
+- `domain/user_events.go`: `UserUpdated` (`UserUpdatedEvent`). Lo publican users (P2b-1) y
+  admin (P2b-3); el suscriptor que olvida `userCacheKey` y `userRoleCacheKey` lo escribe P2b-1.
+- `domain/admin_audit.go`: las acciones y tipos de destino de `AdminAuditLog`,
+  `AdminAuditEntry` (`RecordAuditEntry`) y el evento `AdminAction` (`AdminActionEvent`). Quien
+  hace algo que se audita publica `AdminAction` después de guardar: admin (P2b-3) y el cambio de
+  rol de un miembro hecho por un admin de la plataforma (P2b-2, el `audit-member-role-changed`
+  de Nest). El suscriptor que escribe la fila (`RecordAdminActionHandler`) es de P2b-3. Los de
+  fichajes siguen como los dejó P2c (`TimeEntryRepository.RecordAudit`).
+- `domain/order.go` y `domain/table.go`: `OrderStatus`, `PaymentStatus`, `DeliveryStatus`,
+  `PaymentMethod`, `AdjustmentTarget`, `AdjustmentType` y `TableStatus`. Los structs del JSON
+  (`Order`, `OrderItem`, `Table`…) los escribe P2d-1, que es dueño del mapper.
+- `domain/order_pricing.go`: `CalculatePricing` es `OrderPricingEngine.calculate`, y `TaxOf` y
+  `GrossFromNet` son los de `tax-rates.ts`. Redondean como `Math.round`. Lo usan pedidos,
+  cierres de caja, estadísticas e IA; nadie lo vuelve a escribir.
+
+**Quién cablea qué**
+- P2b-2 suscribe `SubscriptionService.SyncSeatsOnMemberChange` a sus eventos de miembro
+  invitado y eliminado en `main.go` (ver «Convenciones de P2e»).
+- P2b-3 publica `domain.SubscriptionOverridden` al conceder o revocar un plan, y con eso basta.
+- P2d-1 resta y devuelve stock con `ProductService.AdjustStock` desde suscriptores de sus
+  eventos, como `orders.sagas.ts`.
+- Cada subpaquete escribe su propio SQL, aunque toque tablas de otro (admin lee pedidos y
+  ajustes; cierres y estadísticas leen `"Order"`): así nadie espera al repositorio de otro.
+
+**Los e2e que necesitan a más de uno**
+- `test/admin` usa mesas (P2d-1); `access-revocation` usa pedidos (P2d-1); `test/cash-closes` y
+  `test/stats` crean pedidos por HTTP (P2d-1); `test/permissions` y `test/modules` necesitan
+  P2b-1, P2b-2 y P2d-1. Si al terminar un subpaquete su parte todavía no está en `dev`, deja esos
+  directorios fuera de `e2e-paquetes.txt` y lo dice en su informe: los añade el orquestador en la
+  integración.
+
+**Empujar**
+- Un solo push por subpaquete: `git pull --rebase origin dev`, volver a pasar `go vet`,
+  `go test ./...` y `scripts/e2e-go.sh`, y `git push origin dev`.
+- Al hacer rebase, en `main.go`, `router.go`, `e2e-paquetes.txt` y `MIGRACION.md` se quedan las
+  líneas de los dos lados.
+
 ## Ejecución con agentes
 
 Los paquetes los ejecuta un agente orquestador que lanza subagentes. Se hace en olas:
@@ -474,8 +526,9 @@ Los paquetes los ejecuta un agente orquestador que lanza subagentes. Se hace en 
 |---|---|---|
 | 1 | P0 | Un solo agente: es la base y tiene que ser coherente. |
 | 2 | P1 y P4 | Dos subagentes en paralelo. |
-| 3 | P2a, P2b, P2c, P2d, P2e y P2f | Seis subagentes en paralelo. |
-| 4 | P3 | Un subagente. |
+| 3 | P2a, P2c, P2e y P2f | Subagentes en paralelo. P2b y P2d no llegaron a empezar. |
+| 3b | P2b-1, P2b-2, P2b-3, P2d-1, P2d-2 y P2d-3 | Seis sesiones de Claude Code en la nube en paralelo, cada una empuja a `dev` al terminar; el orquestador sigue en su sesión. |
+| 4 | P3 | Una sesión, en cuanto P2d-1 esté en `dev`. |
 
 P5 **no** lo hacen los agentes: necesita infraestructura, la beta con uso real y a Miguel.
 
@@ -495,8 +548,10 @@ P5 **no** lo hacen los agentes: necesita infraestructura, la beta con uso real y
   `api-beta`.
 - Los archivos compartidos (`router.go`, `main.go`) solo se tocan para **añadir** líneas,
   así el rebase casi nunca choca.
-- Si no hay Docker donde corre el agente, los tests con base de datos se comprueban en el job
-  de CI de GitHub Actions.
+- En las sesiones de Claude Code en la nube, el hook de `.claude/hooks/session-start.sh`
+  arranca Docker y deja Node 26 y Go 1.27, así que `go test ./...` y `scripts/e2e-go.sh` se
+  pueden lanzar ahí mismo. Si en otro sitio no hay Docker, los tests con base de datos se
+  comprueban en el job de CI de GitHub Actions.
 - Si algo de Nest no se puede copiar, se apunta en «Diferencias conocidas» y se sigue. Solo
   se para si hace falta una librería que no esté ✅ o tocar infraestructura de producción
   (Cloud Run, secretos, panel de Stripe).
