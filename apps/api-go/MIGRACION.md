@@ -176,11 +176,18 @@ Lo que P0 deja hecho y cómo se usa desde P1 en adelante.
 **Arrancar y probar**
 - `go vet ./...` y `go test ./...` desde `apps/api-go`. Los tests de `repository/` levantan
   `postgres:18-alpine` con testcontainers, así que necesitan Docker.
-- En local: `docker compose up db redis api-go`. Go escucha en `http://localhost:3001` y Nest
-  sigue en el 3000, contra la misma base de datos.
-- `go run ./cmd/api` necesita `DATABASE_URL`, `AUTH_JWT_SECRET`, `PRINTER_JWT_SECRET` y
-  `PUBLIC_DIR=../api/public`. `docker compose` saca los dos secretos de `apps/api/.env`.
-  `PUBLIC_DIR` es la única variable que Nest no tiene: en la imagen es `/app/public`.
+- En local con Docker: `docker compose up db redis api-go`. Go escucha en
+  `http://localhost:3001` y Nest sigue en el 3000, contra la misma base de datos. El servicio
+  carga `apps/api/.env` (las variables son las mismas que las de Nest) y fija en `compose.yaml`
+  las que son de Go (`PORT`, `PUBLIC_DIR`, `PUBLIC_URL`) para que las de Nest no las pisen.
+  Las migraciones las aplica el servicio `api` de Nest; con una base vacía y sin él:
+  `docker compose run --rm api npx prisma migrate deploy`.
+- En local sin Docker: `apps/api-go/scripts/dev.sh`. La primera vez crea `apps/api-go/.env` a
+  partir de `apps/api/.env` (`scripts/env-local.sh`, que se puede volver a lanzar si cambia) y
+  arranca `go run ./cmd/api` en el 3001. Qué lee Go está en `apps/api-go/.env_example`; las
+  obligatorias son `DATABASE_URL`, `AUTH_JWT_SECRET` y `PRINTER_JWT_SECRET`.
+- La web contra Go: `API_URL=http://localhost:3001 docker compose up web` (o
+  `API_URL=http://localhost:3001 npm run dev:web`).
 
 **Errores**
 - Los servicios devuelven `domain.NotFound(domain.CodeX)`, `domain.Forbidden(…)`, etc.
