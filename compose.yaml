@@ -82,7 +82,7 @@ services:
     ports:
       - '4200:4200'
     environment:
-      - API_URL=http://localhost:3000
+      - API_URL=${API_URL:-http://localhost:3000}
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
     depends_on:
       api:
