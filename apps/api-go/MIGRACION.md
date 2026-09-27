@@ -161,18 +161,13 @@ Actualizar esta tabla al terminar cada paquete.
 
 ## Siguiente paso
 
-Ola 3b: lo que queda de P2, partido en seis subpaquetes que van a la vez, cada uno en su
-sesión de Claude Code en la nube: **P2b-1 Locales y usuarios**, **P2b-2 Miembros e
-invitaciones**, **P2b-3 Admin**, **P2d-1 Pedidos y mesas**, **P2d-2 Impresoras** y **P2d-3
-Cierres de caja y estadísticas**. Antes de empezar, leer todas las «Convenciones», en especial
-«Convenciones de la ola 3b». Cada subpaquete añade a `e2e-paquetes.txt` los directorios de
-`apps/api/test` que pasan contra Go.
-
-Después, el orquestador:
-1. Lanza **P3 IA** en cuanto P2d-1 esté en `dev`.
-2. Hace la integración: añade a `e2e-paquetes.txt` los e2e que necesitan varios subpaquetes
-   (`test/admin`, `access-revocation`, `test/cash-closes`, `test/stats`, `test/permissions` y
-   `test/modules`) y arregla lo que salga.
+P2 está completo: los directorios de tests de `apps/api/test` pasan contra Go (21 de 22; falta `test/ai`)
+(`e2e-paquetes.txt`). Queda:
+1. **P3 IA** (ola 4), en marcha. Al terminar añade `test/ai` a `e2e-paquetes.txt`. Antes de
+   P5, Miguel tiene que confirmar cómo pasar los modelos de respaldo al AI Gateway.
+2. **Revisión de Miguel** de la ola 3b y de las listas de posibles bugs de Nest que cada
+   subpaquete ha copiado tal cual (en su fila de «Estado» y en el historial de commits).
+3. **P5 Salida**: no la hacen los agentes.
 
 ## Convenciones de P0
 
@@ -511,7 +506,10 @@ Cómo se manda algo por tiempo real desde otro paquete.
   `test/stats` crean pedidos por HTTP (P2d-1); `test/permissions` y `test/modules` necesitan
   P2b-1, P2b-2 y P2d-1. Si al terminar un subpaquete su parte todavía no está en `dev`, deja esos
   directorios fuera de `e2e-paquetes.txt` y lo dice en su informe: los añade el orquestador en la
-  integración.
+  integración. Hecho: todos pasan contra Go.
+- Con varios agentes en la misma máquina, cada uno lanza los e2e con su propio `TMPDIR` (ver
+  «Convenciones de P2c») y enlaza el `node_modules` del checkout principal en su worktree en
+  lugar de instalarlo otra vez.
 
 **Empujar**
 - Un solo push por subpaquete: `git pull --rebase origin dev`, volver a pasar `go vet`,
@@ -588,8 +586,8 @@ Los paquetes los ejecuta un agente orquestador que lanza subagentes. Se hace en 
 | 1 | P0 | Un solo agente: es la base y tiene que ser coherente. |
 | 2 | P1 y P4 | Dos subagentes en paralelo. |
 | 3 | P2a, P2c, P2e y P2f | Subagentes en paralelo. P2b y P2d no llegaron a empezar. |
-| 3b | P2b-1, P2b-2, P2b-3, P2d-1, P2d-2 y P2d-3 | Seis sesiones de Claude Code en la nube en paralelo, cada una empuja a `dev` al terminar; el orquestador sigue en su sesión. |
-| 4 | P3 | Una sesión, en cuanto P2d-1 esté en `dev`. |
+| 3b | P2b-1, P2b-2, P2b-3, P2d-1, P2d-2 y P2d-3 | Seis subagentes en paralelo, cada uno en su git worktree, sin push; el orquestador integra sus commits en `dev` (cherry-pick, conflictos de `main.go`, `router.go`, `e2e-paquetes.txt` y `MIGRACION.md` quedándose con los dos lados) y pasa los e2e que necesitan a varios. Iba a ser una sesión en la nube por subpaquete, pero `create_session` no deja crear una sesión hija más permisiva que la que la crea. |
+| 4 | P3 | Un subagente, con toda la ola 3b ya en `dev`. |
 
 P5 **no** lo hacen los agentes: necesita infraestructura, la beta con uso real y a Miguel.
 
