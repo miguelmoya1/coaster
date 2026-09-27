@@ -12,9 +12,13 @@ test/shifts
 test/time-tracking
 test/establishments
 test/users
-test/establishment-members/establishment-members
-test/establishment-members/member-roles
+test/establishment-members
 test/printer
 test/printers
 test/orders
 test/tables
+test/admin
+test/cash-closes
+test/stats
+test/permissions
+test/modules
