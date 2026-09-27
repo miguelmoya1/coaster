@@ -1,0 +1,57 @@
+package http
+
+import (
+	"net/http"
+
+	"api-go/internal/adapter/handler/middleware"
+	"api-go/internal/core/domain"
+	"api-go/internal/service"
+)
+
+// AdminOverviewHandler is admin-overview.controller.ts: the backoffice's front page and its log.
+type AdminOverviewHandler struct {
+	metrics *service.AdminMetricsService
+	audit   *service.AdminAuditService
+}
+
+func NewAdminOverviewHandler(metrics *service.AdminMetricsService, audit *service.AdminAuditService) *AdminOverviewHandler {
+	return &AdminOverviewHandler{metrics: metrics, audit: audit}
+}
+
+func (h *AdminOverviewHandler) RegisterRoutes(mux *http.ServeMux, guard *middleware.Guard) {
+	handle(mux, guard, "GET /admin/overview", h.overview, middleware.Admin())
+	handle(mux, guard, "GET /admin/audit", h.auditLog, middleware.Admin())
+}
+
+func (h *AdminOverviewHandler) overview(w http.ResponseWriter, r *http.Request) {
+	metrics, err := h.metrics.Overview(r.Context())
+	if err != nil {
+		writeError(w, err)
+		return
+	}
+
+	writeJSON(w, http.StatusOK, metrics)
+}
+
+// auditLog reads AdminAuditQueryDto.
+func (h *AdminOverviewHandler) auditLog(w http.ResponseWriter, r *http.Request) {
+	query := newAdminListQuery(r.URL.Query(), "targetType", "targetId", "action", "page", "pageSize")
+	filter := domain.AdminAuditFilter{
+		TargetType: query.oneOf("targetType", domain.AdminAuditTargetTypes, domain.CodeInvalidType),
+		TargetID:   query.text("targetId", 64),
+		Action:     query.oneOf("action", domain.AdminAuditActions, domain.CodeInvalidType),
+	}
+	page := query.page()
+	if err := query.err(); err != nil {
+		writeError(w, err)
+		return
+	}
+
+	entries, err := h.audit.List(r.Context(), filter, page)
+	if err != nil {
+		writeError(w, err)
+		return
+	}
+
+	writeJSON(w, http.StatusOK, entries)
+}
