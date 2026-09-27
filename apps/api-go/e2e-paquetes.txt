@@ -22,3 +22,4 @@ test/cash-closes
 test/stats
 test/permissions
 test/modules
+test/ai
