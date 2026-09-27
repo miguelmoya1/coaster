@@ -65,7 +65,6 @@ func run() error {
 	realtimeService := service.NewRealtimeService(realtimeBus)
 	go realtimeBus.Listen(ctx, realtimeService)
 	var realtime ports.Realtime = realtimeService
-	_ = realtime
 
 	redisClient := cache.NewClient(cfg.RedisURL)
 	if redisClient != nil {
