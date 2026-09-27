@@ -16,3 +16,5 @@ test/establishment-members/establishment-members
 test/establishment-members/member-roles
 test/printer
 test/printers
+test/orders
+test/tables
