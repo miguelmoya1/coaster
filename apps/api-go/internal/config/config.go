@@ -60,7 +60,8 @@ type Config struct {
 	GoogleCertsURL string
 }
 
-// Load reads the environment. It fails without DATABASE_URL or AUTH_JWT_SECRET, as Nest does.
+// Load reads the environment. It fails without DATABASE_URL, AUTH_JWT_SECRET or
+// PRINTER_JWT_SECRET, as Nest does.
 func Load() (Config, error) {
 	isProduction := os.Getenv("NODE_ENV") == "production"
 
@@ -111,6 +112,10 @@ func Load() (Config, error) {
 
 	if cfg.AuthJWTSecret == "" {
 		return Config{}, errors.New("AUTH_JWT_SECRET environment variable is required")
+	}
+
+	if cfg.PrinterJWTSecret == "" {
+		return Config{}, errors.New("PRINTER_JWT_SECRET environment variable is required")
 	}
 
 	if isProduction && (cfg.TestMailboxURL != "" || cfg.GoogleCertsURL != "") {

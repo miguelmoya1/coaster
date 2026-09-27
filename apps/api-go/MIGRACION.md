@@ -183,7 +183,8 @@ Lo que P0 deja hecho y cómo se usa desde P1 en adelante.
   `postgres:18-alpine` con testcontainers, así que necesitan Docker.
 - En local: `docker compose up db redis api-go`. Go escucha en `http://localhost:3001` y Nest
   sigue en el 3000, contra la misma base de datos.
-- `go run ./cmd/api` necesita `DATABASE_URL`, `AUTH_JWT_SECRET` y `PUBLIC_DIR=../api/public`.
+- `go run ./cmd/api` necesita `DATABASE_URL`, `AUTH_JWT_SECRET`, `PRINTER_JWT_SECRET` y
+  `PUBLIC_DIR=../api/public`. `docker compose` saca los dos secretos de `apps/api/.env`.
   `PUBLIC_DIR` es la única variable que Nest no tiene: en la imagen es `/app/public`.
 
 **Errores**

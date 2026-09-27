@@ -5,22 +5,25 @@ import (
 	"testing"
 )
 
-func TestLoadRequiresDatabaseURLAndJWTSecret(t *testing.T) {
+func TestLoadRequiresDatabaseURLAndJWTSecrets(t *testing.T) {
 	tests := []struct {
-		name        string
-		databaseURL string
-		jwtSecret   string
-		wantErr     bool
+		name          string
+		databaseURL   string
+		jwtSecret     string
+		printerSecret string
+		wantErr       bool
 	}{
-		{name: "both set", databaseURL: "postgres://db", jwtSecret: "secret"},
-		{name: "no DATABASE_URL", jwtSecret: "secret", wantErr: true},
-		{name: "no AUTH_JWT_SECRET", databaseURL: "postgres://db", wantErr: true},
+		{name: "all set", databaseURL: "postgres://db", jwtSecret: "secret", printerSecret: "printer"},
+		{name: "no DATABASE_URL", jwtSecret: "secret", printerSecret: "printer", wantErr: true},
+		{name: "no AUTH_JWT_SECRET", databaseURL: "postgres://db", printerSecret: "printer", wantErr: true},
+		{name: "no PRINTER_JWT_SECRET", databaseURL: "postgres://db", jwtSecret: "secret", wantErr: true},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Setenv("DATABASE_URL", tt.databaseURL)
 			t.Setenv("AUTH_JWT_SECRET", tt.jwtSecret)
+			t.Setenv("PRINTER_JWT_SECRET", tt.printerSecret)
 
 			_, err := Load()
 			if (err != nil) != tt.wantErr {
@@ -33,6 +36,7 @@ func TestLoadRequiresDatabaseURLAndJWTSecret(t *testing.T) {
 func TestDefaults(t *testing.T) {
 	t.Setenv("DATABASE_URL", "postgres://db")
 	t.Setenv("AUTH_JWT_SECRET", "secret")
+	t.Setenv("PRINTER_JWT_SECRET", "printer")
 	t.Setenv("FRONTEND_URL", "https://coaster.business/")
 
 	cfg, err := Load()
@@ -114,6 +118,7 @@ func TestTestOnlyVariablesFailInProduction(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Setenv("DATABASE_URL", "postgres://db")
 			t.Setenv("AUTH_JWT_SECRET", "secret")
+			t.Setenv("PRINTER_JWT_SECRET", "printer")
 			t.Setenv("NODE_ENV", tt.nodeEnv)
 			t.Setenv("TEST_MAILBOX_URL", tt.mailboxURL)
 			t.Setenv("GOOGLE_CERTS_URL", tt.certsURL)
