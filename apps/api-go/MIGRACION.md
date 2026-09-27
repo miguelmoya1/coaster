@@ -167,8 +167,7 @@ P2 y P3 están completos: los 22 directorios de tests de `apps/api/test` pasan c
 (`e2e-paquetes.txt`). Queda:
 1. **Confirmar los modelos de respaldo del AI Gateway** con la clave de verdad (Miguel, antes de
    P5): cómo probarlo está en «Convenciones de P3».
-2. **Revisión de Miguel** de la ola 3b, de P3 y de las listas de posibles bugs de Nest que cada
-   paquete ha copiado tal cual (en su fila de «Estado» y en el historial de commits).
+2. **Revisión de Miguel** de la ola 3b, de P3 y de «Posibles bugs de Nest copiados tal cual».
 3. **P5 Salida**: no la hacen los agentes.
 
 ## Convenciones de P0
@@ -739,6 +738,40 @@ Lo que Go hace distinto de Nest a propósito o porque no se ha podido copiar.
 | P3 | Sin `AI_GATEWAY_API_KEY` Go falla sin llamar al gateway; el AI SDK aún prueba el token OIDC de Vercel | La API no corre en Vercel; la respuesta es la misma (201 con el error traducible) |
 | P3 | `POST ai/stream` manda las cabeceras en cuanto empieza; Node las manda con el primer `delta` o con el `done` | Así el cliente no espera sin respuesta mientras el modelo piensa; las cabeceras son las mismas |
 | P3 | El error de una herramienta que no es de negocio (la base de datos caída, una fecha imposible en `getOrdersByDate`) lleva el texto del error de Go, no el de Prisma o Temporal | Como en el resto de paquetes; los errores con código de `ErrorCodes` son idénticos y llevan `errorKey` |
+
+## Posibles bugs de Nest copiados tal cual
+
+Para que Go se comporte igual que Nest, estos comportamientos se han copiado aunque parezcan
+bugs. Si se arreglan, mejor en los dos a la vez (o en Go después de P5) y con un e2e que lo cubra.
+Lo que Go sí hace distinto está en «Diferencias conocidas».
+
+| Paquete | Qué pasa |
+|---|---|
+| P2b-1 | `PATCH /users/me` acepta cualquier texto en `language` (`"fr"`) y `name: ""` |
+| P2b-1 | Un admin de la plataforma sobre un local que no existe: `GET /establishments/{id}` da 200 `null`, `GET …/settings` los ajustes por defecto y `PATCH …/settings` un 500 (clave foránea) |
+| P2b-2 | Invitar a un usuario que ya existe le cambia el `name` por lo que va antes de la `@`, sin publicar `UserUpdated` (la caché se queda con el nombre viejo) |
+| P2b-2 | El email de la invitación dice que invita el propio invitado: `MemberInvitedEvent.inviterName` lleva su nombre (al reenviar sí va el de quien invita) |
+| P2b-2 | El email de la invitación no se pasa a minúsculas: invitar a `Ana@X.com` cuando existe `ana@x.com` crea otro usuario, que luego no puede entrar con contraseña |
+| P2b-2 | Volver a invitar a un miembro quitado sin `role` le devuelve su rol antiguo: un MANAGER puede devolver a un ex-OWNER como OWNER |
+| P2b-2 | Reenviar la invitación mira si el usuario está activo, no el miembro |
+| P2b-3 | `memberCount` y `establishmentCount` cuentan membresías eliminadas e inactivas, y la búsqueda de locales por email encuentra miembros eliminados |
+| P2b-3 | `billingSource` STRIPE en el filtro es tener `stripeSubscriptionId` aunque haya caducado; en la fila exige periodo vigente |
+| P2b-3 | `manualPlan = FREE` cuenta como concesión viva en el filtro MANUAL y en las métricas, pero no para `isManualGrantActive` |
+| P2b-3 | PAST_DUE: el backoffice lo muestra sin acceso, pero el guard deja escribir |
+| P2b-3 | La métrica `admins` cuenta admins inactivos; renombrar valida la longitud antes del `trim` y no publica ningún evento; `/admin/audit` ordena solo por `createdAt` y la paginación puede repetir o saltarse filas |
+| P2d-1 | `cancel` y `move-table` no son condicionales: un cancel a la vez que un cobro puede cancelar un pedido ya cobrado y devolver su stock |
+| P2d-1 | Borrar un pedido abierto responde 400 `ORDER_NOT_OPEN`; mover un pedido a su misma mesa da `TABLE_ALREADY_OCCUPIED` |
+| P2d-1 | `merge`: un pedido de otro local da 400 `ORDER_NOT_FOUND` y uno que no existe 404; no mira si la mesa destino está libre |
+| P2d-1 | `AddAdjustment` compara el total neto (`totalAmount`) con `orderTotal`, que lleva IVA; un ajuste ORDER guarda el `itemId` si llega, y los de un pedido nuevo pueden apuntar a líneas de otro |
+| P2d-1 | `?status` no se valida (un valor desconocido da 500) y en el bulk `MIXED` y `NONE` cuentan como efectivo |
+| P2d-2 | `check-version` responde 400 «Unsupported OS» también cuando falta el binario; el sha256 se guarda hasta reiniciar; el código de emparejamiento se valida antes del `trim` y las mayúsculas |
+| P2d-2 | Si otro puente se lleva el trabajo, `claimNext` espera un segundo en vez de probar el siguiente; los trabajos colgados solo vuelven a la cola cuando un puente pregunta; `POST pairing` sobre un local inexistente da 500 |
+| P2d-3 | Las estadísticas agrupan por día, semana, mes y año en la zona del proceso (UTC en Cloud Run), no en `Europe/Madrid`: un pedido de las 00:30 cuenta el día anterior |
+| P2d-3 | Las estadísticas cuentan cada pedido por `createdAt` (cuando se abrió), no por cuando se cobró |
+| P2d-3 | La previsualización del cierre hace tres lecturas sin transacción; los cierres se ordenan solo por `closedAt`; cerrar la caja de un local inexistente da 500 |
+| P3 | En el stream, cualquier error (también `AI_QUOTA_EXCEEDED` y `MEMBER_NOT_FOUND`) llega como `ai_gateway_failed` |
+| P3 | La cuota se mira antes y se cuenta después: varios mensajes a la vez pueden pasarla. Si falla contar, se responde error aunque las herramientas ya se hayan ejecutado |
+| P3 | `createOrder` y `addOrderItems` quitan en silencio los productos que no existen; `getOrdersByDate` suma `totalAmount` (sin IVA) y cada pedido muestra `orderTotal`; `updateProduct` acepta precios negativos |
 
 ## Comprobar que Go se comporta igual que Nest
 
