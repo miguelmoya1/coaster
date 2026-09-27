@@ -147,7 +147,7 @@ Actualizar esta tabla al terminar cada paquete.
 | P1 Auth y permisos | ✅ Hecho | `/auth` y `/account` completos (registro, login, Google, refresh con rotación y detección de reutilización, recuperación, verificación, invitaciones, sesiones, identidades), JWT, argon2 compatible con `@node-rs/argon2`, guard de rutas (rate limit, suscripción, auth, admin, permisos, módulos), caché y rate limit en Redis con respaldo en memoria, bloqueo de login, Have I Been Pwned, email a log o al buzón de test. `test/auth` pasa contra Go; `test/permissions` y `test/modules` esperan a las rutas de P2. Faltan: el refresco de la suscripción desde Stripe (`SubscriptionRefresher`, P2e) y Resend (P2e) |
 | P2a Catálogo | ✅ Hecho | Categorías, productos (con `AdjustStock` para pedidos e IA), catálogo inicial, carta (borrador, publicar, carta pública por `slug` con `lang` y agotados) y URLs firmadas de subida a GCS (`adapter/storage`, cliente perezoso). Eventos `Category*`, `Product*` y `CatalogueImportedEvent` con su suscriptor de realtime. `test/categories`, `test/products`, `test/catalogue` y `test/menu` pasan contra Go |
 | P2b Local y personas | ⬜ Pendiente | |
-| P2c Turnos y fichajes | ⬜ Pendiente | |
+| P2c Turnos y fichajes | ✅ Hecho | Turnos, intercambios (traspaso en una transacción) y fichajes: fichar, alta manual, corrección y anulación como revisiones, cadena de hashes compatible con Nest con el mismo advisory lock, jornadas con el cuadrante y sus discrepancias, hoja de horas, CSV e integridad. Realtime de `ShiftCreated/Deleted` y auditoría de los fichajes que toca un admin. `test/shifts` y `test/time-tracking` pasan contra Go |
 | P2d Pedidos | ⬜ Pendiente | |
 | P2e Cobros | ✅ Hecho | `/establishments/{id}/establishment-subscription` (lectura, asientos, Checkout y portal), `/stripe/webhook` con firma, refresco desde Stripe (`SubscriptionRefresher` ya cableado), sincronización de asientos como método (`SyncSeatsOnMemberChange`, falta suscribirlo a los eventos de miembros de P2b), eventos `Subscription*` y `DuplicateSubscriptionDetected` con sus suscriptores (caché, realtime y log), y emails con Resend. Ningún directorio de `apps/api/test` es solo suyo: el test del portal de `test/permissions` pasa contra Go |
 | P2f Realtime | ✅ Hecho | `GET /establishments/{establishmentId}/events` (SSE con `: open`, heartbeat de 25 s, cierre a los 30 min y `Last-Event-ID`), `service.RealtimeService` (implementa `ports.Realtime`: registro de streams por local, `Publish`, `Revoke`), bus en Redis compatible con Nest (canal `coaster:realtime`, replay de 2 min en `realtime:<id>:replay`), sin Redis solo en este proceso, cierre de streams al apagar. `test/realtime` pasa contra Go (publicar y revocar, en los tests de Go). Los suscriptores de `realtime/events/handlers/` los escribe cada paquete |
@@ -424,6 +424,21 @@ Cómo se manda algo por tiempo real desde otro paquete.
   esta instancia y en las demás (por ejemplo, al quitar un miembro o cambiarle el rol).
 - En los tests de un servicio o suscriptor basta un fake de `ports.Realtime` que guarde las
   llamadas. `service.RealtimeService` se puede usar tal cual con un `ports.RealtimeBus` falso.
+## Convenciones de P2c
+
+- `domain.Instant` escribe una fecha como `Temporal.Instant.toString` (`2026-09-27T10:00:00Z`,
+  sin milisegundos si son cero). Nest la usa en los turnos y los intercambios; el resto de fechas
+  van como `domain.Time` (`toISOString`). `domain.FormatISO` es `toISOString` para un texto suelto.
+- `domain.ParseInstant` es `Temporal.Instant.from` (exige zona) y `domain.ParseDate` es
+  `new Date()` para las formas ISO 8601; las dos devuelven `(time.Time, bool)`.
+- La jornada se cuenta en `Europe/Madrid` (`domain.WorkdayDateOf`, `domain.StartOfEstablishmentDay`).
+  `domain/workday.go` importa `time/tzdata`, así que la zona carga aunque la imagen no tenga
+  ficheros de zonas.
+- Para P3: `ShiftService.List`/`ListBetween` y `TimeEntryService.TimeSheet`/`Workdays` son los
+  `GetShiftsQuery` y `GetWorkdaysQuery` de Nest.
+- Los e2e contra Go compilan el binario en `os.tmpdir()/coaster-api-go-e2e`, que comparten todos los
+  worktrees de la máquina: con varios agentes a la vez hay que lanzar `scripts/e2e-go.sh` con
+  `TMPDIR` apuntando a un directorio propio, o un agente prueba el binario de otro.
 
 ## Convenciones de P2a
 
@@ -520,6 +535,11 @@ Lo que Go hace distinto de Nest a propósito o porque no se ha podido copiar.
 | P2a | El slug de la carta quita los acentos con una tabla de las letras latinas (U+00C0–U+017F) y no con la normalización NFD | `golang.org/x/text` no está en `LIBRERIAS.md`; en ese rango da lo mismo que Node (comprobado letra a letra) y fuera de él la letra se cambia por `-` |
 | P2a | El nombre y la descripción de una línea de la carta se cortan a 80 y 300 caracteres, no unidades UTF-16 | Solo cambia con emojis y otros caracteres fuera del plano básico |
 | P2a | Las claves del JSON de la carta publicada salen en el orden del struct, no en el de `jsonb` | Nest devuelve el objeto tal como lo guarda Postgres; el contenido es el mismo |
+| P2c | Las fechas de texto (`startDate`/`endDate` de `GET /shifts`, `occurredAt` de los fichajes) se leen solo en las formas ISO 8601: fecha, o fecha y hora con o sin zona (sin zona es UTC) | `new Date()` de JS acepta además formatos como `Sep 27 2026`; `apps/web` manda ISO |
+| P2c | `startTime`/`endTime` de un turno que no son texto responden `message: ["INVALID_DATE"]` (validación) en lugar de `message: "INVALID_DATE"` | En Nest el `Transform` deja pasar el valor y lo rechaza el handler; en Go el tipo se comprueba al leer el cuerpo. Mismo 400 y mismo código |
+| P2c | `latitude`/`longitude` como texto (`"40.4"`) responden 400 `INVALID_TYPE` | `@IsLatitude` acepta texto, pero luego Prisma falla con un 500 al guardarlo en un `Float` |
+| P2c | En la hoja de horas, los días de la misma fecha se ordenan por nombre sin distinguir mayúsculas, no con `localeCompare` | Go no tiene la collation de ICU sin `golang.org/x/text`; solo cambia el orden con acentos (`Álvaro` va después de `Zoe`) |
+| P2c | `reason` cuenta caracteres (runas) para `min=5`/`max=500`, no unidades UTF-16 | Es lo que hace validator; solo cambia con emojis y otros caracteres fuera del plano básico |
 
 ## Comprobar que Go se comporta igual que Nest
 
