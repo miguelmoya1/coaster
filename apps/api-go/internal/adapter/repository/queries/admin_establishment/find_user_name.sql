@@ -1,0 +1,3 @@
+SELECT name
+FROM "User"
+WHERE id = $1
