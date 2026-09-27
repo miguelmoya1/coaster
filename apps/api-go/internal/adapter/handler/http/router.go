@@ -46,6 +46,10 @@ type Handlers struct {
 	Stats               *StatsHandler
 	Printer             *PrinterHandler
 	PrinterConnection   *PrinterConnectionHandler
+	AdminOverview       *AdminOverviewHandler
+	AdminUser           *AdminUserHandler
+	AdminBetaTester     *AdminBetaTesterHandler
+	AdminEstablishment  *AdminEstablishmentHandler
 }
 
 // NewRouter registers every route under /api/v1 and wraps them in the global middlewares.
@@ -75,6 +79,10 @@ func NewRouter(cfg RouterConfig, handlers Handlers) (http.Handler, error) {
 		handlers.Stats.RegisterRoutes(mux, handlers.Guard)
 		handlers.Printer.RegisterRoutes(mux, handlers.Guard)
 		handlers.PrinterConnection.RegisterRoutes(mux, handlers.Guard)
+		handlers.AdminOverview.RegisterRoutes(mux, handlers.Guard)
+		handlers.AdminUser.RegisterRoutes(mux, handlers.Guard)
+		handlers.AdminBetaTester.RegisterRoutes(mux, handlers.Guard)
+		handlers.AdminEstablishment.RegisterRoutes(mux, handlers.Guard)
 	}
 
 	return withGlobalMiddlewares(cfg, withNestNotFound(mux))

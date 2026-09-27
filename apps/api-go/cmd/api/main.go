@@ -232,6 +232,18 @@ func run() error {
 	handlers.Printer = httphandler.NewPrinterHandler(printerService, printerReleases)
 	handlers.PrinterConnection = httphandler.NewPrinterConnectionHandler(printerService)
 
+	adminAudit := repository.NewAdminAuditRepository(pool)
+	adminAuditService := service.NewAdminAuditService(adminAudit)
+	bus.Subscribe(domain.AdminAction{}.Name(), adminAuditService.RecordAction)
+	handlers.AdminOverview = httphandler.NewAdminOverviewHandler(
+		service.NewAdminMetricsService(repository.NewAdminMetricsRepository(pool)), adminAuditService)
+	handlers.AdminUser = httphandler.NewAdminUserHandler(
+		service.NewAdminUserService(repository.NewAdminUserRepository(pool), adminAudit, bus))
+	handlers.AdminBetaTester = httphandler.NewAdminBetaTesterHandler(
+		service.NewBetaTesterService(repository.NewBetaTesterRepository(pool), bus, cfg.BetaAllowlistEnabled))
+	handlers.AdminEstablishment = httphandler.NewAdminEstablishmentHandler(
+		service.NewAdminEstablishmentService(repository.NewAdminEstablishmentRepository(pool), adminAudit, bus, valueCache))
+
 	router, err := httphandler.NewRouter(
 		httphandler.RouterConfig{CORSOrigins: cfg.CORSOrigins, PublicDir: cfg.PublicDir},
 		handlers,
