@@ -2,8 +2,10 @@ package http
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"net/http"
+	"net/http/httptest"
 	"net/url"
 	"slices"
 	"strings"
@@ -264,6 +266,24 @@ func TestAdminValidation(t *testing.T) {
 				t.Errorf("%s = %d %s", tt.route, response.Code, response.Body)
 			}
 		})
+	}
+}
+
+func TestAdminAuditMetadataIsWrittenAsStored(t *testing.T) {
+	entry := domain.AdminAuditLogEntry{ID: "a1", Metadata: json.RawMessage(`{"to": "Bar & Grill <1>", "from": "Bar"}`)}
+
+	response := httptest.NewRecorder()
+	writeJSON(response, http.StatusOK, entry)
+
+	want := `"metadata":{"to":"Bar & Grill <1>","from":"Bar"}`
+	if !strings.Contains(response.Body.String(), want) || !strings.Contains(response.Body.String(), `"reason":null`) {
+		t.Errorf("got %s", response.Body)
+	}
+
+	response = httptest.NewRecorder()
+	writeJSON(response, http.StatusOK, domain.AdminAuditLogEntry{ID: "a2"})
+	if !strings.Contains(response.Body.String(), `"metadata":null`) {
+		t.Errorf("without metadata = %s", response.Body)
 	}
 }
 
