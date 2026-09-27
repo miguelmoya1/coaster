@@ -68,13 +68,25 @@ func writeRouteNotFound(w http.ResponseWriter, r *http.Request) {
 // Nest's ValidationPipe: unknown properties are rejected and the rules come from the
 // "validate" tags. The error it returns is ready for writeError.
 func decodeJSON(r *http.Request, dst any) error {
+	body, raw, err := readJSON(r)
+	if err != nil {
+		return err
+	}
+
+	return validateBody(body, raw, dst)
+}
+
+// readJSON reads the body as Fastify does before Nest sees it, and returns it with its
+// parsed value: 413 over the size limit, 415 when it is not JSON and 400 when it is empty
+// with a JSON content type or cannot be parsed. An empty body without a content type is {}.
+func readJSON(r *http.Request) ([]byte, any, error) {
 	body, err := io.ReadAll(http.MaxBytesReader(nil, r.Body, maxBodyBytes))
 	if err != nil {
 		var tooLarge *http.MaxBytesError
 		if errors.As(err, &tooLarge) {
-			return &requestError{status: http.StatusRequestEntityTooLarge, message: messageBodyTooLarge}
+			return nil, nil, &requestError{status: http.StatusRequestEntityTooLarge, message: messageBodyTooLarge}
 		}
-		return err
+		return nil, nil, err
 	}
 
 	contentType := r.Header.Get("Content-Type")
@@ -83,11 +95,11 @@ func decodeJSON(r *http.Request, dst any) error {
 
 	if len(bytes.TrimSpace(body)) == 0 {
 		if isJSON {
-			return &requestError{status: http.StatusBadRequest, message: messageEmptyJSONBody}
+			return nil, nil, &requestError{status: http.StatusBadRequest, message: messageEmptyJSONBody}
 		}
 		body = []byte("{}")
 	} else if !isJSON {
-		return &requestError{status: http.StatusUnsupportedMediaType, message: "Unsupported Media Type: " + contentType}
+		return nil, nil, &requestError{status: http.StatusUnsupportedMediaType, message: "Unsupported Media Type: " + contentType}
 	}
 
 	decoder := json.NewDecoder(bytes.NewReader(body))
@@ -95,11 +107,11 @@ func decodeJSON(r *http.Request, dst any) error {
 
 	var raw any
 	if err := decoder.Decode(&raw); err != nil {
-		return &requestError{status: http.StatusBadRequest, message: messageInvalidJSON}
+		return nil, nil, &requestError{status: http.StatusBadRequest, message: messageInvalidJSON}
 	}
 	if decoder.More() {
-		return &requestError{status: http.StatusBadRequest, message: messageInvalidJSON}
+		return nil, nil, &requestError{status: http.StatusBadRequest, message: messageInvalidJSON}
 	}
 
-	return validateBody(body, raw, dst)
+	return body, raw, nil
 }
