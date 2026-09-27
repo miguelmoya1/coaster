@@ -244,6 +244,20 @@ func run() error {
 	handlers.AdminEstablishment = httphandler.NewAdminEstablishmentHandler(
 		service.NewAdminEstablishmentService(repository.NewAdminEstablishmentRepository(pool), adminAudit, bus, valueCache))
 
+	tableRepository := repository.NewTableRepository(pool)
+	tableService := service.NewTableService(tableRepository, bus)
+	orderService := service.NewOrderService(repository.NewOrderRepository(pool), tableRepository, bus)
+	orderStock := service.NewOrderStock(productService)
+	for _, name := range service.OrderStockEvents {
+		bus.Subscribe(name, orderStock.Adjust)
+	}
+	orderRealtime := service.NewOrderRealtime(realtime)
+	for _, name := range service.OrderRealtimeEvents {
+		bus.Subscribe(name, orderRealtime.Forward)
+	}
+	handlers.Order = httphandler.NewOrderHandler(orderService)
+	handlers.Table = httphandler.NewTableHandler(tableService)
+
 	router, err := httphandler.NewRouter(
 		httphandler.RouterConfig{CORSOrigins: cfg.CORSOrigins, PublicDir: cfg.PublicDir},
 		handlers,
