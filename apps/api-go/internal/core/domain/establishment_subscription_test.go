@@ -41,11 +41,12 @@ func TestSubscriptionViewJSON(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	// With a row, manualGrant goes last, as in Nest's toDomain.
 	want := `{"id":"sub_id_1","establishmentId":"establishment_id_1","plan":"PRO","status":"ACTIVE",` +
 		`"stripeCustomerId":"cus_123","stripeSubscriptionId":"sub_123",` +
 		`"currentPeriodStart":"2026-01-01T00:00:00.000Z","currentPeriodEnd":"2026-02-01T00:00:00.000Z",` +
-		`"trialEndsAt":null,"canceledAt":null,"manualGrant":null,` +
-		`"createdAt":"2026-01-15T00:00:00.000Z","updatedAt":"2026-01-15T00:00:00.000Z"}`
+		`"trialEndsAt":null,"canceledAt":null,` +
+		`"createdAt":"2026-01-15T00:00:00.000Z","updatedAt":"2026-01-15T00:00:00.000Z","manualGrant":null}`
 	if string(raw) != want {
 		t.Errorf("View =\n%s\nwant\n%s", raw, want)
 	}

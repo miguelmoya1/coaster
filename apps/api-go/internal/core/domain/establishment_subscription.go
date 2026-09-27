@@ -1,6 +1,9 @@
 package domain
 
-import "time"
+import (
+	"encoding/json"
+	"time"
+)
 
 // EstablishmentSubscription is a row of EstablishmentSubscription: what the establishment
 // pays for, projected from Stripe, plus the plan an admin may have granted by hand.
@@ -88,6 +91,7 @@ func FreeSubscriptionView(establishmentID string, now time.Time) EstablishmentSu
 		Status:          SubscriptionInactive,
 		CreatedAt:       Time{Time: now},
 		UpdatedAt:       Time{Time: now},
+		withoutRow:      true,
 	}
 }
 
@@ -103,9 +107,43 @@ type EstablishmentSubscriptionView struct {
 	CurrentPeriodEnd     *Time              `json:"currentPeriodEnd"`
 	TrialEndsAt          *Time              `json:"trialEndsAt"`
 	CanceledAt           *Time              `json:"canceledAt"`
-	ManualGrant          *ManualGrant       `json:"manualGrant"`
 	CreatedAt            Time               `json:"createdAt"`
 	UpdatedAt            Time               `json:"updatedAt"`
+	ManualGrant          *ManualGrant       `json:"manualGrant"`
+
+	// withoutRow marks FreeSubscriptionView.
+	withoutRow bool
+}
+
+// MarshalJSON writes the keys in the order of Nest's mapper: toDomain puts manualGrant
+// last, and toFreeDefault (an establishment without a row) puts it before createdAt.
+func (v EstablishmentSubscriptionView) MarshalJSON() ([]byte, error) {
+	type withRow EstablishmentSubscriptionView
+	if !v.withoutRow {
+		return json.Marshal(withRow(v))
+	}
+
+	return json.Marshal(struct {
+		ID                   string             `json:"id"`
+		EstablishmentID      string             `json:"establishmentId"`
+		Plan                 SubscriptionPlan   `json:"plan"`
+		Status               SubscriptionStatus `json:"status"`
+		StripeCustomerID     *string            `json:"stripeCustomerId"`
+		StripeSubscriptionID *string            `json:"stripeSubscriptionId"`
+		CurrentPeriodStart   *Time              `json:"currentPeriodStart"`
+		CurrentPeriodEnd     *Time              `json:"currentPeriodEnd"`
+		TrialEndsAt          *Time              `json:"trialEndsAt"`
+		CanceledAt           *Time              `json:"canceledAt"`
+		ManualGrant          *ManualGrant       `json:"manualGrant"`
+		CreatedAt            Time               `json:"createdAt"`
+		UpdatedAt            Time               `json:"updatedAt"`
+	}{
+		ID: v.ID, EstablishmentID: v.EstablishmentID, Plan: v.Plan, Status: v.Status,
+		StripeCustomerID: v.StripeCustomerID, StripeSubscriptionID: v.StripeSubscriptionID,
+		CurrentPeriodStart: v.CurrentPeriodStart, CurrentPeriodEnd: v.CurrentPeriodEnd,
+		TrialEndsAt: v.TrialEndsAt, CanceledAt: v.CanceledAt, ManualGrant: v.ManualGrant,
+		CreatedAt: v.CreatedAt, UpdatedAt: v.UpdatedAt,
+	})
 }
 
 // ManualGrant is the plan an admin granted, without the admin's note.
