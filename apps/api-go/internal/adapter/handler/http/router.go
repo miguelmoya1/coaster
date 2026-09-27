@@ -34,6 +34,10 @@ type Handlers struct {
 	Catalogue *CatalogueHandler
 	Menu      *MenuHandler
 	Media     *MediaHandler
+
+	Shift         *ShiftHandler
+	ShiftExchange *ShiftExchangeHandler
+	TimeEntry     *TimeEntryHandler
 }
 
 // NewRouter registers every route under /api/v1 and wraps them in the global middlewares.
@@ -53,6 +57,9 @@ func NewRouter(cfg RouterConfig, handlers Handlers) (http.Handler, error) {
 		handlers.Catalogue.RegisterRoutes(mux, handlers.Guard)
 		handlers.Menu.RegisterRoutes(mux, handlers.Guard)
 		handlers.Media.RegisterRoutes(mux, handlers.Guard)
+		handlers.Shift.RegisterRoutes(mux, handlers.Guard)
+		handlers.ShiftExchange.RegisterRoutes(mux, handlers.Guard)
+		handlers.TimeEntry.RegisterRoutes(mux, handlers.Guard)
 	}
 
 	return withGlobalMiddlewares(cfg, withNestNotFound(mux))

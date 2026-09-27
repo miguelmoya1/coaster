@@ -174,6 +174,19 @@ func run() error {
 		Media:     httphandler.NewMediaHandler(mediaService),
 	}
 
+	shiftRepository := repository.NewShiftRepository(pool)
+	shiftService := service.NewShiftService(shiftRepository, security, bus, realtime)
+	shiftExchangeService := service.NewShiftExchangeService(shiftRepository, repository.NewShiftExchangeRepository(pool))
+	timeEntryService := service.NewTimeEntryService(repository.NewTimeEntryRepository(pool), shiftService, bus)
+	bus.Subscribe(domain.ShiftCreated{}.Name(), shiftService.PublishRealtime)
+	bus.Subscribe(domain.ShiftDeleted{}.Name(), shiftService.PublishRealtime)
+	bus.Subscribe(domain.TimeEntryRecorded{}.Name(), timeEntryService.Audit)
+	bus.Subscribe(domain.TimeEntryAmended{}.Name(), timeEntryService.Audit)
+	bus.Subscribe(domain.TimeEntryVoided{}.Name(), timeEntryService.Audit)
+	handlers.Shift = httphandler.NewShiftHandler(shiftService)
+	handlers.ShiftExchange = httphandler.NewShiftExchangeHandler(shiftExchangeService)
+	handlers.TimeEntry = httphandler.NewTimeEntryHandler(timeEntryService)
+
 	router, err := httphandler.NewRouter(
 		httphandler.RouterConfig{CORSOrigins: cfg.CORSOrigins, PublicDir: cfg.PublicDir},
 		handlers,
