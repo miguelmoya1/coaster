@@ -8,6 +8,8 @@ require (
 	github.com/jackc/pgx/v5 v5.11.0
 	github.com/klauspost/compress v1.20.1
 	github.com/redis/go-redis/v9 v9.22.0
+	github.com/resend/resend-go/v3 v3.17.0
+	github.com/stripe/stripe-go/v86 v86.4.2
 	github.com/testcontainers/testcontainers-go v0.44.0
 	github.com/testcontainers/testcontainers-go/modules/postgres v0.44.0
 	golang.org/x/crypto v0.57.0
