@@ -1,0 +1,4 @@
+SELECT id
+FROM "Order"
+WHERE id = $1
+FOR UPDATE
