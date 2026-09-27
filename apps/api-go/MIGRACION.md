@@ -125,7 +125,9 @@ Los seis paquetes P2 pueden ir a la vez. El volumen esperado son ~15–20k líne
 - **Tu revisión** de cada paquete. Es el objetivo de aprender, así que no conviene saltársela.
 - **Probar argon2 con un hash real** de la base de datos antes de P5. En P1 basta con un
   test que verifique hashes generados por `@node-rs/argon2` con los mismos parámetros.
-- **Confirmar los modelos de respaldo del AI Gateway** sin el SDK de Vercel (P3).
+- **Confirmar los modelos de respaldo del AI Gateway** sin el SDK de Vercel (P3). Go los manda
+  como `providerOptions.gateway.models` en el cuerpo, que es lo que documenta el gateway para su
+  API compatible con OpenAI; falta verlo con la clave de verdad (ver «Convenciones de P3»).
 - **Stripe en modo test**: dar de alta el endpoint del webhook de Go en el panel de Stripe (P2e).
 - **Infraestructura**: servicio nuevo en Cloud Run y job de migraciones (P5).
 - **Beta con uso real** antes de pasar a producción (P5).
@@ -155,18 +157,18 @@ Actualizar esta tabla al terminar cada paquete.
 | P2d-3 Cierres de caja y estadísticas | ✅ Hecho | Ola 3b. `/establishments/{id}/cash-closes` (lista de los 60 últimos, `preview` y cierre en una transacción con `FOR UPDATE` del local) y `/establishments/{id}/stats` (sin módulo; el histórico según `EstablishmentPermissionsOf`). `CashCloseTotalsOf`, arqueo y `EstablishmentStatsOf` en el dominio, comprobados contra Nest con los mismos pedidos, en UTC y en `Europe/Madrid`. SQL propio sobre `"Order"`, `"OrderItem"` y `"OrderAdjustment"`. Para P3: `StatsService.EstablishmentStats(ctx, establishmentID, includeHistory)` es `GetEstablishmentStatsQuery` (en `main.go`, `statsService`). `test/cash-closes` y `test/stats` crean pedidos por HTTP: quedan fuera de `e2e-paquetes.txt` hasta la integración con P2d-1 (los tests que no usan pedidos ya pasan contra Go) |
 | P2e Cobros | ✅ Hecho | `/establishments/{id}/establishment-subscription` (lectura, asientos, Checkout y portal), `/stripe/webhook` con firma, refresco desde Stripe (`SubscriptionRefresher` ya cableado), sincronización de asientos como método (`SyncSeatsOnMemberChange`, falta suscribirlo a los eventos de miembros de P2b), eventos `Subscription*` y `DuplicateSubscriptionDetected` con sus suscriptores (caché, realtime y log), y emails con Resend. Ningún directorio de `apps/api/test` es solo suyo: el test del portal de `test/permissions` pasa contra Go |
 | P2f Realtime | ✅ Hecho | `GET /establishments/{establishmentId}/events` (SSE con `: open`, heartbeat de 25 s, cierre a los 30 min y `Last-Event-ID`), `service.RealtimeService` (implementa `ports.Realtime`: registro de streams por local, `Publish`, `Revoke`), bus en Redis compatible con Nest (canal `coaster:realtime`, replay de 2 min en `realtime:<id>:replay`), sin Redis solo en este proceso, cierre de streams al apagar. `test/realtime` pasa contra Go (publicar y revocar, en los tests de Go). Los suscriptores de `realtime/events/handlers/` los escribe cada paquete |
-| P3 IA | ⬜ Pendiente | Se lanza en cuanto P2d-1 esté en `dev` |
+| P3 IA | ✅ Hecho | Ola 4. `/establishments/{establishmentId}/ai`: `GET usage`, `POST` (201) y `POST stream` (SSE con `delta` y `done`), con solo auth, ser miembro y 20 por minuto. `AIService.Execute` es `ExecuteAiCommand`: membresía, cuota por local y mes en `AiUsage` (500, o 100 en prueba; cuenta solo tras una respuesta), módulos, instantánea y el mismo prompt de sistema, los 10 últimos mensajes y `zai/glm-4.7` a 0.1 con 8 pasos y sus cuatro modelos de respaldo. `adapter/ai.Gateway` habla con la API compatible con OpenAI del AI Gateway con openai-go y hace lo del AI SDK: el bucle de herramientas, la comprobación de su entrada como zod y el streaming. Las 40 herramientas (`service/ai_tools_*.go`) llaman a los servicios de P2 con los permisos, `confirmed`, textos y euros/céntimos de Nest; sus respuestas, esquemas y el prompt se comparan byte a byte con lo que da Nest (`service/testdata`). `test/ai` pasa contra Go. **Pendiente de Miguel**: confirmar los modelos de respaldo con la clave de verdad. Posibles bugs de Nest copiados tal cual: en el stream cualquier error (también `AI_QUOTA_EXCEEDED` y `MEMBER_NOT_FOUND`) llega como `ai_gateway_failed` y `apps/web` no lo distingue; la cuota se mira antes y se cuenta después, así que varios mensajes a la vez pueden pasarla; si falla contar el mensaje se responde el error del gateway aunque las herramientas ya se ejecutaron; `createOrder` y `addOrderItems` quitan en silencio los productos que no están en la instantánea y responden éxito; las mesas y productos de los pedidos se nombran con la instantánea del turno (`deleteOrder` de un pedido cerrado siempre confirma la mesa «No table»); `getOrdersByDate` suma `totalAmount` (sin IVA ni descuentos) mientras cada pedido enseña `orderTotal`; `updateProduct` acepta precios negativos |
 | P4 Arnés e2e | ✅ Hecho | `E2E_TARGET=go` lanza los e2e de `apps/api` contra Go: el `globalSetup` compila el binario, cada archivo arranca su servidor detrás de un proxy que pone `/api/v1` y un JWT de verdad, buzón de test y claves de Google por HTTP, `e2e-paquetes.txt`, `scripts/e2e-go.sh` y job de CI `api-go-e2e`. Lo que falta en Go está en «Convenciones de P4» |
 | P5 Salida | ⬜ Pendiente | |
 
 ## Siguiente paso
 
-P2 está completo: los directorios de tests de `apps/api/test` pasan contra Go (21 de 22; falta `test/ai`)
+P2 y P3 están completos: los 22 directorios de tests de `apps/api/test` pasan contra Go
 (`e2e-paquetes.txt`). Queda:
-1. **P3 IA** (ola 4), en marcha. Al terminar añade `test/ai` a `e2e-paquetes.txt`. Antes de
-   P5, Miguel tiene que confirmar cómo pasar los modelos de respaldo al AI Gateway.
-2. **Revisión de Miguel** de la ola 3b y de las listas de posibles bugs de Nest que cada
-   subpaquete ha copiado tal cual (en su fila de «Estado» y en el historial de commits).
+1. **Confirmar los modelos de respaldo del AI Gateway** con la clave de verdad (Miguel, antes de
+   P5): cómo probarlo está en «Convenciones de P3».
+2. **Revisión de Miguel** de la ola 3b, de P3 y de las listas de posibles bugs de Nest que cada
+   paquete ha copiado tal cual (en su fila de «Estado» y en el historial de commits).
 3. **P5 Salida**: no la hacen los agentes.
 
 ## Convenciones de P0
@@ -400,7 +402,7 @@ local `export GOTOOLCHAIN=go1.27.0`)
 | `auth/account`, `auth/account-recovery`, `establishment-members/*` (3) | `TestMailbox` (el `AUTH_MAILER` sustituido) | Con `TEST_MAILBOX_URL`, Go no manda emails: hace `POST` de `{"kind","to","token"}` a esa URL y espera el 2xx antes de seguir, igual que Nest espera al mailer. `kind` es `invite`, `verifyEmail`, `resetPassword` o `passwordChanged`; `token` va en todos menos `passwordChanged`. El arnés ya tiene el servidor que lo recibe y lo mete en `testSetup.mailbox` | P1 hace el adaptador de test del puerto de email (los emails de auth son los primeros); P2e hace el de Resend contra el mismo puerto; P2b lo usa para las invitaciones |
 | `auth/google` | `vi.stubGlobal('fetch')` con las claves públicas | Con `GOOGLE_CERTS_URL`, Go pide las claves a esa URL en lugar de a `https://www.googleapis.com/oauth2/v3/certs` (con `idtoken.NewValidator` y `option.WithHTTPClient` con un `RoundTripper` que cambia la URL). El arnés ya sirve ahí lo que devuelve el `fetch` falso del test | P1 |
 | `realtime` | `app.get(RealtimeService).publish/revoke` (3 tests) | Se saltan en modo Go. Los otros dos (403 y apertura del stream) sí van contra Go. P2f cubre publicar y revocar en sus tests de Go | P2f |
-| `ai` | `vi.mock('ai')` | Nada: el test acepta 201 o 500, y sin `AI_GATEWAY_API_KEY` Go puede responder 500. Si P3 quiere probar la respuesta, puede leer una URL base del gateway de una variable de test y el arnés servir una respuesta falsa compatible con OpenAI | P3 |
+| `ai` | `vi.mock('ai')` | Nada: el test acepta 201 o 500. Sin `AI_GATEWAY_API_KEY` Go no llama al gateway y responde 201 con el error traducible, como Nest cuando el SDK falla. La respuesta del modelo se prueba en los tests de Go (`adapter/ai`, con un servidor falso compatible con OpenAI) | P3 |
 | `admin` | `MockAuthGuard` deja pasar a un usuario inactivo y no manda token | «should refuse demoting the last admin» se salta en modo Go: con un token de verdad es un 401. «should let a lapsed establishment write again, and stop it once revoked» también: con token, `SubscriptionActiveGuard` deja escribir al admin en un local caducado y los 402 son 201 (el flujo se ha comprobado contra Go con el dueño del local) | — |
 | Stripe | — | Ningún e2e llama a Stripe (`admin` solo lee las columnas de Stripe en la base de datos) | — |
 
@@ -584,6 +586,51 @@ como el `void` de Nest: para leer cómo queda un pedido, `Get`.
 - Regla nueva `percentage`, el `PercentageWithinRange` de `AddOrderAdjustmentDto`: si el campo
   `Type` del mismo struct es `PERCENTAGE`, el valor no pasa de 100.
 
+## Convenciones de P3
+
+**Dónde está cada cosa**
+- `domain/ai.go`: `AIMessage`, `AIResponse`, `AIUsage` y `AIToolResult` (el `ToolResult` de las
+  herramientas), `AIGatewayFailed` y los formateadores de la instantánea (`snapshot.ts`).
+- `ports/ai.go`: `AIModel` (`Generate(ctx, AIRequest)`, que es `generateText`, o `streamText`
+  con `OnDelta`), `AITool` (nombre, descripción, esquema JSON y `Run`) y `AIUsageRepository`.
+- `adapter/ai`: `Gateway` implementa `AIModel` con openai-go contra
+  `https://ai-gateway.vercel.sh/v1`. Hace lo que hacía el AI SDK: el bucle de pasos, comprobar la
+  entrada de cada herramienta contra su esquema como zod (`tool_input.go`) y el streaming. El
+  servicio no importa openai-go.
+- `service/ai_service.go`: `AIService.Execute` (`ExecuteAiCommand`) y `Usage`
+  (`GetAiUsageQuery`), el modelo, sus respaldos y el prompt de sistema (el texto de Nest tal cual,
+  con `%s` donde Nest interpola).
+- `service/ai_tools.go`: el contexto de un turno (`aiToolContext`), el runner de Nest
+  (`tc.execute` para comandos, `aiQuery` para consultas, `aiConfirmation` para las destructivas) y
+  `newAITool`. Las herramientas van por área en `ai_tools_<área>.go`.
+
+**Añadir o cambiar una herramienta**
+- La entrada es un struct: sin `omitempty` es obligatoria, con puntero y `omitempty` opcional;
+  `jsonschema` lleva las reglas de zod (`minimum`, `maximum`, `enum`, `minItems`) y
+  `jsonschema_description` el `.describe()`. `z.number().int()` es `int` con
+  `minimum=-9007199254740991,maximum=9007199254740991` (o su mínimo), como lo escribe zod.
+- `newAITool(nombre, descripción, func(ctx, input T) domain.AIToolResult)`. Dentro, lo que Nest
+  comprueba antes del runner (`failed(...)`) va con `aiFailed`, y la llamada al servicio con
+  `tc.execute(permiso, confirmación, func() error {...})` o `aiQuery(tc, permiso, consulta, proyección)`.
+  Las proyecciones son structs con los nombres JSON de Nest; el dinero va en euros con `toEuros` y
+  vuelve con `toCents` (`Math.round`).
+- `service/testdata/nest_ai_tools.json` (esquemas y descripciones) y `nest_ai_answers.json`
+  (respuestas y prompts) se sacaron ejecutando el código de `apps/api/src/ai` con un spec de vitest
+  temporal: `getAiTools(...)` con buses falsos y los datos de `newAIFixture`, y `inputSchema.jsonSchema`
+  de cada herramienta. Si Nest cambia una herramienta, se vuelven a sacar igual.
+
+**Probar**
+- El bucle se prueba en `adapter/ai/gateway_test.go` con un `httptest.Server` compatible con OpenAI
+  que pide herramientas y devuelve texto, con y sin streaming.
+- Las herramientas y el prompt, en `service/ai_*_test.go` con los servicios reales y los fakes de P2.
+- **Los modelos de respaldo, a mano y con la clave de verdad**: con `AI_GATEWAY_API_KEY` puesta,
+  mandar un mensaje y mirar en el panel del AI Gateway que la petición lleva los modelos de
+  respaldo (o forzar un modelo principal que no exista y ver que responde uno de los de respaldo).
+  Si el gateway no los lee por `providerOptions.gateway.models`, probar `models` en la raíz del
+  cuerpo: es cambiar `SetExtraFields` en `Gateway.Generate`.
+- La URL del gateway no se puede cambiar por entorno: los e2e no llaman al modelo (sin clave, el
+  gateway falla sin llamar y la ruta responde 201 con el error).
+
 ## Ejecución con agentes
 
 Los paquetes los ejecuta un agente orquestador que lanza subagentes. Se hace en olas:
@@ -683,6 +730,15 @@ Lo que Go hace distinto de Nest a propósito o porque no se ha podido copiar.
 | P2d-1 | Las notas del pedido y de las líneas y el motivo de un ajuste se cortan a 500 caracteres (runas), y `@MaxLength(500)` también cuenta runas, no unidades UTF-16. `trim` no quita el BOM (U+FEFF) | Solo cambia con emojis y otros caracteres fuera del plano básico |
 | P2d-1 | Los ajustes de un pedido salen ordenados por `createdAt` e `id` | Nest los pide sin `orderBy` y salen en el orden en que Postgres los devuelva |
 | P2d-1 | En `orderIds` de `POST /orders/merge`, cada id que no es UUID da su propio `INVALID_TYPE`; class-validator da uno por campo | validator comprueba cada elemento con `dive`. Viene de P0 y pasa igual con cualquier `{ each: true }` |
+| P3 | **Pendiente de confirmar por Miguel.** Los cuatro modelos de respaldo van en el cuerpo de la API compatible con OpenAI como `providerOptions: {gateway: {models: [...]}}`; Nest los pasa con las `providerOptions` del proveedor `gateway` del AI SDK | Sin el SDK de Vercel no hay proveedor `gateway`. Es lo que documenta el AI Gateway para Chat Completions (también acepta `models` en la raíz del cuerpo), pero no se ha podido probar sin la clave de verdad. Si el gateway no los leyera, Go solo usaría `zai/glm-4.7` |
+| P3 | Go habla con el gateway por su API compatible con OpenAI (Chat Completions); Nest, con el protocolo propio del proveedor `gateway` del AI SDK. El razonamiento que devuelva el modelo no vuelve en los pasos siguientes | Es la API que se puede usar con openai-go (`LIBRERIAS.md`); el texto, las herramientas y sus resultados son los mismos |
+| P3 | Las herramientas que el modelo pide en un mismo paso se ejecutan una detrás de otra, en su orden; el AI SDK las lanza a la vez | Mismos resultados sin escrituras a la vez sobre el mismo pedido o mesa |
+| P3 | El texto que recibe el modelo cuando la entrada de una herramienta no cumple su esquema imita el de zod (`Invalid input for tool …: Type validation failed: …` con sus issues), pero el orden de los campos de cada issue puede cambiar, falta el `note` de un entero fuera del rango seguro y el error de un JSON roto es el de Go | La comprobación se escribe a mano sobre el esquema; el modelo solo lo lee para corregirse |
+| P3 | Un cuerpo de `POST ai` con `messages` que no es una lista se trata como si no viniera (se usa `prompt`) y un mensaje con campos de otro tipo los lee vacíos; en Nest lo primero es un `TypeError` (500, o el `done` de error en el stream) y lo segundo el error del gateway | El cuerpo no tiene DTO en Nest y `apps/web` siempre manda texto y una lista |
+| P3 | `AI_MONTHLY_MESSAGES` o `AI_TRIAL_MONTHLY_MESSAGES` que no son un entero usan el valor por defecto; en Nest `Number()` da `NaN`, la cuota nunca se agota y `GET usage` responde `null` | Bug de Nest que no se copia. Un `0` sí apaga el asistente, como en Nest |
+| P3 | Sin `AI_GATEWAY_API_KEY` Go falla sin llamar al gateway; el AI SDK aún prueba el token OIDC de Vercel | La API no corre en Vercel; la respuesta es la misma (201 con el error traducible) |
+| P3 | `POST ai/stream` manda las cabeceras en cuanto empieza; Node las manda con el primer `delta` o con el `done` | Así el cliente no espera sin respuesta mientras el modelo piensa; las cabeceras son las mismas |
+| P3 | El error de una herramienta que no es de negocio (la base de datos caída, una fecha imposible en `getOrdersByDate`) lleva el texto del error de Go, no el de Prisma o Temporal | Como en el resto de paquetes; los errores con código de `ErrorCodes` son idénticos y llevan `errorKey` |
 
 ## Comprobar que Go se comporta igual que Nest
 
@@ -712,7 +768,8 @@ Hecho en P4: cómo se lanza y qué falta en Go está en «Convenciones de P4».
   La tabla `_prisma_migrations` deja de usarse.
 - **Tipos compartidos** (`@coaster/common`): siguen en TypeScript y hay que mantenerlos a
   mano o generarlos desde OpenAPI.
-- **IA**: queda por confirmar cómo pasar los modelos de respaldo al AI Gateway sin el SDK de Vercel.
+- **IA**: queda por confirmar que el AI Gateway lee los modelos de respaldo que Go le manda por su API
+  compatible con OpenAI (`providerOptions.gateway.models`).
 
 ## Costes en Cloud Run
 

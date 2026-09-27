@@ -58,7 +58,7 @@ Estado: ⬜ sin revisar · ✅ aprobada · ❌ descartada
 |---|---|---|---|
 | `ai` (AI SDK de Vercel) | `github.com/openai/openai-go/v3` | El AI Gateway de Vercel acepta el protocolo de OpenAI, así que basta con cambiar la URL base. El bucle de herramientas (hasta 8 pasos) se escribe a mano. | ✅ |
 | `zod` (esquemas de herramientas) | `github.com/invopop/jsonschema` | Genera el JSON Schema de cada herramienta a partir de un struct. Son 40 herramientas, así que compensa. | ✅ |
-| Modelos de respaldo del gateway | — | **Por comprobar en P3**: cómo pasar la lista de modelos de respaldo sin usar el SDK de Vercel. Si no hay forma, usar solo el modelo principal y apuntarlo en «Diferencias conocidas» de `MIGRACION.md`. | ⬜ |
+| Modelos de respaldo del gateway | — (un campo más en el cuerpo con `SetExtraFields` de openai-go) | Hecho en P3 como `providerOptions.gateway.models` en el cuerpo de Chat Completions, que es lo que documenta el AI Gateway para su API compatible con OpenAI. **Falta que Miguel lo confirme con la clave de verdad** (cómo, en «Convenciones de P3» de `MIGRACION.md`). | ⬜ |
 
 ## Tiempo real (SSE)
 
