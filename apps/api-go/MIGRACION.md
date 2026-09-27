@@ -150,7 +150,7 @@ Actualizar esta tabla al terminar cada paquete.
 | P2c Turnos y fichajes | ⬜ Pendiente | |
 | P2d Pedidos | ⬜ Pendiente | |
 | P2e Cobros | ⬜ Pendiente | |
-| P2f Realtime | ⬜ Pendiente | |
+| P2f Realtime | ✅ Hecho | `GET /establishments/{establishmentId}/events` (SSE con `: open`, heartbeat de 25 s, cierre a los 30 min y `Last-Event-ID`), `service.RealtimeService` (implementa `ports.Realtime`: registro de streams por local, `Publish`, `Revoke`), bus en Redis compatible con Nest (canal `coaster:realtime`, replay de 2 min en `realtime:<id>:replay`), sin Redis solo en este proceso, cierre de streams al apagar. `test/realtime` pasa contra Go (publicar y revocar, en los tests de Go). Los suscriptores de `realtime/events/handlers/` los escribe cada paquete |
 | P3 IA | ⬜ Pendiente | |
 | P4 Arnés e2e | ✅ Hecho | `E2E_TARGET=go` lanza los e2e de `apps/api` contra Go: el `globalSetup` compila el binario, cada archivo arranca su servidor detrás de un proxy que pone `/api/v1` y un JWT de verdad, buzón de test y claves de Google por HTTP, `e2e-paquetes.txt`, `scripts/e2e-go.sh` y job de CI `api-go-e2e`. Lo que falta en Go está en «Convenciones de P4» |
 | P5 Salida | ⬜ Pendiente | |
@@ -380,6 +380,28 @@ local `export GOTOOLCHAIN=go1.27.0`)
   `describe.skipIf(isGoTarget)` (`isGoTarget` sale de `test/utils/e2e-setup`) y un comentario
   con el motivo. Nunca se salta contra Nest.
 
+## Convenciones de P2f
+
+Cómo se manda algo por tiempo real desde otro paquete.
+
+- En `main.go`, `realtime` es un `ports.Realtime` (`*service.RealtimeService`). El suscriptor
+  de un evento lo usa igual que el handler de `realtime/events/handlers/` de Nest (los
+  nombres del evento son de ejemplo):
+  ```go
+  bus.Subscribe(domain.OrderCreatedEventName, func(ctx context.Context, e ports.Event) {
+  	created := e.(domain.OrderCreatedEvent)
+  	realtime.Publish(created.EstablishmentID, domain.RealtimeOrderCreated, created.Order)
+  })
+  ```
+  El primer paquete que use `realtime` en `main.go` quita la línea `_ = realtime`.
+- El payload se escribe como `JSON.stringify` (sin escapar `<>&`), así que tiene que tener la
+  misma forma que el de Nest: un struct con tags `json` o un `map`. Las fechas, como
+  `domain.Time`.
+- `realtime.Revoke(establishmentID, userID)` cierra los streams de esa persona en ese local, en
+  esta instancia y en las demás (por ejemplo, al quitar un miembro o cambiarle el rol).
+- En los tests de un servicio o suscriptor basta un fake de `ports.Realtime` que guarde las
+  llamadas. `service.RealtimeService` se puede usar tal cual con un `ports.RealtimeBus` falso.
+
 ## Ejecución con agentes
 
 Los paquetes los ejecuta un agente orquestador que lanza subagentes. Se hace en olas:
@@ -437,6 +459,8 @@ Lo que Go hace distinto de Nest a propósito o porque no se ha podido copiar.
 | P1 | Un token de Google vale hasta el mismo segundo de `exp` (jose lo rechaza en ese segundo) y las claves se guardan lo que diga `Cache-Control` | Lo hace `idtoken`; el emisor, `RS256` y `nbf` se comprueban a mano |
 | P1 | Los atributos de la cookie salen en otro orden (`Path; Expires; HttpOnly; Secure; SameSite`) | Es el orden de `net/http`; los navegadores no lo miran |
 | P1 | Sin `SubscriptionRefresher`: una suscripción caducada en la base de datos no se comprueba contra Stripe antes del 402 | Llega con P2e |
+| P2f | Un cliente tan lento que acumula 64 eventos sin leer pierde el stream (el navegador vuelve a conectar y pide lo perdido con `Last-Event-ID`) | Node guarda en memoria sin límite lo que el socket no ha enviado; en Go cada stream tiene una cola fija para que `Publish` no se bloquee |
+| P2f | Los eventos perdidos (`Last-Event-ID`) se escriben antes que los que llegan mientras se leen de Redis | En Nest el replay es asíncrono y se pueden mezclar; en Go lo escribe la misma goroutine que el resto del stream |
 
 ## Comprobar que Go se comporta igual que Nest
 
