@@ -194,6 +194,29 @@ func run() error {
 	handlers.Establishment = httphandler.NewEstablishmentHandler(establishmentService)
 	handlers.User = httphandler.NewUserHandler(userService)
 
+	establishmentMemberService := service.NewEstablishmentMemberService(service.EstablishmentMemberDependencies{
+		Members:  repository.NewEstablishmentMemberRepository(pool),
+		Security: security,
+		Tokens:   authTokens,
+		Mailer:   mailer,
+		Cache:    valueCache,
+		Events:   bus,
+		Realtime: realtime,
+	})
+	for _, name := range service.EstablishmentMemberEvents {
+		bus.Subscribe(name, establishmentMemberService.ForgetCache)
+		bus.Subscribe(name, establishmentMemberService.PublishRealtime)
+	}
+	bus.Subscribe(domain.MemberInvited{}.Name(), establishmentMemberService.SendInvitation)
+	bus.Subscribe(domain.MemberRoleChanged{}.Name(), establishmentMemberService.AuditRoleChange)
+	bus.Subscribe(domain.MemberInvited{}.Name(), func(ctx context.Context, e ports.Event) {
+		subscriptions.SyncSeatsOnMemberChange(ctx, e.(domain.MemberInvited).EstablishmentID)
+	})
+	bus.Subscribe(domain.MemberRemoved{}.Name(), func(ctx context.Context, e ports.Event) {
+		subscriptions.SyncSeatsOnMemberChange(ctx, e.(domain.MemberRemoved).EstablishmentID)
+	})
+	handlers.EstablishmentMember = httphandler.NewEstablishmentMemberHandler(establishmentMemberService)
+
 	router, err := httphandler.NewRouter(
 		httphandler.RouterConfig{CORSOrigins: cfg.CORSOrigins, PublicDir: cfg.PublicDir},
 		handlers,
