@@ -149,7 +149,7 @@ Actualizar esta tabla al terminar cada paquete.
 | P2b Local y personas | ⬜ Pendiente | |
 | P2c Turnos y fichajes | ⬜ Pendiente | |
 | P2d Pedidos | ⬜ Pendiente | |
-| P2e Cobros | ⬜ Pendiente | |
+| P2e Cobros | ✅ Hecho | `/establishments/{id}/establishment-subscription` (lectura, asientos, Checkout y portal), `/stripe/webhook` con firma, refresco desde Stripe (`SubscriptionRefresher` ya cableado), sincronización de asientos como método (`SyncSeatsOnMemberChange`, falta suscribirlo a los eventos de miembros de P2b), eventos `Subscription*` y `DuplicateSubscriptionDetected` con sus suscriptores (caché, realtime y log), y emails con Resend. Ningún directorio de `apps/api/test` es solo suyo: el test del portal de `test/permissions` pasa contra Go |
 | P2f Realtime | ✅ Hecho | `GET /establishments/{establishmentId}/events` (SSE con `: open`, heartbeat de 25 s, cierre a los 30 min y `Last-Event-ID`), `service.RealtimeService` (implementa `ports.Realtime`: registro de streams por local, `Publish`, `Revoke`), bus en Redis compatible con Nest (canal `coaster:realtime`, replay de 2 min en `realtime:<id>:replay`), sin Redis solo en este proceso, cierre de streams al apagar. `test/realtime` pasa contra Go (publicar y revocar, en los tests de Go). Los suscriptores de `realtime/events/handlers/` los escribe cada paquete |
 | P3 IA | ⬜ Pendiente | |
 | P4 Arnés e2e | ✅ Hecho | `E2E_TARGET=go` lanza los e2e de `apps/api` contra Go: el `globalSetup` compila el binario, cada archivo arranca su servidor detrás de un proxy que pone `/api/v1` y un JWT de verdad, buzón de test y claves de Google por HTTP, `e2e-paquetes.txt`, `scripts/e2e-go.sh` y job de CI `api-go-e2e`. Lo que falta en Go está en «Convenciones de P4» |
@@ -318,6 +318,29 @@ Cómo se protege una ruta y cómo lee el handler quién llama. Todo está en
 - Los eventos de auth (`domain.AuthEventOccurred`) se guardan en `AuthEvent` desde un
   suscriptor del bus (`AuthEventService.Record`).
 
+## Convenciones de P2e
+
+- Stripe está detrás de `ports.PaymentGateway` (`adapter/payment/stripe.go`), que devuelve
+  tipos de `domain/stripe.go` y ya traduce los fallos a los `domain.Error` de Nest
+  (`STRIPE_*_FAILED`). El servicio nunca importa stripe-go. En los tests del adaptador,
+  `newStripeGateway` recibe unos `stripe.Backends` que apuntan a un `httptest.Server`; los
+  webhooks se firman con `webhook.GenerateTestSignedPayload`.
+- `service.SubscriptionService` es todo `establishment-subscription`: los handlers de las
+  rutas y del webhook reciben el mismo servicio. `HandleWebhook(ctx, cuerpo, firma)` verifica
+  y enruta; el handler solo lee el cuerpo crudo.
+- Los eventos `SubscriptionActivated`, `SubscriptionCancelled`, `SubscriptionOverridden`,
+  `SubscriptionPaymentFailed`, `SubscriptionRenewed` y `DuplicateSubscriptionDetected` están
+  en `domain/subscription_events.go`. `domain.SubscriptionEventNames` son los que olvidan la
+  caché de la suscripción y avisan por realtime (`subscriptionUpdated`). Quien conceda o
+  revoque un plan a mano (admin, P2b) publica `domain.SubscriptionOverridden` después de
+  guardar, y con eso basta.
+- Los asientos: al cambiar los miembros de un local hay que llamar a
+  `SubscriptionService.SyncSeatsOnMemberChange(ctx, establishmentID)` desde un suscriptor de
+  los eventos de miembro invitado y eliminado (en Nest, `MemberInvitedEvent` y
+  `MemberRemovedEvent`). Traga y registra el error, como en Nest.
+- `email.ResendMailer` se usa cuando hay `RESEND_API_KEY`; `TEST_MAILBOX_URL` sigue ganando.
+  Los textos están en `adapter/email/templates.go` y el marco en `templates/layout.html`.
+
 ## Convenciones de P4
 
 Cómo se lanzan los e2e de `apps/api/test` contra el servidor Go y qué tiene que hacer cada
@@ -461,6 +484,12 @@ Lo que Go hace distinto de Nest a propósito o porque no se ha podido copiar.
 | P1 | Sin `SubscriptionRefresher`: una suscripción caducada en la base de datos no se comprueba contra Stripe antes del 402 | Llega con P2e |
 | P2f | Un cliente tan lento que acumula 64 eventos sin leer pierde el stream (el navegador vuelve a conectar y pide lo perdido con `Last-Event-ID`) | Node guarda en memoria sin límite lo que el socket no ha enviado; en Go cada stream tiene una cola fija para que `Publish` no se bloquee |
 | P2f | Los eventos perdidos (`Last-Event-ID`) se escriben antes que los que llegan mientras se leen de Redis | En Nest el replay es asíncrono y se pueden mezclar; en Go lo escribe la misma goroutine que el resto del stream |
+| P2e | El webhook no mira si el cuerpo es JSON antes de comprobar la firma: un cuerpo roto responde `STRIPE_WEBHOOK_SIGNATURE_INVALID` (o el error de firma que toque) en lugar del 400/415 de Fastify | Go lee el cuerpo crudo en el handler; Stripe siempre manda JSON |
+| P2e | stripe-go exige `"object":"event"` en el cuerpo del webhook; el SDK de Node no lo mira | Stripe siempre lo manda |
+| P2e | Una línea de suscripción con `quantity` 0 se lee como 1 asiento (en Nest solo sin `quantity`) | stripe-go no distingue 0 de un campo ausente |
+| P2e | `PRO_BASE_PRICE_CENTS`, `PRO_INCLUDED_SEATS` y `PRO_EXTRA_SEAT_PRICE_CENTS` se leen con `strconv.Atoi` (tras quitar espacios): `"5.0"` o `"1e3"` usan el valor por defecto | `Number()` de JavaScript los acepta; son variables nuestras y van como enteros |
+| P2e | En los emails, `'` y `"` de los valores se escapan como `&#39;` y `&#34;`, no como `&#x27;` y `&quot;` | Es el escape de `html/template`; el navegador lo muestra igual |
+| P2e | Sin `RESEND_API_KEY` los emails siguen yendo al log; Nest usa una clave falsa y el envío falla | Se mantiene lo de P1 |
 
 ## Comprobar que Go se comporta igual que Nest
 
