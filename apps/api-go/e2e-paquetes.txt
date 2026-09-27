@@ -4,3 +4,7 @@
 test/harness
 test/auth
 test/realtime
+test/categories
+test/products
+test/catalogue
+test/menu

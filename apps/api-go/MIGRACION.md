@@ -145,7 +145,7 @@ Actualizar esta tabla al terminar cada paquete.
 | Revisión de `LIBRERIAS.md` | ✅ Hecho | 27-sep-2026. Solo quedan por confirmar los modelos de respaldo de la IA (P3) |
 | P0 Base | ✅ Hecho | Esqueleto, config, pool y arnés de Postgres, contrato HTTP de Nest (errores, 404, validación), helmet, CORS, gzip, `/public/`, `EventPublisher` en memoria, Dockerfile, servicio `api-go` en compose y job de CI |
 | P1 Auth y permisos | ✅ Hecho | `/auth` y `/account` completos (registro, login, Google, refresh con rotación y detección de reutilización, recuperación, verificación, invitaciones, sesiones, identidades), JWT, argon2 compatible con `@node-rs/argon2`, guard de rutas (rate limit, suscripción, auth, admin, permisos, módulos), caché y rate limit en Redis con respaldo en memoria, bloqueo de login, Have I Been Pwned, email a log o al buzón de test. `test/auth` pasa contra Go; `test/permissions` y `test/modules` esperan a las rutas de P2. Faltan: el refresco de la suscripción desde Stripe (`SubscriptionRefresher`, P2e) y Resend (P2e) |
-| P2a Catálogo | ⬜ Pendiente | |
+| P2a Catálogo | ✅ Hecho | Categorías, productos (con `AdjustStock` para pedidos e IA), catálogo inicial, carta (borrador, publicar, carta pública por `slug` con `lang` y agotados) y URLs firmadas de subida a GCS (`adapter/storage`, cliente perezoso). Eventos `Category*`, `Product*` y `CatalogueImportedEvent` con su suscriptor de realtime. `test/categories`, `test/products`, `test/catalogue` y `test/menu` pasan contra Go |
 | P2b Local y personas | ⬜ Pendiente | |
 | P2c Turnos y fichajes | ⬜ Pendiente | |
 | P2d Pedidos | ⬜ Pendiente | |
@@ -425,6 +425,31 @@ Cómo se manda algo por tiempo real desde otro paquete.
 - En los tests de un servicio o suscriptor basta un fake de `ports.Realtime` que guarde las
   llamadas. `service.RealtimeService` se puede usar tal cual con un `ports.RealtimeBus` falso.
 
+## Convenciones de P2a
+
+- `ProductService.AdjustStock(ctx, establishmentID, productID, delta)` es
+  `AdjustProductStockCommand`: los pedidos (P2d, las sagas de `orders.sagas.ts`) y las
+  herramientas de IA (P3) lo llaman para restar o devolver stock. Publica `ProductStockChangedEvent`.
+- `writeSuccess(w)` (`handler/http/success.go`) es `commonMapper.getSuccessResponse()`: 200 con
+  `{"success":true}`. Un `POST` que devuelve `void` en Nest responde `w.WriteHeader(http.StatusCreated)`
+  sin cuerpo, y un `PATCH`/`PUT` que devuelve `void`, `w.WriteHeader(http.StatusOK)`.
+- En un `PATCH` donde `null` vacía una columna (Nest pasa el `null` a Prisma), el handler usa
+  `decodeJSONWithNulls(r, &input)`, que además devuelve qué campos llegaron a `null`.
+- Regla de validación nueva `oneofci`: `oneof` comparando el valor sin espacios y en minúsculas,
+  para un DTO con `@Transform(trim + toLowerCase)` antes de `@IsIn`.
+- `domain.Languages`, `domain.IsLanguage` y `domain.AsLanguage` (`domain/language.go`) son
+  `LANGUAGES`, `isLanguage` y `asLanguage` de `@coaster/common`.
+- Suscriptores de realtime: `service.CatalogRealtime.Forward` recibe los eventos del paquete con
+  un `switch` de tipos y llama a `ports.Realtime`; `main` lo suscribe a cada nombre de
+  `service.CatalogRealtimeEvents`.
+- Prisma pone `@default(uuid())` y `@updatedAt` desde el cliente, no en la base de datos: Go
+  genera el `id` con `uuid.NewV4()` y cada `UPDATE` de una tabla con `@updatedAt` escribe
+  `"updatedAt" = now()` (la carta usa el `updatedAt` del producto para saber si hay cambios sin publicar).
+- Las columnas de arrays de enums (`"Allergen"[]`) se escriben con `$n::text[]::"Allergen"[]` y se
+  leen con `COALESCE(columna, '{}')::text[]`.
+- Los fakes de los tests de `service` y `handler/http` comparten paquete con los de los demás
+  paquetes P2: llevan el nombre de la entidad (`fakeProductRepo`, `catalogRealtimeFake`) para no chocar.
+
 ## Ejecución con agentes
 
 Los paquetes los ejecuta un agente orquestador que lanza subagentes. Se hace en olas:
@@ -490,6 +515,11 @@ Lo que Go hace distinto de Nest a propósito o porque no se ha podido copiar.
 | P2e | `PRO_BASE_PRICE_CENTS`, `PRO_INCLUDED_SEATS` y `PRO_EXTRA_SEAT_PRICE_CENTS` se leen con `strconv.Atoi` (tras quitar espacios): `"5.0"` o `"1e3"` usan el valor por defecto | `Number()` de JavaScript los acepta; son variables nuestras y van como enteros |
 | P2e | En los emails, `'` y `"` de los valores se escapan como `&#39;` y `&#34;`, no como `&#x27;` y `&quot;` | Es el escape de `html/template`; el navegador lo muestra igual |
 | P2e | Sin `RESEND_API_KEY` los emails siguen yendo al log; Nest usa una clave falsa y el envío falla | Se mantiene lo de P1 |
+| P2a | En un `PATCH`, un `null` en un campo que no admite nulos (`name`, `price`, `categoryId`, `allergens`, `taxRate` de la categoría…) se ignora; Nest lo deja pasar y Prisma responde 500. `null` en `icon`, `imageUrl` y `ownTaxRate` sí vacía la columna, igual que en Nest | Go no distingue un campo que falta de uno a `null` sin leer el cuerpo aparte; solo se hace para las columnas que admiten nulos |
+| P2a | Un número con decimales en un campo entero (`price`, `currentStock`, `taxRate`…) responde 400 `INVALID_TYPE`; en Nest pasa `@IsNumber` y Prisma responde 500 | Los campos son `int` en Go |
+| P2a | El slug de la carta quita los acentos con una tabla de las letras latinas (U+00C0–U+017F) y no con la normalización NFD | `golang.org/x/text` no está en `LIBRERIAS.md`; en ese rango da lo mismo que Node (comprobado letra a letra) y fuera de él la letra se cambia por `-` |
+| P2a | El nombre y la descripción de una línea de la carta se cortan a 80 y 300 caracteres, no unidades UTF-16 | Solo cambia con emojis y otros caracteres fuera del plano básico |
+| P2a | Las claves del JSON de la carta publicada salen en el orden del struct, no en el de `jsonb` | Nest devuelve el objeto tal como lo guarda Postgres; el contenido es el mismo |
 
 ## Comprobar que Go se comporta igual que Nest
 
