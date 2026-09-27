@@ -187,6 +187,13 @@ func run() error {
 	handlers.ShiftExchange = httphandler.NewShiftExchangeHandler(shiftExchangeService)
 	handlers.TimeEntry = httphandler.NewTimeEntryHandler(timeEntryService)
 
+	establishmentService := service.NewEstablishmentService(repository.NewEstablishmentRepository(pool), bus, valueCache)
+	userService := service.NewUserService(repository.NewUserRepository(pool), bus, valueCache)
+	bus.Subscribe(domain.EstablishmentSettingsUpdated{}.Name(), establishmentService.ForgetModulesCache)
+	bus.Subscribe(domain.UserUpdated{}.Name(), userService.ForgetCache)
+	handlers.Establishment = httphandler.NewEstablishmentHandler(establishmentService)
+	handlers.User = httphandler.NewUserHandler(userService)
+
 	router, err := httphandler.NewRouter(
 		httphandler.RouterConfig{CORSOrigins: cfg.CORSOrigins, PublicDir: cfg.PublicDir},
 		handlers,

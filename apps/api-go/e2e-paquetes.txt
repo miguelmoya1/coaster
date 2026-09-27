@@ -10,3 +10,5 @@ test/catalogue
 test/menu
 test/shifts
 test/time-tracking
+test/establishments
+test/users
