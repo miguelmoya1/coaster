@@ -42,6 +42,8 @@ type Handlers struct {
 	Establishment       *EstablishmentHandler
 	User                *UserHandler
 	EstablishmentMember *EstablishmentMemberHandler
+	CashClose           *CashCloseHandler
+	Stats               *StatsHandler
 }
 
 // NewRouter registers every route under /api/v1 and wraps them in the global middlewares.
@@ -67,6 +69,8 @@ func NewRouter(cfg RouterConfig, handlers Handlers) (http.Handler, error) {
 		handlers.Establishment.RegisterRoutes(mux, handlers.Guard)
 		handlers.User.RegisterRoutes(mux, handlers.Guard)
 		handlers.EstablishmentMember.RegisterRoutes(mux, handlers.Guard)
+		handlers.CashClose.RegisterRoutes(mux, handlers.Guard)
+		handlers.Stats.RegisterRoutes(mux, handlers.Guard)
 	}
 
 	return withGlobalMiddlewares(cfg, withNestNotFound(mux))

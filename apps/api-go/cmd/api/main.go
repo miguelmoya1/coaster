@@ -217,6 +217,10 @@ func run() error {
 	})
 	handlers.EstablishmentMember = httphandler.NewEstablishmentMemberHandler(establishmentMemberService)
 
+	statsService := service.NewStatsService(repository.NewStatsRepository(pool))
+	handlers.CashClose = httphandler.NewCashCloseHandler(service.NewCashCloseService(repository.NewCashCloseRepository(pool)))
+	handlers.Stats = httphandler.NewStatsHandler(statsService)
+
 	router, err := httphandler.NewRouter(
 		httphandler.RouterConfig{CORSOrigins: cfg.CORSOrigins, PublicDir: cfg.PublicDir},
 		handlers,
