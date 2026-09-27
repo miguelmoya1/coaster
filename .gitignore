@@ -69,3 +69,5 @@ firebase-debug.log
 .env*
 
 !.env_example
+# Worktrees que crea Claude Code para sus subagentes
+.claude/worktrees/
