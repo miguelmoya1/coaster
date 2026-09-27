@@ -2,6 +2,7 @@ package domain
 
 import (
 	"encoding/json"
+	"slices"
 	"testing"
 	"time"
 )
@@ -18,6 +19,20 @@ func TestEstablishmentJSON(t *testing.T) {
 	want := `{"id":"e1","name":"Bar Pepe","createdAt":"2026-09-27T10:00:00.000Z","updatedAt":"2026-09-27T11:30:00.000Z"}`
 	if string(raw) != want {
 		t.Errorf("got %s, want %s", raw, want)
+	}
+}
+
+func TestEstablishmentSettingsResolved(t *testing.T) {
+	stored := EstablishmentSettings{EstablishmentID: "e1", Modules: []EstablishmentModule{ModuleOrders}, Language: "de"}
+
+	got := stored.Resolved()
+
+	want := []EstablishmentModule{ModuleTimeTracking, ModuleOrders, ModuleInventory}
+	if !slices.Equal(got.Modules, want) || got.Language != "es" || got.EstablishmentID != "e1" {
+		t.Errorf("Resolved() = %+v", got)
+	}
+	if len(stored.Modules) != 1 {
+		t.Errorf("Resolved changed the settings it was called on: %+v", stored)
 	}
 }
 

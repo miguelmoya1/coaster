@@ -44,6 +44,14 @@ func DefaultEstablishmentSettings(establishmentID string) EstablishmentSettings 
 	}
 }
 
+// Resolved is EstablishmentSettingsMapper.toDto: the stored modules with the ones they bring
+// along, and a language the app speaks.
+func (s EstablishmentSettings) Resolved() EstablishmentSettings {
+	s.Modules = ResolveModules(s.Modules)
+	s.Language = AsLanguage(s.Language)
+	return s
+}
+
 // EstablishmentSettingsChanges is what saving the settings writes. Modules replace the ones
 // stored; a nil Language or MarkSoldOut stays as it is.
 type EstablishmentSettingsChanges struct {
