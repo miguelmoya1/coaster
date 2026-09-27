@@ -25,6 +25,9 @@ type Handlers struct {
 	Auth     *AuthHandler
 	Account  *AccountHandler
 	Realtime *RealtimeHandler
+
+	EstablishmentSubscription *EstablishmentSubscriptionHandler
+	StripeWebhook             *StripeWebhookHandler
 }
 
 // NewRouter registers every route under /api/v1 and wraps them in the global middlewares.
@@ -37,6 +40,8 @@ func NewRouter(cfg RouterConfig, handlers Handlers) (http.Handler, error) {
 		handlers.Auth.RegisterRoutes(mux, handlers.Guard)
 		handlers.Account.RegisterRoutes(mux, handlers.Guard)
 		handlers.Realtime.RegisterRoutes(mux, handlers.Guard)
+		handlers.EstablishmentSubscription.RegisterRoutes(mux, handlers.Guard)
+		handlers.StripeWebhook.RegisterRoutes(mux, handlers.Guard)
 	}
 
 	return withGlobalMiddlewares(cfg, withNestNotFound(mux))
