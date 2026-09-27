@@ -20,6 +20,7 @@ import (
 	"api-go/internal/adapter/payment"
 	"api-go/internal/adapter/pwned"
 	"api-go/internal/adapter/repository"
+	"api-go/internal/adapter/storage"
 	"api-go/internal/config"
 	"api-go/internal/core/domain"
 	"api-go/internal/core/ports"
@@ -143,6 +144,20 @@ func run() error {
 		Cache:      valueCache,
 	})
 
+	catalogRealtime := service.NewCatalogRealtime(realtime)
+	for _, name := range service.CatalogRealtimeEvents {
+		bus.Subscribe(name, catalogRealtime.Forward)
+	}
+
+	mediaStorage := storage.NewGCS(cfg.MediaBucket)
+	defer mediaStorage.Close()
+
+	categoryService := service.NewCategoryService(repository.NewCategoryRepository(pool), bus)
+	productService := service.NewProductService(repository.NewProductRepository(pool), bus)
+	catalogueService := service.NewCatalogueService(repository.NewCatalogueRepository(pool), bus)
+	menuService := service.NewMenuService(repository.NewMenuRepository(pool))
+	mediaService := service.NewMediaService(mediaStorage)
+
 	handlers := httphandler.Handlers{
 		Guard:    middleware.NewGuard(accessTokens, security, cache.NewRateLimiter(redisClient), cfg.TrustProxyHops),
 		Auth:     httphandler.NewAuthHandler(authService, cfg.IsProduction),
@@ -151,6 +166,12 @@ func run() error {
 
 		EstablishmentSubscription: httphandler.NewEstablishmentSubscriptionHandler(subscriptions),
 		StripeWebhook:             httphandler.NewStripeWebhookHandler(subscriptions),
+
+		Category:  httphandler.NewCategoryHandler(categoryService),
+		Product:   httphandler.NewProductHandler(productService),
+		Catalogue: httphandler.NewCatalogueHandler(catalogueService),
+		Menu:      httphandler.NewMenuHandler(menuService),
+		Media:     httphandler.NewMediaHandler(mediaService),
 	}
 
 	router, err := httphandler.NewRouter(
