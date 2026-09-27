@@ -59,7 +59,11 @@ func run() error {
 	bus := event.NewBus()
 	defer bus.Wait()
 
-	var realtime ports.Realtime = event.NopRealtime{}
+	realtimeBus := cache.NewRealtimeBus(cfg.RedisURL)
+	defer realtimeBus.Close()
+	realtimeService := service.NewRealtimeService(realtimeBus)
+	go realtimeBus.Listen(ctx, realtimeService)
+	var realtime ports.Realtime = realtimeService
 	_ = realtime
 
 	redisClient := cache.NewClient(cfg.RedisURL)
@@ -116,9 +120,10 @@ func run() error {
 	})
 
 	handlers := httphandler.Handlers{
-		Guard:   middleware.NewGuard(accessTokens, security, cache.NewRateLimiter(redisClient), cfg.TrustProxyHops),
-		Auth:    httphandler.NewAuthHandler(authService, cfg.IsProduction),
-		Account: httphandler.NewAccountHandler(accountService),
+		Guard:    middleware.NewGuard(accessTokens, security, cache.NewRateLimiter(redisClient), cfg.TrustProxyHops),
+		Auth:     httphandler.NewAuthHandler(authService, cfg.IsProduction),
+		Account:  httphandler.NewAccountHandler(accountService),
+		Realtime: httphandler.NewRealtimeHandler(realtimeService),
 	}
 
 	router, err := httphandler.NewRouter(
@@ -134,6 +139,7 @@ func run() error {
 		Handler:           router,
 		ReadHeaderTimeout: 10 * time.Second,
 	}
+	server.RegisterOnShutdown(realtimeService.CloseAll)
 
 	serverErr := make(chan error, 1)
 	go func() {
