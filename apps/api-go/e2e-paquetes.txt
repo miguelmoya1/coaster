@@ -12,3 +12,5 @@ test/shifts
 test/time-tracking
 test/establishments
 test/users
+test/establishment-members/establishment-members
+test/establishment-members/member-roles
