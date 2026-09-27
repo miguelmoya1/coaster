@@ -424,6 +424,7 @@ Cómo se manda algo por tiempo real desde otro paquete.
   esta instancia y en las demás (por ejemplo, al quitar un miembro o cambiarle el rol).
 - En los tests de un servicio o suscriptor basta un fake de `ports.Realtime` que guarde las
   llamadas. `service.RealtimeService` se puede usar tal cual con un `ports.RealtimeBus` falso.
+
 ## Convenciones de P2c
 
 - `domain.Instant` escribe una fecha como `Temporal.Instant.toString` (`2026-09-27T10:00:00Z`,
