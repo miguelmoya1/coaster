@@ -12,6 +12,7 @@ import (
 	"syscall"
 	"time"
 
+	"api-go/internal/adapter/ai"
 	"api-go/internal/adapter/cache"
 	"api-go/internal/adapter/email"
 	"api-go/internal/adapter/event"
@@ -257,6 +258,23 @@ func run() error {
 	}
 	handlers.Order = httphandler.NewOrderHandler(orderService)
 	handlers.Table = httphandler.NewTableHandler(tableService)
+
+	aiService := service.NewAIService(service.AIDependencies{
+		Model:    ai.NewGateway(cfg.AIGatewayAPIKey),
+		Usage:    repository.NewAIUsageRepository(pool),
+		Security: security,
+		Config:   service.AIConfig{MonthlyMessages: cfg.AIMonthlyMessages, TrialMonthlyMessages: cfg.AITrialMonthlyMessages},
+
+		Categories: categoryService,
+		Products:   productService,
+		Orders:     orderService,
+		Tables:     tableService,
+		Stats:      statsService,
+		Shifts:     shiftService,
+		Exchanges:  shiftExchangeService,
+		Members:    establishmentMemberService,
+	})
+	handlers.AI = httphandler.NewAIHandler(aiService)
 
 	router, err := httphandler.NewRouter(
 		httphandler.RouterConfig{CORSOrigins: cfg.CORSOrigins, PublicDir: cfg.PublicDir},
