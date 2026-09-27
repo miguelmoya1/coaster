@@ -28,6 +28,10 @@ func newValidator() *validator.Validate {
 		panic(err)
 	}
 
+	if err := v.RegisterValidation("oneofci", isOneOfIgnoringCase); err != nil {
+		panic(err)
+	}
+
 	return v
 }
 
@@ -64,6 +68,13 @@ func isISO8601(fl validator.FieldLevel) bool {
 	}
 
 	return true
+}
+
+// isOneOfIgnoringCase is oneof for a value trimmed and in lower case first, like a DTO with
+// @Transform(trim and toLowerCase) before its @IsIn. The allowed values go in lower case.
+func isOneOfIgnoringCase(fl validator.FieldLevel) bool {
+	value := strings.ToLower(strings.TrimSpace(fl.Field().String()))
+	return slices.Contains(strings.Fields(fl.Param()), value)
 }
 
 // validateBody checks raw (the parsed body) against dst's struct, then fills dst and runs the
@@ -354,6 +365,8 @@ func defaultRuleMessage(fieldError validator.FieldError, name string, each bool)
 			return subject + " must not be greater than " + param
 		}
 	case "oneof":
+		return subject + " must be one of the following values: " + strings.Join(strings.Fields(param), ", ")
+	case "oneofci":
 		return subject + " must be one of the following values: " + strings.Join(strings.Fields(param), ", ")
 	case "email":
 		return subject + " must be an email"
