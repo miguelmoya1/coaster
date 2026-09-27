@@ -8,3 +8,5 @@ test/categories
 test/products
 test/catalogue
 test/menu
+test/shifts
+test/time-tracking
