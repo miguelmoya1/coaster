@@ -14,3 +14,5 @@ test/establishments
 test/users
 test/establishment-members/establishment-members
 test/establishment-members/member-roles
+test/printer
+test/printers
