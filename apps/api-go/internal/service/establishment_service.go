@@ -39,9 +39,16 @@ func (s *EstablishmentService) ListFor(ctx context.Context, userID string) ([]do
 	return s.establishments.ListForMember(ctx, userID)
 }
 
-// Get is GetEstablishmentByIdQuery. It returns nil when there is no such establishment.
+// Get is GetEstablishmentByIdQuery.
 func (s *EstablishmentService) Get(ctx context.Context, establishmentID string) (*domain.Establishment, error) {
-	return s.establishments.FindByID(ctx, establishmentID)
+	establishment, err := s.establishments.FindByID(ctx, establishmentID)
+	if err != nil {
+		return nil, err
+	}
+	if establishment == nil {
+		return nil, domain.NotFound(domain.CodeEstablishmentNotFound)
+	}
+	return establishment, nil
 }
 
 // Settings is GetEstablishmentSettingsQuery: the defaults when the establishment has no
@@ -52,6 +59,9 @@ func (s *EstablishmentService) Settings(ctx context.Context, establishmentID str
 		return domain.EstablishmentSettings{}, err
 	}
 	if settings == nil {
+		if _, err := s.Get(ctx, establishmentID); err != nil {
+			return domain.EstablishmentSettings{}, err
+		}
 		return domain.DefaultEstablishmentSettings(establishmentID), nil
 	}
 
@@ -61,6 +71,10 @@ func (s *EstablishmentService) Settings(ctx context.Context, establishmentID str
 // UpdateSettings is UpdateEstablishmentSettingsCommand: the modules are stored resolved and
 // the establishment counts as configured from now on.
 func (s *EstablishmentService) UpdateSettings(ctx context.Context, establishmentID string, changes domain.EstablishmentSettingsChanges) (domain.EstablishmentSettings, error) {
+	if _, err := s.Get(ctx, establishmentID); err != nil {
+		return domain.EstablishmentSettings{}, err
+	}
+
 	changes.Modules = domain.ResolveModules(changes.Modules)
 
 	saved, err := s.establishments.SaveSettings(ctx, establishmentID, changes)

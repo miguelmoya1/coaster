@@ -119,8 +119,27 @@ func TestEstablishmentServiceReads(t *testing.T) {
 	}
 
 	missing, err := establishments.Get(ctx, "nope")
-	if err != nil || missing != nil {
+	if !domain.HasCode(err, domain.CodeEstablishmentNotFound) || missing != nil {
 		t.Errorf("Get(nope) = %+v, %v", missing, err)
+	}
+}
+
+func TestEstablishmentServiceMissingEstablishment(t *testing.T) {
+	repo := &fakeEstablishmentRepo{}
+	establishments, events, _ := newTestEstablishmentService(repo)
+	ctx := context.Background()
+
+	_, err := establishments.Settings(ctx, "nope")
+	if !domain.HasCode(err, domain.CodeEstablishmentNotFound) {
+		t.Errorf("Settings(nope) err = %v", err)
+	}
+
+	_, err = establishments.UpdateSettings(ctx, "nope", domain.EstablishmentSettingsChanges{})
+	if !domain.HasCode(err, domain.CodeEstablishmentNotFound) {
+		t.Errorf("UpdateSettings(nope) err = %v", err)
+	}
+	if len(repo.saved) != 0 || len(events.events) != 0 {
+		t.Errorf("saved = %+v, events = %v", repo.saved, events.names())
 	}
 }
 

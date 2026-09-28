@@ -76,7 +76,6 @@ func (h *EstablishmentHandler) list(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, establishments)
 }
 
-// get answers null when there is no such establishment.
 func (h *EstablishmentHandler) get(w http.ResponseWriter, r *http.Request) {
 	establishment, err := h.establishments.Get(r.Context(), r.PathValue("establishmentId"))
 	if err != nil {
