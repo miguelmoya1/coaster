@@ -576,7 +576,7 @@ func TestAdminMetricsRepository(t *testing.T) {
 
 	want := domain.AdminPlatformMetrics{
 		Establishments: domain.AdminEstablishmentMetrics{Total: 6, CreatedLast7Days: 1, CreatedLast30Days: 2},
-		Users:          domain.AdminUserMetrics{Total: 3, Active: 2, Admins: 2, CreatedLast30Days: 1},
+		Users:          domain.AdminUserMetrics{Total: 3, Active: 2, Admins: 1, CreatedLast30Days: 1},
 		Subscriptions: domain.AdminSubscriptionMetrics{
 			WithAccess: 4,
 			Stripe:     2,
