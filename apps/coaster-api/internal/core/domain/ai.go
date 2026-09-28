@@ -7,11 +7,6 @@ import (
 	"unicode/utf16"
 )
 
-const (
-	DefaultMonthlyAIMessages = 500
-	DefaultTrialAIMessages   = 100
-)
-
 const AIGatewayFailedKey = "ai_voice.errors.ai_gateway_failed"
 
 type AIMessage struct {

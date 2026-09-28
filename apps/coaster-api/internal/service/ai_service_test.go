@@ -200,14 +200,11 @@ func TestAIRefusesAnEstablishmentOverItsAllowance(t *testing.T) {
 		used   int
 		allow  bool
 	}{
-		{"under the monthly allowance", domain.SubscriptionActive, AIConfig{}, 499, true},
-		{"at the monthly allowance", domain.SubscriptionActive, AIConfig{}, 500, false},
-		{"on trial", domain.SubscriptionTrialing, AIConfig{}, 100, false},
-		{"on trial, under", domain.SubscriptionTrialing, AIConfig{}, 99, true},
-		{"with its own allowance", domain.SubscriptionActive, AIConfig{MonthlyMessages: " 3 "}, 3, false},
-		{"with the assistant switched off", domain.SubscriptionActive, AIConfig{MonthlyMessages: "0"}, 0, false},
-		{"with an allowance that is not a number", domain.SubscriptionActive, AIConfig{MonthlyMessages: "many"}, 499, true},
-		{"with its own trial allowance", domain.SubscriptionTrialing, AIConfig{TrialMonthlyMessages: "150"}, 120, true},
+		{"under the monthly allowance", domain.SubscriptionActive, AIConfig{MonthlyMessages: 500}, 499, true},
+		{"at the monthly allowance", domain.SubscriptionActive, AIConfig{MonthlyMessages: 500}, 500, false},
+		{"on trial", domain.SubscriptionTrialing, AIConfig{MonthlyMessages: 500, TrialMonthlyMessages: 100}, 100, false},
+		{"on trial, under", domain.SubscriptionTrialing, AIConfig{MonthlyMessages: 500, TrialMonthlyMessages: 100}, 99, true},
+		{"with the assistant switched off", domain.SubscriptionActive, AIConfig{MonthlyMessages: 0}, 0, false},
 	}
 
 	for _, test := range tests {

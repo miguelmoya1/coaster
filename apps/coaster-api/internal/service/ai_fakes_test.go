@@ -216,6 +216,7 @@ func newAIFixture() *aiFixture {
 		Model:    f.model,
 		Usage:    f.usage,
 		Security: security,
+		Config:   AIConfig{MonthlyMessages: 500, TrialMonthlyMessages: 100},
 
 		Categories: NewCategoryService(categories, &catalogEvents{}),
 		Products:   NewProductService(aiProductRepo{f.products}, &catalogEvents{}),

@@ -66,34 +66,6 @@ func TestBillingPlanOf(t *testing.T) {
 	}
 }
 
-func TestBillingSeatAllowance(t *testing.T) {
-	tests := []struct {
-		name         string
-		config       BillingConfig
-		wantIncluded int
-		wantExtra    int
-		wantBase     int
-	}{
-		{"nothing configured", BillingConfig{}, 10, 200, 1999},
-		{"configured", BillingConfig{IncludedSeats: "5", ExtraSeatPriceCents: "300", BasePriceCents: "2500"}, 5, 300, 2500},
-		{"not positive whole numbers", BillingConfig{IncludedSeats: "", ExtraSeatPriceCents: "gratis", BasePriceCents: "-1"}, 10, 200, 1999},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.config.includedSeats(); got != tt.wantIncluded {
-				t.Errorf("includedSeats = %d, want %d", got, tt.wantIncluded)
-			}
-			if got := tt.config.extraSeatPriceCents(); got != tt.wantExtra {
-				t.Errorf("extraSeatPriceCents = %d, want %d", got, tt.wantExtra)
-			}
-			if got := tt.config.basePriceCents(); got != tt.wantBase {
-				t.Errorf("basePriceCents = %d, want %d", got, tt.wantBase)
-			}
-		})
-	}
-}
-
 func TestStatusFromStripe(t *testing.T) {
 	tests := map[string]domain.SubscriptionStatus{
 		"trialing":           domain.SubscriptionTrialing,

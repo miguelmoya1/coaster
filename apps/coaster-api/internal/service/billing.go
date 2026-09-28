@@ -3,26 +3,19 @@ package service
 import (
 	"crypto/rand"
 	"crypto/sha256"
-	"strconv"
 	"strings"
 	"time"
 
 	"coaster-api/internal/core/domain"
 )
 
-const (
-	defaultBasePriceCents      = 1999
-	defaultIncludedSeats       = 10
-	defaultExtraSeatPriceCents = 200
-)
-
 type BillingConfig struct {
 	PricePro string
 
 	PriceProLegacy      string
-	BasePriceCents      string
-	IncludedSeats       string
-	ExtraSeatPriceCents string
+	BasePriceCents      int
+	IncludedSeats       int
+	ExtraSeatPriceCents int
 
 	FrontendURL string
 }
@@ -62,18 +55,6 @@ func (c BillingConfig) planOf(priceID string) domain.SubscriptionPlan {
 	}
 
 	return domain.PlanFree
-}
-
-func (c BillingConfig) basePriceCents() int {
-	return readPositiveInt(c.BasePriceCents, defaultBasePriceCents)
-}
-
-func (c BillingConfig) includedSeats() int {
-	return readPositiveInt(c.IncludedSeats, defaultIncludedSeats)
-}
-
-func (c BillingConfig) extraSeatPriceCents() int {
-	return readPositiveInt(c.ExtraSeatPriceCents, defaultExtraSeatPriceCents)
 }
 
 func (c BillingConfig) dashboardURL(establishmentID string) string {
@@ -178,13 +159,4 @@ func checkoutBucket(now time.Time) int64 {
 func checkoutExpiry(bucket int64) time.Time {
 	start := time.UnixMilli(bucket * checkoutIdempotencyBucket.Milliseconds())
 	return start.Add(checkoutSessionTTL)
-}
-
-func readPositiveInt(value string, fallback int) int {
-	parsed, err := strconv.Atoi(strings.TrimSpace(value))
-	if err != nil || parsed <= 0 {
-		return fallback
-	}
-
-	return parsed
 }

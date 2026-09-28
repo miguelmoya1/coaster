@@ -56,6 +56,38 @@ func TestDefaults(t *testing.T) {
 	if !cfg.PwnedPasswordsEnabled {
 		t.Error("PwnedPasswordsEnabled should default to true")
 	}
+	if cfg.ProBasePriceCents != 1999 || cfg.ProIncludedSeats != 10 || cfg.ProExtraSeatPriceCents != 200 {
+		t.Errorf("Pro plan = %d, %d seats, %d per extra seat", cfg.ProBasePriceCents, cfg.ProIncludedSeats, cfg.ProExtraSeatPriceCents)
+	}
+	if cfg.AIMonthlyMessages != 500 || cfg.AITrialMonthlyMessages != 100 {
+		t.Errorf("AI allowance = %d, %d on trial", cfg.AIMonthlyMessages, cfg.AITrialMonthlyMessages)
+	}
+}
+
+func TestNumbers(t *testing.T) {
+	tests := []struct {
+		name     string
+		value    string
+		integer  int
+		positive int
+	}{
+		{name: "a number", value: " 3 ", integer: 3, positive: 3},
+		{name: "zero", value: "0", integer: 0, positive: 7},
+		{name: "negative", value: "-1", integer: -1, positive: 7},
+		{name: "not a number", value: "many", integer: 7, positive: 7},
+		{name: "unset", value: "", integer: 7, positive: 7},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := intOr(tt.value, 7); got != tt.integer {
+				t.Errorf("intOr = %d, want %d", got, tt.integer)
+			}
+			if got := positiveInt(tt.value, 7); got != tt.positive {
+				t.Errorf("positiveInt = %d, want %d", got, tt.positive)
+			}
+		})
+	}
 }
 
 func TestCORSOrigins(t *testing.T) {

@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log/slog"
 	"slices"
-	"strconv"
 	"strings"
 	"time"
 
@@ -30,8 +29,8 @@ var aiFallbackModels = []string{
 }
 
 type AIConfig struct {
-	MonthlyMessages      string
-	TrialMonthlyMessages string
+	MonthlyMessages      int
+	TrialMonthlyMessages int
 }
 
 type AIDependencies struct {
@@ -221,17 +220,9 @@ func (s *AIService) allowanceFor(ctx context.Context, establishmentID string) (i
 	}
 
 	if subscription != nil && subscription.Status == domain.SubscriptionTrialing {
-		return readAllowance(s.config.TrialMonthlyMessages, domain.DefaultTrialAIMessages), nil
+		return s.config.TrialMonthlyMessages, nil
 	}
-	return readAllowance(s.config.MonthlyMessages, domain.DefaultMonthlyAIMessages), nil
-}
-
-func readAllowance(value string, fallback int) int {
-	allowance, err := strconv.Atoi(strings.TrimSpace(value))
-	if err != nil {
-		return fallback
-	}
-	return allowance
+	return s.config.MonthlyMessages, nil
 }
 
 func (s *AIService) snapshot(ctx context.Context, establishmentID string, modules []domain.EstablishmentModule) (*aiToolContext, error) {

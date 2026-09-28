@@ -93,9 +93,9 @@ func (s *SubscriptionService) Seats(ctx context.Context, establishmentID string)
 	return domain.SubscriptionSeats{
 		Used:            used,
 		Billed:          billed,
-		Included:        s.billing.includedSeats(),
-		BasePriceCents:  s.billing.basePriceCents(),
-		ExtraPriceCents: s.billing.extraSeatPriceCents(),
+		Included:        s.billing.IncludedSeats,
+		BasePriceCents:  s.billing.BasePriceCents,
+		ExtraPriceCents: s.billing.ExtraSeatPriceCents,
 	}, nil
 }
 

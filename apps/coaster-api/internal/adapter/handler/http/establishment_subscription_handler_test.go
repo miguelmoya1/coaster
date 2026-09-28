@@ -53,7 +53,7 @@ func newBillingServer(role domain.EstablishmentRole) http.Handler {
 	subscriptions := service.NewSubscriptionService(service.SubscriptionDependencies{
 		Repo:     emptyBilling{},
 		Payments: payment.NewStripeGateway("sk_test_123", "whsec_test"),
-		Billing:  service.BillingConfig{PricePro: "price_pro"},
+		Billing:  service.BillingConfig{PricePro: "price_pro", BasePriceCents: 1999, IncludedSeats: 10, ExtraSeatPriceCents: 200},
 	})
 
 	guard := middleware.NewGuard(fakeTokens{}, billingAccess{role: role}, &countingLimiter{hits: map[string]int{}}, 1)

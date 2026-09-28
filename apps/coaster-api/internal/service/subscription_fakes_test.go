@@ -207,7 +207,13 @@ type subscriptionTest struct {
 
 var billingNow = time.Date(2026, 1, 15, 10, 0, 0, 0, time.UTC)
 
-var testBilling = BillingConfig{PricePro: "price_pro_123", FrontendURL: "https://beta.coaster.business"}
+var testBilling = BillingConfig{
+	PricePro:            "price_pro_123",
+	FrontendURL:         "https://beta.coaster.business",
+	BasePriceCents:      1999,
+	IncludedSeats:       10,
+	ExtraSeatPriceCents: 200,
+}
 
 func newSubscriptionTest(repo *fakeSubscriptions, payments *fakePayments) *subscriptionTest {
 	test := &subscriptionTest{

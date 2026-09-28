@@ -13,6 +13,13 @@ const (
 	defaultFrontendURL    = "http://localhost:4200"
 	defaultPublicDir      = "public"
 	defaultTrustProxyHops = 1
+
+	defaultProBasePriceCents      = 1999
+	defaultProIncludedSeats       = 10
+	defaultProExtraSeatPriceCents = 200
+
+	defaultAIMonthlyMessages      = 500
+	defaultAITrialMonthlyMessages = 100
 )
 
 var developmentCORSOrigins = []string{"http://localhost:4200"}
@@ -41,9 +48,9 @@ type Config struct {
 	StripeWebhookSecret    string
 	StripePricePro         string
 	StripePriceProLegacy   string
-	ProBasePriceCents      string
-	ProIncludedSeats       string
-	ProExtraSeatPriceCents string
+	ProBasePriceCents      int
+	ProIncludedSeats       int
+	ProExtraSeatPriceCents int
 
 	ResendAPIKey string
 	EmailFrom    string
@@ -51,8 +58,8 @@ type Config struct {
 	MediaBucket string
 
 	AIGatewayAPIKey        string
-	AIMonthlyMessages      string
-	AITrialMonthlyMessages string
+	AIMonthlyMessages      int
+	AITrialMonthlyMessages int
 
 	TestMailboxURL string
 	GoogleCertsURL string
@@ -85,9 +92,9 @@ func Load() (Config, error) {
 		StripeWebhookSecret:    os.Getenv("STRIPE_WEBHOOK_SECRET"),
 		StripePricePro:         os.Getenv("STRIPE_PRICE_PRO"),
 		StripePriceProLegacy:   os.Getenv("STRIPE_PRICE_PRO_LEGACY"),
-		ProBasePriceCents:      os.Getenv("PRO_BASE_PRICE_CENTS"),
-		ProIncludedSeats:       os.Getenv("PRO_INCLUDED_SEATS"),
-		ProExtraSeatPriceCents: os.Getenv("PRO_EXTRA_SEAT_PRICE_CENTS"),
+		ProBasePriceCents:      positiveInt(os.Getenv("PRO_BASE_PRICE_CENTS"), defaultProBasePriceCents),
+		ProIncludedSeats:       positiveInt(os.Getenv("PRO_INCLUDED_SEATS"), defaultProIncludedSeats),
+		ProExtraSeatPriceCents: positiveInt(os.Getenv("PRO_EXTRA_SEAT_PRICE_CENTS"), defaultProExtraSeatPriceCents),
 
 		ResendAPIKey: os.Getenv("RESEND_API_KEY"),
 		EmailFrom:    withDefault(os.Getenv("EMAIL_FROM"), defaultEmailFrom),
@@ -95,8 +102,8 @@ func Load() (Config, error) {
 		MediaBucket: os.Getenv("MEDIA_BUCKET"),
 
 		AIGatewayAPIKey:        os.Getenv("AI_GATEWAY_API_KEY"),
-		AIMonthlyMessages:      os.Getenv("AI_MONTHLY_MESSAGES"),
-		AITrialMonthlyMessages: os.Getenv("AI_TRIAL_MONTHLY_MESSAGES"),
+		AIMonthlyMessages:      intOr(os.Getenv("AI_MONTHLY_MESSAGES"), defaultAIMonthlyMessages),
+		AITrialMonthlyMessages: intOr(os.Getenv("AI_TRIAL_MONTHLY_MESSAGES"), defaultAITrialMonthlyMessages),
 
 		TestMailboxURL: os.Getenv("TEST_MAILBOX_URL"),
 		GoogleCertsURL: os.Getenv("GOOGLE_CERTS_URL"),
@@ -127,6 +134,24 @@ func withDefault(value, fallback string) string {
 	}
 
 	return value
+}
+
+func intOr(value string, fallback int) int {
+	parsed, err := strconv.Atoi(strings.TrimSpace(value))
+	if err != nil {
+		return fallback
+	}
+
+	return parsed
+}
+
+func positiveInt(value string, fallback int) int {
+	parsed := intOr(value, fallback)
+	if parsed <= 0 {
+		return fallback
+	}
+
+	return parsed
 }
 
 func corsOrigins(value string, isProduction bool) []string {

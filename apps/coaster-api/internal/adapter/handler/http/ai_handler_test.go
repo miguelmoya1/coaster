@@ -79,6 +79,7 @@ func newAIServer(member bool) *aiServer {
 		Model:    server.model,
 		Usage:    server.usage,
 		Security: service.NewSecurityService(aiSecurity{member: member}, adminNoCache{}, nil),
+		Config:   service.AIConfig{MonthlyMessages: 500, TrialMonthlyMessages: 100},
 	})
 
 	access := tillAccess{role: domain.EstablishmentRoleStaff, modules: []domain.EstablishmentModule{domain.ModuleTimeTracking}}
