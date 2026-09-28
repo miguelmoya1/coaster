@@ -16,7 +16,6 @@ type EstablishmentService interface {
 	UpdateSettings(ctx context.Context, establishmentID string, changes domain.EstablishmentSettingsChanges) (domain.EstablishmentSettings, error)
 }
 
-// EstablishmentHandler is establishments.controller.ts.
 type EstablishmentHandler struct {
 	establishments EstablishmentService
 }
@@ -25,8 +24,6 @@ func NewEstablishmentHandler(establishments EstablishmentService) *Establishment
 	return &EstablishmentHandler{establishments: establishments}
 }
 
-// RegisterRoutes puts every route behind Permissions, the controller's
-// @UseGuards(AuthGuard, EstablishmentPermissionsGuard).
 func (h *EstablishmentHandler) RegisterRoutes(mux *http.ServeMux, guard *middleware.Guard) {
 	handle(mux, guard, "POST /establishments", h.create, middleware.Permissions())
 	handle(mux, guard, "GET /establishments", h.list, middleware.Permissions())
@@ -36,12 +33,10 @@ func (h *EstablishmentHandler) RegisterRoutes(mux *http.ServeMux, guard *middlew
 	handle(mux, guard, "GET /establishments/{establishmentId}", h.get, middleware.Permissions())
 }
 
-// createEstablishmentRequest is CreateEstablishmentDto.
 type createEstablishmentRequest struct {
 	Name string `json:"name" validate:"required,min=3,max=50" msg:"required=REQUIRED,min=MIN_LENGTH,max=MAX_LENGTH,type=INVALID_TYPE"`
 }
 
-// updateEstablishmentSettingsRequest is UpdateEstablishmentSettingsDto.
 type updateEstablishmentSettingsRequest struct {
 	Modules     []domain.EstablishmentModule `json:"modules" validate:"unique,dive,oneof=TIME_TRACKING ORDERS INVENTORY" msg:"oneof=INVALID_TYPE"`
 	Language    *string                      `json:"language" validate:"omitnil,oneof=es en" msg:"oneof=INVALID_TYPE,type=INVALID_TYPE"`

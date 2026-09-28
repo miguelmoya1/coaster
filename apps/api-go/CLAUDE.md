@@ -22,5 +22,5 @@ siendo la API en producción y la **referencia de comportamiento** hasta el camb
   código de `apps/api` y copiar su comportamiento.
 - **No tocar `apps/api`**, salvo para adaptar los e2e y lanzarlos contra Go (paquete P4).
 - **Miguel está aprendiendo Go**: código idiomático y directo, sin trucos. Las decisiones se
-  explican en el chat, no en comentarios del código.
+  explican en el chat. **Sin comentarios en el código Go**, ni doc comments; solo directivas como `//go:embed`.
 - **Al terminar un paquete**, actualizar la tabla de estado y el siguiente paso de `MIGRACION.md`.

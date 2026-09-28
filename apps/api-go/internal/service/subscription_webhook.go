@@ -7,8 +7,6 @@ import (
 	"api-go/internal/core/domain"
 )
 
-// HandleWebhook checks a Stripe webhook and projects the event onto the establishment's
-// subscription. An error makes Stripe deliver it again later.
 func (s *SubscriptionService) HandleWebhook(ctx context.Context, payload []byte, signature string) error {
 	event, err := s.payments.ParseWebhook(payload, signature)
 	if err != nil {
@@ -36,8 +34,6 @@ func (s *SubscriptionService) HandleWebhook(ctx context.Context, payload []byte,
 	}
 }
 
-// checkoutCompleted links the new subscription to the establishment that paid for it, or
-// cancels it when the establishment already has a live one.
 func (s *SubscriptionService) checkoutCompleted(ctx context.Context, session *domain.StripeCheckoutSession) error {
 	if session.Mode != domain.StripeCheckoutModeSubscription {
 		slog.Debug("ignoring a checkout session that is not for a subscription", "sessionId", session.ID, "mode", session.Mode)
@@ -80,8 +76,6 @@ func (s *SubscriptionService) checkoutCompleted(ctx context.Context, session *do
 	return nil
 }
 
-// checkoutState is what to store for a finished Checkout: what Stripe says about the
-// subscription, or just the links, as inactive, while Stripe does not know it yet.
 func (s *SubscriptionService) checkoutState(ctx context.Context, customerID, subscriptionID string) (domain.SubscriptionUpsert, error) {
 	subscription, err := s.payments.RetrieveSubscription(ctx, subscriptionID)
 	if err != nil {
@@ -114,8 +108,6 @@ func (s *SubscriptionService) checkoutState(ctx context.Context, customerID, sub
 	}, nil
 }
 
-// cancelIfDuplicate cancels incomingID when the establishment already tracks another
-// subscription that is still live, and reports whether it did.
 func (s *SubscriptionService) cancelIfDuplicate(ctx context.Context, establishmentID, incomingID string) (bool, error) {
 	existing, err := s.repo.FindByEstablishmentID(ctx, establishmentID)
 	if err != nil {
@@ -153,8 +145,6 @@ func (s *SubscriptionService) cancelIfDuplicate(ctx context.Context, establishme
 	return true, nil
 }
 
-// subscriptionChanged stores what Stripe says about a subscription of one of our
-// establishments.
 func (s *SubscriptionService) subscriptionChanged(ctx context.Context, subscription *domain.StripeSubscription) error {
 	if subscription.CustomerID == "" {
 		slog.Error("cannot process subscription: customerId missing", "subscriptionId", subscription.ID)
@@ -228,7 +218,6 @@ func (s *SubscriptionService) subscriptionChanged(ctx context.Context, subscript
 	return nil
 }
 
-// invoicePaid brings a PAST_DUE or UNPAID subscription back to ACTIVE.
 func (s *SubscriptionService) invoicePaid(ctx context.Context, invoice *domain.StripeInvoice) error {
 	existing, err := s.subscriptionOfInvoice(ctx, invoice)
 	if err != nil || existing == nil {
@@ -258,7 +247,6 @@ func (s *SubscriptionService) invoicePaid(ctx context.Context, invoice *domain.S
 	return nil
 }
 
-// invoicePaymentFailed marks the subscription PAST_DUE.
 func (s *SubscriptionService) invoicePaymentFailed(ctx context.Context, invoice *domain.StripeInvoice) error {
 	existing, err := s.subscriptionOfInvoice(ctx, invoice)
 	if err != nil || existing == nil {
@@ -278,8 +266,6 @@ func (s *SubscriptionService) invoicePaymentFailed(ctx context.Context, invoice 
 	return nil
 }
 
-// subscriptionOfInvoice finds the row an invoice is about: by subscription, or by customer
-// when the invoice has no subscription. It returns nil when there is none.
 func (s *SubscriptionService) subscriptionOfInvoice(ctx context.Context, invoice *domain.StripeInvoice) (*domain.EstablishmentSubscription, error) {
 	if invoice.CustomerID == "" && invoice.SubscriptionID == "" {
 		slog.Debug("invoice event ignored: no customer and no subscription", "invoiceId", invoice.ID)

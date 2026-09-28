@@ -1,7 +1,5 @@
 package domain
 
-// Error codes shared with the web app. They must match ErrorCodes in
-// packages/common/src/constants/error.types.ts; error_codes_test.go checks it.
 const (
 	CodeUserNotFound                          = "USER_NOT_FOUND"
 	CodeUserAlreadyExists                     = "USER_ALREADY_EXISTS"
@@ -103,7 +101,6 @@ const (
 	CodeUnexpectedError                       = "UNEXPECTED_ERROR"
 )
 
-// AllErrorCodes lists every code, in the same order as ErrorCodes.
 var AllErrorCodes = []string{
 	CodeUserNotFound,
 	CodeUserAlreadyExists,

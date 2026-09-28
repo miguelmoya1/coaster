@@ -8,13 +8,9 @@ import (
 	"api-go/internal/core/ports"
 )
 
-// looksLikeEmail is EMAIL of member.tools.ts, /^[^\s@]+@[^\s@]+\.[^\s@]+$/. Go's \s is only
-// ASCII, so the class spells out every space JavaScript's \s matches.
 var looksLikeEmail = regexp.MustCompile(`^[^@` + jsSpaces + `]+@[^@` + jsSpaces + `]+\.[^@` + jsSpaces + `]+$`)
 
 const jsSpaces = `\t\n\v\f\r \x{a0}\x{1680}\x{2000}-\x{200a}\x{2028}\x{2029}\x{202f}\x{205f}\x{3000}\x{feff}`
-
-// The inputs of the member tools (member.tools.ts).
 
 type inviteMemberInput struct {
 	Email     string `json:"email" jsonschema_description:"Email address of the person to invite."`
@@ -27,7 +23,6 @@ type removeMemberInput struct {
 	Confirmed bool   `json:"confirmed" jsonschema_description:"Set to true only after the user has explicitly confirmed the removal in a previous turn."`
 }
 
-// aiMember is a member as listMembers shows it.
 type aiMember struct {
 	MemberID string                   `json:"memberId"`
 	UserID   string                   `json:"userId"`

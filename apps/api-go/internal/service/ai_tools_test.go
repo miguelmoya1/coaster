@@ -12,9 +12,6 @@ import (
 	"api-go/internal/core/domain"
 )
 
-// nestAnswers is testdata/nest_ai_answers.json: what the tools of Nest answered for the same
-// data as newAIFixture, and the system prompt of three turns. It was written by running the
-// tools of apps/api/src/ai/tools with mocked buses.
 func nestAnswers(t *testing.T) map[string]json.RawMessage {
 	t.Helper()
 
@@ -29,7 +26,6 @@ func nestAnswers(t *testing.T) map[string]json.RawMessage {
 	return answers
 }
 
-// nestAnswer is one of nestAnswers as JSON.stringify writes it.
 func nestAnswer(t *testing.T, answers map[string]json.RawMessage, key string) string {
 	t.Helper()
 
@@ -44,8 +40,6 @@ func nestAnswer(t *testing.T, answers map[string]json.RawMessage, key string) st
 	return compact.String()
 }
 
-// TestAIToolsAnswerLikeNest runs each tool with the input Nest was given and compares the
-// JSON the model reads, byte for byte.
 func TestAIToolsAnswerLikeNest(t *testing.T) {
 	answers := nestAnswers(t)
 
@@ -130,9 +124,6 @@ func TestAIToolReportsAnErrorThatIsNotACode(t *testing.T) {
 	}
 }
 
-// TestAIToolSchemasAreNests compares each tool with what zod gave the model in Nest
-// (testdata/nest_ai_tools.json): the same tools in the same order, with the same
-// description and JSON Schema.
 func TestAIToolSchemasAreNests(t *testing.T) {
 	data, err := os.ReadFile("testdata/nest_ai_tools.json")
 	if err != nil {
@@ -195,8 +186,6 @@ func TestAIToolsFollowTheModules(t *testing.T) {
 		}
 	}
 }
-
-// The runner (context.spec.ts).
 
 func TestAIRunnerChecksThePermissionBeforeTheConfirmation(t *testing.T) {
 	f := newAIFixture()

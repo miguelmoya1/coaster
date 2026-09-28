@@ -10,17 +10,13 @@ import (
 )
 
 const (
-	// heartbeatInterval keeps proxies from closing a quiet stream.
 	heartbeatInterval = 25 * time.Second
-	// maxStreamLifetime makes the browser come back with a fresh token.
+
 	maxStreamLifetime = 30 * time.Minute
-	// streamBuffer is how many frames can wait for a slow client before its stream closes.
+
 	streamBuffer = 64
 )
 
-// realtimeStream is one open SSE connection (RealtimeStream in Nest). It implements
-// ports.RealtimeSubscriber: Deliver and Close can be called from any goroutine, and only
-// run, in the handler's goroutine, writes to the connection.
 type realtimeStream struct {
 	userID    string
 	frames    chan domain.RealtimeFrame
@@ -44,8 +40,6 @@ func (s *realtimeStream) UserID() string {
 	return s.userID
 }
 
-// Deliver queues the frame. When the client is so slow that the queue is full, the stream
-// closes: the browser reconnects and asks for what it missed with Last-Event-ID.
 func (s *realtimeStream) Deliver(frame domain.RealtimeFrame) {
 	select {
 	case <-s.done:
@@ -55,14 +49,10 @@ func (s *realtimeStream) Deliver(frame domain.RealtimeFrame) {
 	}
 }
 
-// Close ends the stream. Calling it again does nothing.
 func (s *realtimeStream) Close() {
 	s.closeOnce.Do(func() { close(s.done) })
 }
 
-// run writes the stream until it is closed, the client hangs up (ctx ends), a write fails
-// or it has been open for its whole lifetime. It first writes a comment, so no proxy holds
-// the headers back, and then the frames missed returns, if any.
 func (s *realtimeStream) run(ctx context.Context, w io.Writer, flush func() error, missed func() []domain.RealtimeFrame) {
 	defer s.Close()
 
@@ -103,7 +93,6 @@ func (s *realtimeStream) run(ctx context.Context, w io.Writer, flush func() erro
 	}
 }
 
-// write sends text to the client at once and reports whether it could.
 func (s *realtimeStream) write(w io.Writer, flush func() error, text string) bool {
 	if _, err := io.WriteString(w, text); err != nil {
 		return false
@@ -111,7 +100,6 @@ func (s *realtimeStream) write(w io.Writer, flush func() error, text string) boo
 	return flush() == nil
 }
 
-// frameText is the SSE frame of a frame, as Nest writes it.
 func frameText(frame domain.RealtimeFrame) string {
 	return "id: " + frame.ID + "\nevent: " + frame.Event + "\ndata: " + string(frame.Payload) + "\n\n"
 }

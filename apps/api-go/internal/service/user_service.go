@@ -8,7 +8,6 @@ import (
 	"api-go/internal/core/ports"
 )
 
-// UserService is the users module: a user changing their own profile.
 type UserService struct {
 	users  ports.UserRepository
 	events ports.EventPublisher
@@ -19,7 +18,6 @@ func NewUserService(users ports.UserRepository, events ports.EventPublisher, cac
 	return &UserService{users: users, events: events, cache: cache}
 }
 
-// UpdateProfile is UpdateUserCommand.
 func (s *UserService) UpdateProfile(ctx context.Context, userID string, changes domain.UserProfileChanges) error {
 	exists, err := s.users.Exists(ctx, userID)
 	if err != nil {
@@ -48,8 +46,6 @@ func (s *UserService) UpdateProfile(ctx context.Context, userID string, changes 
 	return nil
 }
 
-// ForgetCache is ForgetUserCacheHandler: after a user changes (here or in admin), the next
-// request reads the user and their role from the database.
 func (s *UserService) ForgetCache(ctx context.Context, event ports.Event) {
 	if updated, ok := event.(domain.UserUpdated); ok {
 		s.cache.Forget(ctx, userRoleCacheKey(updated.UserID), userCacheKey(updated.UserID))

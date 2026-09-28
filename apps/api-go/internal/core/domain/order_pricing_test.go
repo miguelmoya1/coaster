@@ -8,8 +8,6 @@ import (
 	"testing"
 )
 
-// The cases of order-pricing.tax.spec.ts and tax-rates.spec.ts in @coaster/common.
-
 func pricingItem(id string, price, taxRate int) PricingItem {
 	return PricingItem{ID: id, PriceAtPurchase: price, Quantity: 1, TaxRate: taxRate}
 }
@@ -30,7 +28,7 @@ func TestTaxOf(t *testing.T) {
 		{net: 1000, rate: 2100, tax: 210, gross: 1210},
 		{net: 500, rate: 0, tax: 0, gross: 500},
 		{net: 33, rate: 2100, tax: 7, gross: 40},
-		// 0.5 cents goes up, like Math.round.
+
 		{net: 5, rate: 1000, tax: 1, gross: 6},
 	}
 
@@ -209,8 +207,6 @@ func TestCalculatePricingCapsDiscounts(t *testing.T) {
 		orderDiscount(AdjustmentPercentage, 90),
 	)
 
-	// The line discount stops at the line; the order discount (90 % of 200 = 180) stops at
-	// what is left after the line discounts (100).
 	if got.ItemDiscountsTotal != 100 || got.OrderDiscountsTotal != 100 || got.NetTotal != 0 {
 		t.Errorf("item discounts %d, order discounts %d, net %d; want 100, 100, 0",
 			got.ItemDiscountsTotal, got.OrderDiscountsTotal, got.NetTotal)

@@ -14,7 +14,6 @@ import (
 
 const billedEstablishment = "establishment_123"
 
-// storedSubscription is a row of establishment_123 linked to Stripe.
 func storedSubscription(status domain.SubscriptionStatus, subscriptionID string, periodEnd *time.Time) domain.EstablishmentSubscription {
 	row := domain.EstablishmentSubscription{
 		ID:               "row-1",

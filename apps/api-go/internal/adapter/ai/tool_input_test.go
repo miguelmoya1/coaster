@@ -8,9 +8,6 @@ import (
 	"api-go/internal/core/ports"
 )
 
-// orderTool has the schema zod gives z.object({ e: z.enum(['CASH', 'CARD']), b: z.boolean(),
-// q: z.number().int().min(1), big: z.number().int(), items: z.array(z.object({ p: z.string() })).min(2),
-// price: z.number().min(0), o: z.string().optional() }).
 var orderTool = ports.AITool{
 	Name: "order",
 	Parameters: json.RawMessage(`{
@@ -29,7 +26,6 @@ var orderTool = ports.AITool{
 	}`),
 }
 
-// zodIssues is the Error message part of what parseToolInput answers, decoded again.
 func zodIssues(t *testing.T, err error) string {
 	t.Helper()
 	if err == nil {
@@ -51,9 +47,7 @@ func TestParseToolInputReportsWhatZodReports(t *testing.T) {
 	tests := []struct {
 		name  string
 		input string
-		// want is what zod 4 gives for the same input, with the keys sorted. Two things are
-		// left out: the "note" of an integer outside the safe range, and the too_small zod
-		// adds for a string sent as an array that is shorter than minItems.
+
 		want string
 	}{
 		{

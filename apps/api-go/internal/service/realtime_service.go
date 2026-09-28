@@ -13,9 +13,6 @@ import (
 	"api-go/internal/core/ports"
 )
 
-// RealtimeService keeps the streams open on this instance, by establishment, and sends
-// them what happens (RealtimeRegistry and RealtimeService in Nest). It implements
-// ports.Realtime.
 type RealtimeService struct {
 	bus ports.RealtimeBus
 	now func() time.Time
@@ -32,8 +29,6 @@ func NewRealtimeService(bus ports.RealtimeBus) *RealtimeService {
 	}
 }
 
-// Publish sends event to every stream of the establishment, on this instance and on the
-// others, and keeps it for replay.
 func (s *RealtimeService) Publish(establishmentID string, event string, payload any) {
 	data, err := marshalPayload(payload)
 	if err != nil {
@@ -52,14 +47,11 @@ func (s *RealtimeService) Publish(establishmentID string, event string, payload 
 	s.bus.Remember(establishmentID, frame)
 }
 
-// Revoke closes the streams userID has open on the establishment, here and on the other
-// instances.
 func (s *RealtimeService) Revoke(establishmentID string, userID string) {
 	s.CloseStreams(establishmentID, userID)
 	s.bus.PublishRevoke(establishmentID, userID)
 }
 
-// Watch adds a stream to the establishment. The function it returns removes it.
 func (s *RealtimeService) Watch(establishmentID string, subscriber ports.RealtimeSubscriber) func() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -74,21 +66,16 @@ func (s *RealtimeService) Watch(establishmentID string, subscriber ports.Realtim
 	return func() { s.remove(establishmentID, subscriber) }
 }
 
-// Replay returns the frames the client missed since lastEventID, that one included.
 func (s *RealtimeService) Replay(ctx context.Context, establishmentID string, lastEventID string) []domain.RealtimeFrame {
 	return s.bus.Replay(ctx, establishmentID, lastEventID)
 }
 
-// Deliver sends a frame to the streams of the establishment on this instance only. The
-// bus calls it with the frames of the other instances.
 func (s *RealtimeService) Deliver(establishmentID string, frame domain.RealtimeFrame) {
 	for _, subscriber := range s.snapshot(establishmentID) {
 		subscriber.Deliver(frame)
 	}
 }
 
-// CloseStreams closes the streams userID has open on the establishment on this instance
-// only. The bus calls it with the revocations of the other instances.
 func (s *RealtimeService) CloseStreams(establishmentID string, userID string) {
 	for _, subscriber := range s.snapshot(establishmentID) {
 		if subscriber.UserID() == userID {
@@ -97,7 +84,6 @@ func (s *RealtimeService) CloseStreams(establishmentID string, userID string) {
 	}
 }
 
-// CloseAll closes every stream of this instance, so the server can shut down.
 func (s *RealtimeService) CloseAll() {
 	s.mu.Lock()
 	var all []ports.RealtimeSubscriber
@@ -113,7 +99,6 @@ func (s *RealtimeService) CloseAll() {
 	}
 }
 
-// CountFor returns how many streams the establishment has open on this instance.
 func (s *RealtimeService) CountFor(establishmentID string) int {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -121,8 +106,6 @@ func (s *RealtimeService) CountFor(establishmentID string) int {
 	return len(s.byEstablishment[establishmentID])
 }
 
-// snapshot copies the establishment's streams, so a stream can remove itself while it is
-// being delivered to without holding the lock.
 func (s *RealtimeService) snapshot(establishmentID string) []ports.RealtimeSubscriber {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -149,8 +132,6 @@ func (s *RealtimeService) remove(establishmentID string, subscriber ports.Realti
 	}
 }
 
-// marshalPayload writes payload like JSON.stringify: without escaping <, > and & and
-// without a trailing newline.
 func marshalPayload(payload any) (json.RawMessage, error) {
 	var buf bytes.Buffer
 

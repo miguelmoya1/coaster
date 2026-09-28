@@ -173,7 +173,6 @@ func TestAdminEstablishmentServiceUpdateModules(t *testing.T) {
 		t.Errorf("metadata = %s", raw)
 	}
 
-	// The second time there are settings to compare with.
 	if _, err := f.service.UpdateModules(context.Background(), "admin", "e1", nil); err != nil {
 		t.Fatal(err)
 	}

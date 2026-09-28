@@ -12,7 +12,6 @@ import (
 	"api-go/internal/core/domain"
 )
 
-// sentEmail is what Resend received.
 type sentEmail struct {
 	From    string   `json:"from"`
 	To      []string `json:"to"`
@@ -20,7 +19,6 @@ type sentEmail struct {
 	HTML    string   `json:"html"`
 }
 
-// newTestResend is a ResendMailer that talks to a fake Resend answering status.
 func newTestResend(t *testing.T, from string, status int) (*ResendMailer, *[]sentEmail) {
 	t.Helper()
 

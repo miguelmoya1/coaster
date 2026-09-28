@@ -8,7 +8,6 @@ import (
 	"api-go/internal/core/ports"
 )
 
-// AuthEventService keeps the auth log.
 type AuthEventService struct {
 	events ports.AuthEventRepository
 }
@@ -17,8 +16,6 @@ func NewAuthEventService(events ports.AuthEventRepository) *AuthEventService {
 	return &AuthEventService{events: events}
 }
 
-// Record writes an AuthEventOccurred down. It subscribes to the EventPublisher. A failure
-// is logged and swallowed: nobody loses their login over the log.
 func (s *AuthEventService) Record(ctx context.Context, event ports.Event) {
 	occurred, ok := event.(domain.AuthEventOccurred)
 	if !ok {
@@ -39,7 +36,6 @@ func (s *AuthEventService) Record(ctx context.Context, event ports.Event) {
 	}
 }
 
-// RecentOf lists a user's latest auth events, newest first.
 func (s *AuthEventService) RecentOf(ctx context.Context, userID string, limit int) ([]domain.AuthEventRecord, error) {
 	return s.events.FindRecentOf(ctx, userID, limit)
 }

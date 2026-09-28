@@ -7,10 +7,6 @@ import (
 	"api-go/internal/core/domain"
 )
 
-// In-memory fakes of the ports of cash closes and stats.
-
-// fakeCashCloseRepository answers with what the test put in it and remembers the close it
-// was asked for.
 type fakeCashCloseRepository struct {
 	recent   []domain.CashClose
 	last     *domain.LastCashClose
@@ -48,8 +44,6 @@ func (f *fakeCashCloseRepository) Close(_ context.Context, input domain.NewCashC
 	return closed, nil
 }
 
-// fakeStatsRepository keeps closed orders and gives those created at since or later, like
-// the database.
 type fakeStatsRepository struct {
 	orders []domain.StatsOrder
 	err    error

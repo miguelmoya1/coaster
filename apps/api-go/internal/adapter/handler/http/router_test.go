@@ -15,7 +15,6 @@ import (
 
 const allowedOrigin = "http://localhost:4200"
 
-// testServer builds the real middlewares around a few routes that exist only for the tests.
 func testServer(t *testing.T) http.Handler {
 	t.Helper()
 

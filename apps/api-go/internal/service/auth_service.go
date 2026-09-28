@@ -10,9 +10,6 @@ import (
 	"api-go/internal/core/ports"
 )
 
-// AuthService is what the /auth routes do: open an account, sign in with a password or with
-// Google, refresh and close sessions, recover a password, confirm an address and claim an
-// invitation.
 type AuthService struct {
 	users           ports.AuthUserRepository
 	identities      ports.AuthIdentityRepository
@@ -29,7 +26,6 @@ type AuthService struct {
 	now             func() time.Time
 }
 
-// AuthDependencies is everything AuthService needs.
 type AuthDependencies struct {
 	Users       ports.AuthUserRepository
 	Identities  ports.AuthIdentityRepository
@@ -42,8 +38,7 @@ type AuthDependencies struct {
 	Mailer      ports.Mailer
 	Events      ports.EventPublisher
 	Cache       ports.Cache
-	// BetaAllowlistOn is BETA_ALLOWLIST_ENABLED: only addresses on the BetaTester table can
-	// open an account.
+
 	BetaAllowlistOn bool
 }
 
@@ -65,16 +60,14 @@ func NewAuthService(deps AuthDependencies) *AuthService {
 	}
 }
 
-// RegisterInput is a new account with a password.
 type RegisterInput struct {
 	Email    string
 	Password string
 	Name     string
-	// Language is nil to keep the default.
+
 	Language *string
 }
 
-// Register opens an account with an email and a password, and signs it in.
 func (s *AuthService) Register(ctx context.Context, input RegisterInput, origin domain.SessionOrigin) (domain.IssuedSession, error) {
 	email := normalizeEmail(input.Email)
 
@@ -132,8 +125,6 @@ func (s *AuthService) Register(ctx context.Context, input RegisterInput, origin 
 	return issued, nil
 }
 
-// LoginWithPassword signs in with an email and a password. A wrong password and an unknown
-// address get the same answer, and too many failures lock the address for a while.
 func (s *AuthService) LoginWithPassword(ctx context.Context, email, password string, origin domain.SessionOrigin) (domain.IssuedSession, error) {
 	email = normalizeEmail(email)
 
@@ -207,8 +198,6 @@ func loginFailureReason(user *domain.AuthUser, matches bool) string {
 	}
 }
 
-// LoginWithGoogle signs in with a Google identity token. It uses the account linked to that
-// Google account, or claims the account with the same address, or opens a new one.
 func (s *AuthService) LoginWithGoogle(ctx context.Context, credential string, origin domain.SessionOrigin) (domain.IssuedSession, error) {
 	if !s.google.Configured() {
 		slog.Error("refusing a Google sign-in: no client id is configured")
@@ -357,8 +346,6 @@ func (s *AuthService) googleRefused(ctx context.Context, origin domain.SessionOr
 	})
 }
 
-// claimForGoogle links Google to an account opened with a password. Google has proved the
-// address, so a password nobody ever confirmed is dropped, with every session it opened.
 func (s *AuthService) claimForGoogle(ctx context.Context, user domain.AuthUser, identity domain.GoogleIdentity) (*domain.AuthUser, error) {
 	passwordNobodyProved := user.EmailVerifiedAt == nil && user.PasswordHash != nil
 
@@ -390,9 +377,6 @@ func (s *AuthService) claimForGoogle(ctx context.Context, user domain.AuthUser, 
 	return s.reloadUser(ctx, user.ID)
 }
 
-// Refresh trades a refresh token for a new session in the same family. A token that was
-// already rotated, used again after the grace period, means it was stolen: the whole family
-// is closed.
 func (s *AuthService) Refresh(ctx context.Context, refreshToken string, origin domain.SessionOrigin) (domain.IssuedSession, error) {
 	expired := domain.Unauthorized(domain.CodeSessionExpired)
 
@@ -443,18 +427,14 @@ func (s *AuthService) Refresh(ctx context.Context, refreshToken string, origin d
 	return s.sessions.Rotate(ctx, *session, *user, origin)
 }
 
-// Logout closes the session of the refresh token.
 func (s *AuthService) Logout(ctx context.Context, refreshToken string, origin domain.SessionOrigin) error {
 	return s.sessions.Revoke(ctx, refreshToken, origin)
 }
 
-// LogoutEverywhere closes every session of the user.
 func (s *AuthService) LogoutEverywhere(ctx context.Context, userID string, origin domain.SessionOrigin) error {
 	return s.sessions.RevokeEverySessionOf(ctx, userID, origin)
 }
 
-// RequestPasswordReset emails a reset link. It answers the same whether or not the address
-// has an account.
 func (s *AuthService) RequestPasswordReset(ctx context.Context, email string) error {
 	user, err := s.users.FindByEmail(ctx, email)
 	if err != nil {
@@ -480,7 +460,6 @@ func (s *AuthService) RequestPasswordReset(ctx context.Context, email string) er
 	return s.mailer.SendPasswordReset(ctx, user.Email, user.Name, token, user.MailLanguage())
 }
 
-// PasswordReset tells the reset page which address a link belongs to.
 func (s *AuthService) PasswordReset(ctx context.Context, token string) (domain.PasswordResetSummary, error) {
 	stored, err := s.tokens.FindUsable(ctx, token, domain.AuthTokenPasswordReset)
 	if err != nil {
@@ -493,8 +472,6 @@ func (s *AuthService) PasswordReset(ctx context.Context, token string) (domain.P
 	return domain.PasswordResetSummary{Email: stored.User.Email}, nil
 }
 
-// ResetPassword sets a new password from an emailed link, closes every other session and
-// signs in.
 func (s *AuthService) ResetPassword(ctx context.Context, token, password string, origin domain.SessionOrigin) (domain.IssuedSession, error) {
 	if err := s.assertNotCompromised(ctx, password); err != nil {
 		return domain.IssuedSession{}, err
@@ -536,7 +513,6 @@ func (s *AuthService) ResetPassword(ctx context.Context, token, password string,
 	return issued, nil
 }
 
-// VerifyEmail confirms an address from an emailed link.
 func (s *AuthService) VerifyEmail(ctx context.Context, token string) error {
 	stored, err := s.spendToken(ctx, token, domain.AuthTokenEmailVerification)
 	if err != nil {
@@ -557,8 +533,6 @@ func (s *AuthService) VerifyEmail(ctx context.Context, token string) error {
 	return nil
 }
 
-// Invite tells the invitation page who the invitation is for and whether they can already
-// sign in.
 func (s *AuthService) Invite(ctx context.Context, token string) (domain.InviteSummary, error) {
 	stored, err := s.tokens.FindUsable(ctx, token, domain.AuthTokenInvite)
 	if err != nil {
@@ -580,7 +554,6 @@ func (s *AuthService) Invite(ctx context.Context, token string) (domain.InviteSu
 	}, nil
 }
 
-// AcceptInvite claims an invitation with a password and signs in.
 func (s *AuthService) AcceptInvite(ctx context.Context, token, password string, origin domain.SessionOrigin) (domain.IssuedSession, error) {
 	if err := s.assertNotCompromised(ctx, password); err != nil {
 		return domain.IssuedSession{}, err
@@ -620,8 +593,6 @@ func (s *AuthService) AcceptInvite(ctx context.Context, token, password string, 
 	return issued, nil
 }
 
-// spendToken finds a usable token and spends it. Only one caller gets through; the others,
-// and anyone with a token that is not usable, get INVALID_TOKEN.
 func (s *AuthService) spendToken(ctx context.Context, token string, purpose domain.AuthTokenPurpose) (*domain.AuthToken, error) {
 	stored, err := s.tokens.FindUsable(ctx, token, purpose)
 	if err != nil {
@@ -642,7 +613,6 @@ func (s *AuthService) spendToken(ctx context.Context, token string, purpose doma
 	return stored, nil
 }
 
-// setPassword hashes and stores a password, forgets the cached user and returns it fresh.
 func (s *AuthService) setPassword(ctx context.Context, userID, password string, markEmailVerified bool) (*domain.AuthUser, error) {
 	passwordHash, err := HashPassword(password)
 	if err != nil {
@@ -656,7 +626,6 @@ func (s *AuthService) setPassword(ctx context.Context, userID, password string, 
 	return s.reloadUser(ctx, userID)
 }
 
-// reloadUser forgets the cached user after a change and reads it again.
 func (s *AuthService) reloadUser(ctx context.Context, userID string) (*domain.AuthUser, error) {
 	s.cache.Forget(ctx, userCacheKey(userID))
 
@@ -671,8 +640,6 @@ func (s *AuthService) reloadUser(ctx context.Context, userID string) (*domain.Au
 	return user, nil
 }
 
-// warnPasswordChanged emails the user that their password changed. A failure is logged,
-// not returned: the password is already changed.
 func (s *AuthService) warnPasswordChanged(ctx context.Context, user domain.AuthUser) {
 	if err := s.mailer.SendPasswordChanged(ctx, user.Email, user.Name, user.MailLanguage()); err != nil {
 		slog.Error("could not warn the user of the password change", "userId", user.ID, "error", err)

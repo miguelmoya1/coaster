@@ -78,7 +78,6 @@ func TestAdminListQuery(t *testing.T) {
 	}
 }
 
-// adminTesters is an allowlist with one address.
 type adminTesters struct {
 	ports.BetaTesterRepository
 	added []string
@@ -112,7 +111,6 @@ func (f *adminTesters) Add(_ context.Context, email string, _ *string, _ string)
 
 func (f *adminTesters) Remove(context.Context, string) error { return nil }
 
-// adminEstablishments knows one establishment, e1, with no subscription row and no settings.
 type adminEstablishments struct {
 	ports.AdminEstablishmentRepository
 }
@@ -138,20 +136,16 @@ func (adminEstablishments) GrantPlan(context.Context, string, domain.ManualPlanG
 	return nil
 }
 
-// adminPublisher drops every event.
 type adminPublisher struct{}
 
 func (adminPublisher) Publish(context.Context, ports.Event) {}
 
-// adminNoCache caches nothing.
 type adminNoCache struct{}
 
 func (adminNoCache) Get(context.Context, string, any) bool { return false }
 func (adminNoCache) Set(context.Context, string, any)      {}
 func (adminNoCache) Forget(context.Context, ...string)     {}
 
-// newAdminServer registers the backoffice routes. access decides whether testUser is a
-// platform admin.
 func newAdminServer(access middleware.AccessChecker) http.Handler {
 	guard := middleware.NewGuard(fakeTokens{}, access, &countingLimiter{hits: map[string]int{}}, 1)
 	mux := http.NewServeMux()

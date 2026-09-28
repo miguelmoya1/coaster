@@ -24,7 +24,6 @@ var (
 	deleteShiftQuery string
 )
 
-// ShiftRepository keeps the rota in "Shift".
 type ShiftRepository struct {
 	pool *pgxpool.Pool
 }
@@ -33,7 +32,6 @@ func NewShiftRepository(pool *pgxpool.Pool) *ShiftRepository {
 	return &ShiftRepository{pool: pool}
 }
 
-// scanShift reads a row of the shift queries, which all select the same columns.
 func scanShift(row pgx.Row) (domain.Shift, error) {
 	var shift domain.Shift
 	var start, end time.Time

@@ -12,14 +12,8 @@ import (
 	"api-go/internal/core/ports"
 )
 
-// The assistant's tests run the real services of every module with the fakes of P2, filled
-// with the same data Nest was given to write testdata/nest_ai_answers.json.
-
-// aiNow is when the turns of the tests happen: Sunday 27 September 2026, 10:00 UTC.
 var aiNow = time.Date(2026, 9, 27, 10, 0, 0, 0, time.UTC)
 
-// fakeAIModel answers every turn with text (or err). Before answering it runs the tools of
-// calls, keeping what they said, and streams deltas when it is asked to.
 type fakeAIModel struct {
 	text     string
 	err      error
@@ -54,7 +48,6 @@ func (m *fakeAIModel) Generate(ctx context.Context, request ports.AIRequest) (st
 	return m.text, m.err
 }
 
-// lastRequest is the request of the last turn.
 func (m *fakeAIModel) lastRequest(t *testing.T) ports.AIRequest {
 	t.Helper()
 	if len(m.requests) == 0 {
@@ -63,9 +56,8 @@ func (m *fakeAIModel) lastRequest(t *testing.T) ports.AIRequest {
 	return m.requests[len(m.requests)-1]
 }
 
-// fakeAIUsage is the "AiUsage" table.
 type fakeAIUsage struct {
-	messages map[string]int // "e1/2026-09" → messages
+	messages map[string]int
 	counted  []string
 	released []string
 	err      error
@@ -99,7 +91,6 @@ func (u *fakeAIUsage) ReleaseMessage(_ context.Context, establishmentID, period 
 	return nil
 }
 
-// aiProductRepo lists the products by id, so the tests read them always in the same order.
 type aiProductRepo struct {
 	*fakeProductRepo
 }
@@ -110,7 +101,6 @@ func (r aiProductRepo) ListOf(ctx context.Context, establishmentID string) ([]do
 	return rows, err
 }
 
-// aiOrderRepo lists the orders by id and gives ofDay as the orders of any day.
 type aiOrderRepo struct {
 	*fakeOrderRepo
 	ofDay []domain.OrderRow
@@ -128,8 +118,6 @@ func (r *aiOrderRepo) ListCreatedBetween(_ context.Context, _ string, from, _ ti
 	return r.ofDay, nil
 }
 
-// aiFixture is the assistant of establishment e1, where Ana (u1) is the owner and Luis (u2)
-// works on the staff.
 type aiFixture struct {
 	service   *AIService
 	model     *fakeAIModel
@@ -253,8 +241,6 @@ func newAIFixture() *aiFixture {
 
 var aiOrderTime = time.Date(2026, 9, 27, 9, 0, 0, 0, time.UTC)
 
-// aiOrderOne is open at Mesa 1: three cañas (two served, one paid) and a product that is
-// no longer on the menu, with 10 % off the order and 0,50 € off the cañas.
 func aiOrderOne() domain.OrderRow {
 	table, reason, item := "t1", "invitación", "i1"
 	return domain.OrderRow{
@@ -271,7 +257,6 @@ func aiOrderOne() domain.OrderRow {
 	}
 }
 
-// aiOrderTwo is open without a table: a coffee.
 func aiOrderTwo() domain.OrderRow {
 	return domain.OrderRow{
 		ID: "o2", EstablishmentID: "e1", Status: domain.OrderOpen, TotalAmount: 120,
@@ -282,7 +267,6 @@ func aiOrderTwo() domain.OrderRow {
 	}
 }
 
-// aiOrderThree was paid in cash at the terrace: two coffees of 5 €.
 func aiOrderThree() domain.OrderRow {
 	table := "t2"
 	return domain.OrderRow{
@@ -294,7 +278,6 @@ func aiOrderThree() domain.OrderRow {
 	}
 }
 
-// toolContext is the context of a turn of userID, with the snapshot the service reads.
 func (f *aiFixture) toolContext(t *testing.T, userID string) *aiToolContext {
 	t.Helper()
 	ctx := context.Background()
@@ -317,8 +300,6 @@ func (f *aiFixture) toolContext(t *testing.T, userID string) *aiToolContext {
 	return tc
 }
 
-// run runs a tool of the turn with input, as the gateway would, and returns its answer as
-// JSON.
 func (f *aiFixture) run(t *testing.T, tc *aiToolContext, name, input string) string {
 	t.Helper()
 
@@ -335,7 +316,6 @@ func (f *aiFixture) run(t *testing.T, tc *aiToolContext, name, input string) str
 	return ""
 }
 
-// aiJSON writes v like JSON.stringify.
 func aiJSON(v any) (string, error) {
 	var buf strings.Builder
 	encoder := json.NewEncoder(&buf)

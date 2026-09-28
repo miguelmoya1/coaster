@@ -13,15 +13,12 @@ import (
 	"api-go/internal/service"
 )
 
-// Valid UUIDs for the routes and bodies of the order tests.
 const (
 	orderTestID   = "0b8a1b2e-3c4d-4e5f-8a9b-0c1d2e3f4a5b"
 	orderTestItem = "1c9b2c3f-4d5e-4f60-9bac-1d2e3f4a5b6c"
 	orderTestProd = "2dac3d40-5e6f-4071-8cbd-2e3f4a5b6c7d"
 )
 
-// orderHandlerRepo knows one open order of e1 with one line, and one product. Only what the
-// tests reach is implemented; it records the writes.
 type orderHandlerRepo struct {
 	ports.OrderRepository
 	writes    []string
@@ -78,7 +75,6 @@ func (r *orderHandlerRepo) RemoveLastItemAndCancel(context.Context, string, stri
 	return r.order(), nil
 }
 
-// tableHandlerRepo knows table t1 of e1.
 type tableHandlerRepo struct {
 	ports.TableRepository
 	writes []string
@@ -116,7 +112,6 @@ func (r *tableHandlerRepo) Delete(context.Context, string) error {
 	return nil
 }
 
-// orderHandlerEvents drops the events.
 type orderHandlerEvents struct{}
 
 func (orderHandlerEvents) Publish(context.Context, ports.Event) {}

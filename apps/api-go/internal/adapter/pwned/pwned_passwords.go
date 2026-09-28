@@ -13,14 +13,10 @@ import (
 	"time"
 )
 
-// RangeURL is the k-anonymity endpoint of Have I Been Pwned: it only ever gets the first
-// five characters of the SHA-1.
 const RangeURL = "https://api.pwnedpasswords.com/range/"
 
 const timeout = 2500 * time.Millisecond
 
-// Passwords is ports.PwnedPasswords, like pwned-passwords.service.ts. Any failure lets the
-// password through.
 type Passwords struct {
 	enabled  bool
 	rangeURL string
@@ -76,7 +72,6 @@ func (p *Passwords) rangeOf(ctx context.Context, prefix string) (string, bool) {
 	return string(body), true
 }
 
-// appearancesOf finds suffix in the "SUFFIX:COUNT" lines. Padding lines have a count of 0.
 func appearancesOf(body, suffix string) int {
 	scanner := bufio.NewScanner(strings.NewReader(body))
 	for scanner.Scan() {

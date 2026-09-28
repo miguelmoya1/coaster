@@ -23,7 +23,6 @@ func chainRow(id string, sequence int64) TimeEntryRow {
 	}
 }
 
-// chainOf links the rows one after the other, as Append does.
 func chainOf(rows ...TimeEntryRow) []TimeEntryRow {
 	prevHash := GenesisHash
 	for i := range rows {
@@ -35,7 +34,7 @@ func chainOf(rows ...TimeEntryRow) []TimeEntryRow {
 }
 
 func TestHashTimeEntryMatchesNest(t *testing.T) {
-	// The hashes come from time-entry-chain.ts with the same payloads.
+
 	first := ChainPayloadOf(chainRow("entry-1", 1))
 	if got := HashTimeEntry(first, GenesisHash); got != "e74657c444ba2516a7f865e0f9ed186e1560fae057324f24ac51bb3c0f98a4bc" {
 		t.Errorf("first hash = %s", got)

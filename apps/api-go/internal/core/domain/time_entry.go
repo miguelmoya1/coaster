@@ -6,7 +6,6 @@ import (
 	"time"
 )
 
-// TimeEntryType is the kind of punch.
 type TimeEntryType string
 
 const (
@@ -16,7 +15,6 @@ const (
 	TimeEntryClockOut   TimeEntryType = "CLOCK_OUT"
 )
 
-// TimeEntryAction says whether a row is a punch, a correction of one or its cancellation.
 type TimeEntryAction string
 
 const (
@@ -25,7 +23,6 @@ const (
 	TimeEntryVoidedAction   TimeEntryAction = "VOIDED"
 )
 
-// TimeEntrySource says who made the punch: the worker's device or a manager by hand.
 type TimeEntrySource string
 
 const (
@@ -33,7 +30,6 @@ const (
 	TimeEntryManual             TimeEntrySource = "MANUAL"
 )
 
-// ClockState is where a worker stands in their workday.
 type ClockState string
 
 const (
@@ -42,7 +38,6 @@ const (
 	ClockOnBreak ClockState = "ON_BREAK"
 )
 
-// WorkdayDiscrepancy is a way a workday differs from the rota.
 type WorkdayDiscrepancy string
 
 const (
@@ -53,14 +48,11 @@ const (
 	DiscrepancyOvertime    WorkdayDiscrepancy = "OVERTIME"
 )
 
-// TimeEntrySnapshot is who the worker was when the punch was made (userSnapshot).
 type TimeEntrySnapshot struct {
 	Name  string `json:"name"`
 	Email string `json:"email"`
 }
 
-// TimeEntryRow is one row of "TimeEntry": a punch or a revision of one, with the names of
-// the worker and of whoever wrote it.
 type TimeEntryRow struct {
 	ID              string
 	EstablishmentID string
@@ -84,12 +76,10 @@ type TimeEntryRow struct {
 	Sequence        int64
 	PrevHash        string
 	Hash            string
-	// SupersededByID is the revision that replaced this row, if any. Only FindCurrentByID fills it.
+
 	SupersededByID *string
 }
 
-// AppendTimeEntry is a new row for the chain. The repository adds the id, the sequence,
-// the time it was recorded and the hashes.
 type AppendTimeEntry struct {
 	EstablishmentID string
 	UserID          string
@@ -100,7 +90,7 @@ type AppendTimeEntry struct {
 	WorkdayDate     time.Time
 	Source          TimeEntrySource
 	ActorID         string
-	// RootID is the first row of the punch; empty for a new punch, which is its own root.
+
 	RootID       string
 	SupersedesID *string
 	Reason       *string
@@ -108,7 +98,6 @@ type AppendTimeEntry struct {
 	Longitude    *float64
 }
 
-// TimeEntryMember is a live member of the establishment, as time tracking needs it.
 type TimeEntryMember struct {
 	UserID string
 	Name   string
@@ -116,7 +105,6 @@ type TimeEntryMember struct {
 	Role   EstablishmentRole
 }
 
-// TimeEntryRevision is one row of a punch's history (TimeEntryRevision in @coaster/common).
 type TimeEntryRevision struct {
 	ID         string          `json:"id"`
 	Action     TimeEntryAction `json:"action"`
@@ -130,8 +118,6 @@ type TimeEntryRevision struct {
 	Hash       string          `json:"hash"`
 }
 
-// TimeEntry is a punch with its whole history, as the API sends it (TimeEntry in
-// @coaster/common). Its values are those of the latest revision.
 type TimeEntry struct {
 	ID              string              `json:"id"`
 	RootID          string              `json:"rootId"`
@@ -151,7 +137,6 @@ type TimeEntry struct {
 	Revisions       []TimeEntryRevision `json:"revisions"`
 }
 
-// Workday is a worker's day on the timesheet (Workday in @coaster/common).
 type Workday struct {
 	Date           string               `json:"date"`
 	UserID         string               `json:"userId"`
@@ -166,7 +151,6 @@ type Workday struct {
 	Entries        []TimeEntry          `json:"entries"`
 }
 
-// TimeSheetIntegrity says whether the chain of an establishment's punches is intact.
 type TimeSheetIntegrity struct {
 	EstablishmentID string  `json:"establishmentId"`
 	CheckedEntries  int     `json:"checkedEntries"`
@@ -174,8 +158,6 @@ type TimeSheetIntegrity struct {
 	BrokenAt        *string `json:"brokenAt"`
 }
 
-// ToTimeEntry joins the rows of one punch into the punch (TimeEntriesMapper.toDomain).
-// rows must not be empty.
 func ToTimeEntry(rows []TimeEntryRow) TimeEntry {
 	ordered := slices.Clone(rows)
 	slices.SortStableFunc(ordered, func(a, b TimeEntryRow) int { return cmp.Compare(a.Sequence, b.Sequence) })
@@ -219,7 +201,6 @@ func ToTimeEntry(rows []TimeEntryRow) TimeEntry {
 	}
 }
 
-// GroupByRoot turns rows into punches, in the order they happened (TimeEntriesMapper.groupByRoot).
 func GroupByRoot(rows []TimeEntryRow) []TimeEntry {
 	var roots []string
 	groups := make(map[string][]TimeEntryRow)

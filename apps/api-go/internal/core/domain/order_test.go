@@ -135,7 +135,6 @@ func TestOrderAmountsPaidByLine(t *testing.T) {
 		{ID: "i3", Quantity: 0, PriceAtPurchase: 100, TaxRateAtPurchase: 1000, PaidQuantityCash: 1},
 	}}
 
-	// 2 × 500 + 10 % = 1100, so a unit is 550. 3 × 333 + 21 % = 1209 (999 + 209.79), so two units are 806.
 	cash, card := row.AmountsPaidByLine()
 	if cash != 806 || card != 550 {
 		t.Errorf("AmountsPaidByLine = %d cash, %d card; want 806 and 550", cash, card)

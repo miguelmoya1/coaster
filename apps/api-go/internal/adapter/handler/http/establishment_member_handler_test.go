@@ -13,7 +13,6 @@ import (
 	"api-go/internal/service"
 )
 
-// memberRouteCaller signs in "Bearer good" as user.
 type memberRouteCaller struct {
 	user domain.User
 }
@@ -26,8 +25,6 @@ func (c memberRouteCaller) Resolve(_ context.Context, authorization string) (*se
 	return &service.Caller{Claims: domain.SessionClaims{Sub: user.ID, Sid: "s1"}, User: &user}, nil
 }
 
-// memberRouteAccess gives the caller a platform role and, unless role is "", an active
-// membership of every establishment with role.
 type memberRouteAccess struct {
 	fakeAccess
 	platformRole domain.Role
@@ -45,8 +42,6 @@ func (a memberRouteAccess) Membership(context.Context, string, string) (*domain.
 	return &domain.Membership{Role: string(a.role), Active: true}, nil
 }
 
-// memberRouteRows is an EstablishmentMember table where e1 has Ana (owner, the caller) and Sergio
-// (staff, still to accept his invitation).
 type memberRouteRows struct {
 	ports.EstablishmentMemberRepository
 }
@@ -93,7 +88,6 @@ func (memberRouteRows) UpdateRole(context.Context, string, string, domain.Establ
 
 func (memberRouteRows) Remove(context.Context, string, string) (bool, error) { return true, nil }
 
-// memberRouteMailer sends the invitations, or refuses them when down.
 type memberRouteMailer struct {
 	ports.Mailer
 	down bool
@@ -118,8 +112,6 @@ type memberRouteEvents struct{}
 
 func (memberRouteEvents) Publish(context.Context, ports.Event) {}
 
-// newMemberRouteServer serves the member routes to caller, whose place in every establishment
-// access decides.
 func newMemberRouteServer(caller domain.User, access memberRouteAccess, mailer memberRouteMailer) http.Handler {
 	members := service.NewEstablishmentMemberService(service.EstablishmentMemberDependencies{
 		Members: memberRouteRows{},

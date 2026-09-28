@@ -179,7 +179,7 @@ func TestAuthSessionRepository(t *testing.T) {
 	}
 
 	live, err := sessions.ListLiveOf(ctx, user.ID)
-	// A rotated session stays live, like in Nest: the account page groups them by family.
+
 	if err != nil || len(live) != 2 || live[0].ID != rotated.ID {
 		t.Fatalf("ListLiveOf = %+v, %v", live, err)
 	}

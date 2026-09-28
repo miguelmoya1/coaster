@@ -24,8 +24,6 @@ type PrinterReleaseService interface {
 	Download(platform, code string) (fs.File, string, error)
 }
 
-// PrinterHandler is printer.controller.ts: the routes the bridge calls. They have no user; the
-// bridge authenticates with its device key in X-Device-Key.
 type PrinterHandler struct {
 	printers PrinterService
 	releases PrinterReleaseService
@@ -45,19 +43,16 @@ func (h *PrinterHandler) RegisterRoutes(mux *http.ServeMux, guard *middleware.Gu
 	handle(mux, guard, "POST /printer/jobs/{jobId}/result", h.reportResult)
 }
 
-// redeemPairingRequest is RedeemPairingDto.
 type redeemPairingRequest struct {
 	Code string `json:"code" validate:"required"`
 }
 
-// registerPrinterIPRequest is RegisterPrinterIpDto.
 type registerPrinterIPRequest struct {
 	EstablishmentID string `json:"establishmentId" validate:"required"`
 	IPAddress       string `json:"ipAddress" validate:"required,ip"`
 	Port            *int   `json:"port" validate:"omitnil,min=1,max=65535"`
 }
 
-// printJobResultRequest is PrintJobResultDto.
 type printJobResultRequest struct {
 	Status string  `json:"status" validate:"oneof=printed failed"`
 	Error  *string `json:"error" validate:"omitnil,max=500"`
@@ -124,7 +119,6 @@ func (h *PrinterHandler) registerIP(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusCreated, map[string]bool{"success": true})
 }
 
-// nextJob answers the job, or 204 when none arrived while the request was open.
 func (h *PrinterHandler) nextJob(w http.ResponseWriter, r *http.Request) {
 	establishmentID := r.URL.Query().Get("establishmentId")
 	if establishmentID == "" {
@@ -134,7 +128,7 @@ func (h *PrinterHandler) nextJob(w http.ResponseWriter, r *http.Request) {
 
 	job, err := h.printers.NextJob(r.Context(), establishmentID, r.Header.Get("X-Device-Key"))
 	if r.Context().Err() != nil {
-		// The bridge hung up: there is nobody to answer.
+
 		return
 	}
 	if err != nil {

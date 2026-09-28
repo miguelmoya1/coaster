@@ -13,7 +13,6 @@ type StripeWebhookService interface {
 	HandleWebhook(ctx context.Context, payload []byte, signature string) error
 }
 
-// StripeWebhookHandler is stripe-webhook.controller.ts: Stripe posts its events here.
 type StripeWebhookHandler struct {
 	subscriptions StripeWebhookService
 }
@@ -26,7 +25,6 @@ func (h *StripeWebhookHandler) RegisterRoutes(mux *http.ServeMux, guard *middlew
 	handle(mux, guard, "POST /stripe/webhook", h.receive, middleware.SkipThrottle())
 }
 
-// receive needs the body exactly as it came, because the signature is computed over it.
 func (h *StripeWebhookHandler) receive(w http.ResponseWriter, r *http.Request) {
 	payload, err := io.ReadAll(http.MaxBytesReader(nil, r.Body, maxBodyBytes))
 	if err != nil {

@@ -17,7 +17,6 @@ const (
 
 var developmentCORSOrigins = []string{"http://localhost:4200"}
 
-// Config holds every environment variable the API reads. Nothing else calls os.Getenv.
 type Config struct {
 	Port         string
 	IsProduction bool
@@ -55,13 +54,10 @@ type Config struct {
 	AIMonthlyMessages      string
 	AITrialMonthlyMessages string
 
-	// Only for the e2e against Go: where to post emails and where to read Google's keys.
 	TestMailboxURL string
 	GoogleCertsURL string
 }
 
-// Load reads the environment. It fails without DATABASE_URL, AUTH_JWT_SECRET or
-// PRINTER_JWT_SECRET, as Nest does.
 func Load() (Config, error) {
 	isProduction := os.Getenv("NODE_ENV") == "production"
 

@@ -10,9 +10,6 @@ import (
 	"api-go/internal/core/ports"
 )
 
-// Fakes for the subscription service tests.
-
-// fakeSubscriptions is the EstablishmentSubscription table, one row per establishment.
 type fakeSubscriptions struct {
 	rows      map[string]*domain.EstablishmentSubscription
 	members   map[string]int
@@ -98,10 +95,9 @@ func (f *fakeSubscriptions) UpdateFromStripe(_ context.Context, establishmentID 
 	return nil
 }
 
-// fakePayments is Stripe: the subscriptions it knows, and what it was asked.
 type fakePayments struct {
 	subscriptions map[string]*domain.StripeSubscription
-	// portalCustomers are the customers the portal knows.
+
 	portalCustomers map[string]bool
 	lookupErr       error
 	portalErr       error
@@ -169,7 +165,6 @@ func (f *fakePayments) ParseWebhook([]byte, string) (*domain.StripeEvent, error)
 	return f.event, f.parseErr
 }
 
-// recordedEvents keeps every event published.
 type recordedEvents struct {
 	mu     sync.Mutex
 	events []ports.Event
@@ -189,7 +184,6 @@ func (r *recordedEvents) names() []string {
 	return names
 }
 
-// recordedRealtime keeps every realtime message.
 type recordedRealtime struct {
 	published []string
 	payloads  []any
@@ -202,7 +196,6 @@ func (r *recordedRealtime) Publish(establishmentID, event string, payload any) {
 
 func (r *recordedRealtime) Revoke(string, string) {}
 
-// subscriptionTest is a SubscriptionService on fakes, at a fixed time.
 type subscriptionTest struct {
 	service  *SubscriptionService
 	repo     *fakeSubscriptions

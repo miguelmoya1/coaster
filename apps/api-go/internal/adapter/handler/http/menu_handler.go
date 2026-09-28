@@ -18,7 +18,6 @@ type MenuService interface {
 	Published(ctx context.Context, slug, language string) (domain.PublishedMenu, error)
 }
 
-// MenuHandler is menu.controller.ts and public-menu.controller.ts.
 type MenuHandler struct {
 	menus MenuService
 }
@@ -40,7 +39,6 @@ func (h *MenuHandler) RegisterRoutes(mux *http.ServeMux, guard *middleware.Guard
 	handle(mux, guard, "GET /menus/{slug}", h.published, middleware.Throttle(60, time.Minute))
 }
 
-// saveMenuDraftRequest is SaveMenuDraftDto.
 type saveMenuDraftRequest struct {
 	Name      string               `json:"name" validate:"max=80"`
 	Languages []string             `json:"languages" validate:"min=1,dive,oneof=es en" msg:"min=languages should not be empty"`

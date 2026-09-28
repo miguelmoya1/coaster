@@ -10,15 +10,12 @@ import (
 	"api-go/internal/core/domain"
 )
 
-// ResendMailer is ports.Mailer on Resend (EmailService in Nest).
 type ResendMailer struct {
 	client      *resend.Client
 	from        string
 	frontendURL string
 }
 
-// NewResendMailer sends from from ("Coaster <hello@coaster.business>" unless EMAIL_FROM
-// says otherwise). frontendURL has no trailing slash.
 func NewResendMailer(apiKey, from, frontendURL string) *ResendMailer {
 	return &ResendMailer{client: resend.NewClient(apiKey), from: from, frontendURL: frontendURL}
 }

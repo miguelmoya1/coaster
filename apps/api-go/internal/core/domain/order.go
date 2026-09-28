@@ -2,7 +2,6 @@ package domain
 
 import "time"
 
-// OrderStatus is OrderStatus in @coaster/common.
 type OrderStatus string
 
 const (
@@ -11,7 +10,6 @@ const (
 	OrderCancelled OrderStatus = "CANCELLED"
 )
 
-// PaymentStatus is PaymentStatus in @coaster/common: how much of an order line is paid.
 type PaymentStatus string
 
 const (
@@ -20,7 +18,6 @@ const (
 	PaymentPaid    PaymentStatus = "PAID"
 )
 
-// DeliveryStatus is DeliveryStatus in @coaster/common: how much of an order line is served.
 type DeliveryStatus string
 
 const (
@@ -29,7 +26,6 @@ const (
 	DeliveryServed  DeliveryStatus = "SERVED"
 )
 
-// PaymentMethod is PaymentMethod in @coaster/common.
 type PaymentMethod string
 
 const (
@@ -39,8 +35,6 @@ const (
 	PaymentNone  PaymentMethod = "NONE"
 )
 
-// AdjustmentTarget is AdjustmentTarget in @coaster/common: a discount on the whole order
-// or on one of its lines.
 type AdjustmentTarget string
 
 const (
@@ -48,8 +42,6 @@ const (
 	AdjustmentItem  AdjustmentTarget = "ITEM"
 )
 
-// AdjustmentType is AdjustmentType in @coaster/common. A PERCENTAGE value is a whole
-// percentage (10 is 10 %); a FIXED_AMOUNT value is in cents.
 type AdjustmentType string
 
 const (
@@ -57,7 +49,6 @@ const (
 	AdjustmentFixedAmount AdjustmentType = "FIXED_AMOUNT"
 )
 
-// Messages Nest sends as they are, because @coaster/common has no code for them.
 const (
 	MessageNegativeTotalNotAllowed       = "NEGATIVE_TOTAL_NOT_ALLOWED"
 	MessagePayQuantityExceedsTotal       = "PAY_QUANTITY_EXCEEDS_TOTAL"
@@ -71,8 +62,6 @@ const (
 	MessageAdjustmentNotFound            = "Adjustment not found"
 )
 
-// Order is an order as the API sends it (Order in @coaster/common). The fields and their
-// order are those of OrdersMapper.toDomain; the totals come from CalculatePricing.
 type Order struct {
 	ID              string            `json:"id"`
 	EstablishmentID string            `json:"establishmentId"`
@@ -97,8 +86,6 @@ type Order struct {
 	UpdatedAt       Instant           `json:"updatedAt"`
 }
 
-// OrderItem is a line of an order (OrderItem in @coaster/common). ProductName is the
-// product's name today, not the one it had when it was ordered.
 type OrderItem struct {
 	ID               string         `json:"id"`
 	OrderID          string         `json:"orderId"`
@@ -118,8 +105,6 @@ type OrderItem struct {
 	UpdatedAt        Instant        `json:"updatedAt"`
 }
 
-// OrderAdjustment is a discount on an order or on one of its lines (OrderAdjustment in
-// @coaster/common).
 type OrderAdjustment struct {
 	ID        string           `json:"id"`
 	OrderID   string           `json:"orderId"`
@@ -131,9 +116,6 @@ type OrderAdjustment struct {
 	CreatedAt Instant          `json:"createdAt"`
 }
 
-// OrderRow is an order as it is stored, with its lines (oldest first) and its discounts.
-// TableName is the name kept on the order and LinkedTableName the current name of the
-// table it points to.
 type OrderRow struct {
 	ID              string
 	EstablishmentID string
@@ -155,7 +137,6 @@ type OrderRow struct {
 	Adjustments     []OrderAdjustmentRow
 }
 
-// OrderItemRow is a line as it is stored, with the current name of its product.
 type OrderItemRow struct {
 	ID                string
 	OrderID           string
@@ -176,7 +157,6 @@ type OrderItemRow struct {
 	UpdatedAt         time.Time
 }
 
-// OrderAdjustmentRow is a discount as it is stored.
 type OrderAdjustmentRow struct {
 	ID        string
 	OrderID   string
@@ -188,7 +168,6 @@ type OrderAdjustmentRow struct {
 	CreatedAt time.Time
 }
 
-// Pricing is what CalculatePricing says the order's totals are.
 func (row OrderRow) Pricing() Pricing {
 	input := PricingInput{
 		TipAmount:      row.TipAmount,
@@ -219,8 +198,6 @@ func (row OrderRow) Pricing() Pricing {
 	return CalculatePricing(input)
 }
 
-// ToOrder is OrdersMapper.toDomain. The table name is the one kept on the order or, without
-// one, the name of its table; empty notes are left out.
 func (row OrderRow) ToOrder() Order {
 	pricing := row.Pricing()
 
@@ -259,7 +236,6 @@ func (row OrderRow) ToOrder() Order {
 	}
 }
 
-// ToAdjustments is the order's discounts as the API sends them (never nil).
 func (row OrderRow) ToAdjustments() []OrderAdjustment {
 	adjustments := make([]OrderAdjustment, 0, len(row.Adjustments))
 	for _, adjustment := range row.Adjustments {
@@ -277,7 +253,6 @@ func (row OrderRow) ToAdjustments() []OrderAdjustment {
 	return adjustments
 }
 
-// ToOrderItem is OrdersMapper.itemToDomain.
 func (item OrderItemRow) ToOrderItem() OrderItem {
 	return OrderItem{
 		ID:               item.ID,
@@ -299,7 +274,6 @@ func (item OrderItemRow) ToOrderItem() OrderItem {
 	}
 }
 
-// FindItem returns the line with this id.
 func (row OrderRow) FindItem(itemID string) (OrderItemRow, bool) {
 	for _, item := range row.Items {
 		if item.ID == itemID {
@@ -309,7 +283,6 @@ func (row OrderRow) FindItem(itemID string) (OrderItemRow, bool) {
 	return OrderItemRow{}, false
 }
 
-// HasAdjustment reports whether the order has the discount with this id.
 func (row OrderRow) HasAdjustment(adjustmentID string) bool {
 	for _, adjustment := range row.Adjustments {
 		if adjustment.ID == adjustmentID {
@@ -319,8 +292,6 @@ func (row OrderRow) HasAdjustment(adjustmentID string) bool {
 	return false
 }
 
-// ItemsTotal is the order's totalAmount: each line's net price times its quantity, before
-// discounts and tax.
 func (row OrderRow) ItemsTotal() int {
 	total := 0
 	for _, item := range row.Items {
@@ -329,8 +300,6 @@ func (row OrderRow) ItemsTotal() int {
 	return total
 }
 
-// AmountsPaidByLine is what the bulk update says the order has taken: the paid units of
-// each line at the line's price with discounts and tax, in cash and by card.
 func (row OrderRow) AmountsPaidByLine() (cash, card int) {
 	pricing := row.Pricing()
 
@@ -346,8 +315,6 @@ func (row OrderRow) AmountsPaidByLine() (cash, card int) {
 	return cash, card
 }
 
-// AmountsAfterCheckout is what the order has taken once the checkout charges what is still
-// pending: by card if the method is CARD and in cash otherwise.
 func (row OrderRow) AmountsAfterCheckout(method PaymentMethod) (cash, card int) {
 	pending := row.Pricing().PendingAmount
 
@@ -361,7 +328,6 @@ func (row OrderRow) AmountsAfterCheckout(method PaymentMethod) (cash, card int) 
 	return cash, card
 }
 
-// OrderItemPaid is how many units of a line are paid, and how.
 type OrderItemPaid struct {
 	Quantity int
 	Cash     int
@@ -370,9 +336,6 @@ type OrderItemPaid struct {
 	Method   PaymentMethod
 }
 
-// PaidAfter is the line once paidQuantity of its units are paid, as the bulk update writes
-// it. Units paid now go to card if method is CARD and to cash otherwise; units given back
-// come off card first and then off cash.
 func (item OrderItemRow) PaidAfter(paidQuantity int, method *PaymentMethod) OrderItemPaid {
 	card, cash := item.PaidQuantityCard, item.PaidQuantityCash
 
@@ -401,8 +364,6 @@ func (item OrderItemRow) PaidAfter(paidQuantity int, method *PaymentMethod) Orde
 	return OrderItemPaid{Quantity: paidQuantity, Cash: cash, Card: card, Status: status, Method: PaymentMethodFor(cash, card)}
 }
 
-// PaidInFull is the line once the checkout charges its unpaid units: by card if method is
-// CARD and in cash otherwise.
 func (item OrderItemRow) PaidInFull(method PaymentMethod) OrderItemPaid {
 	unpaid := item.Quantity - item.PaidQuantity
 
@@ -416,7 +377,6 @@ func (item OrderItemRow) PaidInFull(method PaymentMethod) OrderItemPaid {
 	return OrderItemPaid{Quantity: item.Quantity, Cash: cash, Card: card, Status: PaymentPaid, Method: PaymentMethodFor(cash, card)}
 }
 
-// ServedAfter is the delivery status of the line once servedQuantity of its units are served.
 func (item OrderItemRow) ServedAfter(servedQuantity int) DeliveryStatus {
 	switch servedQuantity {
 	case item.Quantity:
@@ -428,8 +388,6 @@ func (item OrderItemRow) ServedAfter(servedQuantity int) DeliveryStatus {
 	}
 }
 
-// PaymentMethodFor is paymentMethodFor: how something was paid, from what went in cash and
-// what went by card.
 func PaymentMethodFor(cash, card int) PaymentMethod {
 	switch {
 	case cash > 0 && card > 0:
@@ -443,13 +401,10 @@ func PaymentMethodFor(cash, card int) PaymentMethod {
 	}
 }
 
-// PercentageOf is percentage % of amount, rounded like Math.round.
 func PercentageOf(amount, percentage int) int {
 	return roundJS(float64(amount*percentage) / 100)
 }
 
-// OrderProduct is what a line copies from its product when it is ordered: the price, the
-// name and the tax rate, already resolved.
 type OrderProduct struct {
 	ID      string
 	Name    string
@@ -457,7 +412,6 @@ type OrderProduct struct {
 	TaxRate int
 }
 
-// NewOrder is an order to open. Its lines already carry their product's details.
 type NewOrder struct {
 	EstablishmentID string
 	CreatedByID     *string
@@ -470,7 +424,6 @@ type NewOrder struct {
 	Notes           *string
 }
 
-// NewOrderItem is a line to add to an order.
 type NewOrderItem struct {
 	ProductID   string
 	ProductName string
@@ -480,7 +433,6 @@ type NewOrderItem struct {
 	Notes       *string
 }
 
-// NewOrderAdjustment is a discount to add to an order.
 type NewOrderAdjustment struct {
 	Target AdjustmentTarget
 	Type   AdjustmentType
@@ -489,8 +441,6 @@ type NewOrderAdjustment struct {
 	ItemID *string
 }
 
-// OrderItemsAddition is the lines to add to an open order and its new totalAmount. With
-// ChangeNotes the order's notes become Notes (nil empties them).
 type OrderItemsAddition struct {
 	Items       []NewOrderItem
 	TotalAmount int
@@ -498,8 +448,6 @@ type OrderItemsAddition struct {
 	Notes       *string
 }
 
-// OrderItemUpdate is one line of a bulk update (BulkUpdateItemDto): how many of its units
-// are paid, and how, and how many are served. A nil field is left as it is.
 type OrderItemUpdate struct {
 	ItemID         string
 	PaidQuantity   *int
@@ -507,7 +455,6 @@ type OrderItemUpdate struct {
 	PaymentMethod  *PaymentMethod
 }
 
-// OrderNotesChanges says which notes of an order change. A nil value empties them.
 type OrderNotesChanges struct {
 	ChangeNotes       bool
 	Notes             *string
@@ -515,14 +462,11 @@ type OrderNotesChanges struct {
 	TicketNotes       *string
 }
 
-// MergedOrder is an order merged into another one, with the table it had.
 type MergedOrder struct {
 	ID      string
 	TableID *string
 }
 
-// OrderMerge is what merging orders needs: the order that stays (the oldest one), the ones
-// that go into it and, optionally, the table it ends up at.
 type OrderMerge struct {
 	PrimaryID        string
 	PrimaryTableID   *string
@@ -531,7 +475,6 @@ type OrderMerge struct {
 	TargetTableID    *string
 }
 
-// nonEmpty is value, or nil when it is nil or "" (the `|| undefined` of the mappers).
 func nonEmpty(value *string) *string {
 	if value == nil || *value == "" {
 		return nil

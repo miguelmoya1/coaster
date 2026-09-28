@@ -19,8 +19,6 @@ var (
 	releaseAIMessageQuery string
 )
 
-// AIUsageRepository counts the assistant messages in "AiUsage", one row per establishment
-// and month.
 type AIUsageRepository struct {
 	pool *pgxpool.Pool
 }
@@ -38,8 +36,6 @@ func (r *AIUsageRepository) MessagesThisPeriod(ctx context.Context, establishmen
 	return messages, err
 }
 
-// ReserveMessage creates the month's row with one message, or adds one to it while it is under
-// the allowance, in a single statement: of several messages at once, only those that fit count.
 func (r *AIUsageRepository) ReserveMessage(ctx context.Context, establishmentID, period string, allowance int) (bool, error) {
 	if allowance <= 0 {
 		return false, nil

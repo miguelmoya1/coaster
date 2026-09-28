@@ -25,7 +25,6 @@ var (
 	deleteIdentityQuery string
 )
 
-// AuthIdentityRepository stores the outside accounts linked to users in "AuthIdentity".
 type AuthIdentityRepository struct {
 	pool *pgxpool.Pool
 }

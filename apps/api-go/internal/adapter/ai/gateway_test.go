@@ -17,24 +17,21 @@ import (
 	"api-go/internal/core/ports"
 )
 
-// fakeStep is what the fake gateway answers to one request: some text, some tool calls, or both.
 type fakeStep struct {
-	text         []string // pieces of text; each one is a chunk when streaming
+	text         []string
 	toolCalls    []fakeToolCall
 	finishReason string
 }
 
 type fakeToolCall struct {
 	id, name  string
-	arguments []string // pieces of the arguments; each one is a chunk when streaming
+	arguments []string
 }
 
-// fakeGateway is an OpenAI-compatible server that answers each request with the next step
-// of its script and keeps the bodies it received.
 type fakeGateway struct {
 	t       *testing.T
 	steps   []fakeStep
-	status  int // when set, every request fails with it
+	status  int
 	mu      sync.Mutex
 	bodies  []map[string]any
 	headers []http.Header
@@ -141,7 +138,6 @@ func newFakeGateway(t *testing.T, steps ...fakeStep) (*fakeGateway, *Gateway) {
 	return fake, newGateway("test-key", option.WithBaseURL(server.URL), option.WithMaxRetries(0))
 }
 
-// recordingTool is a tool with the schema of createTable that keeps the inputs it ran with.
 type recordingTool struct {
 	inputs []string
 }

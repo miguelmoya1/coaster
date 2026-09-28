@@ -32,7 +32,6 @@ var (
 	isBetaTesterQuery string
 )
 
-// AuthUserRepository reads and writes the "User" rows for signing in.
 type AuthUserRepository struct {
 	pool *pgxpool.Pool
 }
@@ -114,7 +113,6 @@ func (r *AuthUserRepository) IsBetaTester(ctx context.Context, email string) (bo
 	return exists, err
 }
 
-// scanAuthUser reads a row of find_by_id.sql or find_by_email.sql, or nil when there is none.
 func scanAuthUser(row pgx.Row) (*domain.AuthUser, error) {
 	var user domain.AuthUser
 	var role string

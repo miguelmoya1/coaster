@@ -1,7 +1,5 @@
 package domain
 
-// Realtime event names, the same as RealtimeEvents in
-// packages/common/src/constants/realtime-events.type.ts.
 const (
 	RealtimeProductCreated          = "productCreated"
 	RealtimeProductUpdated          = "productUpdated"
@@ -31,7 +29,6 @@ const (
 	RealtimeSubscriptionUpdated     = "subscriptionUpdated"
 )
 
-// AllRealtimeEvents lists every name, in the same order as RealtimeEvents.
 var AllRealtimeEvents = []string{
 	RealtimeProductCreated,
 	RealtimeProductUpdated,

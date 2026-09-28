@@ -10,9 +10,6 @@ import (
 	"api-go/internal/core/domain"
 )
 
-// insertOrderFixtures writes what the order tests start from: establishments e1 and e2,
-// the products of e1 (beer at 500 with the category's 10 %, coke at 300 with its own 21 %
-// and a deleted one) and one of e2, and the tables t1 and t2 of e1.
 func insertOrderFixtures(t *testing.T) {
 	t.Helper()
 
@@ -43,7 +40,6 @@ func tableStatusOf(t *testing.T, tableID string) domain.TableStatus {
 	return table.Status
 }
 
-// openTestOrder opens an order of e1 with the given lines, through the repository.
 func openTestOrder(t *testing.T, orders *OrderRepository, tableID *string, items ...domain.NewOrderItem) domain.OrderRow {
 	t.Helper()
 
@@ -316,7 +312,6 @@ func TestOrderRepositoryCheckout(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// 1000 + 10 % and 300 + 21 % is 1100 + 363 = 1463; 550 were paid by card before.
 	if closed.Status != domain.OrderClosed || closed.TotalAmount != 1300 || closed.AmountPaidCard != 550 ||
 		closed.AmountPaidCash != 913 || closed.PaymentMethod != domain.PaymentMixed {
 		t.Fatalf("closed = %+v", closed)
@@ -591,8 +586,6 @@ func TestOrderRepositoryNotesTipDiscountsAndDelete(t *testing.T) {
 	}
 }
 
-// orderLineOf is the order's line of that product. The lines of one order are created at the same
-// time, so their order among themselves is not fixed (as in Nest).
 func orderLineOf(t *testing.T, order domain.OrderRow, productID string) domain.OrderItemRow {
 	t.Helper()
 	for _, item := range order.Items {

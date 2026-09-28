@@ -13,8 +13,6 @@ import (
 	"api-go/internal/service"
 )
 
-// establishmentAccess signs testUser in with a platform role and, when membership is set,
-// as a member of every establishment.
 type establishmentAccess struct {
 	fakeAccess
 	role       domain.Role
@@ -29,7 +27,6 @@ func (a establishmentAccess) Membership(context.Context, string, string) (*domai
 	return a.membership, nil
 }
 
-// establishmentRows knows the establishment e1, without settings, and keeps what was created.
 type establishmentRows struct {
 	created []domain.NewEstablishment
 }
@@ -67,7 +64,6 @@ func (r *establishmentRows) SaveSettings(_ context.Context, establishmentID stri
 	return saved, nil
 }
 
-// establishmentEvents drops what is published.
 type establishmentEvents struct{}
 
 func (establishmentEvents) Publish(context.Context, ports.Event) {}

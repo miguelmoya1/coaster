@@ -6,10 +6,6 @@ import (
 	"html/template"
 )
 
-// The emails, with the same texts as apps/api/src/email/templates. The paragraphs are
-// templates too: html/template escapes the names that go into them.
-
-// emailKind is one of the four emails. The names are the ones the test mailbox uses.
 type emailKind string
 
 const (
@@ -131,7 +127,6 @@ var layoutSource string
 
 var layout = template.Must(template.New("layout").Parse(layoutSource))
 
-// layoutData fills templates/layout.html.
 type layoutData struct {
 	Lang         string
 	Subject      string
@@ -149,7 +144,6 @@ type renderedEmail struct {
 	HTML    string
 }
 
-// renderEmail writes an email in language, or in Spanish when there is no copy for it.
 func renderEmail(kind emailKind, language, actionURL string, values map[string]string) (renderedEmail, error) {
 	if _, ok := emailCopies[kindInvite][language]; !ok {
 		language = "es"
@@ -183,8 +177,6 @@ func renderEmail(kind emailKind, language, actionURL string, values map[string]s
 	return renderedEmail{Subject: texts.Subject, HTML: html.String()}, nil
 }
 
-// renderParagraph fills one paragraph. The markup of the copy is kept and the values are
-// escaped, so the result can go into the layout as it is.
 func renderParagraph(paragraph string, values map[string]string) (template.HTML, error) {
 	parsed, err := template.New("paragraph").Option("missingkey=zero").Parse(paragraph)
 	if err != nil {

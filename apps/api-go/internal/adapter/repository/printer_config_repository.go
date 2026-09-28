@@ -26,8 +26,6 @@ var (
 	touchPrinterLastSeenQuery string
 )
 
-// PrinterConfigRepository reads and writes the "PrinterConfig" rows, one per establishment.
-// A new row gets a random device key, like Prisma's @default(uuid()).
 type PrinterConfigRepository struct {
 	pool *pgxpool.Pool
 }
@@ -67,7 +65,6 @@ func (r *PrinterConfigRepository) TouchLastSeen(ctx context.Context, establishme
 	return err
 }
 
-// scanPrinterConfig reads a row of find.sql or insert.sql.
 func scanPrinterConfig(row pgx.Row) (*domain.PrinterConfig, error) {
 	var config domain.PrinterConfig
 	err := row.Scan(&config.EstablishmentID, &config.DeviceKey, &config.IPAddress, &config.Port, &config.LastSeenAt)

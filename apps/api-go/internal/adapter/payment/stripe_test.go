@@ -17,7 +17,6 @@ import (
 	"api-go/internal/core/domain"
 )
 
-// stripeCall is one request the fake Stripe received.
 type stripeCall struct {
 	method         string
 	path           string
@@ -25,7 +24,6 @@ type stripeCall struct {
 	idempotencyKey string
 }
 
-// fakeStripe answers each "METHOD /path" with a status and a JSON body, and records calls.
 type fakeStripe struct {
 	mu      sync.Mutex
 	answers map[string][]fakeAnswer

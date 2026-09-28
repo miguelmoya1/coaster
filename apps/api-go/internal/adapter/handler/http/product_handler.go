@@ -17,7 +17,6 @@ type ProductService interface {
 	Delete(ctx context.Context, establishmentID, productID string) error
 }
 
-// ProductHandler is products.controller.ts.
 type ProductHandler struct {
 	products ProductService
 }
@@ -41,8 +40,6 @@ func (h *ProductHandler) RegisterRoutes(mux *http.ServeMux, guard *middleware.Gu
 		middleware.Permissions(domain.PermissionDeleteProduct), inventory)
 }
 
-// createProductRequest is CreateProductDto. The oneof of allergens is ALLERGENS; a test
-// checks it against domain.Allergens.
 type createProductRequest struct {
 	Name          string    `json:"name" validate:"required" msg:"required=REQUIRED,type=INVALID_TYPE"`
 	CategoryID    string    `json:"categoryId" validate:"required,uuid4" msg:"required=REQUIRED,uuid4=INVALID_TYPE,type=INVALID_TYPE"`
@@ -55,7 +52,6 @@ type createProductRequest struct {
 	OwnTaxRate    *int      `json:"ownTaxRate" validate:"omitnil,min=0,max=10000" msg:"min=INVALID_TYPE,max=INVALID_TYPE,type=INVALID_TYPE"`
 }
 
-// updateProductRequest is UpdateProductDto.
 type updateProductRequest struct {
 	Name          *string   `json:"name" validate:"omitnil" msg:"type=INVALID_TYPE"`
 	CategoryID    *string   `json:"categoryId" validate:"omitnil" msg:"type=INVALID_TYPE"`
@@ -67,7 +63,6 @@ type updateProductRequest struct {
 	OwnTaxRate    *int      `json:"ownTaxRate" validate:"omitnil,min=0,max=10000" msg:"min=INVALID_TYPE,max=INVALID_TYPE,type=INVALID_TYPE"`
 }
 
-// updateStockRequest is UpdateProductStockDto.
 type updateStockRequest struct {
 	CurrentStock int `json:"currentStock" msg:"type=INVALID_TYPE"`
 }

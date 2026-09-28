@@ -14,7 +14,6 @@ import (
 //go:embed queries/stats/find_closed_orders.sql
 var findClosedOrdersForStatsQuery string
 
-// StatsRepository reads the closed orders of "Order" the stats add up.
 type StatsRepository struct {
 	pool *pgxpool.Pool
 }

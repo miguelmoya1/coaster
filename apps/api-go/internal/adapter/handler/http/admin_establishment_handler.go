@@ -18,8 +18,6 @@ type AdminEstablishmentService interface {
 	RevokePlan(ctx context.Context, actorID, establishmentID string, reason *string) error
 }
 
-// AdminEstablishmentHandler is admin-establishments.controller.ts. Its writes go through even
-// when the establishment's subscription has lapsed.
 type AdminEstablishmentHandler struct {
 	establishments AdminEstablishmentService
 }
@@ -39,14 +37,12 @@ func (h *AdminEstablishmentHandler) RegisterRoutes(mux *http.ServeMux, guard *mi
 	handle(mux, guard, "POST /admin/establishments/{establishmentId}/plan/revoke", h.revokePlan, admin, skip)
 }
 
-// adminBillingSources are the billingSource values a list can be filtered by.
 var adminBillingSources = []string{
 	string(domain.BillingSourceNone),
 	string(domain.BillingSourceStripe),
 	string(domain.BillingSourceManual),
 }
 
-// adminSubscriptionStatuses are every SubscriptionStatus, for the status filter.
 var adminSubscriptionStatuses = []string{
 	string(domain.SubscriptionInactive),
 	string(domain.SubscriptionTrialing),
@@ -57,29 +53,24 @@ var adminSubscriptionStatuses = []string{
 	string(domain.SubscriptionExpired),
 }
 
-// adminRenameRequest is RenameEstablishmentDto.
 type adminRenameRequest struct {
 	Name string `json:"name" validate:"required,min=3,max=50" msg:"required=REQUIRED,min=MIN_LENGTH,max=MAX_LENGTH,type=INVALID_TYPE"`
 }
 
-// adminModulesRequest is UpdateEstablishmentModulesDto.
 type adminModulesRequest struct {
 	Modules []string `json:"modules" validate:"unique,dive,oneof=TIME_TRACKING ORDERS INVENTORY" msg:"oneof=INVALID_TYPE,type=INVALID_TYPE"`
 }
 
-// adminGrantPlanRequest is GrantEstablishmentPlanDto: only PRO can be granted.
 type adminGrantPlanRequest struct {
 	Plan         string  `json:"plan" validate:"oneof=PRO" msg:"oneof=INVALID_SUBSCRIPTION_PLAN,type=INVALID_SUBSCRIPTION_PLAN"`
 	DurationDays *int    `json:"durationDays" validate:"omitnil,min=1,max=3650" msg:"min=MIN_LENGTH,max=MAX_LENGTH,type=INVALID_TYPE"`
 	Reason       *string `json:"reason" validate:"omitnil,max=280" msg:"max=MAX_LENGTH,type=INVALID_TYPE"`
 }
 
-// adminRevokePlanRequest is RevokeEstablishmentPlanDto.
 type adminRevokePlanRequest struct {
 	Reason *string `json:"reason" validate:"omitnil,max=280" msg:"max=MAX_LENGTH,type=INVALID_TYPE"`
 }
 
-// list reads AdminEstablishmentsQueryDto.
 func (h *AdminEstablishmentHandler) list(w http.ResponseWriter, r *http.Request) {
 	query := newAdminListQuery(r.URL.Query(), "q", "billingSource", "status", "page", "pageSize")
 	filter := domain.AdminEstablishmentFilter{

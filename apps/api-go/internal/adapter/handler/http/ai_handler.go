@@ -20,7 +20,6 @@ type AIService interface {
 	Execute(ctx context.Context, establishmentID string, user domain.User, input service.AIInput) (domain.AIResponse, error)
 }
 
-// AIHandler is ai.controller.ts: the voice assistant of an establishment.
 type AIHandler struct {
 	ai AIService
 }
@@ -64,15 +63,10 @@ func (h *AIHandler) execute(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusCreated, response)
 }
 
-// aiDelta is the data of a delta event.
 type aiDelta struct {
 	Delta string `json:"delta"`
 }
 
-// stream answers with server-sent events: a delta event for each piece of the answer and a
-// done event with the whole answer. Like Nest, it answers 200 before running the command,
-// so a refusal (not being a member, the quota) arrives as a done event with its code as
-// errorKey, and any other error as the done event of a gateway error.
 func (h *AIHandler) stream(w http.ResponseWriter, r *http.Request) {
 	input, err := readAIInput(r)
 	if err != nil {
@@ -112,15 +106,11 @@ func (h *AIHandler) stream(w http.ResponseWriter, r *http.Request) {
 	send("done", response)
 }
 
-// aiRequest is the body of POST ai and ai/stream. Nest reads prompt and messages with
-// @Body and no DTO: nothing is validated and any other property is ignored.
 type aiRequest struct {
 	Prompt   json.RawMessage    `json:"prompt"`
 	Messages []domain.AIMessage `json:"messages"`
 }
 
-// readAIInput reads the body. A prompt that is not text, or messages that are not a list,
-// are left out as if they did not come.
 func readAIInput(r *http.Request) (service.AIInput, error) {
 	body, _, err := readJSON(r)
 	if err != nil {
@@ -138,7 +128,6 @@ func readAIInput(r *http.Request) (service.AIInput, error) {
 	return input, nil
 }
 
-// sseData writes the data of an event as JSON.stringify does.
 func sseData(data any) string {
 	var text strings.Builder
 	encoder := json.NewEncoder(&text)

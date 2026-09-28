@@ -12,7 +12,6 @@ import (
 	"api-go/internal/core/ports"
 )
 
-// TimeEntryService keeps the time sheet: punches, corrections and the workdays they add up to.
 type TimeEntryService struct {
 	entries ports.TimeEntryRepository
 	shifts  *ShiftService
@@ -24,14 +23,12 @@ func NewTimeEntryService(entries ports.TimeEntryRepository, shifts *ShiftService
 	return &TimeEntryService{entries: entries, shifts: shifts, events: events, now: time.Now}
 }
 
-// ClockInput is a punch from the worker's own device.
 type ClockInput struct {
 	Type      domain.TimeEntryType
 	Latitude  *float64
 	Longitude *float64
 }
 
-// ManualTimeEntryInput is a punch a manager adds for somebody.
 type ManualTimeEntryInput struct {
 	UserID     string
 	Type       domain.TimeEntryType
@@ -39,18 +36,15 @@ type ManualTimeEntryInput struct {
 	Reason     string
 }
 
-// AmendTimeEntryInput is a correction of the hour of a punch.
 type AmendTimeEntryInput struct {
 	OccurredAt string
 	Reason     string
 }
 
-// serverNow is the time a punch is stamped with, to the millisecond like a JavaScript Date.
 func (s *TimeEntryService) serverNow() time.Time {
 	return s.now().UTC().Truncate(time.Millisecond)
 }
 
-// Clock records a punch of the actor at the server's time, on the workday still open or on today.
 func (s *TimeEntryService) Clock(ctx context.Context, establishmentID string, actor *domain.User, input ClockInput) (domain.TimeEntry, error) {
 	occurredAt := s.serverNow()
 
@@ -92,7 +86,6 @@ func (s *TimeEntryService) Clock(ctx context.Context, establishmentID string, ac
 	return entry, nil
 }
 
-// CreateManual adds a punch for a live member of the establishment, with the stated reason.
 func (s *TimeEntryService) CreateManual(ctx context.Context, establishmentID string, actor *domain.User, input ManualTimeEntryInput) (domain.TimeEntry, error) {
 	occurredAt, ok := domain.ParseDate(input.OccurredAt)
 	if !ok {
@@ -147,8 +140,6 @@ func (s *TimeEntryService) CreateManual(ctx context.Context, establishmentID str
 	return entry, nil
 }
 
-// currentRow finds the row a correction or a cancellation acts on, which must be the latest
-// revision of a punch that was not voided.
 func (s *TimeEntryService) currentRow(ctx context.Context, establishmentID, entryID string) (*domain.TimeEntryRow, error) {
 	current, err := s.entries.FindCurrentByID(ctx, establishmentID, entryID)
 	if err != nil {
@@ -163,8 +154,6 @@ func (s *TimeEntryService) currentRow(ctx context.Context, establishmentID, entr
 	return current, nil
 }
 
-// canManageOthers reports whether the actor may touch other people's punches: a platform
-// admin, or a member whose role manages the time sheet.
 func (s *TimeEntryService) canManageOthers(ctx context.Context, establishmentID string, actor *domain.User) (bool, error) {
 	if actor.Role == domain.RoleAdmin {
 		return true, nil
@@ -178,7 +167,6 @@ func (s *TimeEntryService) canManageOthers(ctx context.Context, establishmentID 
 	return domain.HasPermission(member.Role, domain.PermissionManageTimeEntries), nil
 }
 
-// Amend moves a punch to another hour by appending a revision; the original row stays.
 func (s *TimeEntryService) Amend(ctx context.Context, establishmentID, entryID string, actor *domain.User, input AmendTimeEntryInput) (domain.TimeEntry, error) {
 	current, err := s.currentRow(ctx, establishmentID, entryID)
 	if err != nil {
@@ -238,7 +226,6 @@ func (s *TimeEntryService) Amend(ctx context.Context, establishmentID, entryID s
 	return entry, nil
 }
 
-// Void cancels a punch by appending a revision; the original row stays.
 func (s *TimeEntryService) Void(ctx context.Context, establishmentID, entryID string, actor *domain.User, reason string) (domain.TimeEntry, error) {
 	current, err := s.currentRow(ctx, establishmentID, entryID)
 	if err != nil {
@@ -276,7 +263,6 @@ func (s *TimeEntryService) Void(ctx context.Context, establishmentID, entryID st
 	return entry, nil
 }
 
-// revisionOf is a new row that replaces current.
 func (s *TimeEntryService) revisionOf(current *domain.TimeEntryRow, actor *domain.User, action domain.TimeEntryAction, occurredAt time.Time, reason string) domain.AppendTimeEntry {
 	supersedes := current.ID
 	return domain.AppendTimeEntry{
@@ -303,8 +289,6 @@ func (s *TimeEntryService) entryOfRoot(ctx context.Context, rootID string) (doma
 	return domain.ToTimeEntry(rows), nil
 }
 
-// TimeSheet lists the workdays between from and to (both "2026-08-08", both optional: from
-// is today and to is from when they do not come). An empty userID means everybody.
 func (s *TimeEntryService) TimeSheet(ctx context.Context, establishmentID string, from, to *string, userID string) ([]domain.Workday, error) {
 	today := domain.WorkdayDateOf(s.now())
 
@@ -321,7 +305,6 @@ func (s *TimeEntryService) TimeSheet(ctx context.Context, establishmentID string
 	return s.Workdays(ctx, establishmentID, first, last, userID)
 }
 
-// plannedDay is what the rota says about one worker's day.
 type plannedDay struct {
 	domain.PlannedShift
 	userID   string
@@ -329,8 +312,6 @@ type plannedDay struct {
 	date     string
 }
 
-// plannedByDay adds up the shifts of each worker and day. keys keeps the order in which
-// each day first appeared.
 func plannedByDay(shifts []domain.Shift) (keys []string, planned map[string]*plannedDay) {
 	planned = make(map[string]*plannedDay)
 
@@ -366,8 +347,6 @@ func plannedByDay(shifts []domain.Shift) (keys []string, planned map[string]*pla
 	return keys, planned
 }
 
-// Workdays puts together each worker's days between from and to: the punches, the totals,
-// the rota and how they differ. Days on the rota that nobody punched are included too.
 func (s *TimeEntryService) Workdays(ctx context.Context, establishmentID, from, to, userID string) ([]domain.Workday, error) {
 	fromDate, fromOK := domain.ParseWorkdayDate(from)
 	toDate, toOK := domain.ParseWorkdayDate(to)
@@ -463,8 +442,6 @@ func (s *TimeEntryService) Workdays(ctx context.Context, establishmentID, from, 
 	return workdays, nil
 }
 
-// compareNames orders names like localeCompare does for plain names: ignoring case first,
-// and then lowercase before uppercase.
 func compareNames(a, b string) int {
 	if byLower := strings.Compare(strings.ToLower(a), strings.ToLower(b)); byLower != 0 {
 		return byLower
@@ -472,8 +449,6 @@ func compareNames(a, b string) int {
 	return strings.Compare(b, a)
 }
 
-// CurrentWorkday is the day the clock card shows: the day still running, whichever day it
-// started on, or else today. It is nil when that day has nothing at all.
 func (s *TimeEntryService) CurrentWorkday(ctx context.Context, establishmentID, userID string) (*domain.Workday, error) {
 	rows, err := s.entries.FindLatestWorkday(ctx, establishmentID, userID)
 	if err != nil {
@@ -494,7 +469,6 @@ func (s *TimeEntryService) CurrentWorkday(ctx context.Context, establishmentID, 
 	return &workdays[0], nil
 }
 
-// Integrity checks the establishment's chain of punches.
 func (s *TimeEntryService) Integrity(ctx context.Context, establishmentID string) (domain.TimeSheetIntegrity, error) {
 	rows, err := s.entries.FindChain(ctx, establishmentID)
 	if err != nil {
@@ -511,10 +485,6 @@ func (s *TimeEntryService) Integrity(ctx context.Context, establishmentID string
 	}, nil
 }
 
-// Audit writes to the backoffice log what a platform admin did to a punch: a manual punch,
-// a correction or a cancellation, not an admin clocking in on their own device. It
-// subscribes to the EventPublisher (audit-time-entry-changed.handler.ts). A failure is
-// logged and swallowed: the change went through all the same.
 func (s *TimeEntryService) Audit(ctx context.Context, event ports.Event) {
 	var audit domain.TimeEntryAudit
 	var entry domain.TimeEntry

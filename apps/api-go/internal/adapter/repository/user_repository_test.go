@@ -7,7 +7,6 @@ import (
 	"api-go/internal/core/domain"
 )
 
-// userProfile reads what UpdateProfile writes. language is nil without a preferences row.
 func userProfile(t *testing.T, userID string) (name string, photoURL, language *string) {
 	t.Helper()
 

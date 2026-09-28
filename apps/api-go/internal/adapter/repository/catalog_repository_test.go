@@ -10,8 +10,6 @@ import (
 	"api-go/internal/core/domain"
 )
 
-// seedCatalog creates two establishments (e1 in English with markSoldOut, e2 without
-// settings) and a category in each.
 func seedCatalog(t *testing.T) {
 	t.Helper()
 	resetDB(t)
@@ -273,7 +271,6 @@ func TestMenuRepository(t *testing.T) {
 		t.Errorf("second line = %+v", second)
 	}
 
-	// Saving again replaces everything.
 	saved, err = menus.ReplaceDraft(ctx, created.ID, "Carta", []string{"en"}, []domain.MenuSectionDraft{
 		{Translations: domain.MenuTranslations{"en": {Name: "Only"}}},
 	})

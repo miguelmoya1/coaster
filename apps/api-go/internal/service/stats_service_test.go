@@ -9,8 +9,6 @@ import (
 	"api-go/internal/core/domain"
 )
 
-// The cases of get-establishment-stats.handler.spec.ts, on Wednesday 17 June 2026 at noon UTC.
-
 var (
 	statsNow       = time.Date(2026, 6, 17, 12, 0, 0, 0, time.UTC)
 	statsToday     = time.Date(2026, 6, 17, 10, 0, 0, 0, time.UTC)

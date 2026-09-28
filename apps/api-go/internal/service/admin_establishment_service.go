@@ -10,8 +10,6 @@ import (
 	"api-go/internal/core/ports"
 )
 
-// AdminEstablishmentService is the establishments page of the backoffice: any establishment
-// of the platform, its name, its modules and the plans an admin grants by hand.
 type AdminEstablishmentService struct {
 	establishments ports.AdminEstablishmentRepository
 	audit          ports.AdminAuditRepository
@@ -24,14 +22,11 @@ func NewAdminEstablishmentService(establishments ports.AdminEstablishmentReposit
 	return &AdminEstablishmentService{establishments: establishments, audit: audit, events: events, cache: cache, now: time.Now}
 }
 
-// GrantPlanInput is GrantEstablishmentPlanDto. A nil DurationDays grants the plan with no end.
 type GrantPlanInput struct {
 	Plan         domain.SubscriptionPlan
 	DurationDays *int
 	Reason       *string
 }
-
-// The metadata of the audit entries of this service, with Nest's field names.
 
 type adminRenameChange struct {
 	From string `json:"from"`
@@ -54,8 +49,6 @@ type adminPlanRevoked struct {
 	ExpiresAt *string                 `json:"expiresAt"`
 }
 
-// List is ListAdminEstablishmentsQuery: the establishments newest first, one page at a time.
-// The search looks for the whole id, part of the name or part of a member's email.
 func (s *AdminEstablishmentService) List(ctx context.Context, filter domain.AdminEstablishmentFilter, page domain.PageRequest) (domain.Paginated[domain.AdminEstablishmentSummary], error) {
 	now := s.now()
 	filter.Search = strings.TrimSpace(filter.Search)
@@ -73,9 +66,6 @@ func (s *AdminEstablishmentService) List(ctx context.Context, filter domain.Admi
 	return domain.NewPage(summaries, total, page), nil
 }
 
-// Detail is GetAdminEstablishmentDetailQuery: the establishment with its settings, its
-// subscription as the backoffice sees it, its members, a few counters and the latest admin
-// actions on it.
 func (s *AdminEstablishmentService) Detail(ctx context.Context, establishmentID string) (domain.AdminEstablishmentDetail, error) {
 	now := s.now()
 
@@ -130,8 +120,6 @@ func (s *AdminEstablishmentService) Detail(ctx context.Context, establishmentID 
 	}, nil
 }
 
-// Rename is RenameEstablishmentCommand. The name is saved trimmed, and saving the same name
-// does nothing.
 func (s *AdminEstablishmentService) Rename(ctx context.Context, actorID, establishmentID, name string) error {
 	name = strings.TrimSpace(name)
 	if utf8.RuneCountInString(name) < domain.EstablishmentNameMinLength {
@@ -162,9 +150,6 @@ func (s *AdminEstablishmentService) Rename(ctx context.Context, actorID, establi
 	return nil
 }
 
-// UpdateModules is UpdateEstablishmentModulesCommand: support switches modules on or off
-// without answering the owner's welcome questions (configuredAt stays as it is). The cached
-// modules are forgotten after saving, which Nest does not do.
 func (s *AdminEstablishmentService) UpdateModules(ctx context.Context, actorID, establishmentID string, modules []domain.EstablishmentModule) (domain.AdminEstablishmentSettings, error) {
 	establishment, err := s.find(ctx, establishmentID)
 	if err != nil {
@@ -201,8 +186,6 @@ func (s *AdminEstablishmentService) UpdateModules(ctx context.Context, actorID, 
 	return settings.Resolved(), nil
 }
 
-// GrantPlan is GrantEstablishmentPlanCommand: the plan runs for DurationDays from now, or
-// with no end, on top of whatever Stripe says.
 func (s *AdminEstablishmentService) GrantPlan(ctx context.Context, actorID, establishmentID string, input GrantPlanInput) error {
 	establishment, err := s.find(ctx, establishmentID)
 	if err != nil {
@@ -242,7 +225,6 @@ func (s *AdminEstablishmentService) GrantPlan(ctx context.Context, actorID, esta
 	return nil
 }
 
-// RevokePlan is RevokeEstablishmentPlanCommand: it takes away a manual plan, running or not.
 func (s *AdminEstablishmentService) RevokePlan(ctx context.Context, actorID, establishmentID string, reason *string) error {
 	establishment, err := s.find(ctx, establishmentID)
 	if err != nil {
@@ -277,7 +259,6 @@ func (s *AdminEstablishmentService) RevokePlan(ctx context.Context, actorID, est
 	return nil
 }
 
-// find returns the establishment, or ESTABLISHMENT_NOT_FOUND.
 func (s *AdminEstablishmentService) find(ctx context.Context, establishmentID string) (*domain.AdminEstablishmentRow, error) {
 	establishment, err := s.establishments.FindByID(ctx, establishmentID)
 	if err != nil {

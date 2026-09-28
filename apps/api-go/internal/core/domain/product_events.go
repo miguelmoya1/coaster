@@ -1,7 +1,5 @@
 package domain
 
-// The product events, as products/events/impl in Nest. Name returns the class name.
-
 type ProductCreatedEvent struct {
 	EstablishmentID string
 	Product         Product

@@ -19,7 +19,6 @@ const printerTestSecret = "the-secret-the-bridge-also-has"
 
 var printerTestNow = time.Date(2026, 9, 27, 10, 0, 0, 0, time.UTC)
 
-// newTestPrinterService has a fixed clock and a long poll of milliseconds.
 func newTestPrinterService(configs *fakePrinterConfigRepo, jobs *fakePrintJobRepo) *PrinterService {
 	s := NewPrinterService(configs, newFakePrinterPairingRepo(), jobs, printerTestSecret)
 	s.now = func() time.Time { return printerTestNow }
@@ -28,7 +27,6 @@ func newTestPrinterService(configs *fakePrinterConfigRepo, jobs *fakePrintJobRep
 	return s
 }
 
-// isPrinterError reports whether err is the business error of that kind and code.
 func isPrinterError(err error, kind domain.ErrorKind, code string) bool {
 	var domainErr *domain.Error
 	return errors.As(err, &domainErr) && domainErr.Kind == kind && domainErr.Code == code
@@ -217,9 +215,6 @@ func TestPrinterServiceConnection(t *testing.T) {
 	}
 }
 
-// bridgeJWTPayload and validateLikeTheBridge are JWTPayload and ValidateJWT of
-// apps/printer-service/internal/middleware/jwt.go, which checks the token the web app sends
-// with each ticket.
 type bridgeJWTPayload struct {
 	EstablishmentID string `json:"establishmentId"`
 	jwt.RegisteredClaims

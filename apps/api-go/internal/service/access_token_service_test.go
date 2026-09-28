@@ -125,7 +125,7 @@ func TestAccessTokenRejectsAnExpiredToken(t *testing.T) {
 }
 
 func TestAccessTokenReadsNestTokens(t *testing.T) {
-	// A token as jose writes it: the audience is a string, not an array.
+
 	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"sid": "session-1", "sub": "user-1", "iss": "coaster", "aud": "coaster-api",
 		"iat": time.Now().Unix(), "exp": time.Now().Add(15 * time.Minute).Unix(),

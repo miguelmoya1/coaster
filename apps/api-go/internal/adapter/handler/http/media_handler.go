@@ -13,7 +13,6 @@ type MediaService interface {
 	UploadURLs(ctx context.Context, establishmentID, entityType string, files []domain.MediaFile) ([]domain.MediaUpload, error)
 }
 
-// MediaHandler is media.controller.ts.
 type MediaHandler struct {
 	media MediaService
 }
@@ -27,15 +26,11 @@ func (h *MediaHandler) RegisterRoutes(mux *http.ServeMux, guard *middleware.Guar
 		middleware.Permissions(domain.PermissionUpdateProduct))
 }
 
-// uploadURLsRequest is GenerateUploadUrlsDto; a test checks its oneof lists against
-// domain.MediaEntityTypes and domain.MediaImageTypes.
 type uploadURLsRequest struct {
 	EntityType string             `json:"entityType" validate:"required,oneof=products templates users establishments categories" msg:"required=REQUIRED,oneof=INVALID_TYPE,type=INVALID_TYPE"`
 	Files      []mediaFileRequest `json:"files" validate:"min=1,max=10,dive" msg:"min=REQUIRED,max=MAX_LENGTH,type=INVALID_TYPE"`
 }
 
-// mediaFileRequest is MediaFileRequestDto. The content type is compared trimmed and in
-// lower case, like its @Transform.
 type mediaFileRequest struct {
 	Filename    string `json:"filename" validate:"required,max=255" msg:"required=REQUIRED,max=MAX_LENGTH,type=INVALID_TYPE"`
 	ContentType string `json:"contentType" validate:"oneofci=image/jpeg image/png image/webp image/avif image/gif" msg:"oneofci=INVALID_TYPE,type=INVALID_TYPE"`

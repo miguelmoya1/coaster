@@ -14,8 +14,6 @@ import (
 	"api-go/internal/service"
 )
 
-// printerAccess makes testUser a member of every establishment with role, and switches on
-// modules.
 type printerAccess struct {
 	fakeAccess
 	role    domain.EstablishmentRole
@@ -30,7 +28,6 @@ func (a printerAccess) EnabledModules(context.Context, string) ([]domain.Establi
 	return a.modules, nil
 }
 
-// printerConfigsStub has one bridge, in e1, with key "the-key".
 type printerConfigsStub struct {
 	ipAddress *string
 }
@@ -54,7 +51,6 @@ func (printerConfigsStub) RotateDeviceKey(context.Context, string, string) error
 
 func (printerConfigsStub) TouchLastSeen(context.Context, string, time.Time) error { return nil }
 
-// printerPairingsStub knows one code, 7F3KB92X, for e2.
 type printerPairingsStub struct{}
 
 func (printerPairingsStub) Issue(context.Context, string, string, time.Time) error { return nil }
@@ -66,7 +62,6 @@ func (printerPairingsStub) Redeem(_ context.Context, code string, _ time.Time) (
 	return "", nil
 }
 
-// printerJobsStub has one job, job-1 in e1, printed; its queue hands out waiting when set.
 type printerJobsStub struct {
 	waiting *domain.ClaimedPrintJob
 }
@@ -102,8 +97,6 @@ type printerServerOptions struct {
 	waiting   *domain.ClaimedPrintJob
 }
 
-// newPrinterServer serves the printer routes. Its long poll answers at once: the service has
-// been told the server is shutting down.
 func newPrinterServer(options printerServerOptions) http.Handler {
 	printers := service.NewPrinterService(
 		printerConfigsStub{ipAddress: options.ipAddress}, printerPairingsStub{}, printerJobsStub{waiting: options.waiting}, "secret",

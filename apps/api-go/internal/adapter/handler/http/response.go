@@ -11,18 +11,14 @@ import (
 	"api-go/internal/adapter/handler/middleware"
 )
 
-// maxBodyBytes is Fastify's default body limit.
 const maxBodyBytes = 1 << 20
 
-// The messages Fastify sends when it cannot read a body. Nest passes them through as they are.
 const (
 	messageBodyTooLarge  = "Request body is too large"
 	messageEmptyJSONBody = "Body cannot be empty when content-type is set to 'application/json'"
 	messageInvalidJSON   = "Body is not valid JSON but content-type is set to 'application/json'"
 )
 
-// requestError is a request Nest rejects before it reaches the controller: a body it
-// cannot read, or one that fails validation.
 type requestError struct {
 	status     int
 	message    string
@@ -44,7 +40,6 @@ func writeJSON(w http.ResponseWriter, status int, v any) {
 	middleware.WriteJSON(w, status, v)
 }
 
-// writeError answers with the same body Nest would send for err.
 func writeError(w http.ResponseWriter, err error) {
 	var reqErr *requestError
 	if errors.As(err, &reqErr) {
@@ -59,14 +54,10 @@ func writeError(w http.ResponseWriter, err error) {
 	middleware.WriteError(w, err)
 }
 
-// writeRouteNotFound is Nest's answer for a route that does not exist.
 func writeRouteNotFound(w http.ResponseWriter, r *http.Request) {
 	middleware.WriteNestError(w, http.StatusNotFound, "Cannot "+r.Method+" "+r.URL.RequestURI())
 }
 
-// decodeJSON reads the body into dst, a pointer to a struct, and validates it like
-// Nest's ValidationPipe: unknown properties are rejected and the rules come from the
-// "validate" tags. The error it returns is ready for writeError.
 func decodeJSON(r *http.Request, dst any) error {
 	body, raw, err := readJSON(r)
 	if err != nil {
@@ -76,9 +67,6 @@ func decodeJSON(r *http.Request, dst any) error {
 	return validateBody(body, raw, dst)
 }
 
-// readJSON reads the body as Fastify does before Nest sees it, and returns it with its
-// parsed value: 413 over the size limit, 415 when it is not JSON and 400 when it is empty
-// with a JSON content type or cannot be parsed. An empty body without a content type is {}.
 func readJSON(r *http.Request) ([]byte, any, error) {
 	body, err := io.ReadAll(http.MaxBytesReader(nil, r.Body, maxBodyBytes))
 	if err != nil {

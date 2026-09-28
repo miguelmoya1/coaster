@@ -8,8 +8,6 @@ import (
 	"api-go/internal/core/ports"
 )
 
-// The inputs of the product tools (product.tools.ts).
-
 type listProductsInput struct {
 	LowStockOnly *bool   `json:"lowStockOnly,omitempty" jsonschema_description:"When true, return only products whose current stock is at or below their minimum stock alert."`
 	Search       *string `json:"search,omitempty" jsonschema_description:"Optional case-insensitive filter on the product name."`
@@ -46,7 +44,6 @@ type deleteProductInput struct {
 	Confirmed bool   `json:"confirmed" jsonschema_description:"Set to true only after the user has explicitly confirmed the deletion in a previous turn."`
 }
 
-// aiProduct is a product as listProducts shows it, with the price in euros.
 type aiProduct struct {
 	ID            string  `json:"id"`
 	Name          string  `json:"name"`

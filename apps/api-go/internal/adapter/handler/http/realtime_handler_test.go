@@ -15,7 +15,6 @@ import (
 	"api-go/internal/service"
 )
 
-// memberAccess makes testUser a member of establishment-1 only.
 type memberAccess struct{ fakeAccess }
 
 func (memberAccess) Membership(_ context.Context, _ string, establishmentID string) (*domain.Membership, error) {
@@ -25,7 +24,6 @@ func (memberAccess) Membership(_ context.Context, _ string, establishmentID stri
 	return &domain.Membership{Role: "STAFF", Active: true}, nil
 }
 
-// replayBus is a bus without other instances that replays frames.
 type replayBus struct {
 	frames []domain.RealtimeFrame
 	asked  string
@@ -39,8 +37,6 @@ func (b *replayBus) Replay(_ context.Context, establishmentID string, sinceID st
 	return b.frames
 }
 
-// newRealtimeServer serves the realtime routes behind the global middlewares, compression
-// included, on a real listener.
 func newRealtimeServer(t *testing.T, bus *replayBus) (*httptest.Server, *service.RealtimeService) {
 	t.Helper()
 
@@ -62,8 +58,6 @@ func newRealtimeServer(t *testing.T, bus *replayBus) (*httptest.Server, *service
 	return server, realtime
 }
 
-// openStream opens the stream of establishmentID as testUser. It asks for gzip itself, so
-// the client does not undo a compression the server should not have done.
 func openStream(t *testing.T, server *httptest.Server, establishmentID string, headers map[string]string) *http.Response {
 	t.Helper()
 
@@ -86,7 +80,6 @@ func openStream(t *testing.T, server *httptest.Server, establishmentID string, h
 	return response
 }
 
-// readUntil reads the stream until it contains want, and returns everything read.
 func readUntil(t *testing.T, response *http.Response, want string) string {
 	t.Helper()
 

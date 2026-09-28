@@ -8,7 +8,6 @@ import (
 	"api-go/internal/core/ports"
 )
 
-// OrderStockEvents are the events OrderStock.Adjust listens to.
 var OrderStockEvents = []string{
 	domain.OrderCreatedEvent{}.Name(),
 	domain.OrderItemsAddedEvent{}.Name(),
@@ -16,8 +15,6 @@ var OrderStockEvents = []string{
 	domain.OrderCancelledEvent{}.Name(),
 }
 
-// OrderStock takes out of stock what an order sells and puts back what it gives back:
-// orders.sagas.ts in Nest. Merging, deleting and the bulk update leave the stock alone.
 type OrderStock struct {
 	products *ProductService
 }
@@ -26,9 +23,6 @@ func NewOrderStock(products *ProductService) *OrderStock {
 	return &OrderStock{products: products}
 }
 
-// Adjust calls ProductService.AdjustStock once per product line of the event. A line that
-// fails (a product deleted since, for example) is logged and the others go ahead, as each
-// command of the saga does in Nest.
 func (s *OrderStock) Adjust(ctx context.Context, event ports.Event) {
 	var establishmentID string
 	var changes []domain.OrderStockLine

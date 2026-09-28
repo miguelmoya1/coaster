@@ -30,8 +30,6 @@ var (
 	failStalePrintJobsQuery string
 )
 
-// PrintJobRepository reads and writes the "PrintJob" rows: the queue of tickets of each
-// establishment.
 type PrintJobRepository struct {
 	pool *pgxpool.Pool
 }
@@ -40,7 +38,6 @@ func NewPrintJobRepository(pool *pgxpool.Pool) *PrintJobRepository {
 	return &PrintJobRepository{pool: pool}
 }
 
-// Enqueue stores the ticket as JSON in payload.
 func (r *PrintJobRepository) Enqueue(ctx context.Context, establishmentID string, ticket domain.PrintTicket) (string, error) {
 	id := uuid.NewV4().String()
 
@@ -64,8 +61,6 @@ func (r *PrintJobRepository) FindByID(ctx context.Context, id string) (*domain.P
 	return &job, nil
 }
 
-// ClaimNext claims the oldest pending job in one statement, skipping the ones another bridge
-// is claiming at that moment, so two bridges polling at once never get the same job.
 func (r *PrintJobRepository) ClaimNext(ctx context.Context, establishmentID string, claimedAt time.Time) (*domain.ClaimedPrintJob, error) {
 	var job domain.ClaimedPrintJob
 	err := r.pool.QueryRow(ctx, claimPrintJobQuery, establishmentID, claimedAt.UTC()).Scan(&job.ID, &job.Payload)
@@ -84,13 +79,11 @@ func (r *PrintJobRepository) Complete(ctx context.Context, id string, completedA
 	return err
 }
 
-// Fail keeps the first MaxPrintErrorLength characters of the reason.
 func (r *PrintJobRepository) Fail(ctx context.Context, id, reason string, completedAt time.Time) error {
 	_, err := r.pool.Exec(ctx, failPrintJobQuery, id, truncate(reason, domain.MaxPrintErrorLength), completedAt.UTC())
 	return err
 }
 
-// RequeueStale runs the two updates one after the other, without a transaction, like Nest.
 func (r *PrintJobRepository) RequeueStale(ctx context.Context, establishmentID string, claimedBefore, now time.Time) error {
 	_, err := r.pool.Exec(ctx, requeueStalePrintJobsQuery, establishmentID, claimedBefore.UTC(), domain.MaxPrintAttempts)
 	if err != nil {

@@ -26,7 +26,6 @@ var (
 	updateAdminUserQuery string
 )
 
-// AdminUserRepository reads and changes any user of the platform for the backoffice.
 type AdminUserRepository struct {
 	pool *pgxpool.Pool
 }
@@ -100,8 +99,6 @@ func (r *AdminUserRepository) Update(ctx context.Context, userID string, changes
 	return err
 }
 
-// scanAdminUser reads a row of the user queries, which all select the same columns. A user
-// without preferences speaks the default language.
 func scanAdminUser(row pgx.Row) (domain.AdminUserSummary, error) {
 	var user domain.AdminUserSummary
 	var role string

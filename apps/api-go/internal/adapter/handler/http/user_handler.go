@@ -12,7 +12,6 @@ type UserService interface {
 	UpdateProfile(ctx context.Context, userID string, changes domain.UserProfileChanges) error
 }
 
-// UserHandler is users.controller.ts.
 type UserHandler struct {
 	users UserService
 }
@@ -26,14 +25,12 @@ func (h *UserHandler) RegisterRoutes(mux *http.ServeMux, guard *middleware.Guard
 	handle(mux, guard, "PATCH /users/me", h.updateMe, middleware.RequireAuth())
 }
 
-// updateUserRequest is UpdateUserDto.
 type updateUserRequest struct {
 	Name     *string `json:"name" validate:"omitnil" msg:"type=INVALID_TYPE"`
 	PhotoURL *string `json:"photoUrl" validate:"omitnil" msg:"type=INVALID_TYPE"`
 	Language *string `json:"language" validate:"omitnil" msg:"type=INVALID_TYPE"`
 }
 
-// me answers the signed-in user, or null when nobody is.
 func (h *UserHandler) me(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, middleware.CurrentUser(r.Context()))
 }

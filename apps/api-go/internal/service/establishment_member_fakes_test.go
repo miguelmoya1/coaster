@@ -9,16 +9,11 @@ import (
 	"api-go/internal/core/ports"
 )
 
-// In-memory fakes of the ports of establishment members.
-
-// fakeMemberRow is a row of "EstablishmentMember" with its removal.
 type fakeMemberRow struct {
 	member  domain.EstablishmentMember
 	removed bool
 }
 
-// fakeMemberRepository is the "EstablishmentMember" table, with the users and establishment
-// names it reads.
 type fakeMemberRepository struct {
 	rows           []*fakeMemberRow
 	invites        map[string]*domain.MemberInvite
@@ -130,7 +125,6 @@ func (f *fakeMemberRepository) EstablishmentName(_ context.Context, establishmen
 	return &name, nil
 }
 
-// memberEventRecorder keeps every event published.
 type memberEventRecorder struct {
 	mu     sync.Mutex
 	events []ports.Event
@@ -142,7 +136,6 @@ func (r *memberEventRecorder) Publish(_ context.Context, event ports.Event) {
 	r.events = append(r.events, event)
 }
 
-// memberRealtimeMessage is one message sent to a stream, or a revocation when event is "".
 type memberRealtimeMessage struct {
 	establishmentID string
 	event           string
@@ -150,7 +143,6 @@ type memberRealtimeMessage struct {
 	revokedUserID   string
 }
 
-// memberRealtimeRecorder keeps what was sent to the streams and who was revoked.
 type memberRealtimeRecorder struct {
 	messages []memberRealtimeMessage
 }
@@ -163,14 +155,12 @@ func (r *memberRealtimeRecorder) Revoke(establishmentID string, userID string) {
 	r.messages = append(r.messages, memberRealtimeMessage{establishmentID: establishmentID, revokedUserID: userID})
 }
 
-// memberInviteEmail is an invitation the fake mailer sent.
 type memberInviteEmail struct {
 	to       string
 	invite   domain.InviteEmail
 	language string
 }
 
-// memberMailer records the invitations, and refuses them when fail is set.
 type memberMailer struct {
 	fakeMailer
 	invites []memberInviteEmail
@@ -184,7 +174,6 @@ func (m *memberMailer) SendInvite(_ context.Context, to string, invite domain.In
 	return nil
 }
 
-// memberTokens issues predictable INVITE tokens, and fails when fail is set.
 type memberTokens struct {
 	fakeTokens
 	issuedFor []string

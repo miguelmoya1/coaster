@@ -8,8 +8,6 @@ import (
 	"api-go/internal/core/ports"
 )
 
-// BetaTesterService is the beta allowlist of the backoffice: who may open an account while
-// BETA_ALLOWLIST_ENABLED is on.
 type BetaTesterService struct {
 	testers     ports.BetaTesterRepository
 	events      ports.EventPublisher
@@ -20,8 +18,6 @@ func NewBetaTesterService(testers ports.BetaTesterRepository, events ports.Event
 	return &BetaTesterService{testers: testers, events: events, allowlistOn: allowlistOn}
 }
 
-// List is ListBetaTestersQuery: a page of the allowlist, searching the address and the note,
-// each address with the account opened with it, if any.
 func (s *BetaTesterService) List(ctx context.Context, search string, page domain.PageRequest) (domain.AdminBetaTesters, error) {
 	testers, total, err := s.testers.List(ctx, strings.TrimSpace(search), page)
 	if err != nil {
@@ -55,7 +51,6 @@ func (s *BetaTesterService) List(ctx context.Context, search string, page domain
 	return domain.AdminBetaTesters{Paginated: domain.NewPage(testers, total, page), Enforcing: s.allowlistOn}, nil
 }
 
-// Add is AddBetaTesterCommand: the address goes on the list trimmed and in lower case.
 func (s *BetaTesterService) Add(ctx context.Context, actorID, email string, note *string) error {
 	email = normalizeEmail(email)
 
@@ -84,7 +79,6 @@ func (s *BetaTesterService) Add(ctx context.Context, actorID, email string, note
 	return nil
 }
 
-// Remove is RemoveBetaTesterCommand.
 func (s *BetaTesterService) Remove(ctx context.Context, actorID, betaTesterID string) error {
 	tester, err := s.testers.FindByID(ctx, betaTesterID)
 	if err != nil {

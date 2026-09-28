@@ -8,11 +8,8 @@ import (
 	"time"
 )
 
-// GenesisHash is the prevHash of the first row of an establishment's chain.
 var GenesisHash = strings.Repeat("0", 64)
 
-// ChainPayload is what the hash of a row covers. It has to stay exactly as it is in Nest
-// (time-entry-chain.ts), or the rows Nest wrote would stop verifying.
 type ChainPayload struct {
 	ID              string
 	EstablishmentID string
@@ -31,7 +28,6 @@ type ChainPayload struct {
 	Sequence        int64
 }
 
-// ChainPayloadOf is the part of a stored row the hash covers.
 func ChainPayloadOf(row TimeEntryRow) ChainPayload {
 	return ChainPayload{
 		ID:              row.ID,
@@ -80,21 +76,17 @@ func canonical(payload ChainPayload) string {
 	}, "|")
 }
 
-// HashTimeEntry is the SHA-256, in hex, of the previous hash and the row.
 func HashTimeEntry(payload ChainPayload, prevHash string) string {
 	sum := sha256.Sum256([]byte(prevHash + "|" + canonical(payload)))
 	return hex.EncodeToString(sum[:])
 }
 
-// ChainVerification is what VerifyChain found.
 type ChainVerification struct {
 	Valid    bool
 	BrokenAt *string
 	Checked  int
 }
 
-// VerifyChain walks the rows in sequence order and stops at the first one that does not
-// link to the previous one or whose hash does not match its content.
 func VerifyChain(rows []TimeEntryRow) ChainVerification {
 	previousHash := GenesisHash
 	var previousSequence int64

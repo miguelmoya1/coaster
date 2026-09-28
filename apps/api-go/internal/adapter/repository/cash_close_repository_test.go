@@ -11,9 +11,6 @@ import (
 	"api-go/internal/core/domain"
 )
 
-// Rows the cash close and stats tests start from, written straight with SQL.
-
-// seedTill creates Ana and Luis, the establishments e1 and e2, and a product in each.
 func seedTill(t *testing.T) {
 	t.Helper()
 	resetDB(t)
@@ -30,7 +27,6 @@ func seedTill(t *testing.T) {
 	}
 }
 
-// tillOrder is an order as the tests write it.
 type tillOrder struct {
 	id, establishmentID string
 	status              domain.OrderStatus
@@ -88,9 +84,6 @@ func insertTillClose(t *testing.T, id, establishmentID, closedByID string, close
 	}
 }
 
-// seedTillDay writes a day of e1 that a close has not counted yet, orders a close already
-// counted, and orders of e2. The lines and discounts of A, B and E are those of
-// cashCloseFixtures in the domain tests, whose totals come from Nest.
 func seedTillDay(t *testing.T) {
 	t.Helper()
 	seedTill(t)
@@ -129,8 +122,6 @@ func seedTillDay(t *testing.T) {
 	insertTillOrder(t, tillOrder{id: "their-tab", establishmentID: "e2", status: domain.OrderOpen, cash: 777})
 }
 
-// tillDayTotals is what a close of seedTillDay counts: A closed, B and E cancelled with lines
-// (3136 + 731, as in Nest), C cancelled without lines but with 700 charged by card.
 var tillDayTotals = domain.CashCloseTotals{
 	ClosedOrders: 1, CancelledOrders: 2, CancelledAmount: 3867, CashAmount: 3500, CardAmount: 1700, TipAmount: 200,
 }

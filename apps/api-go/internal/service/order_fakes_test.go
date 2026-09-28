@@ -12,9 +12,6 @@ import (
 	"api-go/internal/core/ports"
 )
 
-// In-memory fakes of the ports of orders and tables.
-
-// orderEventRecorder keeps every event published.
 type orderEventRecorder struct {
 	mu     sync.Mutex
 	events []ports.Event
@@ -26,7 +23,6 @@ func (r *orderEventRecorder) Publish(_ context.Context, event ports.Event) {
 	r.events = append(r.events, event)
 }
 
-// names lists the names of the events published, in order.
 func (r *orderEventRecorder) names() []string {
 	names := make([]string, 0, len(r.events))
 	for _, event := range r.events {
@@ -35,14 +31,12 @@ func (r *orderEventRecorder) names() []string {
 	return names
 }
 
-// orderRealtimeMessage is one message sent to a stream.
 type orderRealtimeMessage struct {
 	establishmentID string
 	event           string
 	payload         any
 }
 
-// orderRealtimeFake keeps what was sent to the streams.
 type orderRealtimeFake struct {
 	messages []orderRealtimeMessage
 }
@@ -53,7 +47,6 @@ func (r *orderRealtimeFake) Publish(establishmentID string, event string, payloa
 
 func (r *orderRealtimeFake) Revoke(string, string) {}
 
-// fakeTableRepo keeps the tables by id.
 type fakeTableRepo struct {
 	tables  map[string]domain.Table
 	renamed []string
@@ -107,11 +100,9 @@ func (r *fakeTableRepo) Delete(_ context.Context, tableID string) error {
 	return nil
 }
 
-// fakeOrderRepo keeps orders by id and records what each write was asked to do. The writes
-// return the stored order with the change the tests look at.
 type fakeOrderRepo struct {
 	orders   map[string]domain.OrderRow
-	products map[string]domain.OrderProduct // what establishment e1 sells
+	products map[string]domain.OrderProduct
 
 	writes     []string
 	listStatus domain.OrderStatus

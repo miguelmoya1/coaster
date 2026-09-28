@@ -14,7 +14,6 @@ import (
 	"api-go/internal/core/ports"
 )
 
-// The model and how it is called, as in execute-ai.handler.ts.
 const (
 	aiModel           = "zai/glm-4.7"
 	aiTemperature     = 0.1
@@ -23,7 +22,6 @@ const (
 	aiDefaultLanguage = "es"
 )
 
-// aiFallbackModels are the models the gateway tries, in order, when aiModel fails.
 var aiFallbackModels = []string{
 	"openai/gpt-oss-120b",
 	"openai/gpt-oss-20b",
@@ -31,16 +29,11 @@ var aiFallbackModels = []string{
 	"google/gemini-3.6-flash",
 }
 
-// AIConfig is what the environment says about the assistant. The allowances are text as they
-// come (AI_MONTHLY_MESSAGES and AI_TRIAL_MONTHLY_MESSAGES); empty or not a number takes the
-// default.
 type AIConfig struct {
 	MonthlyMessages      string
 	TrialMonthlyMessages string
 }
 
-// AIDependencies is what the assistant needs: the gateway, the quota, the route checks and
-// the services its tools call.
 type AIDependencies struct {
 	Model    ports.AIModel
 	Usage    ports.AIUsageRepository
@@ -57,7 +50,6 @@ type AIDependencies struct {
 	Members    *EstablishmentMemberService
 }
 
-// AIService is the ai module: the voice assistant of an establishment and its monthly quota.
 type AIService struct {
 	model    ports.AIModel
 	usage    ports.AIUsageRepository
@@ -94,15 +86,12 @@ func NewAIService(deps AIDependencies) *AIService {
 	}
 }
 
-// AIInput is ExecuteAiCommand: the prompt, the conversation so far and, to stream the
-// answer, where each piece of it goes. Prompt is nil when the body did not bring one.
 type AIInput struct {
 	Prompt   *string
 	Messages []domain.AIMessage
 	OnDelta  func(delta string)
 }
 
-// Usage is GetAiUsageQuery: the messages sent this month against the allowance.
 func (s *AIService) Usage(ctx context.Context, establishmentID string) (domain.AIUsage, error) {
 	now := s.now()
 
@@ -124,11 +113,6 @@ func (s *AIService) Usage(ctx context.Context, establishmentID string) (domain.A
 	}, nil
 }
 
-// Execute is ExecuteAiCommand: it answers the user with the model, which may call the tools
-// of the modules the establishment runs. Somebody who is not a live member of the
-// establishment (and not a platform admin) gets MEMBER_NOT_FOUND, and an establishment that
-// has used its messages this month AI_QUOTA_EXCEEDED. When the model fails the answer is
-// domain.AIGatewayFailed and the message does not count.
 func (s *AIService) Execute(ctx context.Context, establishmentID string, user domain.User, input AIInput) (domain.AIResponse, error) {
 	slog.Debug("the assistant got a message", "userId", user.ID, "establishmentId", establishmentID)
 
@@ -222,7 +206,6 @@ func (s *AIService) answer(ctx context.Context, establishmentID string, user dom
 
 	text, err := s.model.Generate(ctx, request)
 
-	// Streaming, what already reached the user is the answer, even if a later step failed.
 	if streamedText := strings.TrimSpace(streamed.String()); streamedText != "" {
 		text, err = streamedText, nil
 	}
@@ -237,8 +220,6 @@ func (s *AIService) answer(ctx context.Context, establishmentID string, user dom
 	return domain.AIResponse{Text: text}, nil
 }
 
-// allowanceFor is how many messages the establishment may send this month: fewer while its
-// subscription is on trial.
 func (s *AIService) allowanceFor(ctx context.Context, establishmentID string) (int, error) {
 	subscription, err := s.security.SubscriptionState(ctx, establishmentID)
 	if err != nil {
@@ -251,8 +232,6 @@ func (s *AIService) allowanceFor(ctx context.Context, establishmentID string) (i
 	return readAllowance(s.config.MonthlyMessages, domain.DefaultMonthlyAIMessages), nil
 }
 
-// readAllowance reads an allowance of the environment. 0 is a valid allowance: it switches
-// the assistant off.
 func readAllowance(value string, fallback int) int {
 	allowance, err := strconv.Atoi(strings.TrimSpace(value))
 	if err != nil {
@@ -261,8 +240,6 @@ func readAllowance(value string, fallback int) int {
 	return allowance
 }
 
-// snapshot reads what the prompt lists: the tables and open orders with the orders module,
-// and the products and categories with the inventory.
 func (s *AIService) snapshot(ctx context.Context, establishmentID string, modules []domain.EstablishmentModule) (*aiToolContext, error) {
 	tc := &aiToolContext{establishmentID: establishmentID, modules: modules}
 	hasOrders := slices.Contains(modules, domain.ModuleOrders)
@@ -292,9 +269,6 @@ func (s *AIService) snapshot(ctx context.Context, establishmentID string, module
 	return tc, nil
 }
 
-// conversation is what the model reads: the last aiMaxHistory messages, or the prompt alone
-// when there are none. The AI SDK refuses a message without a prompt or with a role it does
-// not know, and Nest answers that like any other failure of the gateway.
 func conversation(input AIInput) ([]domain.AIMessage, error) {
 	if len(input.Messages) == 0 {
 		if input.Prompt == nil {
@@ -321,7 +295,6 @@ func aiFallbackText(language string) string {
 	return "Action completed successfully."
 }
 
-// aiSystemPrompt is the system prompt of execute-ai.handler.ts, with the snapshot of the turn.
 func aiSystemPrompt(tc *aiToolContext, language string, now time.Time) string {
 	catalogue := "This establishment has too large a catalogue to list here. Call listProducts with a search term to find the ones you need, and never invent a product UUID."
 	if list, omitted := domain.FormatAIProducts(tc.products, domain.AIProductBudgetChars); !omitted {
@@ -364,8 +337,6 @@ func orNone(list string) string {
 	return list
 }
 
-// aiSystemPromptTemplate is the text of the prompt; each %s is one of the values
-// aiSystemPrompt fills in.
 const aiSystemPromptTemplate = `You are the Coaster Voice Assistant, a professional real-time management system for establishments and restaurants.
 Current Establishment ID: "%s".
 Current User: "%s" (ID: "%s"), Role: "%s".

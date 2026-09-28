@@ -19,7 +19,6 @@ var (
 	saveUserLanguageQuery string
 )
 
-// UserRepository writes the users' own profiles: the "User" row and its "UserPreferences".
 type UserRepository struct {
 	pool *pgxpool.Pool
 }

@@ -23,7 +23,6 @@ var (
 	softDeleteCategoryQuery string
 )
 
-// CategoryRepository reads and writes the "Category" rows.
 type CategoryRepository struct {
 	pool *pgxpool.Pool
 }
@@ -85,7 +84,6 @@ func (r *CategoryRepository) Delete(ctx context.Context, establishmentID, catego
 	return tag.RowsAffected() > 0, nil
 }
 
-// scanCategory reads a row of list_of.sql, insert.sql or update.sql.
 func scanCategory(row pgx.Row) (*domain.Category, error) {
 	var category domain.Category
 	err := row.Scan(&category.ID, &category.EstablishmentID, &category.Name, &category.Icon, &category.TaxRate)

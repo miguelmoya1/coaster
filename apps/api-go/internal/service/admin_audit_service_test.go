@@ -26,7 +26,6 @@ func TestAdminAuditServiceRecordAction(t *testing.T) {
 		t.Fatalf("recorded = %+v", audit.recorded)
 	}
 
-	// A failed write is logged and swallowed.
 	audit.fail = true
 	service.RecordAction(context.Background(), domain.AdminAction{Entry: entry})
 }

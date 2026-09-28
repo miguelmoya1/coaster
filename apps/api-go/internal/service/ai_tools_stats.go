@@ -7,7 +7,6 @@ import (
 	"api-go/internal/core/ports"
 )
 
-// aiStats is what getEstablishmentStats answers: the stats with the money in euros.
 type aiStats struct {
 	TodayRevenue               float64         `json:"todayRevenue"`
 	YesterdayRevenue           float64         `json:"yesterdayRevenue"`

@@ -245,7 +245,6 @@ func TestPrintJobRepositoryRequeueStale(t *testing.T) {
 	assertPrintJob(t, stale, domain.PrintJobPrinting, 2, &now)
 }
 
-// enqueueClaimed queues a job as if a bridge had claimed it at claimedAt, attempts times.
 func enqueueClaimed(t *testing.T, jobs *PrintJobRepository, establishmentID string, claimedAt time.Time, attempts int) string {
 	t.Helper()
 	id, err := jobs.Enqueue(context.Background(), establishmentID, domain.PrintTicket{Type: "raw"})
@@ -267,7 +266,6 @@ func setPrintJobCreatedAt(t *testing.T, id string, createdAt time.Time) {
 	}
 }
 
-// assertPrintJob checks the columns the API does not send: attempts and claimedAt.
 func assertPrintJob(t *testing.T, id string, status domain.PrintJobStatus, attempts int, claimedAt *time.Time) {
 	t.Helper()
 

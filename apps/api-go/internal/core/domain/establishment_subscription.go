@@ -5,8 +5,6 @@ import (
 	"time"
 )
 
-// EstablishmentSubscription is a row of EstablishmentSubscription: what the establishment
-// pays for, projected from Stripe, plus the plan an admin may have granted by hand.
 type EstablishmentSubscription struct {
 	ID                   string
 	EstablishmentID      string
@@ -25,12 +23,10 @@ type EstablishmentSubscription struct {
 	UpdatedAt            time.Time
 }
 
-// HasStripeSubscription reports whether the row is linked to a Stripe subscription.
 func (s *EstablishmentSubscription) HasStripeSubscription() bool {
 	return s != nil && s.StripeSubscriptionID != nil && *s.StripeSubscriptionID != ""
 }
 
-// State is what the route checks read about the subscription.
 func (s *EstablishmentSubscription) State() *SubscriptionState {
 	return &SubscriptionState{
 		Status:               s.Status,
@@ -42,8 +38,6 @@ func (s *EstablishmentSubscription) State() *SubscriptionState {
 	}
 }
 
-// View is the subscription as the workspace sees it (EstablishmentSubscriptionMapper.toDomain):
-// an active manual grant wins over Stripe, and a lapsed period shows as EXPIRED.
 func (s *EstablishmentSubscription) View(now time.Time) EstablishmentSubscriptionView {
 	view := EstablishmentSubscriptionView{
 		ID:                   s.ID,
@@ -69,7 +63,6 @@ func (s *EstablishmentSubscription) View(now time.Time) EstablishmentSubscriptio
 	return view
 }
 
-// effectiveStatus is the stored status corrected by the dates, without waiting for Stripe.
 func (s *EstablishmentSubscription) effectiveStatus(now time.Time) SubscriptionStatus {
 	switch {
 	case s.Status == SubscriptionActive && (!s.HasStripeSubscription() || s.CurrentPeriodEnd == nil):
@@ -83,7 +76,6 @@ func (s *EstablishmentSubscription) effectiveStatus(now time.Time) SubscriptionS
 	}
 }
 
-// FreeSubscriptionView is what an establishment that never subscribed shows: FREE and locked.
 func FreeSubscriptionView(establishmentID string, now time.Time) EstablishmentSubscriptionView {
 	return EstablishmentSubscriptionView{
 		EstablishmentID: establishmentID,
@@ -95,7 +87,6 @@ func FreeSubscriptionView(establishmentID string, now time.Time) EstablishmentSu
 	}
 }
 
-// EstablishmentSubscriptionView is EstablishmentSubscription in @coaster/common.
 type EstablishmentSubscriptionView struct {
 	ID                   string             `json:"id"`
 	EstablishmentID      string             `json:"establishmentId"`
@@ -111,12 +102,9 @@ type EstablishmentSubscriptionView struct {
 	UpdatedAt            Time               `json:"updatedAt"`
 	ManualGrant          *ManualGrant       `json:"manualGrant"`
 
-	// withoutRow marks FreeSubscriptionView.
 	withoutRow bool
 }
 
-// MarshalJSON writes the keys in the order of Nest's mapper: toDomain puts manualGrant
-// last, and toFreeDefault (an establishment without a row) puts it before createdAt.
 func (v EstablishmentSubscriptionView) MarshalJSON() ([]byte, error) {
 	type withRow EstablishmentSubscriptionView
 	if !v.withoutRow {
@@ -146,13 +134,11 @@ func (v EstablishmentSubscriptionView) MarshalJSON() ([]byte, error) {
 	})
 }
 
-// ManualGrant is the plan an admin granted, without the admin's note.
 type ManualGrant struct {
 	Plan      SubscriptionPlan `json:"plan"`
 	ExpiresAt *Time            `json:"expiresAt"`
 }
 
-// SubscriptionSeats compares the staff with the seats Stripe bills.
 type SubscriptionSeats struct {
 	Used            int `json:"used"`
 	Billed          int `json:"billed"`
@@ -161,18 +147,15 @@ type SubscriptionSeats struct {
 	ExtraPriceCents int `json:"extraPriceCents"`
 }
 
-// CheckoutSession is where the owner goes to pay (CreateCheckoutSessionResponse).
 type CheckoutSession struct {
 	ID  string `json:"id"`
 	URL string `json:"url"`
 }
 
-// PortalSession is Stripe's customer portal (CreateCustomerPortalSessionResponse).
 type PortalSession struct {
 	URL string `json:"url"`
 }
 
-// SubscriptionBilling is the part of the row only Stripe knows: seats and dates.
 type SubscriptionBilling struct {
 	Seats              int
 	CurrentPeriodStart *time.Time
@@ -181,20 +164,15 @@ type SubscriptionBilling struct {
 	CanceledAt         *time.Time
 }
 
-// SubscriptionSnapshot is a Stripe subscription turned into the columns we store
-// (toSubscriptionSnapshot in Nest).
 type SubscriptionSnapshot struct {
 	Plan                 SubscriptionPlan
 	Status               SubscriptionStatus
 	StripeSubscriptionID *string
 	Billing              SubscriptionBilling
-	// IsCancellation is true for a cancelled subscription and for one that will end.
+
 	IsCancellation bool
 }
 
-// SubscriptionUpsert is what a webhook writes on the establishment's row, creating it if
-// there is none. Billing is nil when Stripe did not know the subscription yet: then the
-// seats and dates stay as they are.
 type SubscriptionUpsert struct {
 	Plan                 SubscriptionPlan
 	Status               SubscriptionStatus
@@ -203,7 +181,6 @@ type SubscriptionUpsert struct {
 	Billing              *SubscriptionBilling
 }
 
-// billingTime turns an optional time into an optional Time for JSON.
 func billingTime(t *time.Time) *Time {
 	if t == nil {
 		return nil

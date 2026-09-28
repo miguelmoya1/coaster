@@ -27,7 +27,6 @@ var (
 	setTableStatusQuery string
 )
 
-// TableRepository reads and writes the "Table" rows.
 type TableRepository struct {
 	pool *pgxpool.Pool
 }
@@ -63,7 +62,6 @@ func (r *TableRepository) Delete(ctx context.Context, tableID string) error {
 	return execExisting(ctx, r.pool, deleteTableQuery, tableID)
 }
 
-// findTable reads a table in the pool or in a transaction. It returns nil when there is none.
 func findTable(ctx context.Context, db querier, tableID string) (*domain.Table, error) {
 	table, err := scanTable(db.QueryRow(ctx, findTableByIDQuery, tableID))
 	if errors.Is(err, pgx.ErrNoRows) {
@@ -75,12 +73,10 @@ func findTable(ctx context.Context, db querier, tableID string) (*domain.Table, 
 	return &table, nil
 }
 
-// setTableStatus marks a table FREE or OCCUPIED. The orders do it inside their transactions.
 func setTableStatus(ctx context.Context, db querier, tableID string, status domain.TableStatus) error {
 	return execExisting(ctx, db, setTableStatusQuery, tableID, status, now())
 }
 
-// scanTable reads the columns every table query returns.
 func scanTable(row pgx.Row) (domain.Table, error) {
 	var table domain.Table
 	err := row.Scan(&table.ID, &table.EstablishmentID, &table.Name, &table.Status, &table.CreatedAt, &table.UpdatedAt)

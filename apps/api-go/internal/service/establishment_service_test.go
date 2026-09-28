@@ -10,7 +10,6 @@ import (
 	"api-go/internal/core/domain"
 )
 
-// fakeEstablishmentRepo keeps what was created and saved, and answers with settings.
 type fakeEstablishmentRepo struct {
 	created  []domain.NewEstablishment
 	settings *domain.EstablishmentSettings

@@ -10,12 +10,6 @@ const (
 	corsAllowedHeaders = "Content-Type, Authorization, Last-Event-ID"
 )
 
-// CORS copies what @fastify/cors does with the options Nest passes it:
-//   - every response carries "Vary: Origin" and "Access-Control-Allow-Credentials: true";
-//   - Access-Control-Allow-Origin is only sent back to an origin on the list;
-//   - every OPTIONS request is a preflight. Without Origin or
-//     Access-Control-Request-Method it is a 400; otherwise a 204 with the allowed
-//     methods and headers, whether the origin is allowed or not.
 func CORS(allowedOrigins []string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

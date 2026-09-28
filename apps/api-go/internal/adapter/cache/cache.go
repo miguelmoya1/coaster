@@ -9,16 +9,12 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-// TTL is how long a cached value lives, CACHE_TTL_SECONDS in Nest.
 const TTL = 8 * time.Hour
 
-// envelope is how Nest stores a value, {"v": value}, so both APIs can share one Redis.
 type envelope struct {
 	V json.RawMessage `json:"v"`
 }
 
-// Cache is ports.Cache on Redis. Without a client it caches nothing, like Nest without
-// REDIS_URL, and a Redis error counts as a miss.
 type Cache struct {
 	client *redis.Client
 }
@@ -46,7 +42,6 @@ func (c *Cache) Get(ctx context.Context, key string, dest any) bool {
 		return false
 	}
 
-	// Nest writes {"v": undefined} as {}: it counts as a cached empty value.
 	if len(stored.V) == 0 {
 		return true
 	}

@@ -32,7 +32,6 @@ var (
 	saveEstablishmentSettingsQuery string
 )
 
-// EstablishmentRepository reads and writes the "Establishment" and "EstablishmentSettings" rows.
 type EstablishmentRepository struct {
 	pool *pgxpool.Pool
 }
@@ -124,7 +123,6 @@ func (r *EstablishmentRepository) SaveSettings(ctx context.Context, establishmen
 	return *settings, nil
 }
 
-// scanEstablishment reads a row of insert.sql, list_for_member.sql or find_by_id.sql.
 func scanEstablishment(row pgx.Row) (*domain.Establishment, error) {
 	var establishment domain.Establishment
 	err := row.Scan(&establishment.ID, &establishment.Name, &establishment.CreatedAt, &establishment.UpdatedAt)
@@ -134,7 +132,6 @@ func scanEstablishment(row pgx.Row) (*domain.Establishment, error) {
 	return &establishment, nil
 }
 
-// scanEstablishmentSettings reads a row of find_settings.sql or save_settings.sql.
 func scanEstablishmentSettings(row pgx.Row) (*domain.EstablishmentSettings, error) {
 	var settings domain.EstablishmentSettings
 	var modules []string
@@ -154,7 +151,6 @@ func scanEstablishmentSettings(row pgx.Row) (*domain.EstablishmentSettings, erro
 	return &settings, nil
 }
 
-// moduleNames turns the modules into the text[] the queries cast to "EstablishmentModule"[].
 func moduleNames(modules []domain.EstablishmentModule) []string {
 	names := make([]string, 0, len(modules))
 	for _, module := range modules {

@@ -7,8 +7,6 @@ import (
 	"api-go/internal/core/ports"
 )
 
-// The inputs of the shift tools (shift.tools.ts).
-
 type listShiftsInput struct {
 	StartDate *string `json:"startDate,omitempty" jsonschema_description:"Start of the range as an ISO date-time, e.g. \"2026-08-06T00:00:00Z\". Defaults to all shifts."`
 	EndDate   *string `json:"endDate,omitempty" jsonschema_description:"End of the range as an ISO date-time."`
@@ -40,7 +38,6 @@ type cancelShiftExchangeInput struct {
 	Confirmed  bool   `json:"confirmed" jsonschema_description:"Set to true only after the user has explicitly confirmed the withdrawal in a previous turn."`
 }
 
-// aiShift is a shift as listShifts shows it.
 type aiShift struct {
 	ID        string         `json:"id"`
 	Worker    string         `json:"worker"`
@@ -50,7 +47,6 @@ type aiShift struct {
 	Notes     *string        `json:"notes,omitempty"`
 }
 
-// aiShiftExchange is a pending exchange as listShiftExchanges shows it.
 type aiShiftExchange struct {
 	ID             string                     `json:"id"`
 	ShiftID        string                     `json:"shiftId"`

@@ -7,8 +7,6 @@ import (
 	"api-go/internal/core/ports"
 )
 
-// The inputs of the table tools (table.tools.ts).
-
 type createTableInput struct {
 	Name string `json:"name" jsonschema_description:"Table name or designation to create, e.g. 'Mesa 4', 'Terraza 1'. Use the exact name mentioned by the user."`
 }
@@ -23,7 +21,6 @@ type deleteTableInput struct {
 	Confirmed bool   `json:"confirmed" jsonschema_description:"Set to true only after the user has explicitly confirmed the deletion in a previous turn."`
 }
 
-// aiTable is a table as listTables shows it.
 type aiTable struct {
 	ID     string             `json:"id"`
 	Name   string             `json:"name"`

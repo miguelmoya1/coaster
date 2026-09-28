@@ -5,24 +5,18 @@ import (
 	"sort"
 )
 
-// TaxOf is taxOf in @coaster/common: the tax of a net amount in cents, rounded to whole
-// cents. The rate is in basis points.
 func TaxOf(netAmount, taxRate int) int {
 	return roundJS(float64(netAmount*taxRate) / 10000)
 }
 
-// GrossFromNet is grossFromNet in @coaster/common: the net amount plus its tax.
 func GrossFromNet(netAmount, taxRate int) int {
 	return netAmount + TaxOf(netAmount, taxRate)
 }
 
-// roundJS is JavaScript's Math.round: halves go up (2.5 → 3, -2.5 → -2). Go's math.Round
-// sends -2.5 to -3, so the totals could drift from Nest's by a cent.
 func roundJS(x float64) int {
 	return int(math.Floor(x + 0.5))
 }
 
-// PricingItem is PricingItemInput: an order line. Prices are net, in cents.
 type PricingItem struct {
 	ID              string
 	PriceAtPurchase int
@@ -31,8 +25,6 @@ type PricingItem struct {
 	TaxRate         int
 }
 
-// PricingAdjustment is PricingAdjustmentInput: a discount on the order or, with ItemID,
-// on one line.
 type PricingAdjustment struct {
 	ID     string
 	Target AdjustmentTarget
@@ -41,7 +33,6 @@ type PricingAdjustment struct {
 	ItemID *string
 }
 
-// PricingInput is PricingInput: everything the totals of an order depend on.
 type PricingInput struct {
 	Items          []PricingItem
 	Adjustments    []PricingAdjustment
@@ -50,7 +41,6 @@ type PricingInput struct {
 	AmountPaidCard int
 }
 
-// PricingItemLine is PricingItemOutput: the totals of one line.
 type PricingItemLine struct {
 	ID              string
 	BaseTotal       int
@@ -61,15 +51,12 @@ type PricingItemLine struct {
 	TaxRate         int
 }
 
-// TaxLine is OrderTaxLine in @coaster/common: the base and tax of one rate.
 type TaxLine struct {
 	TaxRate   int `json:"taxRate"`
 	TaxBase   int `json:"taxBase"`
 	TaxAmount int `json:"taxAmount"`
 }
 
-// Pricing is PricingOutput: the totals of an order. TaxBreakdown is never nil, so it is
-// written as [] like in Nest.
 type Pricing struct {
 	ItemLines           []PricingItemLine
 	ItemsSubtotal       int
@@ -89,10 +76,6 @@ type Pricing struct {
 	TaxAmountTotal      int
 }
 
-// CalculatePricing is OrderPricingEngine.calculate. Prices are net: line discounts come
-// off each line, the order discount is spread over the rates in proportion to their net
-// (the rounding cent goes to the heaviest rate), and the tax is added on top of each
-// rate's base. The tip is outside the base and the tax.
 func CalculatePricing(input PricingInput) Pricing {
 	itemsSubtotal := 0
 	itemDiscountsTotal := 0

@@ -29,7 +29,6 @@ type OrderService interface {
 	RemoveAdjustment(ctx context.Context, establishmentID, orderID, adjustmentID string) error
 }
 
-// OrderHandler is orders.controller.ts. Every route needs the ORDERS module.
 type OrderHandler struct {
 	orders OrderService
 }
@@ -76,14 +75,12 @@ func (h *OrderHandler) RegisterRoutes(mux *http.ServeMux, guard *middleware.Guar
 		middleware.Permissions(domain.PermissionUpdateOrder), orders)
 }
 
-// orderLineRequest is CreateOrderItemDto.
 type orderLineRequest struct {
 	ProductID string  `json:"productId" validate:"required,uuid4" msg:"required=REQUIRED,uuid4=INVALID_TYPE,type=INVALID_TYPE"`
 	Quantity  int     `json:"quantity" validate:"min=1" msg:"min=INVALID_TYPE,type=INVALID_TYPE"`
 	Notes     *string `json:"notes" validate:"omitnil" msg:"type=INVALID_TYPE"`
 }
 
-// orderAdjustmentRequest is AddOrderAdjustmentDto. percentage is its PercentageWithinRange.
 type orderAdjustmentRequest struct {
 	Target domain.AdjustmentTarget `json:"target" validate:"oneof=ORDER ITEM" msg:"oneof=INVALID_TYPE,type=INVALID_TYPE"`
 	Type   domain.AdjustmentType   `json:"type" validate:"oneof=PERCENTAGE FIXED_AMOUNT" msg:"oneof=INVALID_TYPE,type=INVALID_TYPE"`
@@ -92,7 +89,6 @@ type orderAdjustmentRequest struct {
 	ItemID *string                 `json:"itemId" validate:"omitnil" msg:"type=INVALID_TYPE"`
 }
 
-// createOrderRequest is CreateOrderDto.
 type createOrderRequest struct {
 	TableID     *string                   `json:"tableId" validate:"omitnil,uuid4" msg:"uuid4=INVALID_TYPE,type=INVALID_TYPE"`
 	Items       []orderLineRequest        `json:"items" validate:"min=1,dive" msg:"min=REQUIRED,type=INVALID_TYPE"`
@@ -101,13 +97,11 @@ type createOrderRequest struct {
 	TipAmount   *int                      `json:"tipAmount" validate:"omitnil,min=0" msg:"min=INVALID_TYPE,type=INVALID_TYPE"`
 }
 
-// addOrderItemsRequest is AddOrderItemsDto.
 type addOrderItemsRequest struct {
 	Items []orderLineRequest `json:"items" validate:"min=1,dive" msg:"min=REQUIRED,type=INVALID_TYPE"`
 	Notes *string            `json:"notes" validate:"omitnil" msg:"type=INVALID_TYPE"`
 }
 
-// bulkUpdateItemRequest is BulkUpdateItemDto.
 type bulkUpdateItemRequest struct {
 	ItemID         string                `json:"itemId" validate:"required,uuid4" msg:"required=REQUIRED,uuid4=INVALID_TYPE,type=INVALID_TYPE"`
 	PaidQuantity   *int                  `json:"paidQuantity" validate:"omitnil,min=0" msg:"min=INVALID_TYPE,type=INVALID_TYPE"`
@@ -115,39 +109,32 @@ type bulkUpdateItemRequest struct {
 	PaymentMethod  *domain.PaymentMethod `json:"paymentMethod" validate:"omitnil,oneof=CASH CARD" msg:"oneof=INVALID_TYPE,type=INVALID_TYPE"`
 }
 
-// bulkUpdateRequest is BulkUpdateDto.
 type bulkUpdateRequest struct {
 	Items []bulkUpdateItemRequest `json:"items" validate:"min=1,dive" msg:"min=REQUIRED,type=INVALID_TYPE"`
 }
 
-// checkoutOrderRequest is CheckoutOrderDto: only cash or card.
 type checkoutOrderRequest struct {
 	PaymentMethod domain.PaymentMethod `json:"paymentMethod" validate:"required,oneof=CASH CARD" msg:"required=REQUIRED,oneof=INVALID_TYPE,type=INVALID_TYPE"`
 }
 
-// moveTableRequest is MoveTableDto.
 type moveTableRequest struct {
 	TableID string `json:"tableId" validate:"required,uuid4" msg:"required=REQUIRED,uuid4=INVALID_TYPE,type=INVALID_TYPE"`
 }
 
-// mergeOrdersRequest is MergeOrdersDto.
 type mergeOrdersRequest struct {
 	OrderIDs      []string `json:"orderIds" validate:"min=2,dive,uuid4" msg:"min=INVALID_ORDER_IDS,uuid4=INVALID_TYPE,type=INVALID_TYPE"`
 	TargetTableID *string  `json:"targetTableId" validate:"omitnil,uuid4" msg:"uuid4=INVALID_TYPE,type=INVALID_TYPE"`
 }
 
-// updateOrderTipRequest is UpdateOrderTipDto.
 type updateOrderTipRequest struct {
 	TipAmount int `json:"tipAmount" validate:"min=0" msg:"min=INVALID_TYPE,type=INVALID_TYPE"`
 }
 
-// updateOrderNotesRequest is UpdateOrderNotesDto.
 type updateOrderNotesRequest struct {
 	Notes       *string `json:"notes" validate:"omitnil,max=500" msg:"max=INVALID_TYPE,type=INVALID_TYPE"`
 	TicketNotes *string `json:"ticketNotes" validate:"omitnil,max=500" msg:"max=INVALID_TYPE,type=INVALID_TYPE"`
 }
 
-// updateOrderItemNotesRequest is UpdateOrderItemNotesDto.
 type updateOrderItemNotesRequest struct {
 	Notes *string `json:"notes" validate:"omitnil,max=500" msg:"max=INVALID_TYPE,type=INVALID_TYPE"`
 }

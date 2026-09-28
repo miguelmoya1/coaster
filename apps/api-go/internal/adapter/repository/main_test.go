@@ -15,10 +15,8 @@ import (
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 )
 
-// The Prisma migrations own the schema until P5, so the tests apply the same ones.
 const migrationsDir = "../../../../api/prisma/migrations"
 
-// testPool is the pool every repository test uses. TestMain opens it.
 var testPool *pgxpool.Pool
 
 func TestMain(m *testing.M) {
@@ -65,7 +63,6 @@ func run(m *testing.M) int {
 	return m.Run()
 }
 
-// applyMigrations runs every migration.sql of Prisma, in the order of their folders.
 func applyMigrations(ctx context.Context, pool *pgxpool.Pool) error {
 	entries, err := os.ReadDir(migrationsDir)
 	if err != nil {
@@ -86,7 +83,6 @@ func applyMigrations(ctx context.Context, pool *pgxpool.Pool) error {
 			return fmt.Errorf("reading migration %s: %w", name, err)
 		}
 
-		// Without arguments pgx uses the simple protocol, which accepts several statements.
 		if _, err := pool.Exec(ctx, string(sql)); err != nil {
 			return fmt.Errorf("applying migration %s: %w", name, err)
 		}
@@ -95,7 +91,6 @@ func applyMigrations(ctx context.Context, pool *pgxpool.Pool) error {
 	return nil
 }
 
-// resetDB empties every table, so each test starts from a clean database.
 func resetDB(t *testing.T) {
 	t.Helper()
 

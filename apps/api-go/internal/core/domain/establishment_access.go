@@ -2,7 +2,6 @@ package domain
 
 import "slices"
 
-// EstablishmentRole is a member's role in an establishment.
 type EstablishmentRole string
 
 const (
@@ -11,7 +10,6 @@ const (
 	EstablishmentRoleStaff   EstablishmentRole = "STAFF"
 )
 
-// AsEstablishmentRole reads a stored role; anything unknown counts as STAFF.
 func AsEstablishmentRole(role string) EstablishmentRole {
 	switch EstablishmentRole(role) {
 	case EstablishmentRoleOwner, EstablishmentRoleManager, EstablishmentRoleStaff:
@@ -21,8 +19,6 @@ func AsEstablishmentRole(role string) EstablishmentRole {
 	}
 }
 
-// EstablishmentPermission is something a member may do in an establishment. They must match
-// EstablishmentPermission in @coaster/common; establishment_access_test.go checks it.
 type EstablishmentPermission string
 
 const (
@@ -77,8 +73,6 @@ const (
 	PermissionManageSettings        EstablishmentPermission = "establishment:manage-settings"
 )
 
-// AllEstablishmentPermissions lists every permission, in the same order as @coaster/common.
-// A platform admin gets all of them.
 var AllEstablishmentPermissions = []EstablishmentPermission{
 	PermissionViewDashboard,
 	PermissionViewFinancials,
@@ -205,8 +199,6 @@ var ownerPermissions = []EstablishmentPermission{
 	PermissionManageSettings,
 }
 
-// RolePermissions lists what a role may do, as ROLE_PERMISSIONS does: an owner has
-// everything a manager has, and a manager everything staff has.
 func RolePermissions(role EstablishmentRole) []EstablishmentPermission {
 	switch role {
 	case EstablishmentRoleOwner:
@@ -220,12 +212,10 @@ func RolePermissions(role EstablishmentRole) []EstablishmentPermission {
 	}
 }
 
-// HasPermission reports whether role may do permission.
 func HasPermission(role EstablishmentRole, permission EstablishmentPermission) bool {
 	return slices.Contains(RolePermissions(role), permission)
 }
 
-// EstablishmentModule is a part of the product an establishment can switch on.
 type EstablishmentModule string
 
 const (
@@ -234,14 +224,10 @@ const (
 	ModuleInventory    EstablishmentModule = "INVENTORY"
 )
 
-// AllEstablishmentModules lists the modules in the order of @coaster/common.
 var AllEstablishmentModules = []EstablishmentModule{ModuleTimeTracking, ModuleOrders, ModuleInventory}
 
-// DefaultEstablishmentModules is what an establishment without settings runs.
 var DefaultEstablishmentModules = []EstablishmentModule{ModuleTimeTracking, ModuleOrders, ModuleInventory}
 
-// ResolveModules is resolveModules: time tracking is always on, orders brings inventory
-// with it, and the result follows the order of AllEstablishmentModules.
 func ResolveModules(requested []EstablishmentModule) []EstablishmentModule {
 	on := map[EstablishmentModule]bool{ModuleTimeTracking: true}
 	for _, module := range requested {
@@ -262,8 +248,6 @@ func ResolveModules(requested []EstablishmentModule) []EstablishmentModule {
 	return resolved
 }
 
-// Membership is a user's place in an establishment, as the permission check reads it.
-// The JSON names match what Nest keeps in the cache.
 type Membership struct {
 	Role   string `json:"role"`
 	Active bool   `json:"active"`

@@ -8,7 +8,6 @@ import (
 	"api-go/internal/core/domain"
 )
 
-// fakeSubscriber records what reached one stream.
 type fakeSubscriber struct {
 	userID    string
 	delivered []domain.RealtimeFrame
@@ -27,7 +26,6 @@ func (f *fakeSubscriber) Deliver(frame domain.RealtimeFrame) {
 
 func (f *fakeSubscriber) Close() { f.closed++ }
 
-// fakeRealtimeBus records what the service sent to the other instances.
 type fakeRealtimeBus struct {
 	events      []domain.RealtimeFrame
 	revoked     []string

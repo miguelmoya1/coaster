@@ -8,11 +8,8 @@ import (
 	"api-go/internal/core/ports"
 )
 
-// adminRecentActivity is how many log entries a detail page of the backoffice shows.
 const adminRecentActivity = 10
 
-// AdminUserService is the users page of the backoffice: any user of the platform, their
-// role and whether they may sign in.
 type AdminUserService struct {
 	users  ports.AdminUserRepository
 	audit  ports.AdminAuditRepository
@@ -23,8 +20,6 @@ func NewAdminUserService(users ports.AdminUserRepository, audit ports.AdminAudit
 	return &AdminUserService{users: users, audit: audit, events: events}
 }
 
-// List is ListAdminUsersQuery: the users newest first, one page at a time. The search looks
-// for the whole id, or for part of the name or the email.
 func (s *AdminUserService) List(ctx context.Context, filter domain.AdminUserFilter, page domain.PageRequest) (domain.Paginated[domain.AdminUserSummary], error) {
 	filter.Search = strings.TrimSpace(filter.Search)
 
@@ -36,8 +31,6 @@ func (s *AdminUserService) List(ctx context.Context, filter domain.AdminUserFilt
 	return domain.NewPage(users, total, page), nil
 }
 
-// Detail is GetAdminUserDetailQuery: the user, the establishments they belong to and the
-// latest admin actions on them.
 func (s *AdminUserService) Detail(ctx context.Context, userID string) (domain.AdminUserDetail, error) {
 	user, err := s.users.FindByID(ctx, userID)
 	if err != nil {
@@ -60,7 +53,6 @@ func (s *AdminUserService) Detail(ctx context.Context, userID string) (domain.Ad
 	return domain.AdminUserDetail{User: *user, Establishments: memberships, RecentActivity: activity}, nil
 }
 
-// adminRoleChange and adminActivationChange are the metadata of the audit entries of Update.
 type adminRoleChange struct {
 	From domain.Role `json:"from"`
 	To   domain.Role `json:"to"`
@@ -70,9 +62,6 @@ type adminActivationChange struct {
 	Active bool `json:"active"`
 }
 
-// Update is UpdateAdminUserCommand. An admin cannot change their own account, and the last
-// active admin cannot lose the role or be switched off. Each change that happens gets its
-// own entry in the log.
 func (s *AdminUserService) Update(ctx context.Context, actorID, userID string, changes domain.AdminUserChanges) error {
 	if userID == actorID {
 		return domain.BadRequest(domain.CodeCannotEditOwnAdminAccount)

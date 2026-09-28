@@ -14,7 +14,6 @@ type BetaTesterService interface {
 	Remove(ctx context.Context, actorID, betaTesterID string) error
 }
 
-// AdminBetaTesterHandler is admin-beta-testers.controller.ts.
 type AdminBetaTesterHandler struct {
 	testers BetaTesterService
 }
@@ -29,13 +28,11 @@ func (h *AdminBetaTesterHandler) RegisterRoutes(mux *http.ServeMux, guard *middl
 	handle(mux, guard, "DELETE /admin/beta-testers/{betaTesterId}", h.remove, middleware.Admin())
 }
 
-// addBetaTesterRequest is AddBetaTesterDto.
 type addBetaTesterRequest struct {
 	Email string  `json:"email" validate:"email,max=320" msg:"email=INVALID_EMAIL,max=MAX_LENGTH,type=INVALID_EMAIL"`
 	Note  *string `json:"note" validate:"omitnil,max=200" msg:"max=MAX_LENGTH,type=INVALID_TYPE"`
 }
 
-// list reads AdminBetaTestersQueryDto.
 func (h *AdminBetaTesterHandler) list(w http.ResponseWriter, r *http.Request) {
 	query := newAdminListQuery(r.URL.Query(), "q", "page", "pageSize")
 	search := query.text("q", 120)

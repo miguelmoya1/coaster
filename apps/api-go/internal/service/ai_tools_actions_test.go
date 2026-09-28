@@ -8,9 +8,6 @@ import (
 	"api-go/internal/core/domain"
 )
 
-// The tools that change something call the service of their module with what the model
-// sent, converted as Nest converts it (euros to cents, "" to no id).
-
 const aiDone = `{"status":"ok","message":"Action completed successfully."}`
 
 func TestAITableActions(t *testing.T) {

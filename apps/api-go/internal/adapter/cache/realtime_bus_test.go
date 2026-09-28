@@ -10,7 +10,6 @@ import (
 
 var busFrame = domain.RealtimeFrame{ID: "1000", Event: domain.RealtimeOrderCreated, Payload: []byte(`{"id":"order-1"}`)}
 
-// fakeReceiver passes what the bus hands it to the test through channels.
 type fakeReceiver struct {
 	frames  chan string
 	revoked chan string
@@ -28,7 +27,6 @@ func (r *fakeReceiver) CloseStreams(establishmentID string, userID string) {
 	r.revoked <- establishmentID + " " + userID
 }
 
-// listen starts bus.Listen and waits until Redis has one more subscriber on the channel.
 func listen(t *testing.T, bus *RealtimeBus, receiver RealtimeReceiver) {
 	t.Helper()
 
@@ -99,7 +97,6 @@ func TestRealtimeBusSharesAcrossInstances(t *testing.T) {
 	sender.PublishRevoke("establishment-1", "user-1")
 	expect(t, otherReceiver.revoked, "establishment-1 user-1")
 
-	// What an instance published itself already reached its own streams.
 	expectNothing(t, senderReceiver.frames)
 	expectNothing(t, senderReceiver.revoked)
 }
@@ -230,7 +227,7 @@ func TestRealtimeBusWithoutRedis(t *testing.T) {
 }
 
 func TestRealtimeBusSurvivesARefusingRedis(t *testing.T) {
-	// Nothing listens on port 1, so every command fails.
+
 	bus := NewRealtimeBus("redis://127.0.0.1:1")
 	defer bus.Close()
 

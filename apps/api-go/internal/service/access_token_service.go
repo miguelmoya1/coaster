@@ -11,14 +11,11 @@ import (
 	"api-go/internal/core/ports"
 )
 
-// The issuer and audience Nest writes into every access token.
 const (
 	accessTokenIssuer   = "coaster"
 	accessTokenAudience = "coaster-api"
 )
 
-// AccessTokenService signs and reads the access tokens: HS256 JWTs with the user in sub and
-// the session in sid, signed with AUTH_JWT_SECRET, exactly like Nest's.
 type AccessTokenService struct {
 	secret []byte
 	users  ports.AuthUserRepository
@@ -30,19 +27,16 @@ func NewAccessTokenService(secret string, users ports.AuthUserRepository, cache 
 	return &AccessTokenService{secret: []byte(secret), users: users, cache: cache, now: time.Now}
 }
 
-// accessTokenClaims is the payload of an access token.
 type accessTokenClaims struct {
 	SessionID string `json:"sid"`
 	jwt.RegisteredClaims
 }
 
-// Caller is who a valid access token belongs to. User is nil when the user no longer exists.
 type Caller struct {
 	Claims domain.SessionClaims
 	User   *domain.User
 }
 
-// Sign returns an access token for the user and session, valid for 15 minutes.
 func (s *AccessTokenService) Sign(userID, sessionID string) (string, error) {
 	now := s.now()
 
@@ -60,8 +54,6 @@ func (s *AccessTokenService) Sign(userID, sessionID string) (string, error) {
 	return jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString(s.secret)
 }
 
-// Verify returns the claims of a valid token, or nil. The token can come with or without
-// the "Bearer " in front.
 func (s *AccessTokenService) Verify(token string) *domain.SessionClaims {
 	bearer := stripBearer(token)
 	if bearer == "" {
@@ -86,8 +78,6 @@ func (s *AccessTokenService) Verify(token string) *domain.SessionClaims {
 	return &domain.SessionClaims{Sub: claims.Subject, Sid: claims.SessionID}
 }
 
-// Resolve verifies the token and loads its user through the cache. It returns nil, nil for
-// a token that does not verify, without touching the database.
 func (s *AccessTokenService) Resolve(ctx context.Context, token string) (*Caller, error) {
 	claims := s.Verify(token)
 	if claims == nil {
@@ -114,7 +104,6 @@ func (s *AccessTokenService) Resolve(ctx context.Context, token string) (*Caller
 	return caller, nil
 }
 
-// stripBearer removes "Bearer " in any casing.
 func stripBearer(value string) string {
 	if len(value) >= 6 && strings.EqualFold(value[:6], "bearer") {
 		rest := value[6:]
@@ -126,9 +115,6 @@ func stripBearer(value string) string {
 	return value
 }
 
-// cachedUser is the user row as Nest keeps it in the cache (the Prisma row without the
-// password hash), so both APIs can read what the other wrote. Only the fields the user
-// mapper reads are kept.
 type cachedUser struct {
 	ID              string             `json:"id"`
 	Email           string             `json:"email"`

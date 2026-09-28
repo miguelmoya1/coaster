@@ -12,7 +12,6 @@ import (
 	"api-go/internal/service"
 )
 
-// tillAccess lets testUser into e1 with a role, and with the modules switched on.
 type tillAccess struct {
 	role    domain.EstablishmentRole
 	modules []domain.EstablishmentModule
@@ -27,8 +26,6 @@ func (a tillAccess) EnabledModules(context.Context, string) ([]domain.Establishm
 }
 func (tillAccess) SubscriptionActive(context.Context, string) (bool, error) { return true, nil }
 
-// tillCloses answers with one close of the past and nothing to count, and keeps the close it
-// was asked for.
 type tillCloses struct {
 	closed *domain.NewCashClose
 }
@@ -55,7 +52,6 @@ func (c *tillCloses) Close(_ context.Context, input domain.NewCashClose) (domain
 	}, nil
 }
 
-// tillStats has no orders and keeps where it was asked to read from.
 type tillStats struct {
 	since time.Time
 }

@@ -10,7 +10,6 @@ import (
 
 func menuPtr[T any](value T) *T { return &value }
 
-// testMenu is the menu of render-menu.spec.ts: one section with a coffee.
 func testMenu() Menu {
 	return Menu{
 		Name:            "Carta",

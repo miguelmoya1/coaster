@@ -15,7 +15,6 @@ type CashCloseService interface {
 	Close(ctx context.Context, establishmentID, closedByID string, input service.CloseCashInput) (domain.CashClose, error)
 }
 
-// CashCloseHandler is cash-closes.controller.ts: closing the till of an establishment.
 type CashCloseHandler struct {
 	closes CashCloseService
 }
@@ -35,7 +34,6 @@ func (h *CashCloseHandler) RegisterRoutes(mux *http.ServeMux, guard *middleware.
 		middleware.Permissions(domain.PermissionCloseCash), orders)
 }
 
-// closeCashRequest is CloseCashDto.
 type closeCashRequest struct {
 	OpeningFloat int     `json:"openingFloat" validate:"min=0" msg:"min=INVALID_TYPE,type=INVALID_TYPE"`
 	CountedCash  int     `json:"countedCash" validate:"min=0" msg:"min=INVALID_TYPE,type=INVALID_TYPE"`

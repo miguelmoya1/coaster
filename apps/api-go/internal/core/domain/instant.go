@@ -5,12 +5,8 @@ import (
 	"time"
 )
 
-// instantLayout writes the milliseconds only when there are some, and without trailing
-// zeros, like Temporal.Instant.toString: "10:00:00Z", "10:00:00.5Z", "10:00:00.123Z".
 const instantLayout = "2006-01-02T15:04:05.999Z"
 
-// Instant is a time.Time that writes JSON like Temporal.Instant.toString, which is what Nest
-// sends for shifts and shift exchanges. Everything else goes out as Time (toISOString).
 type Instant struct {
 	time.Time
 }
@@ -19,7 +15,6 @@ func NewInstant(t time.Time) Instant {
 	return Instant{Time: t}
 }
 
-// String is the instant as Temporal writes it.
 func (i Instant) String() string {
 	return i.UTC().Truncate(time.Millisecond).Format(instantLayout)
 }
@@ -28,13 +23,10 @@ func (i Instant) MarshalJSON() ([]byte, error) {
 	return []byte(`"` + i.String() + `"`), nil
 }
 
-// FormatISO writes t like Date.toISOString: "2026-09-27T10:00:00.000Z".
 func FormatISO(t time.Time) string {
 	return t.UTC().Format(isoLayout)
 }
 
-// ParseInstant reads what Temporal.Instant.from accepts: a date and a time with an offset
-// ("2026-09-27T10:00:00Z", "2026-09-27T12:00+02:00"). Without the offset it fails.
 func ParseInstant(value string) (time.Time, bool) {
 	normalized := strings.Replace(value, ",", ".", 1)
 	if len(normalized) > 10 && (normalized[10] == ' ' || normalized[10] == 't') {
@@ -58,8 +50,6 @@ func ParseInstant(value string) (time.Time, bool) {
 	return time.Time{}, false
 }
 
-// ParseDate reads a date the way new Date(value) does for the ISO 8601 forms: a date alone
-// is midnight UTC, and a date and time without an offset is taken as UTC (the server's zone).
 func ParseDate(value string) (time.Time, bool) {
 	if parsed, ok := ParseInstant(value); ok {
 		return parsed.Truncate(time.Millisecond), true

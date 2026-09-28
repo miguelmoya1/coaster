@@ -10,8 +10,6 @@ import (
 	"api-go/internal/core/domain"
 )
 
-// The cases of get-cash-close-preview.handler.spec.ts, and the arqueo of the mapper.
-
 func TestCashClosePreviewWhenTheTillWasNeverClosed(t *testing.T) {
 	repo := &fakeCashCloseRepository{}
 	service := NewCashCloseService(repo)

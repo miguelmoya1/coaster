@@ -11,9 +11,6 @@ import (
 	"api-go/internal/core/ports"
 )
 
-// In-memory fakes of the ports of shifts, shift exchanges and time entries.
-
-// shiftEventRecorder keeps every event published.
 type shiftEventRecorder struct {
 	mu     sync.Mutex
 	events []ports.Event
@@ -25,14 +22,12 @@ func (r *shiftEventRecorder) Publish(_ context.Context, event ports.Event) {
 	r.events = append(r.events, event)
 }
 
-// shiftRealtimeMessage is one message sent to a stream.
 type shiftRealtimeMessage struct {
 	establishmentID string
 	event           string
 	payload         any
 }
 
-// shiftRealtimeRecorder keeps what was sent to the streams.
 type shiftRealtimeRecorder struct {
 	messages []shiftRealtimeMessage
 }
@@ -43,7 +38,6 @@ func (r *shiftRealtimeRecorder) Publish(establishmentID string, event string, pa
 
 func (r *shiftRealtimeRecorder) Revoke(string, string) {}
 
-// fakeShiftRepository is the "Shift" table.
 type fakeShiftRepository struct {
 	shifts   []domain.Shift
 	deleted  []string
@@ -95,7 +89,6 @@ func (f *fakeShiftRepository) Delete(_ context.Context, id string) error {
 	return nil
 }
 
-// fakeShiftExchangeRepository is the "ShiftExchange" table.
 type fakeShiftExchangeRepository struct {
 	exchanges   map[string]*domain.ShiftExchangeRecord
 	memberships map[string]*domain.Membership
@@ -154,7 +147,6 @@ func (f *fakeShiftExchangeRepository) Delete(_ context.Context, id string) error
 	return nil
 }
 
-// fakeTimeEntryRepository is the "TimeEntry" chain, one establishment's rows in order.
 type fakeTimeEntryRepository struct {
 	rows    []domain.TimeEntryRow
 	members map[string]*domain.TimeEntryMember

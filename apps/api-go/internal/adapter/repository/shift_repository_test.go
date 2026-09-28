@@ -8,8 +8,6 @@ import (
 	"api-go/internal/core/domain"
 )
 
-// Rows the shift and time entry tests start from, written straight with SQL.
-
 func insertRotaUser(t *testing.T, id, name string) {
 	t.Helper()
 	_, err := testPool.Exec(context.Background(),

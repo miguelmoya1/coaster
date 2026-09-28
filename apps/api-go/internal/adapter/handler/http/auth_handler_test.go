@@ -16,7 +16,6 @@ import (
 
 var testUser = domain.User{ID: "u1", Email: "ana@example.com", Name: "Ana", Active: true, Role: domain.RoleUser, Language: "es"}
 
-// fakeTokens signs in "Bearer good" as testUser.
 type fakeTokens struct{}
 
 func (fakeTokens) Resolve(_ context.Context, authorization string) (*service.Caller, error) {
@@ -45,7 +44,6 @@ func (l *countingLimiter) Hit(_ context.Context, key string, ttl time.Duration, 
 	return ports.RateLimit{TotalHits: l.hits[key], TimeToExpire: int(ttl.Seconds()), Blocked: l.hits[key] > limit, TimeToBlockExpire: int(ttl.Seconds())}
 }
 
-// fakeAuth records what the handler passed and answers with issued or err.
 type fakeAuth struct {
 	AuthService
 	issued       domain.IssuedSession

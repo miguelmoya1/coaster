@@ -1,6 +1,5 @@
 package domain
 
-// Role is the platform role of a user (Role in the Prisma schema).
 type Role string
 
 const (
@@ -8,11 +7,8 @@ const (
 	RoleAdmin Role = "ADMIN"
 )
 
-// DefaultLanguage is the language of a user without preferences.
 const DefaultLanguage = "es"
 
-// User is a person as the API sends it (User in @coaster/common). It never carries the
-// password hash.
 type User struct {
 	ID            string  `json:"id"`
 	Email         string  `json:"email"`

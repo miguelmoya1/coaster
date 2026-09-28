@@ -20,8 +20,6 @@ type memberFixture struct {
 	realtime *memberRealtimeRecorder
 }
 
-// newMemberFixture starts with Olga as the owner of e1, Marta as its manager and Sergio on
-// its staff.
 func newMemberFixture() *memberFixture {
 	repo := newFakeMemberRepository()
 	repo.add(domain.EstablishmentMember{ID: "m-olga", UserID: "olga", EstablishmentID: "e1", Role: domain.EstablishmentRoleOwner, UserEmail: "olga@example.com"})

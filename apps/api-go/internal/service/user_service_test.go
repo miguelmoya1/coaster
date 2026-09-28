@@ -9,7 +9,6 @@ import (
 	"api-go/internal/core/domain"
 )
 
-// fakeUserRepo knows the users in ids and keeps the changes it was asked to write.
 type fakeUserRepo struct {
 	ids     []string
 	updates []domain.UserProfileChanges

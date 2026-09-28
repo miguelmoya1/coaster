@@ -21,7 +21,6 @@ var (
 	catalogueProductNamesQuery string
 )
 
-// CatalogueRepository is what importing the starter catalogue reads and writes.
 type CatalogueRepository struct {
 	pool *pgxpool.Pool
 }
@@ -65,7 +64,6 @@ func (r *CatalogueRepository) ProductNames(ctx context.Context, categoryIDs []st
 	})
 }
 
-// CreateCategories creates them all or none, like createMany in Nest.
 func (r *CatalogueRepository) CreateCategories(ctx context.Context, establishmentID string, categories []domain.NewCatalogueCategory) error {
 	tx, err := r.pool.Begin(ctx)
 	if err != nil {
@@ -85,7 +83,6 @@ func (r *CatalogueRepository) CreateCategories(ctx context.Context, establishmen
 	return tx.Commit(ctx)
 }
 
-// CreateProducts creates them all or none, like createMany in Nest.
 func (r *CatalogueRepository) CreateProducts(ctx context.Context, products []domain.NewProduct) error {
 	tx, err := r.pool.Begin(ctx)
 	if err != nil {

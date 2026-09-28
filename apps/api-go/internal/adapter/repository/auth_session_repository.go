@@ -35,7 +35,6 @@ var (
 	deleteExpiredAuthSessionsQuery string
 )
 
-// AuthSessionRepository stores the refresh token sessions in "AuthSession".
 type AuthSessionRepository struct {
 	pool *pgxpool.Pool
 }
@@ -145,7 +144,6 @@ func insertAuthSession(ctx context.Context, db querier, session domain.NewAuthSe
 	return &stored, nil
 }
 
-// scanAuthSession reads a session row, or nil when there is none.
 func scanAuthSession(row pgx.Row) (*domain.AuthSession, error) {
 	var session domain.AuthSession
 

@@ -13,8 +13,6 @@ import (
 	"api-go/internal/core/domain"
 )
 
-// The cases of execute-ai.handler.spec.ts and get-ai-usage.handler.ts.
-
 var aiAna = domain.User{ID: "u1", Name: "Ana", Language: "es"}
 
 func aiPrompt(text string) AIInput {
@@ -131,7 +129,6 @@ func TestAIWritesTheSystemPromptOfNest(t *testing.T) {
 	}
 }
 
-// firstDifference shows where two texts stop being the same.
 func firstDifference(got, want string) string {
 	gotLines, wantLines := strings.Split(got, "\n"), strings.Split(want, "\n")
 	for i := range min(len(gotLines), len(wantLines)) {

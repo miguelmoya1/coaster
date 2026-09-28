@@ -9,8 +9,6 @@ import (
 	"api-go/internal/core/ports"
 )
 
-// AccountService is what the /account routes do for the signed-in person: how they sign
-// in, their password, their sessions and their linked identities.
 type AccountService struct {
 	users      ports.AuthUserRepository
 	identities ports.AuthIdentityRepository
@@ -22,7 +20,6 @@ type AccountService struct {
 	cache      ports.Cache
 }
 
-// AccountDependencies is everything AccountService needs.
 type AccountDependencies struct {
 	Users      ports.AuthUserRepository
 	Identities ports.AuthIdentityRepository
@@ -47,7 +44,6 @@ func NewAccountService(deps AccountDependencies) *AccountService {
 	}
 }
 
-// Account says how the person can sign in and whether their address is confirmed.
 func (s *AccountService) Account(ctx context.Context, userID string) (domain.AccountSummary, error) {
 	user, err := s.findUser(ctx, userID)
 	if err != nil {
@@ -77,7 +73,6 @@ func (s *AccountService) Account(ctx context.Context, userID string) (domain.Acc
 	}, nil
 }
 
-// RequestEmailVerification emails a link to confirm the address, unless it is confirmed already.
 func (s *AccountService) RequestEmailVerification(ctx context.Context, userID string) error {
 	user, err := s.findUser(ctx, userID)
 	if err != nil {
@@ -97,16 +92,14 @@ func (s *AccountService) RequestEmailVerification(ctx context.Context, userID st
 	return s.mailer.SendEmailVerification(ctx, user.Email, user.Name, token, user.MailLanguage())
 }
 
-// SetPasswordInput sets a first password, or changes the current one.
 type SetPasswordInput struct {
 	UserID    string
 	SessionID string
 	Password  string
-	// CurrentPassword is required when the account already has a password.
+
 	CurrentPassword string
 }
 
-// SetPassword sets or changes the password and closes every other session.
 func (s *AccountService) SetPassword(ctx context.Context, input SetPasswordInput, origin domain.SessionOrigin) error {
 	current, err := s.findUser(ctx, input.UserID)
 	if err != nil {
@@ -157,8 +150,6 @@ func (s *AccountService) SetPassword(ctx context.Context, input SetPasswordInput
 	return nil
 }
 
-// Sessions lists the devices signed in right now, one entry per family, last used first.
-// currentSessionID is the session making the call, or "".
 func (s *AccountService) Sessions(ctx context.Context, userID, currentSessionID string) ([]domain.AccountSession, error) {
 	live, err := s.sessions.ListLiveOf(ctx, userID)
 	if err != nil {
@@ -186,8 +177,6 @@ func (s *AccountService) Sessions(ctx context.Context, userID, currentSessionID 
 	return summaries, nil
 }
 
-// summarizeFamily turns every session a device went through into one entry: the id of the
-// session in use, where it was seen, when it started and when it was last used.
 func summarizeFamily(family []domain.AuthSession, currentSessionID string) domain.AccountSession {
 	head := family[0]
 	for _, session := range family {
@@ -240,8 +229,6 @@ func summarizeFamily(family []domain.AuthSession, currentSessionID string) domai
 	}
 }
 
-// CloseOtherSessions signs out every device but the one asking. Without a current session
-// it signs out all of them.
 func (s *AccountService) CloseOtherSessions(ctx context.Context, userID, currentSessionID string) error {
 	current, err := s.ownedSession(ctx, currentSessionID, userID)
 	if err != nil {
@@ -255,7 +242,6 @@ func (s *AccountService) CloseOtherSessions(ctx context.Context, userID, current
 	return s.sessions.RevokeEveryOtherFamilyOf(ctx, userID, current.FamilyID)
 }
 
-// CloseSession signs out one device. The device making the call has to log out instead.
 func (s *AccountService) CloseSession(ctx context.Context, userID, sessionID, currentSessionID string) error {
 	session, err := s.sessions.FindOwnedBy(ctx, sessionID, userID)
 	if err != nil {
@@ -277,7 +263,6 @@ func (s *AccountService) CloseSession(ctx context.Context, userID, sessionID, cu
 	return s.sessions.RevokeFamily(ctx, session.FamilyID)
 }
 
-// UnlinkIdentity unlinks a sign-in provider, unless it is the last way in.
 func (s *AccountService) UnlinkIdentity(ctx context.Context, userID string, provider domain.AuthProvider, origin domain.SessionOrigin) error {
 	user, err := s.findUser(ctx, userID)
 	if err != nil {
@@ -330,7 +315,6 @@ func (s *AccountService) findUser(ctx context.Context, userID string) (*domain.A
 	return user, nil
 }
 
-// ownedSession is the user's session with that id, or nil when id is "" or not theirs.
 func (s *AccountService) ownedSession(ctx context.Context, id, userID string) (*domain.AuthSession, error) {
 	if id == "" {
 		return nil, nil

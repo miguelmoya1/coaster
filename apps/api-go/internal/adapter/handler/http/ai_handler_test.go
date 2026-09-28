@@ -14,7 +14,6 @@ import (
 	"api-go/internal/service"
 )
 
-// aiModel answers every turn with text (or err), streaming it in deltas when asked to.
 type aiModel struct {
 	text     string
 	deltas   []string
@@ -32,7 +31,6 @@ func (m *aiModel) Generate(_ context.Context, request ports.AIRequest) (string, 
 	return m.text, m.err
 }
 
-// aiUsage counts messages of any establishment together.
 type aiUsage struct{ messages int }
 
 func (u *aiUsage) MessagesThisPeriod(context.Context, string, string) (int, error) {
@@ -52,8 +50,6 @@ func (u *aiUsage) ReleaseMessage(context.Context, string, string) error {
 	return nil
 }
 
-// aiSecurity is what the assistant reads of testUser in e1: a staff member, or nobody,
-// of an establishment that only runs time tracking.
 type aiSecurity struct{ member bool }
 
 func (aiSecurity) UserRole(context.Context, string) (domain.Role, error) { return domain.RoleUser, nil }
@@ -76,8 +72,6 @@ type aiServer struct {
 	usage *aiUsage
 }
 
-// newAIServer is the assistant of e1, which the guard lets testUser into as staff. member
-// says whether the assistant itself finds the membership.
 func newAIServer(member bool) *aiServer {
 	server := &aiServer{model: &aiModel{text: "Hola"}, usage: &aiUsage{}}
 

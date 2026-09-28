@@ -85,7 +85,7 @@ func TestEnabledModules(t *testing.T) {
 
 func TestSubscriptionStateReadsNestCache(t *testing.T) {
 	service, cache := newTestSecurity(&fakeSecurity{}, nil)
-	// What Nest keeps inside the {"v": …} envelope, which the Redis adapter unwraps.
+
 	cache.values["establishment:est-1:subscription"] = []byte(`{"status":"TRIALING","stripeSubscriptionId":null,"currentPeriodEnd":null,"trialEndsAt":"2099-01-01T00:00:00.000Z","manualPlan":null,"manualGrantExpiresAt":null}`)
 
 	state, err := service.SubscriptionState(context.Background(), "est-1")

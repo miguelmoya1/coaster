@@ -8,7 +8,6 @@ import (
 	"api-go/internal/core/ports"
 )
 
-// ShiftService keeps the rota of an establishment.
 type ShiftService struct {
 	shifts   ports.ShiftRepository
 	security *SecurityService
@@ -20,7 +19,6 @@ func NewShiftService(shifts ports.ShiftRepository, security *SecurityService, ev
 	return &ShiftService{shifts: shifts, security: security, events: events, realtime: realtime}
 }
 
-// CreateShiftInput is a shift as the request brings it: the times are still text.
 type CreateShiftInput struct {
 	UserID    string
 	StartTime string
@@ -28,8 +26,6 @@ type CreateShiftInput struct {
 	Notes     *string
 }
 
-// List lists the establishment's shifts by start time. startDate and endDate are optional
-// (""), and they only filter when both come.
 func (s *ShiftService) List(ctx context.Context, establishmentID, startDate, endDate string) ([]domain.Shift, error) {
 	var from, to *time.Time
 
@@ -56,12 +52,10 @@ func (s *ShiftService) List(ctx context.Context, establishmentID, startDate, end
 	return s.shifts.ListByEstablishment(ctx, establishmentID, from, to)
 }
 
-// ListBetween lists the shifts that start between from and to, both included.
 func (s *ShiftService) ListBetween(ctx context.Context, establishmentID string, from, to time.Time) ([]domain.Shift, error) {
 	return s.shifts.ListByEstablishment(ctx, establishmentID, &from, &to)
 }
 
-// Create puts a live member of the establishment on the rota.
 func (s *ShiftService) Create(ctx context.Context, establishmentID string, input CreateShiftInput) error {
 	start, startOK := domain.ParseInstant(input.StartTime)
 	end, endOK := domain.ParseInstant(input.EndTime)
@@ -96,7 +90,6 @@ func (s *ShiftService) Create(ctx context.Context, establishmentID string, input
 	return nil
 }
 
-// Delete takes a shift of the establishment off the rota.
 func (s *ShiftService) Delete(ctx context.Context, establishmentID, shiftID string) error {
 	shift, err := s.shifts.FindByID(ctx, shiftID)
 	if err != nil {
@@ -114,13 +107,10 @@ func (s *ShiftService) Delete(ctx context.Context, establishmentID, shiftID stri
 	return nil
 }
 
-// shiftDeletedPayload is what the stream gets when a shift goes: just its id.
 type shiftDeletedPayload struct {
 	ID string `json:"id"`
 }
 
-// PublishRealtime sends ShiftCreated and ShiftDeleted to the establishment's stream. It
-// subscribes to the EventPublisher (shift-created.handler.ts and shift-deleted.handler.ts).
 func (s *ShiftService) PublishRealtime(_ context.Context, event ports.Event) {
 	switch e := event.(type) {
 	case domain.ShiftCreated:

@@ -11,9 +11,6 @@ import (
 	"api-go/internal/core/domain"
 )
 
-// TestMailbox is ports.Mailer for the e2e against Go (TEST_MAILBOX_URL): it posts
-// {"kind","to","token"} to the harness and waits for its answer, like TestMailbox in
-// apps/api/test/utils/e2e-setup.ts records what Nest would send.
 type TestMailbox struct {
 	url    string
 	client *http.Client

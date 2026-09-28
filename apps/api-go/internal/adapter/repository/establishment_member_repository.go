@@ -36,8 +36,6 @@ var (
 	memberEstablishmentNameQuery string
 )
 
-// EstablishmentMemberRepository keeps the "EstablishmentMember" rows and the users they
-// point to.
 type EstablishmentMemberRepository struct {
 	pool *pgxpool.Pool
 }
@@ -83,8 +81,6 @@ func (r *EstablishmentMemberRepository) FindByUser(ctx context.Context, establis
 	return &members[0], nil
 }
 
-// scanEstablishmentMember reads a row of list_active.sql or find_by_user.sql. The user's
-// fields are filled later by addUsers.
 func scanEstablishmentMember(row pgx.Row) (domain.EstablishmentMember, error) {
 	var member domain.EstablishmentMember
 	var role string
@@ -95,7 +91,6 @@ func scanEstablishmentMember(row pgx.Row) (domain.EstablishmentMember, error) {
 	return member, err
 }
 
-// establishmentMemberUser is what a member shows of their user.
 type establishmentMemberUser struct {
 	name              string
 	email             string
@@ -104,8 +99,6 @@ type establishmentMemberUser struct {
 	identities        int
 }
 
-// addUsers reads the users of the members in a second query and fills their name, photo,
-// email and whether their invitation is still pending.
 func (r *EstablishmentMemberRepository) addUsers(ctx context.Context, members []domain.EstablishmentMember) error {
 	if len(members) == 0 {
 		return nil

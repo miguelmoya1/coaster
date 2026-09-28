@@ -6,8 +6,6 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-// NewClient connects to REDIS_URL. It returns nil when the URL is empty or unusable, and
-// then nothing is cached, as in Nest.
 func NewClient(url string) *redis.Client {
 	if url == "" {
 		slog.Warn("REDIS_URL is unset: nothing is cached and rooms live in this process only")

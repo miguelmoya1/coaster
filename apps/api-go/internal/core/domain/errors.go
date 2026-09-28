@@ -2,7 +2,6 @@ package domain
 
 import "errors"
 
-// ErrorKind says what went wrong in terms the handlers turn into an HTTP status.
 type ErrorKind int
 
 const (
@@ -17,7 +16,6 @@ const (
 	KindServiceUnavailable
 )
 
-// Error is a business error: a kind and one of the codes in error_codes.go.
 type Error struct {
 	Kind ErrorKind
 	Code string
@@ -37,7 +35,6 @@ func TooManyRequests(code string) *Error    { return &Error{Kind: KindTooManyReq
 func Internal(code string) *Error           { return &Error{Kind: KindInternal, Code: code} }
 func ServiceUnavailable(code string) *Error { return &Error{Kind: KindServiceUnavailable, Code: code} }
 
-// HasCode reports whether err is a business error with the given code.
 func HasCode(err error, code string) bool {
 	var domainErr *Error
 	return errors.As(err, &domainErr) && domainErr.Code == code

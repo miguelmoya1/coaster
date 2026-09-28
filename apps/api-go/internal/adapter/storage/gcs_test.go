@@ -15,8 +15,6 @@ import (
 	"time"
 )
 
-// writeServiceAccount writes a service account key file with a new RSA key, so the client
-// signs locally without asking Google.
 func writeServiceAccount(t *testing.T) string {
 	t.Helper()
 

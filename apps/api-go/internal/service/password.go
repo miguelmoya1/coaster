@@ -11,8 +11,6 @@ import (
 	"golang.org/x/crypto/argon2"
 )
 
-// The argon2id parameters of @node-rs/argon2 in Nest, which are OWASP's: 19 MiB, two passes,
-// one lane, a 16-byte salt and a 32-byte hash.
 const (
 	argonMemoryKiB  = 19456
 	argonIterations = 2
@@ -23,12 +21,8 @@ const (
 
 var errNotAnArgonHash = errors.New("not an argon2 hash")
 
-// dummyPasswordHash is checked when there is no user, so a login takes as long whether the
-// address has an account or not.
 var dummyPasswordHash = mustHashPassword("coaster-has-no-user-here")
 
-// HashPassword returns the PHC string @node-rs/argon2 writes:
-// $argon2id$v=19$m=19456,t=2,p=1$<salt>$<hash>, in base64 without padding.
 func HashPassword(plain string) (string, error) {
 	salt := make([]byte, argonSaltBytes)
 	if _, err := rand.Read(salt); err != nil {
@@ -44,7 +38,6 @@ func HashPassword(plain string) (string, error) {
 	), nil
 }
 
-// VerifyPassword reports whether plain matches hashed. A hash it cannot read is a mismatch.
 func VerifyPassword(hashed, plain string) bool {
 	parsed, err := parseArgonHash(hashed)
 	if err != nil {
@@ -64,7 +57,6 @@ func VerifyPassword(hashed, plain string) bool {
 	return subtle.ConstantTimeCompare(key, parsed.key) == 1
 }
 
-// burnVerificationTime spends the time of a real check and answers false.
 func burnVerificationTime() bool {
 	VerifyPassword(dummyPasswordHash, "coaster-has-no-user-here-either")
 	return false
@@ -79,7 +71,6 @@ type argonHash struct {
 	key        []byte
 }
 
-// parseArgonHash reads "$argon2id$v=19$m=19456,t=2,p=1$<salt>$<hash>".
 func parseArgonHash(hashed string) (argonHash, error) {
 	parts := strings.Split(hashed, "$")
 	if len(parts) != 6 || parts[0] != "" {

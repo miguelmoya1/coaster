@@ -8,7 +8,6 @@ import (
 	"time"
 )
 
-// "password123" hashed with SHA-1, in upper case.
 const (
 	prefix = "CBFDA"
 	suffix = "C6008F9CAB4083784CBD1874F76618D2A97"

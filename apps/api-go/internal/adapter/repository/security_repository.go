@@ -23,7 +23,6 @@ var (
 	subscriptionStateQuery string
 )
 
-// SecurityRepository reads what the route checks need.
 type SecurityRepository struct {
 	pool *pgxpool.Pool
 }
@@ -104,7 +103,6 @@ func (r *SecurityRepository) SubscriptionState(ctx context.Context, establishmen
 	return &state, nil
 }
 
-// timeOrNil turns an optional column into an optional domain.Time.
 func timeOrNil(t *time.Time) *domain.Time {
 	if t == nil {
 		return nil

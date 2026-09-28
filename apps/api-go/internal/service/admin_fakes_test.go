@@ -10,9 +10,6 @@ import (
 	"api-go/internal/core/ports"
 )
 
-// In-memory fakes of the backoffice repositories, for the admin service tests.
-
-// adminAuditFake keeps the entries written and answers RecentFor with recent.
 type adminAuditFake struct {
 	recorded []domain.AdminAuditEntry
 	recent   []domain.AdminAuditLogEntry
@@ -37,7 +34,6 @@ func (f *adminAuditFake) RecentFor(_ context.Context, targetType, targetID strin
 	return f.recent[:min(limit, len(f.recent))], nil
 }
 
-// betaTesterFake is the allowlist, and the accounts that already exist.
 type betaTesterFake struct {
 	testers  []domain.BetaTester
 	accounts []domain.BetaSignUp
@@ -93,7 +89,6 @@ func (f *betaTesterFake) Remove(_ context.Context, id string) error {
 	return nil
 }
 
-// adminUserFake is the user table, and the number of active admins.
 type adminUserFake struct {
 	users   map[string]domain.AdminUserSummary
 	admins  int
@@ -137,7 +132,6 @@ func (f *adminUserFake) Update(_ context.Context, userID string, changes domain.
 	return nil
 }
 
-// adminEstablishmentFake is one establishment table with its settings, and what was written.
 type adminEstablishmentFake struct {
 	rows     map[string]domain.AdminEstablishmentRow
 	settings map[string]domain.AdminEstablishmentSettings
@@ -232,7 +226,6 @@ func (f *adminEstablishmentFake) RevokePlan(_ context.Context, establishmentID s
 	return nil
 }
 
-// adminMetricsFake remembers the windows it was asked about.
 type adminMetricsFake struct {
 	now, last7Days, last30Days time.Time
 }
@@ -242,7 +235,6 @@ func (f *adminMetricsFake) Collect(_ context.Context, now, last7Days, last30Days
 	return domain.AdminPlatformMetrics{Users: domain.AdminUserMetrics{Total: 3}}, nil
 }
 
-// adminActionsIn returns the audit entries of the AdminAction events published.
 func adminActionsIn(events []ports.Event) []domain.AdminAuditEntry {
 	var entries []domain.AdminAuditEntry
 	for _, event := range events {

@@ -29,7 +29,6 @@ import (
 	"api-go/internal/service"
 )
 
-// Cloud Run waits 10 seconds after SIGTERM before killing the container.
 const shutdownTimeout = 8 * time.Second
 
 func main() {
@@ -315,7 +314,6 @@ func run() error {
 	return server.Shutdown(shutdownCtx)
 }
 
-// cloudLoggingNames renames slog's "level" and "msg" to the names Cloud Logging reads.
 func cloudLoggingNames(groups []string, attr slog.Attr) slog.Attr {
 	if len(groups) > 0 {
 		return attr

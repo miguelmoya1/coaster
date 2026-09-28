@@ -50,7 +50,6 @@ var (
 	soldOutAmongQuery string
 )
 
-// MenuRepository reads and writes the "Menu" rows with their sections and lines.
 type MenuRepository struct {
 	pool *pgxpool.Pool
 }
@@ -199,15 +198,11 @@ func (r *MenuRepository) SoldOutAmong(ctx context.Context, productIDs []string) 
 	return soldOut, nil
 }
 
-// menuReader is what findMenu needs: the pool or a transaction.
 type menuReader interface {
 	QueryRow(ctx context.Context, sql string, args ...any) pgx.Row
 	Query(ctx context.Context, sql string, args ...any) (pgx.Rows, error)
 }
 
-// findMenu reads one menu with query (by establishment or by id), then its sections, their
-// lines and the lines' products, in three more queries. It returns nil, nil when there is
-// no menu.
 func findMenu(ctx context.Context, db menuReader, query string, arg string) (*domain.Menu, error) {
 	var menu domain.Menu
 	err := db.QueryRow(ctx, query, arg).Scan(
@@ -278,13 +273,11 @@ func findMenu(ctx context.Context, db menuReader, query string, arg string) (*do
 	return &menu, nil
 }
 
-// menuItemRow is a line read with the id of its section.
 type menuItemRow struct {
 	sectionID string
 	item      domain.MenuItem
 }
 
-// menuProducts reads the products the lines point at, by id.
 func menuProducts(ctx context.Context, db menuReader, items []menuItemRow) (map[string]*domain.MenuProduct, error) {
 	var productIDs []string
 	for _, read := range items {

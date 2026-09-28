@@ -5,8 +5,6 @@ import (
 	"testing"
 )
 
-// The cases of cash-close-totals.spec.ts (apps/api) and cash-count.spec.ts (@coaster/common).
-
 func cashCloseBeer() PricingItem {
 	return PricingItem{ID: "item-1", PriceAtPurchase: 1000, Quantity: 2, PaidQuantity: 0, TaxRate: 1000}
 }
@@ -81,8 +79,6 @@ func TestCashCloseTotalsKeepMoneyChargedOnACancelledOrder(t *testing.T) {
 	}
 }
 
-// cashCloseFixtures are orders with several rates and discounts. The totals of each one, and
-// of all of them together, are what cashCloseTotalsOf gives in Nest.
 var cashCloseFixtures = map[string]CashCloseOrder{
 	"A": {
 		Status: OrderClosed, AmountPaidCash: 3000, AmountPaidCard: 1000, TipAmount: 200,

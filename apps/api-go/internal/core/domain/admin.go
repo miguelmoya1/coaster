@@ -5,23 +5,16 @@ import (
 	"time"
 )
 
-// The backoffice of the platform (the admin module of Nest). Its JSON is the Admin* types of
-// @coaster/common.
-
-// The paging of the backoffice lists (utils/pagination.ts).
 const (
 	DefaultPageSize = 20
 	MaxPageSize     = 100
 )
 
-// PageRequest is one page of a backoffice list, already within bounds.
 type PageRequest struct {
 	Page     int
 	PageSize int
 }
 
-// NewPageRequest is resolvePage: page 1 with 20 rows unless the query says otherwise, and
-// never less than one row or more than 100.
 func NewPageRequest(page, pageSize *int) PageRequest {
 	request := PageRequest{Page: 1, PageSize: DefaultPageSize}
 	if page != nil {
@@ -33,12 +26,10 @@ func NewPageRequest(page, pageSize *int) PageRequest {
 	return request
 }
 
-// Offset is how many rows come before the page.
 func (p PageRequest) Offset() int {
 	return (p.Page - 1) * p.PageSize
 }
 
-// Paginated is Paginated<T>: one page of a list and how many rows the whole list has.
 type Paginated[T any] struct {
 	Items    []T `json:"items"`
 	Total    int `json:"total"`
@@ -46,7 +37,6 @@ type Paginated[T any] struct {
 	PageSize int `json:"pageSize"`
 }
 
-// NewPage puts a page of items together with the request that asked for it.
 func NewPage[T any](items []T, total int, request PageRequest) Paginated[T] {
 	if items == nil {
 		items = []T{}
@@ -54,9 +44,6 @@ func NewPage[T any](items []T, total int, request PageRequest) Paginated[T] {
 	return Paginated[T]{Items: items, Total: total, Page: request.Page, PageSize: request.PageSize}
 }
 
-// Audit log
-
-// AdminAuditActions are every AdminAuditAction of @coaster/common, the ones about punches too.
 var AdminAuditActions = []string{
 	AuditEstablishmentPlanGranted,
 	AuditEstablishmentPlanRevoked,
@@ -72,7 +59,6 @@ var AdminAuditActions = []string{
 	AuditTimeEntryVoided,
 }
 
-// AdminAuditTargetTypes are every AdminAuditTargetType of @coaster/common.
 var AdminAuditTargetTypes = []string{
 	AuditTargetEstablishment,
 	AuditTargetUser,
@@ -80,15 +66,12 @@ var AdminAuditTargetTypes = []string{
 	AuditTargetTimeEntry,
 }
 
-// AdminAuditFilter narrows the backoffice log. An empty field matches everything.
 type AdminAuditFilter struct {
 	TargetType string
 	TargetID   string
 	Action     string
 }
 
-// AdminAuditLogEntry is AdminAuditLogEntry: a row of AdminAuditLog with who did it.
-// Metadata is the stored JSON as it is, or nil when there is none.
 type AdminAuditLogEntry struct {
 	ID          string          `json:"id"`
 	Action      string          `json:"action"`
@@ -103,10 +86,6 @@ type AdminAuditLogEntry struct {
 	CreatedAt   Time            `json:"createdAt"`
 }
 
-// Beta testers
-
-// BetaTester is BetaTester: an address that may open an account while the beta allowlist
-// is on, and the account opened with it, if any.
 type BetaTester struct {
 	ID            string  `json:"id"`
 	Email         string  `json:"email"`
@@ -117,31 +96,23 @@ type BetaTester struct {
 	SignedUpAt    *Time   `json:"signedUpAt"`
 }
 
-// AdminBetaTesters is AdminBetaTesters: a page of the allowlist, and whether it is in force.
 type AdminBetaTesters struct {
 	Paginated[BetaTester]
 	Enforcing bool `json:"enforcing"`
 }
 
-// BetaSignUp is an account opened with one of the allowlisted addresses.
 type BetaSignUp struct {
 	UserID    string
 	Email     string
 	CreatedAt time.Time
 }
 
-// Users
-
-// AdminUserFilter narrows the list of users. An empty Search or Role and a nil Active match
-// everything.
 type AdminUserFilter struct {
 	Search string
 	Role   Role
 	Active *bool
 }
 
-// AdminUserSummary is AdminUserSummary. EstablishmentCount counts every membership the user
-// ever had, removed ones too, as Nest's _count does.
 type AdminUserSummary struct {
 	ID                 string  `json:"id"`
 	Name               string  `json:"name"`
@@ -154,7 +125,6 @@ type AdminUserSummary struct {
 	EstablishmentCount int     `json:"establishmentCount"`
 }
 
-// AdminUserMembership is AdminUserEstablishmentMembership.
 type AdminUserMembership struct {
 	EstablishmentID   string            `json:"establishmentId"`
 	EstablishmentName string            `json:"establishmentName"`
@@ -163,22 +133,17 @@ type AdminUserMembership struct {
 	JoinedAt          Time              `json:"joinedAt"`
 }
 
-// AdminUserDetail is AdminUserDetail.
 type AdminUserDetail struct {
 	User           AdminUserSummary      `json:"user"`
 	Establishments []AdminUserMembership `json:"establishments"`
 	RecentActivity []AdminAuditLogEntry  `json:"recentActivity"`
 }
 
-// AdminUserChanges is UpdateAdminUserDto: a nil field stays as it is.
 type AdminUserChanges struct {
 	Role   *Role
 	Active *bool
 }
 
-// Establishments
-
-// EstablishmentBillingSource says where an establishment's access comes from.
 type EstablishmentBillingSource string
 
 const (
@@ -187,16 +152,12 @@ const (
 	BillingSourceManual EstablishmentBillingSource = "MANUAL"
 )
 
-// AdminEstablishmentFilter narrows the list of establishments. An empty field matches
-// everything.
 type AdminEstablishmentFilter struct {
 	Search        string
 	BillingSource EstablishmentBillingSource
 	Status        SubscriptionStatus
 }
 
-// AdminBilling is the whole EstablishmentSubscription row, with who granted the manual plan
-// and why, which the workspace never sees.
 type AdminBilling struct {
 	EstablishmentSubscription
 	ManualGrantReason *string
@@ -204,8 +165,6 @@ type AdminBilling struct {
 	ManualGrantedAt   *time.Time
 }
 
-// AdminEstablishmentRow is an establishment as the backoffice reads it: its subscription
-// row, if it has one, how many members it ever had and its oldest active owner.
 type AdminEstablishmentRow struct {
 	ID          string
 	Name        string
@@ -216,7 +175,6 @@ type AdminEstablishmentRow struct {
 	Billing     *AdminBilling
 }
 
-// AdminEstablishmentSummary is AdminEstablishmentSummary.
 type AdminEstablishmentSummary struct {
 	ID            string                     `json:"id"`
 	Name          string                     `json:"name"`
@@ -231,8 +189,6 @@ type AdminEstablishmentSummary struct {
 	HasAccess     bool                       `json:"hasAccess"`
 }
 
-// Summary is AdminMapper.toEstablishmentSummary: a live manual grant wins over Stripe, and
-// without either the establishment has no access.
 func (row AdminEstablishmentRow) Summary(now time.Time) AdminEstablishmentSummary {
 	summary := AdminEstablishmentSummary{
 		ID:            row.ID,
@@ -277,9 +233,6 @@ func (row AdminEstablishmentRow) Summary(now time.Time) AdminEstablishmentSummar
 	return summary
 }
 
-// hasStripeAccess is the backoffice's reading of the Stripe columns: an active paid
-// period, a running trial, a cancelled period that has not ended or a payment Stripe is
-// still retrying (PAST_DUE), as in the route check.
 func (b *AdminBilling) hasStripeAccess(now time.Time) bool {
 	switch b.Status {
 	case SubscriptionActive:
@@ -295,9 +248,6 @@ func (b *AdminBilling) hasStripeAccess(now time.Time) bool {
 	}
 }
 
-// AdminEstablishmentSubscription is AdminEstablishmentSubscription: the subscription as
-// the workspace sees it, with the manual grant's note and grantor. manualGrant goes last,
-// as in Nest's toAdminDomain.
 type AdminEstablishmentSubscription struct {
 	ID                   string             `json:"id"`
 	EstablishmentID      string             `json:"establishmentId"`
@@ -314,7 +264,6 @@ type AdminEstablishmentSubscription struct {
 	ManualGrant          *AdminManualGrant  `json:"manualGrant"`
 }
 
-// AdminManualGrant is AdminManualGrant: the running manual plan, with the admin's note.
 type AdminManualGrant struct {
 	Plan          SubscriptionPlan `json:"plan"`
 	ExpiresAt     *Time            `json:"expiresAt"`
@@ -324,8 +273,6 @@ type AdminManualGrant struct {
 	GrantedAt     Time             `json:"grantedAt"`
 }
 
-// AdminView is EstablishmentSubscriptionMapper.toAdminDomain: View, plus the note and the
-// grantor of a running manual grant.
 func (b *AdminBilling) AdminView(grantedByName *string, now time.Time) AdminEstablishmentSubscription {
 	view := b.View(now)
 
@@ -363,8 +310,6 @@ func (b *AdminBilling) AdminView(grantedByName *string, now time.Time) AdminEsta
 	return subscription
 }
 
-// ManualPlanGrant is what an admin writes on the subscription to grant a plan by hand. A nil
-// ExpiresAt grants it with no end.
 type ManualPlanGrant struct {
 	Plan        SubscriptionPlan
 	ExpiresAt   *time.Time
@@ -372,8 +317,6 @@ type ManualPlanGrant struct {
 	GrantedByID string
 }
 
-// AdminEstablishmentSettings is EstablishmentSettings in @coaster/common, as the backoffice
-// sends it.
 type AdminEstablishmentSettings struct {
 	EstablishmentID string                `json:"establishmentId"`
 	Modules         []EstablishmentModule `json:"modules"`
@@ -382,16 +325,12 @@ type AdminEstablishmentSettings struct {
 	ConfiguredAt    *Time                 `json:"configuredAt"`
 }
 
-// Resolved is EstablishmentSettingsMapper.toDto: the stored row with its modules resolved
-// and an unknown language read as the default one.
 func (s AdminEstablishmentSettings) Resolved() AdminEstablishmentSettings {
 	s.Modules = ResolveModules(s.Modules)
 	s.Language = AsLanguage(s.Language)
 	return s
 }
 
-// DefaultAdminEstablishmentSettings is what an establishment that never saved its settings
-// runs with.
 func DefaultAdminEstablishmentSettings(establishmentID string) AdminEstablishmentSettings {
 	return AdminEstablishmentSettings{
 		EstablishmentID: establishmentID,
@@ -400,7 +339,6 @@ func DefaultAdminEstablishmentSettings(establishmentID string) AdminEstablishmen
 	}
 }
 
-// AdminEstablishmentMember is AdminEstablishmentMember.
 type AdminEstablishmentMember struct {
 	ID       string            `json:"id"`
 	UserID   string            `json:"userId"`
@@ -412,7 +350,6 @@ type AdminEstablishmentMember struct {
 	JoinedAt Time              `json:"joinedAt"`
 }
 
-// AdminEstablishmentCounters is AdminEstablishmentCounters.
 type AdminEstablishmentCounters struct {
 	Categories        int `json:"categories"`
 	Products          int `json:"products"`
@@ -422,21 +359,16 @@ type AdminEstablishmentCounters struct {
 	RevenueLast30Days int `json:"revenueLast30Days"`
 }
 
-// AdminEstablishmentDetail is AdminEstablishmentDetail.
 type AdminEstablishmentDetail struct {
 	Establishment AdminEstablishmentSummary  `json:"establishment"`
 	Settings      AdminEstablishmentSettings `json:"settings"`
-	// Subscription is an AdminEstablishmentSubscription, or FreeSubscriptionView for an
-	// establishment without a subscription row.
+
 	Subscription   any                        `json:"subscription"`
 	Members        []AdminEstablishmentMember `json:"members"`
 	Counters       AdminEstablishmentCounters `json:"counters"`
 	RecentActivity []AdminAuditLogEntry       `json:"recentActivity"`
 }
 
-// Platform metrics
-
-// AdminPlatformMetrics is AdminPlatformMetrics: the numbers of the backoffice's front page.
 type AdminPlatformMetrics struct {
 	Establishments AdminEstablishmentMetrics `json:"establishments"`
 	Users          AdminUserMetrics          `json:"users"`
@@ -470,8 +402,6 @@ type AdminActivityMetrics struct {
 	RevenueLast30Days int `json:"revenueLast30Days"`
 }
 
-// SubscriptionStatusCounts counts the subscription rows of each status, every status
-// present and in the order of SubscriptionStatus.
 type SubscriptionStatusCounts struct {
 	Inactive int `json:"INACTIVE"`
 	Trialing int `json:"TRIALING"`
@@ -482,7 +412,6 @@ type SubscriptionStatusCounts struct {
 	Expired  int `json:"EXPIRED"`
 }
 
-// Set stores the count of one status.
 func (c *SubscriptionStatusCounts) Set(status SubscriptionStatus, count int) {
 	switch status {
 	case SubscriptionInactive:
@@ -502,13 +431,11 @@ func (c *SubscriptionStatusCounts) Set(status SubscriptionStatus, count int) {
 	}
 }
 
-// SubscriptionPlanCounts counts the subscription rows of each plan.
 type SubscriptionPlanCounts struct {
 	Free int `json:"FREE"`
 	Pro  int `json:"PRO"`
 }
 
-// Set stores the count of one plan.
 func (c *SubscriptionPlanCounts) Set(plan SubscriptionPlan, count int) {
 	switch plan {
 	case PlanFree:

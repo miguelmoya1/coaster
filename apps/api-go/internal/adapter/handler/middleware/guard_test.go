@@ -14,7 +14,6 @@ import (
 	"api-go/internal/service"
 )
 
-// fakeTokens knows one token per user: "Bearer <user id>".
 type fakeTokens struct {
 	users map[string]*domain.User
 }
@@ -30,7 +29,7 @@ func (f fakeTokens) Resolve(_ context.Context, authorization string) (*service.C
 
 type fakeAccess struct {
 	roles        map[string]domain.Role
-	memberships  map[string]*domain.Membership // by user id, in establishment "e1"
+	memberships  map[string]*domain.Membership
 	modules      []domain.EstablishmentModule
 	subscription bool
 }
@@ -54,7 +53,6 @@ func (f fakeAccess) SubscriptionActive(context.Context, string) (bool, error) {
 	return f.subscription, nil
 }
 
-// fakeLimiter counts hits per key in a fixed window and remembers the last key.
 type fakeLimiter struct {
 	hits    map[string]int
 	lastKey string
@@ -80,7 +78,6 @@ func newTestGuard(access fakeAccess) (*Guard, *fakeLimiter) {
 	return NewGuard(tokens, access, limiter, 1), limiter
 }
 
-// seen is what the handler found in the context.
 type seen struct {
 	called      bool
 	user        *domain.User

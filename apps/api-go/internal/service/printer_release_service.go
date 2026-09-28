@@ -13,12 +13,8 @@ import (
 	"api-go/internal/core/domain"
 )
 
-// localPublicURL is where the downloads are advertised without PUBLIC_URL, as in Nest.
 const localPublicURL = "http://localhost:3000"
 
-// PrinterReleaseService is PrinterReleaseService of Nest: the bridge binaries of
-// public/downloads, the version the bridges update to with the checksum of each binary, and
-// the download named with a pairing code.
 type PrinterReleaseService struct {
 	downloads fs.FS
 	publicURL string
@@ -33,14 +29,10 @@ type binaryChecksum struct {
 	sum     string
 }
 
-// NewPrinterReleaseService reads the binaries from downloads (public/downloads) and
-// advertises them under publicURL (PUBLIC_URL).
 func NewPrinterReleaseService(downloads fs.FS, publicURL string) *PrinterReleaseService {
 	return &PrinterReleaseService{downloads: downloads, publicURL: publicURL, checksums: make(map[string]binaryChecksum)}
 }
 
-// Latest is GET printer/check-version: the release for the operating system. An operating
-// system that is not supported is a 400, and one whose binary is missing a 404.
 func (s *PrinterReleaseService) Latest(platform string) (domain.PrinterRelease, error) {
 	filename := domain.PrinterBinaryFor(platform)
 	if filename == "" {
@@ -64,8 +56,6 @@ func (s *PrinterReleaseService) Latest(platform string) (domain.PrinterRelease, 
 	}, nil
 }
 
-// Download is GET printer/download: the binary for the operating system, and the name it is
-// downloaded with, which carries the pairing code. The caller closes the file.
 func (s *PrinterReleaseService) Download(platform, code string) (fs.File, string, error) {
 	filename := domain.PrinterBinaryFor(platform)
 	pairingCode := domain.PairingCodeFromFilename("coaster-printer-" + strings.ToUpper(code))
@@ -91,8 +81,6 @@ func (s *PrinterReleaseService) baseURL() string {
 	return strings.TrimRight(s.publicURL, "/")
 }
 
-// checksum is the SHA-256 of the binary, in hex. It is worked out again only when the file
-// changes size or modification time; found is false when the binary is not there.
 func (s *PrinterReleaseService) checksum(filename string) (sum string, found bool, err error) {
 	binary, err := s.downloads.Open(filename)
 	if err != nil {

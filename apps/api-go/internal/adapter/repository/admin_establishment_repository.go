@@ -38,7 +38,6 @@ var (
 	revokeEstablishmentPlanQuery string
 )
 
-// AdminEstablishmentRepository reads and changes any establishment for the backoffice.
 type AdminEstablishmentRepository struct {
 	pool *pgxpool.Pool
 }
@@ -163,8 +162,6 @@ func (r *AdminEstablishmentRepository) RevokePlan(ctx context.Context, establish
 	return err
 }
 
-// scanAdminEstablishment reads a row of list.sql or find_by_id.sql: the establishment, its
-// member count, its owner and, when there is one, its subscription row.
 func scanAdminEstablishment(row pgx.Row) (domain.AdminEstablishmentRow, error) {
 	var establishment domain.AdminEstablishmentRow
 	var billing domain.AdminBilling
@@ -200,7 +197,6 @@ func scanAdminEstablishment(row pgx.Row) (domain.AdminEstablishmentRow, error) {
 	return establishment, nil
 }
 
-// scanAdminSettings reads a row of EstablishmentSettings as it is stored.
 func scanAdminSettings(row pgx.Row) (domain.AdminEstablishmentSettings, error) {
 	var settings domain.AdminEstablishmentSettings
 	var modules []string

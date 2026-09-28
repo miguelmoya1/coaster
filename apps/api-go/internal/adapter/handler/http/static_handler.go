@@ -7,8 +7,6 @@ import (
 	"strings"
 )
 
-// staticFiles serves the files under dir at /public/, like @fastify/static. There is no
-// directory listing: a folder answers Nest's 404, as does a file that does not exist.
 func staticFiles(dir string) http.Handler {
 	files := os.DirFS(dir)
 

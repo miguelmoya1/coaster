@@ -9,8 +9,6 @@ import (
 	"api-go/internal/core/domain"
 )
 
-// seedStatsOrders writes closed orders of e1 around the edges of the stats, and orders the
-// stats leave out: cancelled, open and of e2.
 func seedStatsOrders(t *testing.T) {
 	t.Helper()
 	seedTill(t)
@@ -86,9 +84,6 @@ func TestStatsRepositoryReadsSinceInAnyZone(t *testing.T) {
 	}
 }
 
-// TestStatsFromTheDatabaseMatchNest adds up what the repository reads, as StatsService does,
-// and compares it with what Nest answers for the same orders on Wednesday 17 June 2026 at
-// noon UTC.
 func TestStatsFromTheDatabaseMatchNest(t *testing.T) {
 	seedStatsOrders(t)
 	now := time.Date(2026, 6, 17, 12, 0, 0, 0, time.UTC)

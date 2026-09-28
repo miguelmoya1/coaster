@@ -76,11 +76,8 @@ var (
 	deleteOrderAdjustmentQuery string
 )
 
-// errMissingRow is what a write gets when the row it has to change is not there, where
-// Prisma throws "record not found". It ends as a 500, as in Nest.
 var errMissingRow = errors.New("the row to write is not there")
 
-// execExisting runs a write that has to find its row, like a Prisma update or delete.
 func execExisting(ctx context.Context, db querier, sql string, args ...any) error {
 	tag, err := db.Exec(ctx, sql, args...)
 	if err != nil {
@@ -103,16 +100,11 @@ func execWhileOpen(ctx context.Context, db querier, sql string, args ...any) err
 	return nil
 }
 
-// orderDB is what the pool and a transaction have in common, so an order can be read with
-// its lines in either.
 type orderDB interface {
 	querier
 	Query(ctx context.Context, sql string, args ...any) (pgx.Rows, error)
 }
 
-// OrderRepository reads and writes "Order", with its "OrderItem" and "OrderAdjustment" rows.
-// Every write that touches more than one row is one of the nine transactions of
-// orders.write.repository.ts.
 type OrderRepository struct {
 	pool *pgxpool.Pool
 }
@@ -265,9 +257,6 @@ func (r *OrderRepository) BulkUpdate(ctx context.Context, orderID string, update
 	return updated, err
 }
 
-// updateOrderItem applies one line of a bulk update. A line that is not there, or is of
-// another order, is skipped. The line is read again for each update, so two updates of the
-// same line in one request build on each other, as in Nest.
 func updateOrderItem(ctx context.Context, tx pgx.Tx, orderID string, update domain.OrderItemUpdate, at time.Time) error {
 	var item domain.OrderItemRow
 	err := tx.QueryRow(ctx, findOrderItemQuery, update.ItemID).Scan(
@@ -478,10 +467,6 @@ func (r *OrderRepository) Merge(ctx context.Context, merge domain.OrderMerge) (d
 	return merged, err
 }
 
-// freezeOrderDiscounts turns the order's percentage discounts on the whole order into the
-// fixed amount they are worth now, so merging does not change what they take off. With
-// moveTo, all its discounts move to that order. It returns the order as it was before; an
-// order that is not there counts as one with nothing paid, as in Nest.
 func freezeOrderDiscounts(ctx context.Context, tx pgx.Tx, orderID string, moveTo *string) (domain.OrderRow, error) {
 	orders, err := queryOrders(ctx, tx, findOrdersByIDsQuery, []string{orderID})
 	if err != nil || len(orders) == 0 {
@@ -571,8 +556,6 @@ func (r *OrderRepository) Delete(ctx context.Context, orderID string) error {
 	return execExisting(ctx, r.pool, deleteOrderQuery, orderID)
 }
 
-// UpdateNotes writes only the notes that change. Without any, nothing is written (Prisma
-// does not touch updatedAt for an empty update either).
 func (r *OrderRepository) UpdateNotes(ctx context.Context, orderID string, changes domain.OrderNotesChanges) (domain.OrderRow, error) {
 	if changes.ChangeNotes || changes.ChangeTicketNotes {
 		err := execExisting(ctx, r.pool, updateOrderNotesQuery, orderID,
@@ -610,8 +593,6 @@ func (r *OrderRepository) RemoveAdjustment(ctx context.Context, orderID, adjustm
 	return loadOrder(ctx, r.pool, orderID)
 }
 
-// insertOrderItems adds the lines to the order. They all get the same createdAt, like the
-// lines Prisma creates in one go.
 func insertOrderItems(ctx context.Context, tx pgx.Tx, orderID string, items []domain.NewOrderItem, at time.Time) error {
 	for _, item := range items {
 		_, err := tx.Exec(ctx, insertOrderItemQuery, uuid.NewV4().String(), orderID, item.ProductID, item.Quantity,
@@ -623,14 +604,12 @@ func insertOrderItems(ctx context.Context, tx pgx.Tx, orderID string, items []do
 	return nil
 }
 
-// insertOrderAdjustment adds a discount to the order, in the pool or in a transaction.
 func insertOrderAdjustment(ctx context.Context, db querier, orderID string, adjustment domain.NewOrderAdjustment, at time.Time) error {
 	_, err := db.Exec(ctx, insertOrderAdjustmentQuery, uuid.NewV4().String(), orderID, adjustment.Target,
 		adjustment.ItemID, adjustment.Type, adjustment.Value, adjustment.Reason, at)
 	return err
 }
 
-// loadOrder reads one order with its lines and discounts. The order has to be there.
 func loadOrder(ctx context.Context, db orderDB, orderID string) (domain.OrderRow, error) {
 	orders, err := queryOrders(ctx, db, findOrdersByIDsQuery, []string{orderID})
 	if err != nil {
@@ -642,8 +621,6 @@ func loadOrder(ctx context.Context, db orderDB, orderID string) (domain.OrderRow
 	return orders[0], nil
 }
 
-// queryOrders runs a query that returns orders (the columns of scanOrder) and fills in their
-// lines and discounts with one more query each.
 func queryOrders(ctx context.Context, db orderDB, sql string, args ...any) ([]domain.OrderRow, error) {
 	rows, err := db.Query(ctx, sql, args...)
 	if err != nil {

@@ -98,7 +98,6 @@ func TestBetaTesterServiceRemove(t *testing.T) {
 	}
 }
 
-// isAdminError reports whether err is the business error of kind with code.
 func isAdminError(err error, kind domain.ErrorKind, code string) bool {
 	domainErr, ok := err.(*domain.Error)
 	return ok && domainErr.Kind == kind && domainErr.Code == code

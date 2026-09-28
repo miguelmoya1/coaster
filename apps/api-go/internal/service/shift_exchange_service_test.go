@@ -159,7 +159,6 @@ func TestShiftExchangeServiceListPendingFromTheEstablishmentsMidnight(t *testing
 		t.Fatal(err)
 	}
 
-	// 10:00 UTC on 27 September is 12:00 in Madrid, whose day started at 22:00 UTC the day before.
 	if want := time.Date(2026, 9, 26, 22, 0, 0, 0, time.UTC); !exchanges.since.Equal(want) {
 		t.Fatalf("since = %s, want %s", exchanges.since.UTC(), want)
 	}

@@ -40,8 +40,6 @@ var (
 	updateCashCloseTotalsQuery string
 )
 
-// CashCloseRepository keeps the closes of the till in "CashClose" and reads the orders they
-// count from "Order", "OrderItem" and "OrderAdjustment".
 type CashCloseRepository struct {
 	pool *pgxpool.Pool
 }
@@ -172,7 +170,6 @@ func (r *CashCloseRepository) Close(ctx context.Context, input domain.NewCashClo
 	return closed, nil
 }
 
-// scanCashClose reads a row of list_recent.sql or find_by_id.sql.
 func scanCashClose(row pgx.Row) (domain.CashClose, error) {
 	var c domain.CashClose
 	err := row.Scan(
@@ -183,25 +180,20 @@ func scanCashClose(row pgx.Row) (domain.CashClose, error) {
 	return c, err
 }
 
-// cashCloseReader is what findCashCloseOrders needs: the pool or a transaction.
 type cashCloseReader interface {
 	Query(ctx context.Context, sql string, args ...any) (pgx.Rows, error)
 }
 
-// cashCloseItemRow is a line of order_items_of.sql, with the order it belongs to.
 type cashCloseItemRow struct {
 	orderID string
 	item    domain.PricingItem
 }
 
-// cashCloseAdjustmentRow is a discount of order_adjustments_of.sql, with its order.
 type cashCloseAdjustmentRow struct {
 	orderID    string
 	adjustment domain.PricingAdjustment
 }
 
-// findCashCloseOrders reads the orders of query, then their lines and their discounts, in two
-// more queries.
 func findCashCloseOrders(ctx context.Context, db cashCloseReader, query string, arg string) ([]domain.CashCloseOrder, error) {
 	rows, err := db.Query(ctx, query, arg)
 	if err != nil {

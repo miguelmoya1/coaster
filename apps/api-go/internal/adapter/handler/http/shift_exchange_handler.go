@@ -15,7 +15,6 @@ type ShiftExchangeService interface {
 	Delete(ctx context.Context, establishmentID, exchangeID, userID string) error
 }
 
-// ShiftExchangeHandler is shift-exchanges.controller.ts: offers to hand a shift over.
 type ShiftExchangeHandler struct {
 	exchanges ShiftExchangeService
 }
@@ -35,7 +34,6 @@ func (h *ShiftExchangeHandler) RegisterRoutes(mux *http.ServeMux, guard *middlew
 		middleware.Permissions(domain.PermissionDeleteExchange))
 }
 
-// createShiftExchangeRequest is CreateShiftExchangeDto: without a target, anybody can take it.
 type createShiftExchangeRequest struct {
 	TargetID *string `json:"targetId" validate:"omitnil,uuid4" msg:"uuid4=INVALID_TYPE,type=INVALID_TYPE"`
 }

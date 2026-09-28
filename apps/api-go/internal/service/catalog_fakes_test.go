@@ -11,9 +11,6 @@ import (
 	"api-go/internal/core/ports"
 )
 
-// In-memory fakes for the catalog services (categories, products, catalogue, menu, media).
-
-// catalogEvents records every event published.
 type catalogEvents struct {
 	mu     sync.Mutex
 	events []ports.Event
@@ -25,7 +22,6 @@ func (p *catalogEvents) Publish(_ context.Context, event ports.Event) {
 	p.events = append(p.events, event)
 }
 
-// fakeCategoryRepo keeps categories in a slice. Deleted ones stay with deleted = true.
 type fakeCategoryRepo struct {
 	categories []domain.Category
 	deleted    map[string]bool
@@ -87,11 +83,10 @@ func (r *fakeCategoryRepo) Delete(_ context.Context, establishmentID, categoryID
 	return false, r.err
 }
 
-// fakeProductRepo keeps products by id and knows which establishment each category is in.
 type fakeProductRepo struct {
 	products           map[string]domain.ProductRow
 	deleted            map[string]bool
-	categoryOf         map[string]string // category id → establishment id
+	categoryOf         map[string]string
 	updatedWith        domain.ProductChanges
 	created            domain.NewProduct
 	categoryTaxRateFor map[string]int
@@ -166,10 +161,9 @@ func (r *fakeProductRepo) Delete(_ context.Context, productID string) error {
 	return nil
 }
 
-// fakeCatalogueRepo answers the import's queries from its fields and records the writes.
 type fakeCatalogueRepo struct {
 	language string
-	// categories are the categories found by name; created ones are added to them.
+
 	categories        []domain.CatalogueCategoryName
 	productNames      []domain.CatalogueProductName
 	createdCategories []domain.NewCatalogueCategory
@@ -213,9 +207,8 @@ func (r *fakeCatalogueRepo) CreateProducts(_ context.Context, products []domain.
 	return nil
 }
 
-// fakeMenuRepo keeps one menu per establishment.
 type fakeMenuRepo struct {
-	menus         map[string]*domain.Menu // by establishment id
+	menus         map[string]*domain.Menu
 	establishment *domain.MenuEstablishment
 	takenSlugs    []string
 	ownedProducts []string
@@ -298,7 +291,6 @@ func (r *fakeMenuRepo) SoldOutAmong(context.Context, []string) (map[string]bool,
 	return r.soldOut, nil
 }
 
-// fakeFileStorage signs with a fixed URL and records what it signed.
 type fakeFileStorage struct {
 	paths       []string
 	contentType string
@@ -317,7 +309,6 @@ func (s *fakeFileStorage) PublicURL(objectPath string) string {
 	return "https://storage.googleapis.com/imagenes-clientes-app/" + objectPath
 }
 
-// catalogRealtimeFake records what was sent to the streams.
 type catalogRealtimeFake struct {
 	sent []catalogRealtimeMessage
 }
@@ -341,7 +332,6 @@ func catalogIntOr(value *int, fallback int) int {
 	return *value
 }
 
-// isCatalogError reports whether err is a business error of that kind and code.
 func isCatalogError(err error, kind domain.ErrorKind, code string) bool {
 	var domainErr *domain.Error
 	return errors.As(err, &domainErr) && domainErr.Kind == kind && domainErr.Code == code

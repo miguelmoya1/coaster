@@ -28,7 +28,6 @@ var (
 	softDeleteProductQuery string
 )
 
-// ProductRepository reads and writes the "Product" rows.
 type ProductRepository struct {
 	pool *pgxpool.Pool
 }
@@ -94,7 +93,6 @@ func (r *ProductRepository) Delete(ctx context.Context, productID string) error 
 	return err
 }
 
-// insertProduct creates a product in the pool or in a transaction.
 func insertProduct(ctx context.Context, db querier, product domain.NewProduct) (domain.ProductRow, error) {
 	allergens := product.Allergens
 	if allergens == nil {
@@ -107,8 +105,6 @@ func insertProduct(ctx context.Context, db querier, product domain.NewProduct) (
 	))
 }
 
-// scanProductRow reads a row of insert.sql, update.sql or adjust_stock.sql, which come
-// without the category's tax rate.
 func scanProductRow(row pgx.Row) (domain.ProductRow, error) {
 	var product domain.ProductRow
 	err := row.Scan(

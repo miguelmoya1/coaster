@@ -11,7 +11,6 @@ import (
 	"github.com/testcontainers/testcontainers-go/wait"
 )
 
-// testClient talks to the Redis that TestMain starts, the same image as compose.yaml.
 var testClient *redis.Client
 
 func TestMain(m *testing.M) {
@@ -47,7 +46,6 @@ func run(m *testing.M) int {
 	return m.Run()
 }
 
-// resetRedis empties Redis, so each test starts clean.
 func resetRedis(t *testing.T) {
 	t.Helper()
 

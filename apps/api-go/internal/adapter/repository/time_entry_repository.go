@@ -42,8 +42,6 @@ var (
 	insertTimeEntryAuditQuery string
 )
 
-// TimeEntryRepository keeps the punches in "TimeEntry", an append-only chain per
-// establishment: database triggers refuse any UPDATE or DELETE.
 type TimeEntryRepository struct {
 	pool *pgxpool.Pool
 }
@@ -52,7 +50,6 @@ func NewTimeEntryRepository(pool *pgxpool.Pool) *TimeEntryRepository {
 	return &TimeEntryRepository{pool: pool}
 }
 
-// scanTimeEntry reads a row of the time entry queries, which all select the same columns.
 func scanTimeEntry(row pgx.Row) (domain.TimeEntryRow, error) {
 	var entry domain.TimeEntryRow
 	var entryType, action, source string
@@ -131,7 +128,6 @@ func (r *TimeEntryRepository) FindCurrentByID(ctx context.Context, establishment
 	return &entry, nil
 }
 
-// chainHead is the last row of a chain, which the next one links to.
 type chainHead struct {
 	sequence int64
 	hash     string
@@ -144,7 +140,6 @@ func (r *TimeEntryRepository) Append(ctx context.Context, input domain.AppendTim
 	}
 	defer tx.Rollback(ctx)
 
-	// Two punches of the same establishment must not both link to the same last row.
 	if _, err := tx.Exec(ctx, lockTimeEntryChainQuery, input.EstablishmentID); err != nil {
 		return nil, err
 	}

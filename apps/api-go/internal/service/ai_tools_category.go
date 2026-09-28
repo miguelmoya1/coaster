@@ -8,8 +8,6 @@ import (
 	"api-go/internal/core/ports"
 )
 
-// The inputs of the category tools (category.tools.ts).
-
 type createCategoryInput struct {
 	Name string  `json:"name" jsonschema_description:"Name of the new category."`
 	Icon *string `json:"icon,omitempty" jsonschema_description:"Optional Material Symbols icon name, e.g. \"local_bar\", \"restaurant\", \"cake\"."`
@@ -26,7 +24,6 @@ type deleteCategoryInput struct {
 	Confirmed  bool   `json:"confirmed" jsonschema_description:"Set to true only after the user has explicitly confirmed the deletion in a previous turn."`
 }
 
-// aiCategory is a category as listCategories shows it.
 type aiCategory struct {
 	ID   string  `json:"id"`
 	Name string  `json:"name"`

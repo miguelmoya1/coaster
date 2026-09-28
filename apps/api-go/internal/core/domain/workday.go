@@ -4,10 +4,9 @@ import (
 	"math"
 	"slices"
 	"time"
-	_ "time/tzdata" // the establishment's zone must load even where the system has no zone files
+	_ "time/tzdata"
 )
 
-// EstablishmentTimeZone is the zone every establishment's workday is counted in.
 const EstablishmentTimeZone = "Europe/Madrid"
 
 var establishmentLocation = mustLoadLocation(EstablishmentTimeZone)
@@ -24,10 +23,8 @@ func InEstablishmentZone(instant time.Time) time.Time {
 	return instant.In(establishmentLocation)
 }
 
-// workdayLayout is how a workday is written: "2026-08-08".
 const workdayLayout = "2006-01-02"
 
-// discrepancyToleranceMinutes is how far a day can stray from the rota before it counts.
 const discrepancyToleranceMinutes = 10
 
 var clockTransitions = map[ClockState]map[TimeEntryType]ClockState{
@@ -36,14 +33,11 @@ var clockTransitions = map[ClockState]map[TimeEntryType]ClockState{
 	ClockOnBreak: {TimeEntryBreakEnd: ClockIn, TimeEntryClockOut: ClockOut},
 }
 
-// NextClockState is where a punch takes the worker, and false when it makes no sense there.
 func NextClockState(state ClockState, punch TimeEntryType) (ClockState, bool) {
 	next, ok := clockTransitions[state][punch]
 	return next, ok
 }
 
-// ReplayClockState plays the punches from the start of a day, and false as soon as one of
-// them does not fit.
 func ReplayClockState(punches []TimeEntryType) (ClockState, bool) {
 	state := ClockOut
 	for _, punch := range punches {
@@ -56,54 +50,45 @@ func ReplayClockState(punches []TimeEntryType) (ClockState, bool) {
 	return state, true
 }
 
-// WorkdayDateOf is the date the establishment is on at that instant ("2026-08-09").
 func WorkdayDateOf(instant time.Time) string {
 	return instant.In(establishmentLocation).Format(workdayLayout)
 }
 
-// StartOfEstablishmentDay is midnight in the establishment's zone on the day of instant.
 func StartOfEstablishmentDay(instant time.Time) time.Time {
 	local := instant.In(establishmentLocation)
 	return time.Date(local.Year(), local.Month(), local.Day(), 0, 0, 0, 0, establishmentLocation)
 }
 
-// FormatWorkdayDate writes a workday date (a UTC midnight) as "2026-08-08".
 func FormatWorkdayDate(date time.Time) string {
 	return date.UTC().Format(workdayLayout)
 }
 
-// ParseWorkdayDate reads "2026-08-08" as that day's UTC midnight, the way it is stored.
 func ParseWorkdayDate(date string) (time.Time, bool) {
 	parsed, err := time.Parse(workdayLayout, date)
 	return parsed, err == nil
 }
 
-// ToWorkdayDate is the workday (a UTC midnight) the establishment is on at that instant.
 func ToWorkdayDate(instant time.Time) time.Time {
 	date, _ := ParseWorkdayDate(WorkdayDateOf(instant))
 	return date
 }
 
-// ShiftWorkdayDate moves a workday date by a number of days.
 func ShiftWorkdayDate(date time.Time, days int) time.Time {
 	return date.AddDate(0, 0, days)
 }
 
-// ClockMark is a punch as the workday rules see it.
 type ClockMark struct {
 	Type        TimeEntryType
 	OccurredAt  time.Time
 	WorkdayDate string
 }
 
-// WorkdayTotals is where a day stands and how long was worked and rested.
 type WorkdayTotals struct {
 	State         ClockState
 	WorkedMinutes int
 	BreakMinutes  int
 }
 
-// PlannedShift is what the rota says about a day.
 type PlannedShift struct {
 	StartsAt time.Time
 	EndsAt   time.Time
@@ -116,13 +101,10 @@ func sortedByOccurredAt(marks []ClockMark) []ClockMark {
 	return sorted
 }
 
-// roundMinutes is Math.round(ms / 60000).
 func roundMinutes(d time.Duration) int {
 	return int(math.Floor(float64(d.Milliseconds())/60_000 + 0.5))
 }
 
-// SummariseWorkday adds up a day's marks. A day still open counts up to now. It returns
-// false when the marks do not make a valid day.
 func SummariseWorkday(marks []ClockMark, now time.Time) (WorkdayTotals, bool) {
 	state := ClockOut
 	var since *time.Time
@@ -169,19 +151,16 @@ func stateOf(marks []ClockMark) (ClockState, bool) {
 	return ReplayClockState(punches)
 }
 
-// IsValidSequence reports whether the marks, in time order, make a valid day.
 func IsValidSequence(marks []ClockMark) bool {
 	_, ok := stateOf(marks)
 	return ok
 }
 
-// IsDayOpen reports whether the marks leave the worker in (or on a break).
 func IsDayOpen(marks []ClockMark) bool {
 	state, ok := stateOf(marks)
 	return ok && state != ClockOut
 }
 
-// daysIn lists the workdays of the marks, latest first.
 func daysIn(marks []ClockMark) []string {
 	var days []string
 	for _, mark := range marks {
@@ -204,7 +183,6 @@ func marksOfDay(marks []ClockMark, day string) []ClockMark {
 	return found
 }
 
-// dayStillOpenAt is the latest day still open whose marks all came before occurredAt.
 func dayStillOpenAt(marks []ClockMark, occurredAt time.Time) (string, bool) {
 	for _, day := range daysIn(marks) {
 		ofDay := marksOfDay(marks, day)
@@ -217,8 +195,6 @@ func dayStillOpenAt(marks []ClockMark, occurredAt time.Time) (string, bool) {
 	return "", false
 }
 
-// PlanMark says which workday a new punch belongs to: the day still open, or the
-// establishment's date of the punch. It returns false when the punch does not fit that day.
 func PlanMark(punch TimeEntryType, occurredAt time.Time, candidates []ClockMark) (time.Time, bool) {
 	day, open := dayStillOpenAt(candidates, occurredAt)
 	if !open {
@@ -233,7 +209,6 @@ func PlanMark(punch TimeEntryType, occurredAt time.Time, candidates []ClockMark)
 	return ParseWorkdayDate(day)
 }
 
-// ToClockMarks turns punches into marks, leaving out the voided ones.
 func ToClockMarks(entries []TimeEntry) []ClockMark {
 	var marks []ClockMark
 	for _, entry := range entries {
@@ -249,8 +224,6 @@ func minutesBetween(from, to time.Time) float64 {
 	return float64(to.Sub(from).Milliseconds()) / 60_000
 }
 
-// FindDiscrepancies compares a day's marks with the rota. planned is nil when nothing was
-// on the rota.
 func FindDiscrepancies(marks []ClockMark, planned *PlannedShift, workedMinutes int) []WorkdayDiscrepancy {
 	worked := sortedByOccurredAt(marks)
 	found := []WorkdayDiscrepancy{}

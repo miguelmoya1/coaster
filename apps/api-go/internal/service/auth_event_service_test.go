@@ -21,7 +21,6 @@ func TestRecordWritesTheEventDown(t *testing.T) {
 func TestRecordSwallowsADatabaseThatWillNotTakeIt(t *testing.T) {
 	repo := &fakeAuthEvents{fail: true}
 
-	// It must not panic nor return anything: the login already happened.
 	NewAuthEventService(repo).Record(context.Background(), domain.AuthEventOccurred{Type: domain.AuthEventLoggedOut})
 }
 

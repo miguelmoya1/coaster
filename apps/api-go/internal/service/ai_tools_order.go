@@ -9,10 +9,7 @@ import (
 	"api-go/internal/core/ports"
 )
 
-// isoDate is ISO_DATE of order.tools.ts.
 var isoDate = regexp.MustCompile(`^\d{4}-\d{2}-\d{2}$`)
-
-// The inputs of the order tools (order.tools.ts).
 
 type getOrderDetailsInput struct {
 	OrderID string `json:"orderId" jsonschema_description:"The UUID of the order to inspect."`
@@ -104,7 +101,6 @@ type deleteOrderInput struct {
 	Confirmed bool   `json:"confirmed" jsonschema_description:"Set to true only after the user has explicitly confirmed the deletion in a previous turn."`
 }
 
-// aiOrder is summarizeOrder: an order as the model reads it, with money in euros.
 type aiOrder struct {
 	ID      string             `json:"id"`
 	Table   string             `json:"table"`
@@ -122,7 +118,6 @@ type aiOrderItem struct {
 	Paid     int    `json:"paid"`
 }
 
-// aiOrderDetails is what getOrderDetails adds to the summary.
 type aiOrderDetails struct {
 	aiOrder
 	Tip         float64             `json:"tip"`
@@ -131,7 +126,6 @@ type aiOrderDetails struct {
 	Adjustments []aiOrderAdjustment `json:"adjustments"`
 }
 
-// aiOrderAdjustment is a discount: a percentage stays as it is, an amount goes in euros.
 type aiOrderAdjustment struct {
 	AdjustmentID string                  `json:"adjustmentId"`
 	Target       domain.AdjustmentTarget `json:"target"`
@@ -140,14 +134,12 @@ type aiOrderAdjustment struct {
 	Reason       *string                 `json:"reason,omitempty"`
 }
 
-// aiOrdersOfDay is what getOrdersByDate answers.
 type aiOrdersOfDay struct {
 	Count   int       `json:"count"`
 	Revenue float64   `json:"revenue"`
 	Orders  []aiOrder `json:"orders"`
 }
 
-// summarizeOrder names the table and the products from the snapshot of the turn.
 func (tc *aiToolContext) summarizeOrder(order domain.Order) aiOrder {
 	items := make([]aiOrderItem, 0, len(order.Items))
 	for _, item := range order.Items {
@@ -178,7 +170,6 @@ func (tc *aiToolContext) summarizeOrders(orders []domain.Order) []aiOrder {
 	return summaries
 }
 
-// tableNameOfOpenOrder is the table of an open order of the snapshot, for the confirmations.
 func (tc *aiToolContext) tableNameOfOpenOrder(orderID string) string {
 	for _, order := range tc.openOrders {
 		if order.ID == orderID {
@@ -188,7 +179,6 @@ func (tc *aiToolContext) tableNameOfOpenOrder(orderID string) string {
 	return "No table"
 }
 
-// unknownProductIDs are the products of the lines that are not in the snapshot.
 func (tc *aiToolContext) unknownProductIDs(lines []OrderLineInput) []string {
 	var unknown []string
 	for _, line := range lines {

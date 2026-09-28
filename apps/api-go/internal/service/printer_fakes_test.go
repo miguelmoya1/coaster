@@ -10,10 +10,6 @@ import (
 	"api-go/internal/core/domain"
 )
 
-// In-memory fakes of the ports of the printer module. The long poll reads the job queue from
-// its own goroutine while the tests write to it, so the fakes lock.
-
-// fakePrinterConfigRepo is the "PrinterConfig" table.
 type fakePrinterConfigRepo struct {
 	mu      sync.Mutex
 	configs map[string]*domain.PrinterConfig
@@ -87,7 +83,6 @@ func (f *fakePrinterConfigRepo) TouchLastSeen(_ context.Context, establishmentID
 	return nil
 }
 
-// fakePrinterPairingRepo is the "PrinterPairing" table.
 type fakePrinterPairingRepo struct {
 	pairings map[string]*fakePrinterPairing
 }
@@ -116,7 +111,6 @@ func (f *fakePrinterPairingRepo) Redeem(_ context.Context, code string, now time
 	return pairing.establishmentID, nil
 }
 
-// fakePrintJobRepo is the "PrintJob" table.
 type fakePrintJobRepo struct {
 	mu           sync.Mutex
 	jobs         []*domain.PrintJob
@@ -129,7 +123,6 @@ func newFakePrintJobRepo() *fakePrintJobRepo {
 	return &fakePrintJobRepo{tickets: make(map[string]domain.PrintTicket)}
 }
 
-// add queues a job of an establishment straight into the table.
 func (f *fakePrintJobRepo) add(id, establishmentID string, status domain.PrintJobStatus, ticket domain.PrintTicket) {
 	f.mu.Lock()
 	defer f.mu.Unlock()

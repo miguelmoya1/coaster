@@ -8,9 +8,6 @@ import (
 	"api-go/internal/core/domain"
 )
 
-// seedMembers leaves e1 with Olga (owner), Marta (manager, signed in with a password),
-// Sergio (staff, signed in with Google), Paula (inactive) and Rita (removed), and e2 with
-// Olga alone.
 func seedMembers(t *testing.T) {
 	t.Helper()
 	resetDB(t)

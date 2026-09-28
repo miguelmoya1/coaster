@@ -8,12 +8,8 @@ import (
 	"cloud.google.com/go/storage"
 )
 
-// defaultBucket is the bucket Nest uses when MEDIA_BUCKET is not set.
 const defaultBucket = "imagenes-clientes-app"
 
-// GCS signs uploads to a Google Cloud Storage bucket. Like Nest's Storage, it looks for its
-// credentials (GOOGLE_APPLICATION_CREDENTIALS, or the service account of Cloud Run) the
-// first time it signs, so the API starts without them and only the upload URLs fail.
 type GCS struct {
 	bucket string
 
@@ -21,7 +17,6 @@ type GCS struct {
 	client *storage.Client
 }
 
-// NewGCS signs for bucket, or for Nest's default bucket when it is "".
 func NewGCS(bucket string) *GCS {
 	if bucket == "" {
 		bucket = defaultBucket
@@ -29,7 +24,6 @@ func NewGCS(bucket string) *GCS {
 	return &GCS{bucket: bucket}
 }
 
-// Close closes the client, if it was opened.
 func (g *GCS) Close() error {
 	g.mu.Lock()
 	defer g.mu.Unlock()
@@ -64,8 +58,6 @@ func (g *GCS) PublicURL(objectPath string) string {
 	return "https://storage.googleapis.com/" + g.bucket + "/" + objectPath
 }
 
-// openClient opens the client the first time it is needed. If that fails, the next call
-// tries again.
 func (g *GCS) openClient(ctx context.Context) (*storage.Client, error) {
 	g.mu.Lock()
 	defer g.mu.Unlock()

@@ -14,7 +14,6 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-// validate checks request bodies. How to describe one is in «Convenciones de P0» of MIGRACION.md.
 var validate = newValidator()
 
 func newValidator() *validator.Validate {
@@ -39,8 +38,6 @@ func newValidator() *validator.Validate {
 	return v
 }
 
-// isPercentageWithinRange is PercentageWithinRange of AddOrderAdjustmentDto: when the
-// struct's Type is PERCENTAGE, the value is at most 100.
 func isPercentageWithinRange(fl validator.FieldLevel) bool {
 	adjustmentType := fl.Parent().FieldByName("Type")
 	if !adjustmentType.IsValid() || adjustmentType.String() != "PERCENTAGE" {
@@ -49,11 +46,8 @@ func isPercentageWithinRange(fl validator.FieldLevel) bool {
 	return fl.Field().Int() <= 100
 }
 
-// iso8601Pattern accepts the forms of ISO 8601 the web app sends: a date, or a date and time
-// with optional seconds, fraction and offset.
 var iso8601Pattern = regexp.MustCompile(`^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2})(?::(\d{2})(?:[.,]\d+)?)?(?:Z|[+-]\d{2}(?::?\d{2})?)?)?$`)
 
-// isISO8601 is @IsISO8601({ strict: true }): the format, and a date that exists.
 func isISO8601(fl validator.FieldLevel) bool {
 	value := fl.Field().String()
 
@@ -84,15 +78,11 @@ func isISO8601(fl validator.FieldLevel) bool {
 	return true
 }
 
-// isOneOfIgnoringCase is oneof for a value trimmed and in lower case first, like a DTO with
-// @Transform(trim and toLowerCase) before its @IsIn. The allowed values go in lower case.
 func isOneOfIgnoringCase(fl validator.FieldLevel) bool {
 	value := strings.ToLower(strings.TrimSpace(fl.Field().String()))
 	return slices.Contains(strings.Fields(fl.Param()), value)
 }
 
-// validateBody checks raw (the parsed body) against dst's struct, then fills dst and runs the
-// validate rules. Unknown properties come first, as in Nest.
 func validateBody(body []byte, raw any, dst any) error {
 	structType := reflect.TypeOf(dst).Elem()
 
@@ -132,9 +122,6 @@ func validateBody(body []byte, raw any, dst any) error {
 	return nil
 }
 
-// bodyCheck walks the parsed body next to the struct and collects what class-validator would
-// reject before looking at the rules: unknown properties, and values that are missing or of
-// the wrong type.
 type bodyCheck struct {
 	unknown   []string
 	wrongType []string
@@ -181,7 +168,6 @@ func (c *bodyCheck) value(field reflect.StructField, fieldType reflect.Type, val
 		fieldType = fieldType.Elem()
 	}
 
-	// Types that read their own JSON (domain.Time, for example) are left to json.Unmarshal.
 	if reflect.PointerTo(fieldType).Implements(reflect.TypeFor[json.Unmarshaler]()) {
 		return
 	}
@@ -231,7 +217,6 @@ func (c *bodyCheck) value(field reflect.StructField, fieldType reflect.Type, val
 	}
 }
 
-// matchesKind reports whether a parsed JSON value fits a Go type of a basic kind.
 func matchesKind(goType reflect.Type, value any) bool {
 	switch goType.Kind() {
 	case reflect.String:
@@ -258,7 +243,6 @@ func matchesKind(goType reflect.Type, value any) bool {
 	}
 }
 
-// typeMessage is class-validator's text for a value that is not of the field's type.
 func typeMessage(goType reflect.Type, name string) string {
 	for goType.Kind() == reflect.Pointer {
 		goType = goType.Elem()
@@ -283,10 +267,8 @@ func typeMessage(goType reflect.Type, name string) string {
 	}
 }
 
-// ruleMessage turns a failed validate rule into class-validator's text, with the path of
-// the field in front when it is nested ("items.0.quantity must not be less than 1").
 func ruleMessage(root reflect.Type, fieldError validator.FieldError) string {
-	// Namespace is "Request.items[0].quantity"; the first part is the struct's name.
+
 	namespace := fieldError.Namespace()
 	if dot := strings.Index(namespace, "."); dot >= 0 {
 		namespace = namespace[dot+1:]
@@ -295,7 +277,6 @@ func ruleMessage(root reflect.Type, fieldError validator.FieldError) string {
 	parts := strings.Split(namespace, ".")
 	last := parts[len(parts)-1]
 
-	// A rule after "dive" fails on an element: "modules[1]".
 	each := strings.HasSuffix(last, "]")
 	name, _, _ := strings.Cut(last, "[")
 
@@ -317,7 +298,6 @@ func ruleMessage(root reflect.Type, fieldError validator.FieldError) string {
 	return prefix.String() + text
 }
 
-// findField follows the path of a namespace ("items[0]", "quantity") to its struct field.
 func findField(root reflect.Type, parts []string) (reflect.StructField, bool) {
 	current := root
 
@@ -344,7 +324,6 @@ func findField(root reflect.Type, parts []string) (reflect.StructField, bool) {
 	return field, true
 }
 
-// defaultRuleMessage is class-validator's default text for each rule.
 func defaultRuleMessage(fieldError validator.FieldError, name string, each bool) string {
 	subject := name
 	if each {
@@ -401,7 +380,6 @@ func defaultRuleMessage(fieldError validator.FieldError, name string, each bool)
 	}
 }
 
-// message returns the text msg gives the rule, or fallback.
 func message(field reflect.StructField, rule, fallback string) string {
 	for entry := range strings.SplitSeq(field.Tag.Get("msg"), ",") {
 		key, value, found := strings.Cut(entry, "=")
@@ -420,7 +398,6 @@ func isOptional(field reflect.StructField) bool {
 	return hasRule(field, "omitnil") || hasRule(field, "omitempty")
 }
 
-// structFields lists the fields that appear in the JSON.
 func structFields(structType reflect.Type) []reflect.StructField {
 	var fields []reflect.StructField
 	for field := range structType.Fields() {
@@ -431,7 +408,6 @@ func structFields(structType reflect.Type) []reflect.StructField {
 	return fields
 }
 
-// jsonName is the name of the field in the JSON, or "" if it is not in it.
 func jsonName(field reflect.StructField) string {
 	name, _, _ := strings.Cut(field.Tag.Get("json"), ",")
 	if name == "-" {

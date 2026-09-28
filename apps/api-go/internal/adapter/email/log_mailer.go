@@ -7,8 +7,6 @@ import (
 	"api-go/internal/core/domain"
 )
 
-// LogMailer is ports.Mailer until P2e brings Resend: it only writes each email to the log.
-// Outside production the log carries the link, so the flows can be tried in local.
 type LogMailer struct {
 	frontendURL  string
 	isProduction bool

@@ -17,19 +17,14 @@ import (
 	"api-go/internal/core/domain"
 )
 
-// issuers are the two ways Google writes its own name in "iss".
 var issuers = []string{"accounts.google.com", "https://accounts.google.com"}
 
-// Verifier is ports.GoogleVerifier: it checks "Sign in with Google" tokens with Google's
-// public keys, like google-token.service.ts.
 type Verifier struct {
 	clientID  string
 	validator *idtoken.Validator
 	now       func() time.Time
 }
 
-// NewVerifier builds the verifier for clientID. Without a client id it verifies nothing.
-// certsURL is only for the e2e: when set, Google's keys are read from there instead.
 func NewVerifier(ctx context.Context, clientID, certsURL string) (*Verifier, error) {
 	verifier := &Verifier{clientID: clientID, now: time.Now}
 	if clientID == "" {
@@ -58,7 +53,6 @@ func (v *Verifier) Configured() bool {
 	return v.clientID != ""
 }
 
-// Verify returns who the credential belongs to, or nil when Google does not vouch for it.
 func (v *Verifier) Verify(ctx context.Context, credential string) *domain.GoogleIdentity {
 	if v.validator == nil || credential == "" || algorithmOf(credential) != "RS256" {
 		return nil
@@ -91,8 +85,6 @@ func (v *Verifier) Verify(ctx context.Context, credential string) *domain.Google
 	return identity
 }
 
-// algorithmOf reads "alg" from the token header. Nest only accepts RS256, and idtoken would
-// also take ES256.
 func algorithmOf(token string) string {
 	header, _, found := strings.Cut(token, ".")
 	if !found {
@@ -114,13 +106,11 @@ func algorithmOf(token string) string {
 	return parsed.Alg
 }
 
-// notYetValid checks "nbf", which jose checks in Nest and idtoken does not.
 func notYetValid(claims map[string]any, now time.Time) bool {
 	nbf, ok := claims["nbf"].(float64)
 	return ok && int64(nbf) > now.Unix()
 }
 
-// redirectTo sends every request to target: Google's keys, served by the e2e harness.
 type redirectTo struct {
 	target *url.URL
 	next   http.RoundTripper

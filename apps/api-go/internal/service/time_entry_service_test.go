@@ -18,7 +18,6 @@ type timeEntryFixture struct {
 	now     time.Time
 }
 
-// newTimeEntryFixture sets the clock at 10:00 UTC on 8 August 2026 (12:00 in Madrid).
 func newTimeEntryFixture() *timeEntryFixture {
 	f := &timeEntryFixture{
 		repo:   newFakeTimeEntryRepository(),
@@ -57,7 +56,6 @@ func timeEntryWorkday(date string) time.Time {
 	return parsed
 }
 
-// punch appends a row straight to the fake chain.
 func (f *timeEntryFixture) punch(userID string, punchType domain.TimeEntryType, occurredAt, workday string) domain.TimeEntryRow {
 	row, _ := f.repo.Append(context.Background(), domain.AppendTimeEntry{
 		EstablishmentID: "e1",

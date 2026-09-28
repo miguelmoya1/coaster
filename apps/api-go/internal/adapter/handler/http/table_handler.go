@@ -15,7 +15,6 @@ type TableService interface {
 	Delete(ctx context.Context, establishmentID, tableID string) error
 }
 
-// TableHandler is tables.controller.ts. Every route needs the ORDERS module.
 type TableHandler struct {
 	tables TableService
 }
@@ -37,12 +36,10 @@ func (h *TableHandler) RegisterRoutes(mux *http.ServeMux, guard *middleware.Guar
 		middleware.Permissions(domain.PermissionDeleteTable), orders)
 }
 
-// createTableRequest is CreateTableDto.
 type createTableRequest struct {
 	Name string `json:"name" validate:"required" msg:"required=REQUIRED,type=INVALID_TYPE"`
 }
 
-// updateTableRequest is UpdateTableDto.
 type updateTableRequest struct {
 	Name *string `json:"name" validate:"omitnil" msg:"type=INVALID_TYPE"`
 }

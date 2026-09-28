@@ -10,7 +10,6 @@ import (
 	"api-go/internal/core/ports"
 )
 
-// deliver runs one webhook event through HandleWebhook.
 func (test *subscriptionTest) deliver(event domain.StripeEvent) error {
 	test.payments.event = &event
 	return test.service.HandleWebhook(context.Background(), []byte("{}"), "t=1,v1=signature")

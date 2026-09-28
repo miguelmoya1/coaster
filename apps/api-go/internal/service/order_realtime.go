@@ -7,9 +7,6 @@ import (
 	"api-go/internal/core/ports"
 )
 
-// OrderRealtimeEvents are the events OrderRealtime.Forward listens to. OrderItemRemovedEvent
-// is not one of them: Nest only sends the OrderUpdatedEvent or OrderCancelledEvent that
-// comes with it.
 var OrderRealtimeEvents = []string{
 	domain.OrderCreatedEvent{}.Name(),
 	domain.OrderItemsAddedEvent{}.Name(),
@@ -26,8 +23,6 @@ var OrderRealtimeEvents = []string{
 	domain.TableDeletedEvent{}.Name(),
 }
 
-// OrderRealtime tells the establishment's open screens that its orders or tables changed:
-// the order-*, orders-merged and table-* handlers of realtime/events.
 type OrderRealtime struct {
 	realtime ports.Realtime
 }
@@ -36,8 +31,6 @@ func NewOrderRealtime(realtime ports.Realtime) *OrderRealtime {
 	return &OrderRealtime{realtime: realtime}
 }
 
-// Forward sends the event to the establishment's stream, and tableStatusChanged for each
-// table the event occupies or frees. It subscribes to each of OrderRealtimeEvents.
 func (r *OrderRealtime) Forward(_ context.Context, event ports.Event) {
 	switch e := event.(type) {
 	case domain.OrderCreatedEvent:
@@ -91,7 +84,6 @@ func (r *OrderRealtime) Forward(_ context.Context, event ports.Event) {
 	}
 }
 
-// tableStatusChanged sends { id, status } when there is a table.
 func (r *OrderRealtime) tableStatusChanged(establishmentID string, tableID *string, status domain.TableStatus) {
 	if tableID == nil || *tableID == "" {
 		return
@@ -99,7 +91,6 @@ func (r *OrderRealtime) tableStatusChanged(establishmentID string, tableID *stri
 	r.realtime.Publish(establishmentID, domain.RealtimeTableStatusChanged, tableStatusPayload{ID: *tableID, Status: status})
 }
 
-// orderRealtimeID is the { id } of the events that only say what went.
 type orderRealtimeID struct {
 	ID string `json:"id"`
 }

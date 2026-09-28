@@ -10,23 +10,17 @@ import (
 	"api-go/internal/core/domain"
 )
 
-// The error bodies Nest sends. The field order is the same as Nest's.
-
-// nestError is what Nest's built-in exceptions send (NotFoundException and the like).
 type nestError struct {
 	Message any    `json:"message"`
 	Error   string `json:"error"`
 	Status  int    `json:"statusCode"`
 }
 
-// plainError is what Nest sends for an HttpException built from a string, for the
-// generic 500 and for the errors Fastify raises itself (broken JSON, body too large).
 type plainError struct {
 	Status  int    `json:"statusCode"`
 	Message string `json:"message"`
 }
 
-// paymentRequiredError is the body of the subscription guard's 402.
 type paymentRequiredError struct {
 	Status    int    `json:"statusCode"`
 	Error     string `json:"error"`
@@ -34,7 +28,6 @@ type paymentRequiredError struct {
 	ErrorCode string `json:"errorCode"`
 }
 
-// WriteJSON writes v as JSON, like Nest does: no HTML escaping and no trailing newline.
 func WriteJSON(w http.ResponseWriter, status int, v any) {
 	body, err := marshal(v)
 	if err != nil {
@@ -51,7 +44,6 @@ func WriteJSON(w http.ResponseWriter, status int, v any) {
 func marshal(v any) ([]byte, error) {
 	var buf bytes.Buffer
 
-	// JSON.stringify does not escape <, > and &, so neither do we.
 	encoder := json.NewEncoder(&buf)
 	encoder.SetEscapeHTML(false)
 
@@ -59,12 +51,9 @@ func marshal(v any) ([]byte, error) {
 		return nil, err
 	}
 
-	// Encode adds a newline that JSON.stringify does not.
 	return bytes.TrimSuffix(buf.Bytes(), []byte("\n")), nil
 }
 
-// WriteError turns err into Nest's error body. A domain.Error keeps its code;
-// anything else is logged and answered with Nest's generic 500.
 func WriteError(w http.ResponseWriter, err error) {
 	var domainErr *domain.Error
 	if !errors.As(err, &domainErr) {
@@ -88,18 +77,14 @@ func WriteError(w http.ResponseWriter, err error) {
 	}
 }
 
-// WriteNestError writes the body of Nest's built-in exceptions. message is a string,
-// or a []string for validation errors.
 func WriteNestError(w http.ResponseWriter, status int, message any) {
 	WriteJSON(w, status, nestError{Message: message, Error: http.StatusText(status), Status: status})
 }
 
-// WritePlainError writes {"statusCode", "message"}, without "error".
 func WritePlainError(w http.ResponseWriter, status int, message string) {
 	WriteJSON(w, status, plainError{Status: status, Message: message})
 }
 
-// WriteInternalServerError writes Nest's generic 500.
 func WriteInternalServerError(w http.ResponseWriter) {
 	WritePlainError(w, http.StatusInternalServerError, "Internal server error")
 }

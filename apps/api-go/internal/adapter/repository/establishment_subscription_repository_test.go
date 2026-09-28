@@ -8,8 +8,6 @@ import (
 	"api-go/internal/core/domain"
 )
 
-// seedBilling creates establishments e1, e2 and e3, and members in e1: two live ones, one
-// inactive and one removed.
 func seedBilling(t *testing.T) {
 	t.Helper()
 	resetDB(t)

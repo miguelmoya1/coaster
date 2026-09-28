@@ -21,7 +21,6 @@ var (
 	redeemPrinterPairingQuery string
 )
 
-// PrinterPairingRepository reads and writes the "PrinterPairing" rows.
 type PrinterPairingRepository struct {
 	pool *pgxpool.Pool
 }
@@ -40,8 +39,6 @@ func (r *PrinterPairingRepository) Issue(ctx context.Context, code, establishmen
 	return err
 }
 
-// Redeem marks the code redeemed only if it is still unused and valid, so of two requests
-// with the same code only one gets the establishment.
 func (r *PrinterPairingRepository) Redeem(ctx context.Context, code string, now time.Time) (string, error) {
 	var establishmentID string
 	err := r.pool.QueryRow(ctx, redeemPrinterPairingQuery, code, now.UTC()).Scan(&establishmentID)

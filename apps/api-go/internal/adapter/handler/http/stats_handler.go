@@ -13,7 +13,6 @@ type StatsService interface {
 	EstablishmentStats(ctx context.Context, establishmentID string, includeHistory bool) (domain.EstablishmentStats, error)
 }
 
-// StatsHandler is stats.controller.ts: the revenue on the dashboard of an establishment.
 type StatsHandler struct {
 	stats StatsService
 }

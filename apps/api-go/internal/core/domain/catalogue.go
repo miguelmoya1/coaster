@@ -1,6 +1,5 @@
 package domain
 
-// StarterCatalogueProduct is a product of the starter catalogue in one language.
 type StarterCatalogueProduct struct {
 	Name    string `json:"name"`
 	Price   int    `json:"price"`
@@ -8,8 +7,6 @@ type StarterCatalogueProduct struct {
 	TaxRate *int   `json:"taxRate,omitempty"`
 }
 
-// StarterCatalogueCategory is a category of the starter catalogue in one language, as
-// StarterCatalogueCategory in @coaster/common.
 type StarterCatalogueCategory struct {
 	Key      string                    `json:"key"`
 	Name     string                    `json:"name"`
@@ -18,26 +15,22 @@ type StarterCatalogueCategory struct {
 	Products []StarterCatalogueProduct `json:"products"`
 }
 
-// CatalogueCategoryName is a category found by its name while importing.
 type CatalogueCategoryName struct {
 	ID   string
 	Name string
 }
 
-// CatalogueProductName is a product already in one of the imported categories.
 type CatalogueProductName struct {
 	CategoryID string
 	Name       string
 }
 
-// NewCatalogueCategory is a category of the starter catalogue to create.
 type NewCatalogueCategory struct {
 	Name    string
 	Icon    *string
 	TaxRate int
 }
 
-// ResolveCatalogue is resolveCatalogue: the whole starter catalogue in language.
 func ResolveCatalogue(language string) []StarterCatalogueCategory {
 	categories := make([]StarterCatalogueCategory, 0, len(starterCatalogue))
 	for _, category := range starterCatalogue {
@@ -46,8 +39,6 @@ func ResolveCatalogue(language string) []StarterCatalogueCategory {
 	return categories
 }
 
-// ResolveCategories is resolveCategories: the categories with those keys, in catalogue
-// order, or the whole catalogue when keys is empty.
 func ResolveCategories(keys []string, language string) []StarterCatalogueCategory {
 	if len(keys) == 0 {
 		return ResolveCatalogue(language)
@@ -103,7 +94,6 @@ func (c starterCategory) in(language string) StarterCatalogueCategory {
 	}
 }
 
-// wordFor is the name in language, or in DefaultLanguage when it has none.
 func wordFor(names map[string]string, language string) string {
 	if name := names[language]; name != "" {
 		return name
@@ -111,7 +101,6 @@ func wordFor(names map[string]string, language string) string {
 	return names[DefaultLanguage]
 }
 
-// starterCatalogue is STARTER_CATALOGUE of catalogue/starter-catalogue.ts.
 var starterCatalogue = []starterCategory{
 	{
 		key:     "cafeteria",

@@ -10,13 +10,11 @@ import (
 	"api-go/internal/service"
 )
 
-// The refresh token cookie, the same as REFRESH_COOKIE_NAME and REFRESH_COOKIE_PATH in Nest.
 const (
 	refreshCookieName = "coaster_session"
 	refreshCookiePath = "/api/v1/auth"
 )
 
-// AuthService is what AuthHandler needs (service.AuthService).
 type AuthService interface {
 	Register(ctx context.Context, input service.RegisterInput, origin domain.SessionOrigin) (domain.IssuedSession, error)
 	LoginWithPassword(ctx context.Context, email, password string, origin domain.SessionOrigin) (domain.IssuedSession, error)
@@ -32,7 +30,6 @@ type AuthService interface {
 	AcceptInvite(ctx context.Context, token, password string, origin domain.SessionOrigin) (domain.IssuedSession, error)
 }
 
-// AuthHandler is auth.controller.ts: signing in and out, and the emailed links.
 type AuthHandler struct {
 	auth         AuthService
 	secureCookie bool
@@ -56,8 +53,6 @@ func (h *AuthHandler) RegisterRoutes(mux *http.ServeMux, guard *middleware.Guard
 	handle(mux, guard, "POST /auth/logout", h.logout)
 	handle(mux, guard, "POST /auth/logout-everywhere", h.logoutEverywhere, middleware.RequireAuth())
 }
-
-// The request bodies, with the rules of the DTOs in apps/api/src/auth/dto.
 
 type registerRequest struct {
 	Email    string  `json:"email" validate:"email" msg:"type=email must be an email"`
@@ -88,7 +83,6 @@ type tokenWithPasswordRequest struct {
 	Password string `json:"password" validate:"min=8,max=128" msg:"type=password must be longer than or equal to 8 characters"`
 }
 
-// authSessionResponse is AuthSession of @coaster/common.
 type authSessionResponse struct {
 	User        domain.User `json:"user"`
 	AccessToken string      `json:"accessToken"`
@@ -232,7 +226,6 @@ func (h *AuthHandler) logoutEverywhere(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-// respond sets the refresh cookie and answers with the access token, or writes err.
 func (h *AuthHandler) respond(w http.ResponseWriter, status int, issued domain.IssuedSession, err error) {
 	if err != nil {
 		writeError(w, err)
@@ -256,7 +249,6 @@ func (h *AuthHandler) respond(w http.ResponseWriter, status int, issued domain.I
 	})
 }
 
-// clearRefreshCookie is Fastify's clearCookie: an empty value that expired in 1970.
 func clearRefreshCookie(w http.ResponseWriter) {
 	http.SetCookie(w, &http.Cookie{
 		Name:    refreshCookieName,
@@ -274,7 +266,6 @@ func refreshTokenOf(r *http.Request) string {
 	return cookie.Value
 }
 
-// originOf is where the request came from, for the sessions and the auth log.
 func originOf(r *http.Request) domain.SessionOrigin {
 	return domain.SessionOrigin{UserAgent: r.Header.Get("User-Agent"), IP: middleware.ClientIP(r.Context())}
 }

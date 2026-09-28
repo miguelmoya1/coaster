@@ -20,8 +20,6 @@ type orderFixture struct {
 	events  *orderEventRecorder
 }
 
-// newOrderFixture has establishment e1 with tables t-free and t-busy, and e2 with t-other.
-// The orders are the ones given.
 func newOrderFixture(orders ...domain.OrderRow) *orderFixture {
 	repo := newFakeOrderRepo(orders...)
 	tables := newFakeTableRepo(
@@ -37,7 +35,6 @@ func newOrderFixture(orders ...domain.OrderRow) *orderFixture {
 	return &orderFixture{service: service, orders: repo, tables: tables, events: events}
 }
 
-// sampleOpenOrder is an open order of e1 at t-busy with two lines of beer (2 units) and coke (1).
 func sampleOpenOrder() domain.OrderRow {
 	table := "t-busy"
 	return domain.OrderRow{
@@ -520,7 +517,7 @@ func TestOrderServiceNotesAndTip(t *testing.T) {
 }
 
 func TestOrderServiceAddAdjustment(t *testing.T) {
-	// sampleOpenOrder: 1300 net with a discount of 100, so 1200 + 10 % = 1320 to pay.
+
 	tests := []struct {
 		name  string
 		input OrderAdjustmentInput

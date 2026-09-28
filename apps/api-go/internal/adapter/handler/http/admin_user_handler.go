@@ -14,7 +14,6 @@ type AdminUserService interface {
 	Update(ctx context.Context, actorID, userID string, changes domain.AdminUserChanges) error
 }
 
-// AdminUserHandler is admin-users.controller.ts.
 type AdminUserHandler struct {
 	users AdminUserService
 }
@@ -29,16 +28,13 @@ func (h *AdminUserHandler) RegisterRoutes(mux *http.ServeMux, guard *middleware.
 	handle(mux, guard, "PATCH /admin/users/{userId}", h.update, middleware.Admin())
 }
 
-// adminRoles are the platform roles an admin can filter by and give.
 var adminRoles = []string{string(domain.RoleUser), string(domain.RoleAdmin)}
 
-// updateAdminUserRequest is UpdateAdminUserDto.
 type updateAdminUserRequest struct {
 	Role   *string `json:"role" validate:"omitnil,oneof=USER ADMIN" msg:"oneof=INVALID_ROLE,type=INVALID_ROLE"`
 	Active *bool   `json:"active" validate:"omitnil" msg:"type=INVALID_TYPE"`
 }
 
-// list reads AdminUsersQueryDto.
 func (h *AdminUserHandler) list(w http.ResponseWriter, r *http.Request) {
 	query := newAdminListQuery(r.URL.Query(), "q", "role", "active", "page", "pageSize")
 	filter := domain.AdminUserFilter{

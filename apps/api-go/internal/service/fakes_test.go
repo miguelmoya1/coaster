@@ -13,11 +13,8 @@ import (
 	"api-go/internal/core/ports"
 )
 
-// In-memory fakes of the ports, for the service tests.
-
 var errDatabaseDown = errors.New("database down")
 
-// fakeCache keeps values as JSON, like Redis does.
 type fakeCache struct {
 	values    map[string][]byte
 	forgotten []string
@@ -47,7 +44,6 @@ func (c *fakeCache) Forget(_ context.Context, keys ...string) {
 	}
 }
 
-// fakePublisher records what was published.
 type fakePublisher struct {
 	mu     sync.Mutex
 	events []domain.AuthEventOccurred
@@ -72,7 +68,6 @@ func (p *fakePublisher) ofType(eventType domain.AuthEventType) []domain.AuthEven
 	return found
 }
 
-// fakeUsers is the user table.
 type fakeUsers struct {
 	byID        map[string]*domain.AuthUser
 	betaTesters []string
@@ -171,7 +166,6 @@ func (f *fakeUsers) IsBetaTester(_ context.Context, email string) (bool, error) 
 	return slices.Contains(f.betaTesters, email), nil
 }
 
-// fakeSessions is the AuthSession table.
 type fakeSessions struct {
 	rows          []*domain.AuthSession
 	prunedFor     []string
@@ -291,7 +285,6 @@ func (f *fakeSessions) revoked(id string) bool {
 	return false
 }
 
-// fakeTokens is the AuthToken table.
 type fakeTokens struct {
 	users  *fakeUsers
 	rows   []*fakeTokenRow
@@ -342,7 +335,6 @@ func (f *fakeTokens) Spend(_ context.Context, id string) (bool, error) {
 	return false, nil
 }
 
-// fakeIdentities is the AuthIdentity table.
 type fakeIdentities struct {
 	users   *fakeUsers
 	rows    map[string][]domain.AuthIdentity
@@ -383,7 +375,6 @@ func (f *fakeIdentities) Delete(_ context.Context, userID string, provider domai
 	return nil
 }
 
-// fakeMailer records the emails.
 type fakeMailer struct {
 	sent []sentEmail
 	fail bool
@@ -426,7 +417,6 @@ func (m *fakeMailer) lastOf(kind string) *sentEmail {
 	return nil
 }
 
-// fakeGoogle answers with a fixed identity.
 type fakeGoogle struct {
 	clientID string
 	identity *domain.GoogleIdentity
@@ -436,7 +426,6 @@ func (g *fakeGoogle) Configured() bool { return g.clientID != "" }
 
 func (g *fakeGoogle) Verify(context.Context, string) *domain.GoogleIdentity { return g.identity }
 
-// fakePwned says every password in leaked is compromised.
 type fakePwned struct {
 	leaked []string
 }
@@ -445,7 +434,6 @@ func (p *fakePwned) Compromised(_ context.Context, password string) bool {
 	return slices.Contains(p.leaked, password)
 }
 
-// fakeAttempts counts failures per address.
 type fakeAttempts struct {
 	failures  map[string]int
 	lockedFor int
@@ -464,7 +452,6 @@ func (a *fakeAttempts) Forget(_ context.Context, email string) {
 	delete(a.failures, email)
 }
 
-// fakeAuthEvents is the AuthEvent table.
 type fakeAuthEvents struct {
 	recorded []domain.AuthEventOccurred
 	fail     bool
@@ -482,7 +469,6 @@ func (f *fakeAuthEvents) FindRecentOf(context.Context, string, int) ([]domain.Au
 	return nil, nil
 }
 
-// fakeSecurity answers the route checks from maps.
 type fakeSecurity struct {
 	roles        map[string]domain.Role
 	memberships  map[string]*domain.Membership
@@ -512,7 +498,6 @@ func (f *fakeSecurity) SubscriptionState(_ context.Context, establishmentID stri
 	return f.subscription[establishmentID], nil
 }
 
-// fakeRefresher is Stripe's side of a subscription.
 type fakeRefresher struct {
 	state *domain.SubscriptionState
 	err   error

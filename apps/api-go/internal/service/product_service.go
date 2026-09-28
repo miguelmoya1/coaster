@@ -7,7 +7,6 @@ import (
 	"api-go/internal/core/ports"
 )
 
-// ProductService is the products module: an establishment's products and their stock.
 type ProductService struct {
 	products ports.ProductRepository
 	events   ports.EventPublisher
@@ -17,7 +16,6 @@ func NewProductService(products ports.ProductRepository, events ports.EventPubli
 	return &ProductService{products: products, events: events}
 }
 
-// CreateProductInput is CreateProductDto. The nil fields take their defaults.
 type CreateProductInput struct {
 	Name          string
 	CategoryID    string
@@ -30,7 +28,6 @@ type CreateProductInput struct {
 	OwnTaxRate    *int
 }
 
-// List is GetProductsByEstablishmentIdQuery.
 func (s *ProductService) List(ctx context.Context, establishmentID string) ([]domain.Product, error) {
 	rows, err := s.products.ListOf(ctx, establishmentID)
 	if err != nil {
@@ -44,7 +41,6 @@ func (s *ProductService) List(ctx context.Context, establishmentID string) ([]do
 	return products, nil
 }
 
-// Create is CreateProductCommand. A category of another establishment is a 403, as in Nest.
 func (s *ProductService) Create(ctx context.Context, establishmentID string, input CreateProductInput) error {
 	if err := s.checkCategory(ctx, input.CategoryID, establishmentID); err != nil {
 		return err
@@ -74,8 +70,6 @@ func (s *ProductService) Create(ctx context.Context, establishmentID string, inp
 	return nil
 }
 
-// Update is UpdateProductCommand. Moving the product to a category of another establishment
-// is a 403.
 func (s *ProductService) Update(ctx context.Context, establishmentID, productID string, changes domain.ProductChanges) error {
 	if err := s.checkProduct(ctx, productID, establishmentID); err != nil {
 		return err
@@ -96,7 +90,6 @@ func (s *ProductService) Update(ctx context.Context, establishmentID, productID 
 	return nil
 }
 
-// SetStock is UpdateProductStockCommand: the stock after counting it.
 func (s *ProductService) SetStock(ctx context.Context, establishmentID, productID string, stock int) error {
 	if err := s.checkProduct(ctx, productID, establishmentID); err != nil {
 		return err
@@ -111,8 +104,6 @@ func (s *ProductService) SetStock(ctx context.Context, establishmentID, productI
 	return nil
 }
 
-// AdjustStock is AdjustProductStockCommand: it adds delta to the stock. Orders (when an
-// item is sold or given back) and the AI tools use it.
 func (s *ProductService) AdjustStock(ctx context.Context, establishmentID, productID string, delta int) error {
 	if err := s.checkProduct(ctx, productID, establishmentID); err != nil {
 		return err
@@ -127,7 +118,6 @@ func (s *ProductService) AdjustStock(ctx context.Context, establishmentID, produ
 	return nil
 }
 
-// Delete is DeleteProductCommand: the product is marked deleted.
 func (s *ProductService) Delete(ctx context.Context, establishmentID, productID string) error {
 	if err := s.checkProduct(ctx, productID, establishmentID); err != nil {
 		return err
@@ -163,7 +153,6 @@ func (s *ProductService) checkCategory(ctx context.Context, categoryID, establis
 	return nil
 }
 
-// intOrZero is *value, or 0 when value is nil.
 func intOrZero(value *int) int {
 	if value == nil {
 		return 0

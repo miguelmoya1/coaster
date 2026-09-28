@@ -11,8 +11,6 @@ import (
 	"api-go/internal/core/domain"
 )
 
-// recordingWriter keeps what the stream wrote. It can be told to refuse writes, like a
-// socket the client closed.
 type recordingWriter struct {
 	mu      sync.Mutex
 	written strings.Builder
@@ -45,7 +43,6 @@ func (w *recordingWriter) refuseWrites() {
 
 func noFlush() error { return nil }
 
-// runStream runs the stream in its own goroutine. The channel closes when run returns.
 func runStream(ctx context.Context, stream *realtimeStream, w *recordingWriter, missed func() []domain.RealtimeFrame) chan struct{} {
 	finished := make(chan struct{})
 	go func() {

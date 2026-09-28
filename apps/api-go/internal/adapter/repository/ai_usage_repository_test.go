@@ -6,7 +6,6 @@ import (
 	"testing"
 )
 
-// seedAIUsage creates the establishments e1 and e2.
 func seedAIUsage(t *testing.T) {
 	t.Helper()
 	resetDB(t)

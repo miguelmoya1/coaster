@@ -9,8 +9,6 @@ import (
 	"api-go/internal/core/domain"
 )
 
-// seedEstablishments creates the user u1 and the establishments e1 (u1 is an active member),
-// e2 (u1 was removed), e3 (u1 is inactive) and e4 (someone else's, with settings).
 func seedEstablishments(t *testing.T) {
 	t.Helper()
 	resetDB(t)

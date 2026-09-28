@@ -10,8 +10,6 @@ import (
 	"api-go/internal/core/ports"
 )
 
-// MenuService is the menu module: the public menu an establishment edits, publishes and
-// shows to its customers by its slug.
 type MenuService struct {
 	menus ports.MenuRepository
 }
@@ -20,8 +18,6 @@ func NewMenuService(menus ports.MenuRepository) *MenuService {
 	return &MenuService{menus: menus}
 }
 
-// SaveMenuDraftInput is SaveMenuDraftDto. The translations come as they were sent and are
-// cleaned before saving.
 type SaveMenuDraftInput struct {
 	Name      string
 	Languages []string
@@ -36,13 +32,11 @@ type MenuSectionInput struct {
 type MenuItemInput struct {
 	ProductID *string
 	Price     *int
-	// IsVisible is nil when it was not sent, which counts as visible.
+
 	IsVisible    *bool
 	Translations map[string]any
 }
 
-// Draft is GetMenuDraftQuery. The first read starts the menu, named and slugged after the
-// establishment, in its language.
 func (s *MenuService) Draft(ctx context.Context, establishmentID string) (domain.MenuDraft, error) {
 	existing, err := s.menus.FindByEstablishment(ctx, establishmentID)
 	if err != nil {
@@ -83,8 +77,6 @@ func (s *MenuService) Draft(ctx context.Context, establishmentID string) (domain
 	return created.Draft(), nil
 }
 
-// SaveDraft is SaveMenuDraftCommand: it replaces the whole draft. The default language has
-// to stay offered, and every product has to be one of the establishment's.
 func (s *MenuService) SaveDraft(ctx context.Context, establishmentID string, input SaveMenuDraftInput) (domain.MenuDraft, error) {
 	menu, err := s.menus.FindByEstablishment(ctx, establishmentID)
 	if err != nil {
@@ -154,8 +146,6 @@ func (s *MenuService) SaveDraft(ctx context.Context, establishmentID string, inp
 	return saved.Draft(), nil
 }
 
-// Publish is PublishMenuCommand with published = true: it renders the menu in each of its
-// languages and keeps that snapshot, which is what customers read until the next publish.
 func (s *MenuService) Publish(ctx context.Context, establishmentID string) error {
 	menu, err := s.menus.FindByEstablishment(ctx, establishmentID)
 	if err != nil {
@@ -168,7 +158,6 @@ func (s *MenuService) Publish(ctx context.Context, establishmentID string) error
 	return s.menus.Publish(ctx, menu.ID, menu.RenderEveryLanguage())
 }
 
-// Unpublish is PublishMenuCommand with published = false.
 func (s *MenuService) Unpublish(ctx context.Context, establishmentID string) error {
 	menu, err := s.menus.FindByEstablishment(ctx, establishmentID)
 	if err != nil {
@@ -181,9 +170,6 @@ func (s *MenuService) Unpublish(ctx context.Context, establishmentID string) err
 	return s.menus.Unpublish(ctx, menu.ID)
 }
 
-// Published is GetPublishedMenuQuery: the published menu in the language asked for, or in
-// its default one. When the establishment marks what has run out, each line says whether
-// its product has stock right now.
 func (s *MenuService) Published(ctx context.Context, slug, language string) (domain.PublishedMenu, error) {
 	page, err := s.menus.FindPublishedBySlug(ctx, slug)
 	if err != nil {
@@ -229,7 +215,6 @@ func (s *MenuService) Published(ctx context.Context, slug, language string) (dom
 		}
 	}
 
-	// The snapshot came from the repository, so its sections can be changed in place.
 	for i := range published.Sections {
 		for j := range published.Sections[i].Items {
 			item := &published.Sections[i].Items[j]

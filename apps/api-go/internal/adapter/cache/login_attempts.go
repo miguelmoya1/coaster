@@ -13,8 +13,6 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-// The limits of login-attempts.service.ts: ten failures within 15 minutes lock the address
-// for 15 minutes.
 const (
 	LoginFailureLimit  = 10
 	LoginFailureWindow = 15 * time.Minute
@@ -39,8 +37,6 @@ var readLoginFailures = redis.NewScript(`
 return { tonumber(redis.call('GET', KEYS[1])) or 0, redis.call('TTL', KEYS[1]) }
 `)
 
-// LoginAttempts is ports.LoginAttempts: Redis when there is a client, and a map in memory
-// without one or when Redis fails.
 type LoginAttempts struct {
 	client *redis.Client
 
@@ -124,7 +120,6 @@ func (a *LoginAttempts) Forget(ctx context.Context, email string) {
 	}
 }
 
-// runOf returns the live run of key, dropping it once it has expired. The caller holds mu.
 func (a *LoginAttempts) runOf(key string) (failureRun, bool) {
 	run, ok := a.memory[key]
 	if !ok {
@@ -139,7 +134,6 @@ func (a *LoginAttempts) runOf(key string) (failureRun, bool) {
 	return run, true
 }
 
-// sweep drops expired runs once there are many. The caller holds mu.
 func (a *LoginAttempts) sweep() {
 	if len(a.memory) < memoryHighWaterMark {
 		return

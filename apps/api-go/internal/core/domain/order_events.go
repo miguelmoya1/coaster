@@ -1,9 +1,5 @@
 package domain
 
-// The order events, as orders/events/impl in Nest. Name returns the class name. TableID is
-// nil for an order without a table.
-
-// OrderStockLine is a product and how many units of it an event takes or gives back.
 type OrderStockLine struct {
 	ProductID string
 	Quantity  int
@@ -65,7 +61,6 @@ type OrderTableMovedEvent struct {
 
 func (OrderTableMovedEvent) Name() string { return "OrderTableMovedEvent" }
 
-// OrdersMergedEvent carries the order that stayed and the ones cancelled into it.
 type OrdersMergedEvent struct {
 	EstablishmentID string
 	PrimaryOrder    Order

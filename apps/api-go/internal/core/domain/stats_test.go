@@ -18,8 +18,6 @@ func statsOrder(cash, card, tip int, createdAt string) StatsOrder {
 	return StatsOrder{AmountPaidCash: cash, AmountPaidCard: card, TipAmount: tip, CreatedAt: statsUTC(createdAt)}
 }
 
-// statsFixtures are closed orders around the edges of days, weeks, months and years, in
-// UTC and in Madrid.
 var statsFixtures = []StatsOrder{
 	statsOrder(1000, 200, 200, "2026-06-17T10:00:00.000Z"),
 	statsOrder(500, 0, 0, "2026-06-17T23:30:00.000Z"),
@@ -45,7 +43,6 @@ var statsFixtures = []StatsOrder{
 	statsOrder(3, 0, 0, "2026-06-17T12:00:00.001Z"),
 }
 
-// statsOrdersSince is what the database gives: the fixtures created at since or later.
 func statsOrdersSince(since time.Time) []StatsOrder {
 	var found []StatsOrder
 	for _, order := range statsFixtures {
@@ -62,8 +59,6 @@ const statsMonthsInMadrid = `[{"monthIndex":0,"monthName":"Ene","amount":2983},{
 
 const statsWeekOfJune15 = `[{"dayName":"Lun","amount":300,"dateStr":"2026-06-15"},{"dayName":"Mar","amount":750,"dateStr":"2026-06-16"},{"dayName":"Mié","amount":1303,"dateStr":"2026-06-17"},{"dayName":"Jue","amount":0,"dateStr":"2026-06-18"},{"dayName":"Vie","amount":0,"dateStr":"2026-06-19"},{"dayName":"Sáb","amount":0,"dateStr":"2026-06-20"},{"dayName":"Dom","amount":0,"dateStr":"2026-06-21"}]`
 
-// TestEstablishmentStatsMatchNest compares with what GetEstablishmentStatsHandler answers for
-// the same orders, with the clock and the process's zone (TZ) of each case.
 func TestEstablishmentStatsMatchNest(t *testing.T) {
 	madrid, err := time.LoadLocation("Europe/Madrid")
 	if err != nil {

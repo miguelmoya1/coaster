@@ -15,7 +15,6 @@ type RealtimeService interface {
 	Replay(ctx context.Context, establishmentID string, lastEventID string) []domain.RealtimeFrame
 }
 
-// RealtimeHandler serves an establishment's event stream (RealtimeController in Nest).
 type RealtimeHandler struct {
 	realtime RealtimeService
 }
@@ -28,7 +27,6 @@ func (h *RealtimeHandler) RegisterRoutes(mux *http.ServeMux, guard *middleware.G
 	handle(mux, guard, "GET /establishments/{establishmentId}/events", h.watch, middleware.Permissions())
 }
 
-// watch keeps the stream open until the client hangs up or the stream closes.
 func (h *RealtimeHandler) watch(w http.ResponseWriter, r *http.Request) {
 	establishmentID := r.PathValue("establishmentId")
 	user := middleware.CurrentUser(r.Context())

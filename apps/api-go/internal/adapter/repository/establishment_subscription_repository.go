@@ -36,7 +36,6 @@ var (
 	updateSubscriptionFromStripeQuery string
 )
 
-// EstablishmentSubscriptionRepository keeps what each establishment pays for.
 type EstablishmentSubscriptionRepository struct {
 	pool *pgxpool.Pool
 }
@@ -143,8 +142,6 @@ func (r *EstablishmentSubscriptionRepository) Upsert(ctx context.Context, establ
 	return tx.Commit(ctx)
 }
 
-// releaseStripeID unlinks a Stripe id from every other establishment that still holds it,
-// and logs the ones that lost it: Stripe may still bill them.
 func releaseStripeID(ctx context.Context, tx pgx.Tx, query, kind, stripeID, claimedBy string) error {
 	rows, err := tx.Query(ctx, query, stripeID, claimedBy, now())
 	if err != nil {

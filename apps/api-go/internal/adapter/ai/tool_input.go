@@ -13,14 +13,8 @@ import (
 	"api-go/internal/core/ports"
 )
 
-// maxSafeInteger is Number.MAX_SAFE_INTEGER: zod's int() only takes integers up to here.
 const maxSafeInteger = 1<<53 - 1
 
-// parseToolInput checks what the model sent to a tool the way the AI SDK does before
-// calling it: an empty text is {}, anything else has to be JSON that zod accepts for the
-// tool's schema. It returns the input written back as JSON, so 2.0 reaches an int as 2.
-// Properties the schema does not know are left in and the tool ignores them, as zod
-// strips them. The error text is the one the AI SDK gives the model.
 func parseToolInput(tool ports.AITool, arguments string) (json.RawMessage, error) {
 	var value any
 	if strings.TrimSpace(arguments) == "" {
@@ -42,7 +36,6 @@ func parseToolInput(tool ports.AITool, arguments string) (json.RawMessage, error
 	return marshal(value)
 }
 
-// toolSchema is the part of JSON Schema the tools use.
 type toolSchema struct {
 	Type       string           `json:"type"`
 	Properties schemaProperties `json:"properties"`
@@ -54,8 +47,6 @@ type toolSchema struct {
 	MinItems   *int             `json:"minItems"`
 }
 
-// schemaProperties keeps the properties in the order the schema lists them, which is the
-// order zod reports its issues in.
 type schemaProperties struct {
 	names  []string
 	byName map[string]*toolSchema
@@ -88,7 +79,6 @@ func (p *schemaProperties) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-// zodIssue is an issue of a ZodError. The fields that do not apply stay out.
 type zodIssue struct {
 	Origin    string   `json:"origin,omitempty"`
 	Expected  string   `json:"expected,omitempty"`
@@ -102,7 +92,6 @@ type zodIssue struct {
 	Message   string   `json:"message"`
 }
 
-// check lists what zod would reject in value, a value decoded by encoding/json.
 func (s *toolSchema) check(value any, path []any) []zodIssue {
 	if s.Enum != nil {
 		text, ok := value.(string)
@@ -158,7 +147,6 @@ func (s *toolSchema) checkObject(value any, path []any) []zodIssue {
 	return issues
 }
 
-// missing is the issue of a required property that is not there.
 func (s *toolSchema) missing(path []any) []zodIssue {
 	if s.Enum != nil {
 		return s.check(nil, path)
@@ -234,7 +222,6 @@ func invalidType(expected string, value any, path []any) zodIssue {
 	return zodIssue{Expected: expected, Code: "invalid_type", Path: path, Message: "Invalid input: expected " + expected + ", received " + typeOf(value)}
 }
 
-// typeOf names the type of a decoded JSON value as zod does.
 func typeOf(value any) string {
 	switch value.(type) {
 	case nil:
@@ -252,8 +239,6 @@ func typeOf(value any) string {
 	}
 }
 
-// withKey is path with one more key, in a new slice: the paths of sibling issues must not
-// share their backing array.
 func withKey(path []any, key any) []any {
 	return append(append([]any{}, path...), key)
 }
@@ -262,7 +247,6 @@ func formatNumber(number float64) string {
 	return strconv.FormatFloat(number, 'f', -1, 64)
 }
 
-// issuesText writes the issues as a ZodError's message: JSON indented with two spaces.
 func issuesText(issues []zodIssue) string {
 	var buf bytes.Buffer
 	encoder := json.NewEncoder(&buf)
@@ -274,7 +258,6 @@ func issuesText(issues []zodIssue) string {
 	return strings.TrimSuffix(buf.String(), "\n")
 }
 
-// compactJSON is the input as JSON.stringify writes it back; it is valid JSON by now.
 func compactJSON(text string) string {
 	var buf bytes.Buffer
 	if err := json.Compact(&buf, []byte(text)); err != nil || buf.Len() == 0 {

@@ -16,11 +16,10 @@ import (
 	"api-go/internal/core/domain"
 )
 
-// The channel and keys Nest uses, so both APIs can share one Redis during the beta.
 const (
 	realtimeChannel = "coaster:realtime"
 	replayWindow    = 2 * time.Minute
-	// busTimeout bounds each Redis command, so a stuck Redis never holds a publisher.
+
 	busTimeout = 5 * time.Second
 )
 
@@ -28,8 +27,6 @@ func replayKey(establishmentID string) string {
 	return "realtime:" + establishmentID + ":replay"
 }
 
-// busMessage is what travels on the channel: a frame (kind "event") or a revocation
-// (kind "revoke"). The JSON is the same as Nest's BusMessage.
 type busMessage struct {
 	Origin          string                `json:"origin"`
 	Kind            string                `json:"kind"`
@@ -38,24 +35,17 @@ type busMessage struct {
 	UserID          string                `json:"userId,omitempty"`
 }
 
-// RealtimeReceiver is what the bus hands the messages of the other instances to
-// (service.RealtimeService).
 type RealtimeReceiver interface {
 	Deliver(establishmentID string, frame domain.RealtimeFrame)
 	CloseStreams(establishmentID string, userID string)
 }
 
-// RealtimeBus is ports.RealtimeBus on Redis: pub/sub on coaster:realtime between the
-// instances and a sorted set per establishment for replay. Without a client it does
-// nothing. A Redis error is logged once and the bus carries on, like Nest.
 type RealtimeBus struct {
 	client  *redis.Client
 	origin  string
 	dropped atomic.Bool
 }
 
-// NewRealtimeBus connects to REDIS_URL with a client of its own, because the
-// subscription keeps a connection busy. Without a URL it works in this process only.
 func NewRealtimeBus(url string) *RealtimeBus {
 	if url == "" {
 		return newRealtimeBus(nil)
@@ -77,7 +67,6 @@ func newRealtimeBus(client *redis.Client) *RealtimeBus {
 	return &RealtimeBus{client: client, origin: uuid.NewV4().String()}
 }
 
-// Close closes the Redis client, if there is one.
 func (b *RealtimeBus) Close() error {
 	if b.client == nil {
 		return nil
@@ -85,8 +74,6 @@ func (b *RealtimeBus) Close() error {
 	return b.client.Close()
 }
 
-// Listen hands receiver what the other instances publish until ctx ends. It skips what
-// this instance published itself, which its own streams already got.
 func (b *RealtimeBus) Listen(ctx context.Context, receiver RealtimeReceiver) {
 	if b.client == nil {
 		slog.Warn("Events reach only the clients on this instance: there is no shared bus")
@@ -124,7 +111,6 @@ func (b *RealtimeBus) PublishRevoke(establishmentID string, userID string) {
 	b.send(busMessage{Origin: b.origin, Kind: "revoke", EstablishmentID: establishmentID, UserID: userID})
 }
 
-// Remember keeps the frame for two minutes, scored by its id.
 func (b *RealtimeBus) Remember(establishmentID string, frame domain.RealtimeFrame) {
 	if b.client == nil {
 		return
@@ -157,8 +143,6 @@ func (b *RealtimeBus) Remember(establishmentID string, frame domain.RealtimeFram
 	}
 }
 
-// Replay returns the frames kept for the establishment from sinceID on, sinceID included.
-// An id that is not a number replays nothing.
 func (b *RealtimeBus) Replay(ctx context.Context, establishmentID string, sinceID string) []domain.RealtimeFrame {
 	if b.client == nil || !isFiniteNumber(sinceID) {
 		return nil
@@ -222,8 +206,6 @@ func (b *RealtimeBus) receive(raw string, receiver RealtimeReceiver) {
 	}
 }
 
-// drop logs the first Redis error only, as Nest does, so a Redis outage does not flood
-// the log.
 func (b *RealtimeBus) drop(command string, err error) {
 	if !b.dropped.CompareAndSwap(false, true) {
 		return
@@ -232,13 +214,11 @@ func (b *RealtimeBus) drop(command string, err error) {
 	slog.Warn("The shared bus refused "+command+"; events reach only the clients on this instance", "error", err)
 }
 
-// isFiniteNumber is Number.isFinite(Number(value)) for the ids a browser sends back.
 func isFiniteNumber(value string) bool {
 	number, err := strconv.ParseFloat(value, 64)
 	return err == nil && !math.IsInf(number, 0) && !math.IsNaN(number)
 }
 
-// marshalCompact writes v like JSON.stringify: without escaping <, > and &.
 func marshalCompact(v any) (string, error) {
 	var buf bytes.Buffer
 

@@ -29,7 +29,6 @@ var (
 	deleteBetaTesterQuery string
 )
 
-// BetaTesterRepository keeps the beta allowlist in "BetaTester".
 type BetaTesterRepository struct {
 	pool *pgxpool.Pool
 }
@@ -104,7 +103,6 @@ func (r *BetaTesterRepository) Remove(ctx context.Context, id string) error {
 	return err
 }
 
-// scanBetaTester reads a row of the tester queries, which all select the same columns.
 func scanBetaTester(row pgx.Row) (domain.BetaTester, error) {
 	var tester domain.BetaTester
 	err := row.Scan(&tester.ID, &tester.Email, &tester.Note, &tester.CreatedAt, &tester.InvitedByName)

@@ -9,15 +9,12 @@ import (
 	"api-go/internal/core/ports"
 )
 
-// EstablishmentMemberEvents are the events the member subscribers listen to.
 var EstablishmentMemberEvents = []string{
 	domain.MemberInvited{}.Name(),
 	domain.MemberRemoved{}.Name(),
 	domain.MemberRoleChanged{}.Name(),
 }
 
-// EstablishmentMemberService is establishment-members: who works in an establishment, their
-// invitations and their roles.
 type EstablishmentMemberService struct {
 	members  ports.EstablishmentMemberRepository
 	security *SecurityService
@@ -28,7 +25,6 @@ type EstablishmentMemberService struct {
 	realtime ports.Realtime
 }
 
-// EstablishmentMemberDependencies is what the service needs.
 type EstablishmentMemberDependencies struct {
 	Members  ports.EstablishmentMemberRepository
 	Security *SecurityService
@@ -51,8 +47,6 @@ func NewEstablishmentMemberService(deps EstablishmentMemberDependencies) *Establ
 	}
 }
 
-// Me is the caller's membership of the establishment. A platform admin who is not an active
-// member gets an owner made up from their profile.
 func (s *EstablishmentMemberService) Me(ctx context.Context, establishmentID string, caller domain.User) (domain.EstablishmentMember, error) {
 	member, err := s.members.FindByUser(ctx, establishmentID, caller.ID)
 	if err != nil {
@@ -70,14 +64,10 @@ func (s *EstablishmentMemberService) Me(ctx context.Context, establishmentID str
 	return domain.EstablishmentMember{}, domain.NotFound(domain.CodeMemberNotFound)
 }
 
-// List lists the active members of the establishment.
 func (s *EstablishmentMemberService) List(ctx context.Context, establishmentID string) ([]domain.EstablishmentMember, error) {
 	return s.members.ListActive(ctx, establishmentID)
 }
 
-// Invite adds somebody to the establishment by email. Their user is created if there is none,
-// and a member who was removed comes back. Only an owner of the establishment, or a platform
-// admin, may make somebody an owner. role is nil to keep the role (STAFF for a new or removed member).
 func (s *EstablishmentMemberService) Invite(ctx context.Context, establishmentID string, inviter domain.User, email string, role *domain.EstablishmentRole) error {
 	email = strings.ToLower(strings.TrimSpace(email))
 
@@ -124,7 +114,6 @@ func (s *EstablishmentMemberService) Invite(ctx context.Context, establishmentID
 	return nil
 }
 
-// canGrantOwner reports whether user may make somebody an owner of the establishment.
 func (s *EstablishmentMemberService) canGrantOwner(ctx context.Context, establishmentID string, user domain.User) (bool, error) {
 	if user.Role == domain.RoleAdmin {
 		return true, nil
@@ -138,7 +127,6 @@ func (s *EstablishmentMemberService) canGrantOwner(ctx context.Context, establis
 	return membership != nil && membership.Active && membership.Role == string(domain.EstablishmentRoleOwner), nil
 }
 
-// ResendInvite emails a fresh invitation to a member who has not signed in yet.
 func (s *EstablishmentMemberService) ResendInvite(ctx context.Context, establishmentID, memberID string, inviter domain.User) error {
 	member, err := s.members.FindInvite(ctx, establishmentID, memberID)
 	if err != nil {
@@ -166,7 +154,6 @@ func (s *EstablishmentMemberService) ResendInvite(ctx context.Context, establish
 	return nil
 }
 
-// UpdateRole gives a member another role. The last owner cannot stop being one.
 func (s *EstablishmentMemberService) UpdateRole(ctx context.Context, establishmentID, memberID string, role domain.EstablishmentRole, actor domain.User) error {
 	members, err := s.members.ListActive(ctx, establishmentID)
 	if err != nil {
@@ -207,7 +194,6 @@ func (s *EstablishmentMemberService) UpdateRole(ctx context.Context, establishme
 	return nil
 }
 
-// Remove takes a member out of the establishment, keeping the row. The last owner cannot go.
 func (s *EstablishmentMemberService) Remove(ctx context.Context, establishmentID, memberID string) error {
 	members, err := s.members.ListActive(ctx, establishmentID)
 	if err != nil {
@@ -257,8 +243,6 @@ func ownersAmong(members []domain.EstablishmentMember) int {
 	return owners
 }
 
-// ForgetCache drops the cached membership of the person a member event is about
-// (ForgetMemberCacheHandler). It subscribes to EstablishmentMemberEvents.
 func (s *EstablishmentMemberService) ForgetCache(ctx context.Context, event ports.Event) {
 	switch e := event.(type) {
 	case domain.MemberInvited:
@@ -270,8 +254,6 @@ func (s *EstablishmentMemberService) ForgetCache(ctx context.Context, event port
 	}
 }
 
-// SendInvitation emails the invitation of MemberInvited (member-invited.handler.ts of the
-// email module). The member is already saved, so a failure is only logged.
 func (s *EstablishmentMemberService) SendInvitation(ctx context.Context, event ports.Event) {
 	invited, ok := event.(domain.MemberInvited)
 	if !ok {
@@ -295,21 +277,16 @@ func (s *EstablishmentMemberService) sendInvitation(ctx context.Context, invited
 	return s.mailer.SendInvite(ctx, invited.Email, invite, invited.InviterLanguage)
 }
 
-// memberIDPayload is the { id } of memberInvited and memberRemoved.
 type memberIDPayload struct {
 	ID string `json:"id"`
 }
 
-// memberRoleChangedPayload is what memberRoleChanged sends.
 type memberRoleChangedPayload struct {
 	ID     string                   `json:"id"`
 	UserID string                   `json:"userId"`
 	Role   domain.EstablishmentRole `json:"role"`
 }
 
-// PublishRealtime tells the establishment's stream about a member event, and closes the
-// streams of a member who was removed (member-*.handler.ts of realtime). It subscribes to
-// EstablishmentMemberEvents.
 func (s *EstablishmentMemberService) PublishRealtime(_ context.Context, event ports.Event) {
 	switch e := event.(type) {
 	case domain.MemberInvited:
@@ -323,8 +300,6 @@ func (s *EstablishmentMemberService) PublishRealtime(_ context.Context, event po
 	}
 }
 
-// AuditRoleChange asks for a row in AdminAuditLog when a platform admin changed a member's
-// role (audit-member-role-changed.handler.ts of admin). It subscribes to MemberRoleChanged.
 func (s *EstablishmentMemberService) AuditRoleChange(ctx context.Context, event ports.Event) {
 	changed, ok := event.(domain.MemberRoleChanged)
 	if !ok || changed.ActorRole != domain.RoleAdmin {

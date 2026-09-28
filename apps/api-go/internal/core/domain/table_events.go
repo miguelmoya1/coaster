@@ -1,7 +1,5 @@
 package domain
 
-// The table events, as tables/events/impl in Nest. Name returns the class name.
-
 type TableCreatedEvent struct {
 	EstablishmentID string
 	Table           Table

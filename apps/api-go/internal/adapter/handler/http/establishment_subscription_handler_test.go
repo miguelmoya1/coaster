@@ -14,7 +14,6 @@ import (
 	"api-go/internal/service"
 )
 
-// billingAccess makes testUser a member of every establishment with role.
 type billingAccess struct {
 	fakeAccess
 	role domain.EstablishmentRole
@@ -24,8 +23,6 @@ func (a billingAccess) Membership(context.Context, string, string) (*domain.Memb
 	return &domain.Membership{Role: string(a.role), Active: true}, nil
 }
 
-// emptyBilling is an EstablishmentSubscription table with no rows and one member per
-// establishment.
 type emptyBilling struct{}
 
 func (emptyBilling) FindByEstablishmentID(context.Context, string) (*domain.EstablishmentSubscription, error) {
@@ -52,8 +49,6 @@ func (emptyBilling) UpdateFromStripe(context.Context, string, domain.Subscriptio
 	return nil
 }
 
-// newBillingServer serves the subscription routes as a member with role. Stripe is never
-// reached: the requests in these tests stop before it, or are webhooks checked locally.
 func newBillingServer(role domain.EstablishmentRole) http.Handler {
 	subscriptions := service.NewSubscriptionService(service.SubscriptionDependencies{
 		Repo:     emptyBilling{},

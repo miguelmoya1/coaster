@@ -15,7 +15,6 @@ type CategoryService interface {
 	Delete(ctx context.Context, establishmentID, categoryID string) error
 }
 
-// CategoryHandler is categories.controller.ts.
 type CategoryHandler struct {
 	categories CategoryService
 }
@@ -37,7 +36,6 @@ func (h *CategoryHandler) RegisterRoutes(mux *http.ServeMux, guard *middleware.G
 		middleware.Permissions(domain.PermissionDeleteCategory), inventory)
 }
 
-// categoryRequest is CreateCategoryDto and UpdateCategoryDto, which are the same.
 type categoryRequest struct {
 	Name    string  `json:"name" validate:"required" msg:"required=REQUIRED,type=INVALID_TYPE"`
 	Icon    *string `json:"icon" validate:"omitnil" msg:"type=INVALID_TYPE"`

@@ -22,7 +22,6 @@ var (
 	listRecentAdminAuditQuery string
 )
 
-// AdminAuditRepository keeps the backoffice log in "AdminAuditLog".
 type AdminAuditRepository struct {
 	pool *pgxpool.Pool
 }
@@ -67,7 +66,6 @@ func (r *AdminAuditRepository) RecentFor(ctx context.Context, targetType, target
 	return pgx.CollectRows(rows, scanAdminAuditEntry)
 }
 
-// scanAdminAuditEntry reads a row of the audit queries, which all select the same columns.
 func scanAdminAuditEntry(row pgx.CollectableRow) (domain.AdminAuditLogEntry, error) {
 	var entry domain.AdminAuditLogEntry
 	var metadata []byte

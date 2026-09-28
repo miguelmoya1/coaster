@@ -23,7 +23,6 @@ var (
 	spendAuthTokenQuery string
 )
 
-// AuthTokenRepository stores the emailed tokens in "AuthToken", only as hashes.
 type AuthTokenRepository struct {
 	pool *pgxpool.Pool
 }

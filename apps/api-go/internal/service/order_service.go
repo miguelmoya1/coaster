@@ -11,12 +11,8 @@ import (
 	"api-go/internal/core/ports"
 )
 
-// orderNoteMaxLength is where Nest cuts the notes of an order, of a line and the reason of a
-// discount (substring(0, 500)).
 const orderNoteMaxLength = 500
 
-// OrderService is the orders module: an establishment's orders with their lines, discounts,
-// payments and tables. Each method is one of the commands or queries of Nest.
 type OrderService struct {
 	orders ports.OrderRepository
 	tables ports.TableRepository
@@ -28,14 +24,12 @@ func NewOrderService(orders ports.OrderRepository, tables ports.TableRepository,
 	return &OrderService{orders: orders, tables: tables, events: events, now: time.Now}
 }
 
-// OrderLineInput is CreateOrderItemDto: a product, how many units and a note.
 type OrderLineInput struct {
 	ProductID string
 	Quantity  int
 	Notes     *string
 }
 
-// OrderAdjustmentInput is AddOrderAdjustmentDto: a discount on the order or on one line.
 type OrderAdjustmentInput struct {
 	Target domain.AdjustmentTarget
 	Type   domain.AdjustmentType
@@ -44,7 +38,6 @@ type OrderAdjustmentInput struct {
 	ItemID *string
 }
 
-// CreateOrderInput is CreateOrderDto, plus who opens the order ("" for nobody).
 type CreateOrderInput struct {
 	CreatedByID string
 	TableID     *string
@@ -54,27 +47,22 @@ type CreateOrderInput struct {
 	TipAmount   *int
 }
 
-// AddOrderItemsInput is AddOrderItemsDto. ClearNotes is notes sent as null, which empties them.
 type AddOrderItemsInput struct {
 	Items      []OrderLineInput
 	Notes      *string
 	ClearNotes bool
 }
 
-// MergeOrdersInput is MergeOrdersDto.
 type MergeOrdersInput struct {
 	OrderIDs      []string
 	TargetTableID *string
 }
 
-// UpdateOrderNotesInput is UpdateOrderNotesDto. A nil field is left as it is.
 type UpdateOrderNotesInput struct {
 	Notes       *string
 	TicketNotes *string
 }
 
-// List is GetOrdersByEstablishmentIdQuery: the establishment's orders, newest first. An empty
-// status lists them all.
 func (s *OrderService) List(ctx context.Context, establishmentID string, status domain.OrderStatus) ([]domain.Order, error) {
 	switch status {
 	case "", domain.OrderOpen, domain.OrderClosed, domain.OrderCancelled:
@@ -89,9 +77,6 @@ func (s *OrderService) List(ctx context.Context, establishmentID string, status 
 	return toOrders(rows), nil
 }
 
-// ListByDate is GetOrdersByDateQuery: the orders created on a day (YYYY-MM-DD, in UTC),
-// newest first. A date that is not one fails like Temporal.PlainDate.from does in Nest: with
-// a 500.
 func (s *OrderService) ListByDate(ctx context.Context, establishmentID, date string) ([]domain.Order, error) {
 	day, err := time.Parse(time.DateOnly, date)
 	if err != nil {
@@ -105,7 +90,6 @@ func (s *OrderService) ListByDate(ctx context.Context, establishmentID, date str
 	return toOrders(rows), nil
 }
 
-// Get is GetOrderByIdQuery.
 func (s *OrderService) Get(ctx context.Context, establishmentID, orderID string) (domain.Order, error) {
 	order, err := s.find(ctx, establishmentID, orderID)
 	if err != nil {
@@ -114,8 +98,6 @@ func (s *OrderService) Get(ctx context.Context, establishmentID, orderID string)
 	return order.ToOrder(), nil
 }
 
-// Create is CreateOrderCommand: it opens an order with its lines, discounts and tip, and
-// occupies its table if it has one.
 func (s *OrderService) Create(ctx context.Context, establishmentID string, input CreateOrderInput) error {
 	items, totalAmount, err := s.priceLines(ctx, establishmentID, input.Items)
 	if err != nil {
@@ -178,7 +160,6 @@ func (s *OrderService) Create(ctx context.Context, establishmentID string, input
 	return nil
 }
 
-// AddItems is AddOrderItemsCommand: more lines for an open order.
 func (s *OrderService) AddItems(ctx context.Context, establishmentID, orderID string, input AddOrderItemsInput) error {
 	order, err := s.findOpen(ctx, establishmentID, orderID)
 	if err != nil {
@@ -210,8 +191,6 @@ func (s *OrderService) AddItems(ctx context.Context, establishmentID, orderID st
 	return nil
 }
 
-// BulkUpdate is BulkUpdateOrderCommand: how many units of each line are paid (and how) and
-// served. It never takes more units than a line has.
 func (s *OrderService) BulkUpdate(ctx context.Context, establishmentID, orderID string, updates []domain.OrderItemUpdate) error {
 	order, err := s.findOpen(ctx, establishmentID, orderID)
 	if err != nil {
@@ -256,8 +235,6 @@ func (s *OrderService) BulkUpdate(ctx context.Context, establishmentID, orderID 
 	return nil
 }
 
-// Checkout is CheckoutOrderCommand: it closes the order, charges what is pending by card or in
-// cash and frees its table. Of two checkouts at once, only one closes it.
 func (s *OrderService) Checkout(ctx context.Context, establishmentID, orderID string, method domain.PaymentMethod) error {
 	order, err := s.findOpen(ctx, establishmentID, orderID)
 	if err != nil {
@@ -273,8 +250,6 @@ func (s *OrderService) Checkout(ctx context.Context, establishmentID, orderID st
 	return nil
 }
 
-// Cancel is CancelOrderCommand: the order is cancelled, its table freed and its units go
-// back to stock.
 func (s *OrderService) Cancel(ctx context.Context, establishmentID, orderID string) error {
 	order, err := s.findOpen(ctx, establishmentID, orderID)
 	if err != nil {
@@ -290,7 +265,6 @@ func (s *OrderService) Cancel(ctx context.Context, establishmentID, orderID stri
 	return nil
 }
 
-// MoveTable is MoveOrderTableCommand: the order goes to a free table of the establishment.
 func (s *OrderService) MoveTable(ctx context.Context, establishmentID, orderID, tableID string) error {
 	order, err := s.findOpen(ctx, establishmentID, orderID)
 	if err != nil {
@@ -322,8 +296,6 @@ func (s *OrderService) MoveTable(ctx context.Context, establishmentID, orderID, 
 	return nil
 }
 
-// Merge is MergeOrdersCommand: the open orders go into the oldest one, which can move to
-// another table on the way.
 func (s *OrderService) Merge(ctx context.Context, establishmentID string, input MergeOrdersInput) error {
 	orders, err := s.orders.FindByIDs(ctx, input.OrderIDs)
 	if err != nil {
@@ -382,7 +354,6 @@ func (s *OrderService) Merge(ctx context.Context, establishmentID string, input 
 	return nil
 }
 
-// RemoveItem is RemoveOrderItemCommand. Removing the last line cancels the order.
 func (s *OrderService) RemoveItem(ctx context.Context, establishmentID, orderID, itemID string) error {
 	order, err := s.findOpen(ctx, establishmentID, orderID)
 	if err != nil {
@@ -418,8 +389,6 @@ func (s *OrderService) RemoveItem(ctx context.Context, establishmentID, orderID,
 	return nil
 }
 
-// Delete is DeleteOrderCommand: only an order that is no longer open, is not in a cash
-// close and was created today (UTC) can be deleted.
 func (s *OrderService) Delete(ctx context.Context, establishmentID, orderID string) error {
 	order, err := s.find(ctx, establishmentID, orderID)
 	if err != nil {
@@ -444,7 +413,6 @@ func (s *OrderService) Delete(ctx context.Context, establishmentID, orderID stri
 	return nil
 }
 
-// UpdateTip is UpdateOrderTipCommand.
 func (s *OrderService) UpdateTip(ctx context.Context, establishmentID, orderID string, tipAmount int) error {
 	if _, err := s.findOpen(ctx, establishmentID, orderID); err != nil {
 		return err
@@ -461,8 +429,6 @@ func (s *OrderService) UpdateTip(ctx context.Context, establishmentID, orderID s
 	return nil
 }
 
-// UpdateNotes is UpdateOrderNotesCommand: the notes that come are trimmed, and empty ones
-// are removed.
 func (s *OrderService) UpdateNotes(ctx context.Context, establishmentID, orderID string, input UpdateOrderNotesInput) error {
 	if _, err := s.findOpen(ctx, establishmentID, orderID); err != nil {
 		return err
@@ -487,8 +453,6 @@ func (s *OrderService) UpdateNotes(ctx context.Context, establishmentID, orderID
 	return nil
 }
 
-// UpdateItemNotes is UpdateOrderItemNotesCommand: the note is trimmed, and without one (or
-// with an empty one) the line's note is removed.
 func (s *OrderService) UpdateItemNotes(ctx context.Context, establishmentID, orderID, itemID string, notes *string) error {
 	order, err := s.findOpen(ctx, establishmentID, orderID)
 	if err != nil {
@@ -512,8 +476,6 @@ func (s *OrderService) UpdateItemNotes(ctx context.Context, establishmentID, ord
 	return nil
 }
 
-// AddAdjustment is AddOrderAdjustmentCommand: a discount on the order or on one of its
-// lines, as long as the order's total does not go below zero.
 func (s *OrderService) AddAdjustment(ctx context.Context, establishmentID, orderID string, input OrderAdjustmentInput) error {
 	order, err := s.findOpen(ctx, establishmentID, orderID)
 	if err != nil {
@@ -567,7 +529,6 @@ func (s *OrderService) AddAdjustment(ctx context.Context, establishmentID, order
 	return nil
 }
 
-// RemoveAdjustment is RemoveOrderAdjustmentCommand.
 func (s *OrderService) RemoveAdjustment(ctx context.Context, establishmentID, orderID, adjustmentID string) error {
 	order, err := s.findOpen(ctx, establishmentID, orderID)
 	if err != nil {
@@ -590,7 +551,6 @@ func (s *OrderService) RemoveAdjustment(ctx context.Context, establishmentID, or
 	return nil
 }
 
-// find returns the establishment's order, or ORDER_NOT_FOUND.
 func (s *OrderService) find(ctx context.Context, establishmentID, orderID string) (domain.OrderRow, error) {
 	order, err := s.orders.FindByID(ctx, orderID)
 	if err != nil {
@@ -602,7 +562,6 @@ func (s *OrderService) find(ctx context.Context, establishmentID, orderID string
 	return *order, nil
 }
 
-// findOpen is find for an order that has to be open (ORDER_NOT_OPEN otherwise).
 func (s *OrderService) findOpen(ctx context.Context, establishmentID, orderID string) (domain.OrderRow, error) {
 	order, err := s.find(ctx, establishmentID, orderID)
 	if err != nil {
@@ -614,7 +573,6 @@ func (s *OrderService) findOpen(ctx context.Context, establishmentID, orderID st
 	return order, nil
 }
 
-// findTable returns the establishment's table, or TABLE_NOT_FOUND.
 func (s *OrderService) findTable(ctx context.Context, establishmentID, tableID string) (domain.Table, error) {
 	table, err := s.tables.FindByID(ctx, tableID)
 	if err != nil {
@@ -626,9 +584,6 @@ func (s *OrderService) findTable(ctx context.Context, establishmentID, tableID s
 	return *table, nil
 }
 
-// priceLines looks up the product of each line (PRODUCT_NOT_FOUND if the establishment does
-// not sell one of them) and returns the lines with their product's price, name and tax
-// rate, and what they add up to before tax.
 func (s *OrderService) priceLines(ctx context.Context, establishmentID string, lines []OrderLineInput) ([]domain.NewOrderItem, int, error) {
 	productIDs := make([]string, 0, len(lines))
 	for _, line := range lines {
@@ -667,8 +622,6 @@ func (s *OrderService) priceLines(ctx context.Context, establishmentID string, l
 	return items, total, nil
 }
 
-// newOrderAdjustment is the discount to store: the reason cut like the notes, and the line
-// only on a discount of a line.
 func newOrderAdjustment(input OrderAdjustmentInput) domain.NewOrderAdjustment {
 	adjustment := domain.NewOrderAdjustment{
 		Target: input.Target,
@@ -700,7 +653,6 @@ func anyOrderAtTable(orders []domain.OrderRow, tableID string) bool {
 	return false
 }
 
-// toOrders maps the rows, never returning nil.
 func toOrders(rows []domain.OrderRow) []domain.Order {
 	orders := make([]domain.Order, 0, len(rows))
 	for _, row := range rows {
@@ -709,8 +661,6 @@ func toOrders(rows []domain.OrderRow) []domain.Order {
 	return orders
 }
 
-// cutOrderNote is `note?.substring(0, 500) || null`: the first 500 characters, and nil when there
-// is no note or it is empty.
 func cutOrderNote(note *string) *string {
 	if note == nil || *note == "" {
 		return nil
@@ -725,7 +675,6 @@ func cutOrderNote(note *string) *string {
 	return &cut
 }
 
-// trimOrderNote is `note.trim() || null`.
 func trimOrderNote(note string) *string {
 	trimmed := strings.TrimSpace(note)
 	if trimmed == "" {
@@ -734,7 +683,6 @@ func trimOrderNote(note string) *string {
 	return &trimmed
 }
 
-// tableIDOrNil is value, or nil when it is nil or "".
 func tableIDOrNil(value *string) *string {
 	if value == nil || *value == "" {
 		return nil
@@ -742,7 +690,6 @@ func tableIDOrNil(value *string) *string {
 	return value
 }
 
-// orderDayUTC is midnight (UTC) of the day t falls on in UTC.
 func orderDayUTC(t time.Time) time.Time {
 	year, month, day := t.UTC().Date()
 	return time.Date(year, month, day, 0, 0, 0, 0, time.UTC)

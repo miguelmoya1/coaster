@@ -13,7 +13,6 @@ type CatalogueService interface {
 	Import(ctx context.Context, establishmentID string, keys []string) error
 }
 
-// CatalogueHandler is catalogue.controller.ts.
 type CatalogueHandler struct {
 	catalogue CatalogueService
 }
@@ -32,7 +31,6 @@ func (h *CatalogueHandler) RegisterRoutes(mux *http.ServeMux, guard *middleware.
 	handle(mux, guard, "POST /establishments/{establishmentId}/catalogue/import", h.importStarter, rules...)
 }
 
-// importCatalogueRequest is ImportStarterCatalogueDto.
 type importCatalogueRequest struct {
 	CategoryKeys *[]string `json:"categoryKeys" validate:"omitnil"`
 }

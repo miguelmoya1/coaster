@@ -16,16 +16,12 @@ import (
 	"api-go/internal/core/domain"
 )
 
-// StripeGateway is ports.PaymentGateway on Stripe (StripeApi, StripeClient and
-// StripeWebhookGuard in Nest).
 type StripeGateway struct {
 	client        *stripe.Client
 	configured    bool
 	webhookSecret string
 }
 
-// NewStripeGateway builds the gateway. Without a secret key every call fails with the
-// error of that call, as in Nest, but the API still starts.
 func NewStripeGateway(secretKey, webhookSecret string) *StripeGateway {
 	return newStripeGateway(secretKey, webhookSecret, stripe.NewBackendsWithConfig(&stripe.BackendConfig{}))
 }
@@ -38,7 +34,6 @@ func newStripeGateway(secretKey, webhookSecret string, backends *stripe.Backends
 	}
 }
 
-// errNotConfigured is what a call fails with when STRIPE_SECRET_KEY is missing.
 var errNotConfigured = errors.New("STRIPE_SECRET_KEY is not configured in environment variables")
 
 func (g *StripeGateway) CreateCheckoutSession(ctx context.Context, request domain.CheckoutRequest) (*domain.StripeCheckoutSession, error) {
@@ -158,7 +153,6 @@ func (g *StripeGateway) RetrieveSubscription(ctx context.Context, subscriptionID
 	return toSubscription(subscription), nil
 }
 
-// retrieve returns nil when Stripe does not know the subscription.
 func (g *StripeGateway) retrieve(ctx context.Context, subscriptionID string) (*stripe.Subscription, error) {
 	err := errNotConfigured
 	var subscription *stripe.Subscription
@@ -215,7 +209,6 @@ func (g *StripeGateway) UpdateSubscriptionSeats(ctx context.Context, subscriptio
 	return true, nil
 }
 
-// ParseWebhook checks the signature like StripeWebhookGuard and reads the event's object.
 func (g *StripeGateway) ParseWebhook(payload []byte, signature string) (*domain.StripeEvent, error) {
 	if g.webhookSecret == "" {
 		slog.Error("STRIPE_WEBHOOK_SECRET is not configured in environment variables")
@@ -241,7 +234,6 @@ func (g *StripeGateway) ParseWebhook(payload []byte, signature string) (*domain.
 	return toEvent(event)
 }
 
-// toEvent reads the object of the event types the service handles.
 func toEvent(event stripe.Event) (*domain.StripeEvent, error) {
 	parsed := &domain.StripeEvent{ID: event.ID, Type: string(event.Type)}
 
@@ -336,7 +328,6 @@ func toInvoice(invoice *stripe.Invoice) *domain.StripeInvoice {
 	return converted
 }
 
-// fromUnix turns Stripe's seconds into a time; 0 means there is none.
 func fromUnix(seconds int64) *time.Time {
 	if seconds == 0 {
 		return nil
@@ -345,8 +336,6 @@ func fromUnix(seconds int64) *time.Time {
 	return &t
 }
 
-// isResourceMissing reports whether Stripe answered that the customer or subscription
-// does not exist (isStripeResourceMissingError).
 func isResourceMissing(err error, resource string) bool {
 	var stripeErr *stripe.Error
 	if !errors.As(err, &stripeErr) || stripeErr.Code != stripe.ErrorCodeResourceMissing {
@@ -357,7 +346,6 @@ func isResourceMissing(err error, resource string) bool {
 		strings.Contains(strings.ToLower(stripeErr.Msg), "no such "+resource)
 }
 
-// describe is what the log says about a failed call: what Stripe complained about.
 func describe(err error) string {
 	var stripeErr *stripe.Error
 	if !errors.As(err, &stripeErr) {

@@ -7,7 +7,6 @@ import (
 	"api-go/internal/core/ports"
 )
 
-// CatalogueService is the catalogue module: the starter catalogue a new establishment can import.
 type CatalogueService struct {
 	catalogue ports.CatalogueRepository
 	events    ports.EventPublisher
@@ -17,7 +16,6 @@ func NewCatalogueService(catalogue ports.CatalogueRepository, events ports.Event
 	return &CatalogueService{catalogue: catalogue, events: events}
 }
 
-// Starter is GetStarterCatalogueQuery: the catalogue in the establishment's language.
 func (s *CatalogueService) Starter(ctx context.Context, establishmentID string) ([]domain.StarterCatalogueCategory, error) {
 	language, err := s.catalogue.LanguageOf(ctx, establishmentID)
 	if err != nil {
@@ -27,9 +25,6 @@ func (s *CatalogueService) Starter(ctx context.Context, establishmentID string) 
 	return domain.ResolveCatalogue(domain.AsLanguage(language)), nil
 }
 
-// Import is ImportStarterCatalogueCommand: it creates the chosen categories (all of them
-// when keys is empty) with their products, in the establishment's language. Categories and
-// products that already exist by name are left alone, so importing twice changes nothing.
 func (s *CatalogueService) Import(ctx context.Context, establishmentID string, keys []string) error {
 	language, err := s.catalogue.LanguageOf(ctx, establishmentID)
 	if err != nil {
@@ -74,7 +69,6 @@ func (s *CatalogueService) Import(ctx context.Context, establishmentID string, k
 		return err
 	}
 
-	// With two categories of the same name, the last one wins, like new Map(...) in Nest.
 	idByName := make(map[string]string, len(all))
 	for _, category := range all {
 		idByName[category.Name] = category.ID

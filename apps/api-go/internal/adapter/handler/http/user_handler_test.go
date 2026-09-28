@@ -11,7 +11,6 @@ import (
 	"api-go/internal/service"
 )
 
-// userRows knows the users in ids and keeps the changes it was asked to write.
 type userRows struct {
 	ids     []string
 	updates []domain.UserProfileChanges

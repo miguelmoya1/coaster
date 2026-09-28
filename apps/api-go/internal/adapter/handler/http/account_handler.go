@@ -10,7 +10,6 @@ import (
 	"api-go/internal/service"
 )
 
-// AccountService is what AccountHandler needs (service.AccountService).
 type AccountService interface {
 	Account(ctx context.Context, userID string) (domain.AccountSummary, error)
 	RequestEmailVerification(ctx context.Context, userID string) error
@@ -21,7 +20,6 @@ type AccountService interface {
 	UnlinkIdentity(ctx context.Context, userID string, provider domain.AuthProvider, origin domain.SessionOrigin) error
 }
 
-// AccountHandler is account.controller.ts: how the signed-in person signs in.
 type AccountHandler struct {
 	account AccountService
 }
@@ -128,7 +126,7 @@ func (h *AccountHandler) closeSession(w http.ResponseWriter, r *http.Request) {
 func (h *AccountHandler) unlink(w http.ResponseWriter, r *http.Request) {
 	provider := domain.AuthProvider(r.PathValue("provider"))
 	if provider != domain.AuthProviderGoogle {
-		// Nest's ParseEnumPipe.
+
 		middleware.WriteNestError(w, http.StatusBadRequest, "Validation failed (enum string is expected)")
 		return
 	}

@@ -32,7 +32,6 @@ var (
 	deleteShiftExchangeQuery string
 )
 
-// ShiftExchangeRepository keeps the offers to hand a shift over in "ShiftExchange".
 type ShiftExchangeRepository struct {
 	pool *pgxpool.Pool
 }

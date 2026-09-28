@@ -16,7 +16,6 @@ type EstablishmentSubscriptionService interface {
 	CreateCustomerPortalSession(ctx context.Context, establishmentID string) (domain.PortalSession, error)
 }
 
-// EstablishmentSubscriptionHandler is establishment-subscription.controller.ts.
 type EstablishmentSubscriptionHandler struct {
 	subscriptions EstablishmentSubscriptionService
 }
@@ -40,8 +39,6 @@ type createCheckoutSessionRequest struct {
 	Plan *string `json:"plan" validate:"omitnil,oneof=PRO" msg:"oneof=INVALID_SUBSCRIPTION_PLAN,type=INVALID_SUBSCRIPTION_PLAN"`
 }
 
-// createCustomerPortalSessionRequest carries nothing. The DTO in Nest declares an optional
-// "_", so that is the only property it does not refuse.
 type createCustomerPortalSessionRequest struct {
 	Underscore *json.RawMessage `json:"_" validate:"omitnil"`
 }

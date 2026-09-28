@@ -26,7 +26,6 @@ var (
 	orderActivityQuery string
 )
 
-// AdminMetricsRepository counts the whole platform for the backoffice's front page.
 type AdminMetricsRepository struct {
 	pool *pgxpool.Pool
 }
@@ -79,7 +78,6 @@ func (r *AdminMetricsRepository) Collect(ctx context.Context, now, last7Days, la
 	return metrics, err
 }
 
-// countGroups runs a query of (value, count) rows and hands each one to set.
 func (r *AdminMetricsRepository) countGroups(ctx context.Context, query string, set func(value string, count int)) error {
 	rows, err := r.pool.Query(ctx, query)
 	if err != nil {

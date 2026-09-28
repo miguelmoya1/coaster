@@ -60,7 +60,6 @@ func validClaims(overrides map[string]any) map[string]any {
 	return claims
 }
 
-// newKeyServer serves key as Google's key set under kid "the-key", like the harness does.
 func newKeyServer(t *testing.T, key *rsa.PrivateKey, calls *atomic.Int32) *httptest.Server {
 	t.Helper()
 	jwk := map[string]any{

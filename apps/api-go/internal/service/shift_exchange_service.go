@@ -8,7 +8,6 @@ import (
 	"api-go/internal/core/ports"
 )
 
-// ShiftExchangeService handles the offers to hand a shift over to a workmate.
 type ShiftExchangeService struct {
 	shifts    ports.ShiftRepository
 	exchanges ports.ShiftExchangeRepository
@@ -19,13 +18,10 @@ func NewShiftExchangeService(shifts ports.ShiftRepository, exchanges ports.Shift
 	return &ShiftExchangeService{shifts: shifts, exchanges: exchanges, now: time.Now}
 }
 
-// ListPending lists the pending offers of shifts that start today or later, today being the
-// establishment's day and not the UTC one.
 func (s *ShiftExchangeService) ListPending(ctx context.Context, establishmentID string) ([]domain.ShiftExchange, error) {
 	return s.exchanges.ListPending(ctx, establishmentID, domain.StartOfEstablishmentDay(s.now()))
 }
 
-// Request offers one of the requester's own shifts, to anybody or to targetID.
 func (s *ShiftExchangeService) Request(ctx context.Context, establishmentID, shiftID, requesterID string, targetID *string) error {
 	shift, err := s.shifts.FindByID(ctx, shiftID)
 	if err != nil {
@@ -52,7 +48,6 @@ func (s *ShiftExchangeService) Request(ctx context.Context, establishmentID, shi
 	return s.exchanges.Create(ctx, shiftID, requesterID, targetID)
 }
 
-// Accept takes the offered shift over for userID.
 func (s *ShiftExchangeService) Accept(ctx context.Context, establishmentID, exchangeID, userID string) error {
 	exchange, err := s.exchanges.FindByID(ctx, exchangeID)
 	if err != nil {
@@ -88,7 +83,6 @@ func (s *ShiftExchangeService) Accept(ctx context.Context, establishmentID, exch
 	return nil
 }
 
-// Delete withdraws a pending offer. Only whoever made it, or the owner, may.
 func (s *ShiftExchangeService) Delete(ctx context.Context, establishmentID, exchangeID, userID string) error {
 	exchange, err := s.exchanges.FindByID(ctx, exchangeID)
 	if err != nil {

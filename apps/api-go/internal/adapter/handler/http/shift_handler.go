@@ -15,7 +15,6 @@ type ShiftService interface {
 	Delete(ctx context.Context, establishmentID, shiftID string) error
 }
 
-// ShiftHandler is shifts.controller.ts: the rota of an establishment.
 type ShiftHandler struct {
 	shifts ShiftService
 }
@@ -33,8 +32,6 @@ func (h *ShiftHandler) RegisterRoutes(mux *http.ServeMux, guard *middleware.Guar
 		middleware.Permissions(domain.PermissionDeleteShift))
 }
 
-// createShiftRequest is CreateShiftDto. The times are checked by the service, which answers
-// INVALID_DATE when they are not instants with an offset.
 type createShiftRequest struct {
 	UserID    string  `json:"userId" validate:"required,uuid4" msg:"required=REQUIRED,uuid4=INVALID_TYPE,type=INVALID_TYPE"`
 	StartTime string  `json:"startTime" validate:"required" msg:"required=REQUIRED,type=INVALID_DATE"`

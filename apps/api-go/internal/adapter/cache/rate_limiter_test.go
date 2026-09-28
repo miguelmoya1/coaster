@@ -49,7 +49,6 @@ func TestMemoryRateLimiterSlidesHits(t *testing.T) {
 	limiter.hit("k", time.Minute, 5, time.Minute)
 	now = now.Add(30 * time.Second)
 
-	// The first hit stopped counting 60 s after it happened.
 	if got := limiter.hit("k", time.Minute, 5, time.Minute); got.TotalHits != 2 {
 		t.Fatalf("TotalHits = %d, want 2", got.TotalHits)
 	}

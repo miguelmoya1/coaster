@@ -12,8 +12,6 @@ import (
 	"api-go/internal/core/ports"
 )
 
-// countHit is the script of throttler-cache.storage.ts: one counter per key and window,
-// which lives blockDuration more once the limit is passed.
 var countHit = redis.NewScript(`
 local hits = redis.call('INCR', KEYS[1])
 
@@ -28,14 +26,10 @@ end
 return { hits, redis.call('PTTL', KEYS[1]) }
 `)
 
-// throttlerName is the name of the only throttler, "default" in Nest.
 const throttlerName = "default"
 
-// memoryHighWaterMark is how many keys the memory counter keeps before sweeping idle ones.
 const memoryHighWaterMark = 10_000
 
-// RateLimiter is ports.RateLimiter: Redis when there is a client, and a counter in memory
-// without one or when Redis fails.
 type RateLimiter struct {
 	client *redis.Client
 	memory *memoryRateLimiter
@@ -69,8 +63,6 @@ func (l *RateLimiter) Hit(ctx context.Context, key string, ttl time.Duration, li
 	}
 }
 
-// memoryRateLimiter copies ThrottlerStorageService of @nestjs/throttler: every hit counts
-// for ttl after it happened, and past the limit the key is blocked for blockDuration.
 type memoryRateLimiter struct {
 	mu      sync.Mutex
 	records map[string]*hitRecord
@@ -78,7 +70,6 @@ type memoryRateLimiter struct {
 }
 
 type hitRecord struct {
-	// hits holds when each counted hit stops counting.
 	hits           []time.Time
 	expiresAt      time.Time
 	blocked        bool
@@ -142,7 +133,6 @@ func (r *hitRecord) dropExpiredHits(now time.Time) {
 	r.hits = kept
 }
 
-// sweep forgets idle keys once there are many, so the map does not grow for ever.
 func (m *memoryRateLimiter) sweep(now time.Time) {
 	if len(m.records) < memoryHighWaterMark {
 		return
@@ -156,7 +146,6 @@ func (m *memoryRateLimiter) sweep(now time.Time) {
 	}
 }
 
-// secondsUntil rounds up like Math.ceil in Nest; it is negative once t has passed.
 func secondsUntil(now, t time.Time) int {
 	return int(math.Ceil(t.Sub(now).Seconds()))
 }

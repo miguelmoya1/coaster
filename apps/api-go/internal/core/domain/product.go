@@ -1,18 +1,15 @@
 package domain
 
-// Tax rates are in basis points: 1000 is 10 %. The same as tax-rates.ts in @coaster/common.
 const (
 	DefaultTaxRate = 1000
 	MaxTaxRate     = 10000
 )
 
-// Allergens are the fourteen allergens a product can declare, as ALLERGENS in @coaster/common.
 var Allergens = []string{
 	"GLUTEN", "CRUSTACEANS", "EGGS", "FISH", "PEANUTS", "SOYBEANS", "MILK",
 	"NUTS", "CELERY", "MUSTARD", "SESAME", "SULPHITES", "LUPIN", "MOLLUSCS",
 }
 
-// ResolveTaxRate is resolveTaxRate: the product's own rate, else its category's, else the default.
 func ResolveTaxRate(productTaxRate, categoryTaxRate *int) int {
 	if productTaxRate != nil {
 		return *productTaxRate
@@ -23,7 +20,6 @@ func ResolveTaxRate(productTaxRate, categoryTaxRate *int) int {
 	return DefaultTaxRate
 }
 
-// Product is something an establishment sells. Its JSON is Product in @coaster/common.
 type Product struct {
 	ID            string   `json:"id"`
 	CategoryID    string   `json:"categoryId"`
@@ -39,8 +35,6 @@ type Product struct {
 	LastUpdated   Time     `json:"lastUpdated"`
 }
 
-// ProductRow is a product as it is stored. CategoryTaxRate is nil when the row was read
-// without its category.
 type ProductRow struct {
 	ID              string
 	CategoryID      string
@@ -56,7 +50,6 @@ type ProductRow struct {
 	CategoryTaxRate *int
 }
 
-// ToProduct is ProductsMapper.toDomain.
 func (row ProductRow) ToProduct() Product {
 	allergens := row.Allergens
 	if allergens == nil {
@@ -79,7 +72,6 @@ func (row ProductRow) ToProduct() Product {
 	}
 }
 
-// NewProduct is a product to create, with its defaults already applied.
 type NewProduct struct {
 	CategoryID    string
 	Name          string
@@ -92,8 +84,6 @@ type NewProduct struct {
 	TaxRate       *int
 }
 
-// ProductChanges is an update of a product. A nil field stays as it is; the Clear fields
-// empty a column that was sent as null.
 type ProductChanges struct {
 	Name            *string
 	CategoryID      *string

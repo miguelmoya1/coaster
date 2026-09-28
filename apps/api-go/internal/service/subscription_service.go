@@ -10,8 +10,6 @@ import (
 	"api-go/internal/core/ports"
 )
 
-// SubscriptionService is establishment-subscription in Nest: what an establishment pays
-// for, Checkout and the customer portal, the Stripe webhooks and the seats Stripe bills.
 type SubscriptionService struct {
 	repo     ports.EstablishmentSubscriptionRepository
 	payments ports.PaymentGateway
@@ -22,7 +20,6 @@ type SubscriptionService struct {
 	now      func() time.Time
 }
 
-// SubscriptionDependencies is what NewSubscriptionService needs.
 type SubscriptionDependencies struct {
 	Repo     ports.EstablishmentSubscriptionRepository
 	Payments ports.PaymentGateway
@@ -44,8 +41,6 @@ func NewSubscriptionService(deps SubscriptionDependencies) *SubscriptionService 
 	}
 }
 
-// Find is the establishment's subscription. One that never subscribed is FREE; one whose
-// period ran out is checked against Stripe first, in case a renewal webhook was missed.
 func (s *SubscriptionService) Find(ctx context.Context, establishmentID string) (domain.EstablishmentSubscriptionView, error) {
 	subscription, err := s.repo.FindByEstablishmentID(ctx, establishmentID)
 	if err != nil {
@@ -79,7 +74,6 @@ func (s *SubscriptionService) looksLapsed(subscription *domain.EstablishmentSubs
 		subscription.CurrentPeriodEnd.Before(s.now())
 }
 
-// Seats compares the staff with the seats Stripe is billing.
 func (s *SubscriptionService) Seats(ctx context.Context, establishmentID string) (domain.SubscriptionSeats, error) {
 	used, err := s.repo.CountBillableSeats(ctx, establishmentID)
 	if err != nil {
@@ -105,9 +99,6 @@ func (s *SubscriptionService) Seats(ctx context.Context, establishmentID string)
 	}, nil
 }
 
-// Refresh asks Stripe about the establishment's subscription and stores what it says. It is
-// the ports.SubscriptionRefresher of the route checks. Without a Stripe subscription, or
-// when Stripe no longer knows it, the stored state stands.
 func (s *SubscriptionService) Refresh(ctx context.Context, establishmentID string) (*domain.SubscriptionState, error) {
 	stored, err := s.repo.FindByEstablishmentID(ctx, establishmentID)
 	if err != nil || stored == nil {
@@ -144,8 +135,6 @@ func (s *SubscriptionService) Refresh(ctx context.Context, establishmentID strin
 	return refreshed.State(), nil
 }
 
-// CreateCheckoutSession opens a Stripe Checkout for plan, billing one seat per member.
-// It refuses while the establishment already has a live subscription.
 func (s *SubscriptionService) CreateCheckoutSession(ctx context.Context, establishmentID string, plan domain.SubscriptionPlan) (domain.CheckoutSession, error) {
 	existing, err := s.repo.FindByEstablishmentID(ctx, establishmentID)
 	if err != nil {
@@ -226,8 +215,6 @@ func (s *SubscriptionService) CreateCheckoutSession(ctx context.Context, establi
 	return domain.CheckoutSession{ID: session.ID, URL: session.URL}, nil
 }
 
-// CreateCustomerPortalSession opens Stripe's customer portal. When the stored customer is
-// gone, it tries the customer of the stored subscription before giving up.
 func (s *SubscriptionService) CreateCustomerPortalSession(ctx context.Context, establishmentID string) (domain.PortalSession, error) {
 	subscription, err := s.repo.FindByEstablishmentID(ctx, establishmentID)
 	if err != nil {
@@ -275,8 +262,6 @@ func (s *SubscriptionService) CreateCustomerPortalSession(ctx context.Context, e
 	return domain.PortalSession{}, domain.BadRequest(domain.CodeStripeCustomerNotFound)
 }
 
-// SyncSeats tells Stripe how many members the establishment has now, so the next invoice
-// bills them. It does nothing without a Stripe subscription or when the count is the same.
 func (s *SubscriptionService) SyncSeats(ctx context.Context, establishmentID string) error {
 	subscription, err := s.repo.FindByEstablishmentID(ctx, establishmentID)
 	if err != nil {
@@ -307,8 +292,6 @@ func (s *SubscriptionService) SyncSeats(ctx context.Context, establishmentID str
 	return err
 }
 
-// SyncSeatsOnMemberChange is SyncSeats for the member events. The member was already added
-// or removed, so a failure is only logged.
 func (s *SubscriptionService) SyncSeatsOnMemberChange(ctx context.Context, establishmentID string) {
 	if err := s.SyncSeats(ctx, establishmentID); err != nil {
 		slog.Error("the staff changed but Stripe was not told: it keeps billing the old number of seats until the next change; check it by hand",
@@ -316,21 +299,18 @@ func (s *SubscriptionService) SyncSeatsOnMemberChange(ctx context.Context, estab
 	}
 }
 
-// ForgetCache drops the cached subscription after a subscription event.
 func (s *SubscriptionService) ForgetCache(ctx context.Context, event ports.Event) {
 	if establishmentID, ok := subscriptionEventEstablishment(event); ok {
 		s.cache.Forget(ctx, subscriptionCacheKey(establishmentID))
 	}
 }
 
-// PublishRealtime tells the establishment's screens that the subscription changed.
 func (s *SubscriptionService) PublishRealtime(_ context.Context, event ports.Event) {
 	if establishmentID, ok := subscriptionEventEstablishment(event); ok {
 		s.realtime.Publish(establishmentID, domain.RealtimeSubscriptionUpdated, map[string]string{"establishmentId": establishmentID})
 	}
 }
 
-// ReportDuplicate logs a cancelled duplicate subscription, which may need a refund by hand.
 func (s *SubscriptionService) ReportDuplicate(_ context.Context, event ports.Event) {
 	duplicate, ok := event.(domain.DuplicateSubscriptionDetected)
 	if !ok {
@@ -343,7 +323,6 @@ func (s *SubscriptionService) ReportDuplicate(_ context.Context, event ports.Eve
 		"keptSubscriptionId", duplicate.KeptSubscriptionID)
 }
 
-// subscriptionEventEstablishment is the establishment a subscription event is about.
 func subscriptionEventEstablishment(event ports.Event) (string, bool) {
 	switch e := event.(type) {
 	case domain.SubscriptionActivated:

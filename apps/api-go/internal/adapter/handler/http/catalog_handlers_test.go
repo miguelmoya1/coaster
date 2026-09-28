@@ -14,7 +14,6 @@ import (
 	"api-go/internal/service"
 )
 
-// catalogAccess lets testUser in as a platform admin, with modules switched on.
 type catalogAccess struct {
 	modules []domain.EstablishmentModule
 }
@@ -30,7 +29,6 @@ func (a catalogAccess) EnabledModules(context.Context, string) ([]domain.Establi
 }
 func (catalogAccess) SubscriptionActive(context.Context, string) (bool, error) { return true, nil }
 
-// catalogStorage signs with a fixed URL and remembers the content type.
 type catalogStorage struct {
 	contentType string
 }
@@ -44,7 +42,6 @@ func (s *catalogStorage) PublicURL(objectPath string) string {
 	return "https://storage.example/" + objectPath
 }
 
-// catalogMenus knows no menu. Only FindPublishedBySlug is used.
 type catalogMenus struct {
 	ports.MenuRepository
 }
@@ -53,8 +50,6 @@ func (catalogMenus) FindPublishedBySlug(context.Context, string) (*domain.Publis
 	return nil, nil
 }
 
-// newCatalogServer registers the catalog routes. The services have no repositories: the
-// tests only reach them where they do not need one.
 func newCatalogServer(modules []domain.EstablishmentModule, storage *catalogStorage) http.Handler {
 	guard := middleware.NewGuard(fakeTokens{}, catalogAccess{modules: modules}, &countingLimiter{hits: map[string]int{}}, 1)
 	mux := http.NewServeMux()

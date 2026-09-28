@@ -5,8 +5,6 @@ import (
 	"testing"
 )
 
-// Hashes written by @node-rs/argon2 2.2.0 with Nest's options
-// ({ memoryCost: 19456, timeCost: 2, parallelism: 1 }).
 var nodeHashes = []struct {
 	password string
 	hash     string

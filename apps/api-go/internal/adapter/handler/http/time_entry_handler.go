@@ -23,7 +23,6 @@ type TimeEntryService interface {
 	Void(ctx context.Context, establishmentID, entryID string, actor *domain.User, reason string) (domain.TimeEntry, error)
 }
 
-// TimeEntryHandler is time-entries.controller.ts: punches, corrections and the time sheet.
 type TimeEntryHandler struct {
 	entries TimeEntryService
 }
@@ -48,14 +47,12 @@ func (h *TimeEntryHandler) RegisterRoutes(mux *http.ServeMux, guard *middleware.
 	handle(mux, guard, "POST "+base+"/{entryId}/void", h.void, middleware.Permissions(domain.PermissionManageTimeEntries))
 }
 
-// clockRequest is ClockDto.
 type clockRequest struct {
 	Type      domain.TimeEntryType `json:"type" validate:"oneof=CLOCK_IN BREAK_START BREAK_END CLOCK_OUT" msg:"oneof=INVALID_TYPE,type=INVALID_TYPE"`
 	Latitude  *float64             `json:"latitude" validate:"omitnil,latitude" msg:"latitude=INVALID_TYPE,type=INVALID_TYPE"`
 	Longitude *float64             `json:"longitude" validate:"omitnil,longitude" msg:"longitude=INVALID_TYPE,type=INVALID_TYPE"`
 }
 
-// createTimeEntryRequest is CreateTimeEntryDto.
 type createTimeEntryRequest struct {
 	UserID     string               `json:"userId" validate:"required,uuid4" msg:"required=REQUIRED,uuid4=INVALID_TYPE,type=INVALID_TYPE"`
 	Type       domain.TimeEntryType `json:"type" validate:"oneof=CLOCK_IN BREAK_START BREAK_END CLOCK_OUT" msg:"oneof=INVALID_TYPE,type=INVALID_TYPE"`
@@ -63,18 +60,15 @@ type createTimeEntryRequest struct {
 	Reason     string               `json:"reason" validate:"min=5,max=500" msg:"min=TIME_ENTRY_REASON_REQUIRED,max=MAX_LENGTH,type=INVALID_TYPE"`
 }
 
-// amendTimeEntryRequest is AmendTimeEntryDto.
 type amendTimeEntryRequest struct {
 	OccurredAt string `json:"occurredAt" validate:"iso8601" msg:"iso8601=INVALID_DATE,type=INVALID_DATE"`
 	Reason     string `json:"reason" validate:"min=5,max=500" msg:"min=TIME_ENTRY_REASON_REQUIRED,max=MAX_LENGTH,type=INVALID_TYPE"`
 }
 
-// voidTimeEntryRequest is VoidTimeEntryDto.
 type voidTimeEntryRequest struct {
 	Reason string `json:"reason" validate:"min=5,max=500" msg:"min=TIME_ENTRY_REASON_REQUIRED,max=MAX_LENGTH,type=INVALID_TYPE"`
 }
 
-// timeSheetQuery is TimeSheetQueryDto, read from the query string.
 type timeSheetQuery struct {
 	userID string
 	from   *string
@@ -83,8 +77,6 @@ type timeSheetQuery struct {
 
 var isoDatePattern = regexp.MustCompile(`^\d{4}-\d{2}-\d{2}$`)
 
-// parseTimeSheetQuery validates the query string like the ValidationPipe does with
-// TimeSheetQueryDto: unknown parameters first, then the rules of each field.
 func parseTimeSheetQuery(values url.Values) (timeSheetQuery, error) {
 	known := []string{"userId", "from", "to"}
 	var unknown, messages []string
@@ -162,7 +154,6 @@ func (h *TimeEntryHandler) myCurrentWorkday(w http.ResponseWriter, r *http.Reque
 	writeJSON(w, http.StatusOK, workday)
 }
 
-// myWorkdays is the caller's own time sheet: a userId in the query is ignored.
 func (h *TimeEntryHandler) myWorkdays(w http.ResponseWriter, r *http.Request) {
 	query, err := parseTimeSheetQuery(r.URL.Query())
 	if err != nil {
@@ -284,15 +275,12 @@ func (h *TimeEntryHandler) void(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusCreated, entry)
 }
 
-// timeSheetHeaders are the columns of the CSV export, in Spanish as the labour inspection reads it.
 var timeSheetHeaders = []string{"dia", "empleado", "marca", "hora", "origen", "accion", "motivo", "autor", "registrado", "hash"}
 
-// csvField quotes a value and doubles its quotes.
 func csvField(value string) string {
 	return `"` + strings.ReplaceAll(value, `"`, `""`) + `"`
 }
 
-// timeSheetCSV writes one row per revision of every punch (time-sheet-csv.ts).
 func timeSheetCSV(workdays []domain.Workday) string {
 	rows := []string{strings.Join(timeSheetHeaders, ";")}
 

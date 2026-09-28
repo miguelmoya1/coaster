@@ -2,22 +2,18 @@ package domain
 
 import "time"
 
-// DailyRevenue is DailyRevenue in @coaster/common: one day of the current week.
 type DailyRevenue struct {
 	DayName string `json:"dayName"`
 	Amount  int    `json:"amount"`
 	DateStr string `json:"dateStr"`
 }
 
-// MonthlyRevenue is MonthlyRevenue in @coaster/common: one month of the current year.
 type MonthlyRevenue struct {
 	MonthIndex int    `json:"monthIndex"`
 	MonthName  string `json:"monthName"`
 	Amount     int    `json:"amount"`
 }
 
-// EstablishmentStatsHistory is EstablishmentStatsHistory in @coaster/common: the month and
-// year figures, only for those who may see the history.
 type EstablishmentStatsHistory struct {
 	CurrentMonthRevenue  int              `json:"currentMonthRevenue"`
 	PreviousMonthRevenue int              `json:"previousMonthRevenue"`
@@ -28,8 +24,6 @@ type EstablishmentStatsHistory struct {
 	MaxMonthRevenue      int              `json:"maxMonthRevenue"`
 }
 
-// EstablishmentStats is EstablishmentStats in @coaster/common. Amounts are in cents and
-// History is nil without the history permission.
 type EstablishmentStats struct {
 	TodayRevenue               int                        `json:"todayRevenue"`
 	YesterdayRevenue           int                        `json:"yesterdayRevenue"`
@@ -44,7 +38,6 @@ type EstablishmentStats struct {
 	History                    *EstablishmentStatsHistory `json:"history"`
 }
 
-// StatsOrder is a closed order as the stats count it.
 type StatsOrder struct {
 	AmountPaidCash int
 	AmountPaidCard int
@@ -52,24 +45,17 @@ type StatsOrder struct {
 	CreatedAt      time.Time
 }
 
-// statsDayNames are the days of the week from Monday, as Nest writes them.
 var statsDayNames = []string{"Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"}
 
-// statsMonthNames are the months as toLocaleDateString('es-ES', { month: 'short' }) writes
-// them in Node, without the dot and with a capital letter.
 var statsMonthNames = []string{"Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sept", "Oct", "Nov", "Dic"}
 
-// statsDateLayout is how a day is written: "2026-06-17".
 const statsDateLayout = "2006-01-02"
 
-// startOfStatsWeek is midnight of the Monday of now's week.
 func startOfStatsWeek(now time.Time) time.Time {
 	daysSinceMonday := (int(now.Weekday()) + 6) % 7
 	return time.Date(now.Year(), now.Month(), now.Day()-daysSinceMonday, 0, 0, 0, 0, now.Location())
 }
 
-// StatsSince is the first instant of the orders the stats read: the start of last year with
-// the history, and the Monday of last week without it. The days are those of now's zone.
 func StatsSince(now time.Time, includeHistory bool) time.Time {
 	if includeHistory {
 		return time.Date(now.Year()-1, time.January, 1, 0, 0, 0, 0, now.Location())
@@ -79,9 +65,6 @@ func StatsSince(now time.Time, includeHistory bool) time.Time {
 	return time.Date(startOfWeek.Year(), startOfWeek.Month(), startOfWeek.Day()-7, 0, 0, 0, 0, now.Location())
 }
 
-// EstablishmentStatsOf is GetEstablishmentStatsHandler: it adds up the closed orders by day,
-// week and month. The revenue of an order is what was charged minus the tip, and its day is
-// the day it was created on. The days are those of now's zone.
 func EstablishmentStatsOf(orders []StatsOrder, now time.Time, includeHistory bool) EstablishmentStats {
 	location := now.Location()
 	startOfWeek := startOfStatsWeek(now)

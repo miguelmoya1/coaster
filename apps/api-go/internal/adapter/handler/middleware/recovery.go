@@ -6,7 +6,6 @@ import (
 	"runtime/debug"
 )
 
-// Recover turns a panic in a handler into Nest's generic 500 and logs it.
 func Recover(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
@@ -15,7 +14,6 @@ func Recover(next http.Handler) http.Handler {
 				return
 			}
 
-			// net/http uses this panic to abort a response on purpose.
 			if recovered == http.ErrAbortHandler {
 				panic(recovered)
 			}

@@ -17,8 +17,6 @@ type EstablishmentMemberService interface {
 	Remove(ctx context.Context, establishmentID, memberID string) error
 }
 
-// EstablishmentMemberHandler is establishment-members.controller.ts: who works in an
-// establishment, their invitations and their roles.
 type EstablishmentMemberHandler struct {
 	members EstablishmentMemberService
 }
@@ -42,19 +40,15 @@ func (h *EstablishmentMemberHandler) RegisterRoutes(mux *http.ServeMux, guard *m
 		middleware.Permissions(domain.PermissionRemoveMember))
 }
 
-// inviteMemberRequest is InviteEstablishmentMemberDto.
 type inviteMemberRequest struct {
 	Email string                    `json:"email" validate:"required,email" msg:"required=REQUIRED,email=INVALID_EMAIL,type=INVALID_EMAIL"`
 	Role  *domain.EstablishmentRole `json:"role" validate:"omitnil,oneof=OWNER MANAGER STAFF" msg:"oneof=INVALID_ROLE,type=INVALID_ROLE"`
 }
 
-// updateMemberRoleRequest is UpdateMemberRoleDto.
 type updateMemberRoleRequest struct {
 	Role domain.EstablishmentRole `json:"role" validate:"required,oneof=OWNER MANAGER STAFF" msg:"required=INVALID_ROLE,oneof=INVALID_ROLE,type=INVALID_ROLE"`
 }
 
-// adminStandInResponse is the made-up owner of GET members/me with Nest's key order, which
-// puts userEmail before userImage.
 type adminStandInResponse struct {
 	ID              string                   `json:"id"`
 	UserID          string                   `json:"userId"`

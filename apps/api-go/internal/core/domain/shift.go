@@ -2,7 +2,6 @@ package domain
 
 import "time"
 
-// Shift is a shift on the rota, as the API sends it (Shift in @coaster/common).
 type Shift struct {
 	ID              string  `json:"id"`
 	StartTime       Instant `json:"startTime"`
@@ -14,7 +13,6 @@ type Shift struct {
 	Notes           *string `json:"notes,omitempty"`
 }
 
-// NewShift is what it takes to put somebody on the rota.
 type NewShift struct {
 	EstablishmentID string
 	UserID          string
@@ -23,7 +21,6 @@ type NewShift struct {
 	Notes           *string
 }
 
-// ShiftExchangeStatus is where an offer to hand a shift over stands.
 type ShiftExchangeStatus string
 
 const (
@@ -32,8 +29,6 @@ const (
 	ShiftExchangeRejected ShiftExchangeStatus = "REJECTED"
 )
 
-// ShiftExchange is an offer to hand a shift over, as the API sends it (ShiftExchange in
-// @coaster/common).
 type ShiftExchange struct {
 	ID             string              `json:"id"`
 	ShiftID        string              `json:"shiftId"`
@@ -46,7 +41,6 @@ type ShiftExchange struct {
 	CreatedAt      Instant             `json:"createdAt"`
 }
 
-// ShiftExchangeRecord is an exchange with what the rules need of its shift.
 type ShiftExchangeRecord struct {
 	ID                   string
 	ShiftID              string

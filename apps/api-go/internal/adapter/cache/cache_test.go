@@ -51,7 +51,6 @@ func TestCacheOnRedis(t *testing.T) {
 		t.Fatalf("a cached null must be found as nil, got %+v", got)
 	}
 
-	// What Nest stores for undefined.
 	testClient.Set(ctx, "undefined", "{}", TTL)
 	var role string
 	if !cache.Get(ctx, "undefined", &role) || role != "" {

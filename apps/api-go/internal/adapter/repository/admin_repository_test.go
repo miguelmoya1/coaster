@@ -10,8 +10,6 @@ import (
 	"api-go/internal/core/domain"
 )
 
-// Rows the backoffice tests start from, written straight with SQL.
-
 func adminExec(t *testing.T, sql string, args ...any) {
 	t.Helper()
 	if _, err := testPool.Exec(context.Background(), sql, args...); err != nil {
@@ -38,7 +36,6 @@ func insertAdminMember(t *testing.T, id, establishmentID, userID, role string, a
 		id, userID, establishmentID, role, active, createdAt, removed)
 }
 
-// insertAdminSubscription writes a subscription row; set fills the columns the test cares about.
 func insertAdminSubscription(t *testing.T, establishmentID, status string, set string, args ...any) {
 	t.Helper()
 	adminExec(t, `INSERT INTO "EstablishmentSubscription" (id, "establishmentId", status, "updatedAt") VALUES ('sub-' || $1::text, $1, $2::"SubscriptionStatus", now())`,
@@ -197,7 +194,6 @@ func TestBetaTesterRepository(t *testing.T) {
 		t.Fatal("the tester is still there")
 	}
 
-	// The inviter's account going away leaves the tester without an inviter.
 	adminExec(t, `DELETE FROM "User" WHERE id = 'admin'`)
 	orphan, err := testers.FindByID(ctx, luna)
 	if err != nil || orphan == nil || orphan.InvitedByName != nil {
@@ -306,8 +302,6 @@ func TestAdminEstablishmentRepositoryList(t *testing.T) {
 	insertAdminUser(t, "luis", "Luis", "luis@cafe.com", "USER", true, daysBefore(30))
 	insertAdminUser(t, "gone", "Gone", "gone@old.com", "USER", true, daysBefore(30))
 
-	// manual: an open-ended grant on top of Stripe; stripe: only Stripe; lapsed: a grant that
-	// ended; none: no subscription row at all.
 	insertAdminEstablishment(t, "manual", "Bar Pepe", daysBefore(4))
 	insertAdminEstablishment(t, "stripe", "Café Luna", daysBefore(3))
 	insertAdminEstablishment(t, "lapsed", "Old bar", daysBefore(2))

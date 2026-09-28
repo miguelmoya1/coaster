@@ -17,9 +17,6 @@ type PrinterConnectionService interface {
 	GenerateDeviceKey(ctx context.Context, establishmentID string) (domain.PrinterDeviceKey, error)
 }
 
-// PrinterConnectionHandler is printer-connection.controller.ts: what the staff of an
-// establishment do with its printer, behind the ORDERS module. The web app sends the tickets
-// itself; orders do not print on their own.
 type PrinterConnectionHandler struct {
 	printers PrinterConnectionService
 }
@@ -41,7 +38,6 @@ func (h *PrinterConnectionHandler) RegisterRoutes(mux *http.ServeMux, guard *mid
 	handle(mux, guard, "POST /establishments/{establishmentId}/printer/device-key", h.generateDeviceKey, manage, orders)
 }
 
-// printTicketRequest is PrintTicketDto.
 type printTicketRequest struct {
 	Type              string                    `json:"type" validate:"oneof=order raw"`
 	EstablishmentName *string                   `json:"establishmentName" validate:"omitnil,max=60"`
@@ -54,7 +50,6 @@ type printTicketRequest struct {
 	RawText           *string                   `json:"rawText" validate:"omitnil,max=4000"`
 }
 
-// printTicketItemRequest is PrintTicketItemDto.
 type printTicketItemRequest struct {
 	Name     string `json:"name" validate:"max=120"`
 	Quantity int    `json:"quantity" validate:"min=1"`

@@ -18,7 +18,6 @@ func subscriptionDate(value string) *time.Time {
 
 func subscriptionText(value string) *string { return &value }
 
-// activeSubscription is an ACTIVE PRO subscription paid until February.
 func activeSubscription() *EstablishmentSubscription {
 	return &EstablishmentSubscription{
 		ID:                   "sub_id_1",
@@ -41,7 +40,6 @@ func TestSubscriptionViewJSON(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// With a row, manualGrant goes last, as in Nest's toDomain.
 	want := `{"id":"sub_id_1","establishmentId":"establishment_id_1","plan":"PRO","status":"ACTIVE",` +
 		`"stripeCustomerId":"cus_123","stripeSubscriptionId":"sub_123",` +
 		`"currentPeriodStart":"2026-01-01T00:00:00.000Z","currentPeriodEnd":"2026-02-01T00:00:00.000Z",` +
