@@ -6,7 +6,7 @@ SELECT count(*) FILTER (WHERE live_grant),
 FROM (
     SELECT "manualPlan" IS NOT NULL AND "manualPlan" <> 'FREE' AND ("manualGrantExpiresAt" IS NULL OR "manualGrantExpiresAt" >= $1) AS live_grant,
            COALESCE(
-               (status = 'ACTIVE' AND "stripeSubscriptionId" IS NOT NULL AND "currentPeriodEnd" >= $1)
+               (status = 'ACTIVE' AND "stripeSubscriptionId" <> '' AND "currentPeriodEnd" >= $1)
                OR (status = 'TRIALING' AND "trialEndsAt" >= $1)
                OR (status = 'CANCELED' AND "currentPeriodEnd" >= $1)
                OR status = 'PAST_DUE',

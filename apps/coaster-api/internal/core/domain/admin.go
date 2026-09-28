@@ -211,8 +211,9 @@ func (row AdminEstablishmentRow) Summary(now time.Time) AdminEstablishmentSummar
 	summary.Plan = view.Plan
 	summary.Status = view.Status
 
-	grantIsLive := IsManualGrantActive(billing.State(), now)
-	stripeAccess := billing.hasStripeAccess(now)
+	state := billing.State()
+	grantIsLive := IsManualGrantActive(state, now)
+	stripeAccess := stripeGrantsAccess(state, now)
 
 	switch {
 	case grantIsLive:
@@ -231,21 +232,6 @@ func (row AdminEstablishmentRow) Summary(now time.Time) AdminEstablishmentSummar
 
 	summary.HasAccess = grantIsLive || stripeAccess
 	return summary
-}
-
-func (b *AdminBilling) hasStripeAccess(now time.Time) bool {
-	switch b.Status {
-	case SubscriptionActive:
-		return b.HasStripeSubscription() && b.CurrentPeriodEnd != nil && !now.After(*b.CurrentPeriodEnd)
-	case SubscriptionTrialing:
-		return b.TrialEndsAt != nil && !now.After(*b.TrialEndsAt)
-	case SubscriptionCanceled:
-		return b.CurrentPeriodEnd != nil && !now.After(*b.CurrentPeriodEnd)
-	case SubscriptionPastDue:
-		return true
-	default:
-		return false
-	}
 }
 
 type AdminEstablishmentSubscription struct {

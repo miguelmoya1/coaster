@@ -39,12 +39,12 @@ func IsManualGrantActive(state *SubscriptionState, now time.Time) bool {
 }
 
 func SubscriptionGrantsAccess(state *SubscriptionState, now time.Time) bool {
+	return IsManualGrantActive(state, now) || stripeGrantsAccess(state, now)
+}
+
+func stripeGrantsAccess(state *SubscriptionState, now time.Time) bool {
 	if state == nil {
 		return false
-	}
-
-	if IsManualGrantActive(state, now) {
-		return true
 	}
 
 	switch state.Status {

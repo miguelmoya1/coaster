@@ -5,7 +5,7 @@ CROSS JOIN LATERAL (
     SELECT s."manualPlan" IS NOT NULL AND s."manualPlan" <> 'FREE'
                AND (s."manualGrantExpiresAt" IS NULL OR s."manualGrantExpiresAt" >= $4) AS live_grant,
            COALESCE(
-               (s.status = 'ACTIVE' AND s."stripeSubscriptionId" IS NOT NULL AND s."currentPeriodEnd" >= $4)
+               (s.status = 'ACTIVE' AND s."stripeSubscriptionId" <> '' AND s."currentPeriodEnd" >= $4)
                OR (s.status = 'TRIALING' AND s."trialEndsAt" >= $4)
                OR (s.status = 'CANCELED' AND s."currentPeriodEnd" >= $4)
                OR s.status = 'PAST_DUE',
