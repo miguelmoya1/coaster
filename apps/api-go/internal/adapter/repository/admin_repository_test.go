@@ -354,6 +354,40 @@ func TestAdminEstablishmentRepositoryList(t *testing.T) {
 	}
 }
 
+func TestAdminEstablishmentRepositoryBillingSource(t *testing.T) {
+	resetDB(t)
+	ctx := context.Background()
+	establishments := NewAdminEstablishmentRepository(testPool)
+
+	future := adminTestNow.Add(24 * time.Hour)
+	insertAdminEstablishment(t, "free-grant", "Free grant", daysBefore(1))
+	insertAdminSubscription(t, "free-grant", "INACTIVE", `"manualPlan" = 'FREE'`)
+	insertAdminEstablishment(t, "pro-grant", "Pro grant", daysBefore(2))
+	insertAdminSubscription(t, "pro-grant", "INACTIVE", `"manualPlan" = 'PRO', "manualGrantExpiresAt" = $2`, future)
+
+	page := domain.PageRequest{Page: 1, PageSize: 20}
+	tests := []struct {
+		source domain.EstablishmentBillingSource
+		want   []string
+	}{
+		{domain.BillingSourceManual, []string{"pro-grant"}},
+		{domain.BillingSourceNone, []string{"free-grant"}},
+	}
+	for _, tt := range tests {
+		found, total, err := establishments.List(ctx, domain.AdminEstablishmentFilter{BillingSource: tt.source}, page, adminTestNow)
+		var ids []string
+		for _, establishment := range found {
+			ids = append(ids, establishment.ID)
+			if establishment.Summary(adminTestNow).BillingSource != tt.source {
+				t.Errorf("%s: %s shows %s", tt.source, establishment.ID, establishment.Summary(adminTestNow).BillingSource)
+			}
+		}
+		if err != nil || total != len(tt.want) || !slices.Equal(ids, tt.want) {
+			t.Errorf("%s: List = %v, %d, %v", tt.source, ids, total, err)
+		}
+	}
+}
+
 func TestAdminEstablishmentRepositoryDetail(t *testing.T) {
 	resetDB(t)
 	ctx := context.Background()
@@ -510,12 +544,14 @@ func TestAdminMetricsRepository(t *testing.T) {
 	insertAdminEstablishment(t, "both", "Both", daysBefore(40))
 	insertAdminEstablishment(t, "trial", "Trial", daysBefore(40))
 	insertAdminEstablishment(t, "lapsed", "Lapsed", daysBefore(40))
+	insertAdminEstablishment(t, "free", "Free", daysBefore(40))
 
 	future := adminTestNow.Add(24 * time.Hour)
 	insertAdminSubscription(t, "manual", "INACTIVE", `"manualPlan" = 'PRO'`)
 	insertAdminSubscription(t, "stripe", "ACTIVE", `plan = 'PRO', "stripeSubscriptionId" = 'sub_1', "currentPeriodEnd" = $2`, future)
 	insertAdminSubscription(t, "both", "CANCELED", `plan = 'PRO', "currentPeriodEnd" = $2, "manualPlan" = 'PRO', "manualGrantExpiresAt" = $2`, future)
 	insertAdminSubscription(t, "trial", "TRIALING", `"trialEndsAt" = $2`, future)
+	insertAdminSubscription(t, "free", "INACTIVE", `"manualPlan" = 'FREE'`)
 	insertAdminSubscription(t, "lapsed", "ACTIVE", `"stripeSubscriptionId" = 'sub_2', "currentPeriodEnd" = $2, "manualPlan" = 'PRO', "manualGrantExpiresAt" = $2`, daysBefore(1))
 
 	adminExec(t, `INSERT INTO "Order" (id, "establishmentId", status, "totalAmount", "createdAt", "updatedAt") VALUES
@@ -530,14 +566,14 @@ func TestAdminMetricsRepository(t *testing.T) {
 	}
 
 	want := domain.AdminPlatformMetrics{
-		Establishments: domain.AdminEstablishmentMetrics{Total: 5, CreatedLast7Days: 1, CreatedLast30Days: 2},
+		Establishments: domain.AdminEstablishmentMetrics{Total: 6, CreatedLast7Days: 1, CreatedLast30Days: 2},
 		Users:          domain.AdminUserMetrics{Total: 3, Active: 2, Admins: 2, CreatedLast30Days: 1},
 		Subscriptions: domain.AdminSubscriptionMetrics{
 			WithAccess: 4,
 			Stripe:     2,
 			Manual:     2,
-			ByStatus:   domain.SubscriptionStatusCounts{Inactive: 1, Trialing: 1, Active: 2, Canceled: 1},
-			ByPlan:     domain.SubscriptionPlanCounts{Free: 3, Pro: 2},
+			ByStatus:   domain.SubscriptionStatusCounts{Inactive: 2, Trialing: 1, Active: 2, Canceled: 1},
+			ByPlan:     domain.SubscriptionPlanCounts{Free: 4, Pro: 2},
 		},
 		Activity: domain.AdminActivityMetrics{OrdersLast30Days: 2, RevenueLast30Days: 1000},
 	}

@@ -11,13 +11,13 @@ WHERE ($1::text IS NULL
   AND ($2::text IS NULL OR s.status::text = $2)
   AND CASE $3::text
           WHEN 'MANUAL' THEN
-              s."manualPlan" IS NOT NULL AND (s."manualGrantExpiresAt" IS NULL OR s."manualGrantExpiresAt" >= $4)
+              s."manualPlan" IS NOT NULL AND s."manualPlan" <> 'FREE' AND (s."manualGrantExpiresAt" IS NULL OR s."manualGrantExpiresAt" >= $4)
           WHEN 'STRIPE' THEN
               s."stripeSubscriptionId" IS NOT NULL
-              AND NOT (s."manualPlan" IS NOT NULL AND (s."manualGrantExpiresAt" IS NULL OR s."manualGrantExpiresAt" >= $4))
+              AND NOT (s."manualPlan" IS NOT NULL AND s."manualPlan" <> 'FREE' AND (s."manualGrantExpiresAt" IS NULL OR s."manualGrantExpiresAt" >= $4))
           WHEN 'NONE' THEN
               s.id IS NULL
               OR (s."stripeSubscriptionId" IS NULL
-                  AND NOT (s."manualPlan" IS NOT NULL AND (s."manualGrantExpiresAt" IS NULL OR s."manualGrantExpiresAt" >= $4)))
+                  AND NOT (s."manualPlan" IS NOT NULL AND s."manualPlan" <> 'FREE' AND (s."manualGrantExpiresAt" IS NULL OR s."manualGrantExpiresAt" >= $4)))
           ELSE true
       END
