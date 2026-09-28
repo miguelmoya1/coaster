@@ -5,6 +5,8 @@ import "time"
 // EstablishmentTrial is how long the trial of a new establishment lasts.
 const EstablishmentTrial = 14 * 24 * time.Hour
 
+const EstablishmentNameMinLength = 3
+
 // Establishment is Establishment in @coaster/common.
 type Establishment struct {
 	ID        string `json:"id"`

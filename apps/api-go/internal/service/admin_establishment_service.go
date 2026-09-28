@@ -4,6 +4,7 @@ import (
 	"context"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"api-go/internal/core/domain"
 	"api-go/internal/core/ports"
@@ -132,12 +133,16 @@ func (s *AdminEstablishmentService) Detail(ctx context.Context, establishmentID 
 // Rename is RenameEstablishmentCommand. The name is saved trimmed, and saving the same name
 // does nothing.
 func (s *AdminEstablishmentService) Rename(ctx context.Context, actorID, establishmentID, name string) error {
+	name = strings.TrimSpace(name)
+	if utf8.RuneCountInString(name) < domain.EstablishmentNameMinLength {
+		return domain.BadRequest(domain.CodeMinLength)
+	}
+
 	establishment, err := s.find(ctx, establishmentID)
 	if err != nil {
 		return err
 	}
 
-	name = strings.TrimSpace(name)
 	if name == establishment.Name {
 		return nil
 	}

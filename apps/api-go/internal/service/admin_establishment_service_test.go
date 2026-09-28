@@ -138,6 +138,13 @@ func TestAdminEstablishmentServiceRename(t *testing.T) {
 	if err := f.service.Rename(context.Background(), "admin", "nope", "Bar"); !isAdminError(err, domain.KindNotFound, domain.CodeEstablishmentNotFound) {
 		t.Fatalf("Rename(nope) = %v", err)
 	}
+
+	if err := f.service.Rename(context.Background(), "admin", "e1", "   ab   "); !isAdminError(err, domain.KindBadRequest, domain.CodeMinLength) {
+		t.Fatalf("Rename to a short name with spaces around = %v", err)
+	}
+	if len(f.repo.renamed) != 1 {
+		t.Fatalf("renamed = %v", f.repo.renamed)
+	}
 }
 
 func TestAdminEstablishmentServiceUpdateModules(t *testing.T) {
