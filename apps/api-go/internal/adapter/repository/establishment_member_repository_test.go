@@ -154,7 +154,7 @@ func TestEstablishmentMemberRepositoryInvite(t *testing.T) {
 		SELECT u.name, (SELECT count(*) FROM "UserPreferences" p WHERE p."userId" = u.id), m.role::text, m."deletedAt"
 		FROM "EstablishmentMember" m JOIN "User" u ON u.id = m."userId"
 		WHERE m.id = 'e1/rita'`).Scan(&name, &preferences, &role, &deletedAt)
-	if err != nil || name != "rita" || preferences != 0 || role != "STAFF" || deletedAt != nil {
+	if err != nil || name != "Rita" || preferences != 0 || role != "STAFF" || deletedAt != nil {
 		t.Fatalf("rita back: name %q, preferences %d, role %q, deletedAt %v, %v", name, preferences, role, deletedAt, err)
 	}
 

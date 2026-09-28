@@ -18,7 +18,7 @@ type EstablishmentMemberRepository interface {
 	FindInvite(ctx context.Context, establishmentID, memberID string) (*domain.MemberInvite, error)
 	// HasMemberWithEmail reports whether a member of the establishment has exactly this email.
 	HasMemberWithEmail(ctx context.Context, establishmentID, email string) (bool, error)
-	// Invite creates the user of the email, or renames the one that has it, and creates the
+	// Invite creates the user of the email, if there is none, and creates the
 	// membership, or brings it back if it was removed, in one transaction.
 	Invite(ctx context.Context, invitation domain.MemberInvitation) (*domain.InvitedMember, error)
 	// UpdateRole returns false when the establishment has no such member.
