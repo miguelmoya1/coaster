@@ -172,7 +172,7 @@ Actualizar esta tabla al terminar cada paquete.
 ## Siguiente paso
 
 P2 y P3 están completos: los 22 directorios de tests de `apps/api/test` pasan contra Go
-(`e2e-paquetes.txt`). Queda:
+(`scripts/e2e-go.sh`). Queda:
 1. **Confirmar los modelos de respaldo del AI Gateway** con la clave de verdad (Miguel, antes de
    P5): cómo probarlo está en «Convenciones de P3».
 2. **Revisión de Miguel** de la ola 3b, de P3 y de «Posibles bugs de Nest copiados tal cual».
@@ -372,9 +372,8 @@ paquete para que los suyos pasen.
 **Lanzarlos en local** (hace falta Docker, Node 26 por `Temporal` y el Go de `go.mod`; en
 local `export GOTOOLCHAIN=go1.27.0`)
 - Contra Nest, como siempre: `npm run test:e2e -w @coaster/api`.
-- Contra Go, los directorios de `e2e-paquetes.txt`: `apps/coaster-api/scripts/e2e-go.sh`, desde la
-  raíz del repo. Los argumentos extra van a vitest (`-t 'nombre del test'`).
-- Contra Go, un directorio cualquiera: `E2E_TARGET=go npm run test:e2e -w @coaster/api -- test/orders`.
+- Contra Go: `apps/coaster-api/scripts/e2e-go.sh`, desde la raíz del repo. Los argumentos van
+  a vitest: un directorio (`test/orders`) o un nombre de test (`-t 'nombre del test'`).
 
 **Cómo funciona** (`apps/api/test/utils/go-app.ts`)
 - Con `E2E_TARGET=go`, `setup.e2e.ts` compila `./cmd/api` una vez (`go build`) después de las
@@ -419,9 +418,8 @@ local `export GOTOOLCHAIN=go1.27.0`)
   leería los datos del anterior.
 
 **Cuando un paquete termina**
-- Añade a `e2e-paquetes.txt` sus directorios de `apps/api/test` (uno por línea, por ejemplo
-  `test/orders`) y comprueba en local que `scripts/e2e-go.sh` pasa. El job `coaster-api-e2e` del CI
-  lanza esa lista; con la lista vacía pasa sin hacer nada.
+- Comprueba en local que `scripts/e2e-go.sh` pasa entero. El job `coaster-api-e2e` del CI lanza
+  todos los e2e contra Go.
 - Un test que no puede ir contra Go se salta solo en modo Go, con `it.skipIf(isGoTarget)` o
   `describe.skipIf(isGoTarget)` (`isGoTarget` sale de `test/utils/e2e-setup`) y un comentario
   con el motivo. Nunca se salta contra Nest.

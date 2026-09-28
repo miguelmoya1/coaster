@@ -92,13 +92,21 @@ jobs:
           go-version-file: apps/coaster-api/go.mod
           cache-dependency-path: apps/coaster-api/go.sum
 
+      - name: 🧹 gofmt
+        run: |
+          unformatted=$(gofmt -l .)
+          if [ -n "$unformatted" ]; then
+            echo "::error::Sin gofmt: $unformatted"
+            exit 1
+          fi
+
       - name: 🔎 go vet
         run: go vet ./...
 
       - name: 🧪 go test
         run: go test ./...
 
-  # Los e2e de apps/api contra el servidor Go, solo los directorios de apps/coaster-api/e2e-paquetes.txt.
+  # Los e2e de apps/api contra el servidor Go.
   # Como el job coaster-api, no bloquea build-and-test ni el despliegue.
   coaster-api-e2e:
     name: 🐹 e2e contra Go
