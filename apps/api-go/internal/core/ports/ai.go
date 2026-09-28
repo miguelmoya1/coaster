@@ -47,6 +47,6 @@ type AIModel interface {
 type AIUsageRepository interface {
 	// MessagesThisPeriod is how many messages the establishment sent in period ("2026-09").
 	MessagesThisPeriod(ctx context.Context, establishmentID, period string) (int, error)
-	// CountMessage adds one message to the period and returns how many there are now.
-	CountMessage(ctx context.Context, establishmentID, period string) (int, error)
+	ReserveMessage(ctx context.Context, establishmentID, period string, allowance int) (bool, error)
+	ReleaseMessage(ctx context.Context, establishmentID, period string) error
 }

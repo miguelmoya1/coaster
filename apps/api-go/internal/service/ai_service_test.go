@@ -244,18 +244,35 @@ func TestAIDoesNotCountAMessageTheGatewayNeverAnswered(t *testing.T) {
 	if response != want {
 		t.Errorf("response = %+v", response)
 	}
-	if len(f.usage.counted) != 0 {
-		t.Errorf("counted %v", f.usage.counted)
+	if f.usage.messages["e1/2026-09"] != 0 || len(f.usage.released) != 1 {
+		t.Errorf("messages %v, released %v; the reserved message should go back", f.usage.messages, f.usage.released)
 	}
 }
 
-func TestAIFailsLikeTheGatewayWhenTheMessageCannotBeCounted(t *testing.T) {
+func TestAIDoesNotCallTheModelWhenTheMessageCannotBeCounted(t *testing.T) {
 	f := newAIFixture()
 	f.usage.err = errors.New("database down")
 
-	response, err := f.service.Execute(context.Background(), "e1", aiAna, aiPrompt("hola"))
-	if err != nil || response != domain.AIGatewayFailed {
-		t.Errorf("response = %+v, %v", response, err)
+	if _, err := f.service.Execute(context.Background(), "e1", aiAna, aiPrompt("hola")); err == nil {
+		t.Error("err = nil, want the error of the database")
+	}
+	if len(f.model.requests) != 0 {
+		t.Errorf("the model was called %d times", len(f.model.requests))
+	}
+}
+
+func TestAICountsTheMessageBeforeAnswering(t *testing.T) {
+	f := newAIFixture()
+	f.usage.messages["e1/2026-09"] = 499
+
+	if _, err := f.service.Execute(context.Background(), "e1", aiAna, aiPrompt("hola")); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := f.service.Execute(context.Background(), "e1", aiAna, aiPrompt("otra")); !domain.HasCode(err, domain.CodeAiQuotaExceeded) {
+		t.Errorf("the 501st message = %v, want AI_QUOTA_EXCEEDED", err)
+	}
+	if f.usage.messages["e1/2026-09"] != 500 || len(f.model.requests) != 1 {
+		t.Errorf("messages %d, model calls %d; want 500 and 1", f.usage.messages["e1/2026-09"], len(f.model.requests))
 	}
 }
 
@@ -270,8 +287,8 @@ func TestAIFailsLikeTheGatewayWithoutAPromptOrWithAnUnknownRole(t *testing.T) {
 		if err != nil || response != domain.AIGatewayFailed {
 			t.Errorf("%+v: response = %+v, %v", input, response, err)
 		}
-		if len(f.model.requests) != 0 || len(f.usage.counted) != 0 {
-			t.Errorf("%+v: model called %d times, counted %v", input, len(f.model.requests), f.usage.counted)
+		if len(f.model.requests) != 0 || f.usage.messages["e1/2026-09"] != 0 {
+			t.Errorf("%+v: model called %d times, %d messages counted", input, len(f.model.requests), f.usage.messages["e1/2026-09"])
 		}
 	}
 }

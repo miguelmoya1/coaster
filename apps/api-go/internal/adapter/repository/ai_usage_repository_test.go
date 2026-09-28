@@ -32,16 +32,15 @@ func TestAIUsageRepositoryCountsPerEstablishmentAndMonth(t *testing.T) {
 	ctx := context.Background()
 	repo := NewAIUsageRepository(testPool)
 
-	for want := 1; want <= 3; want++ {
-		messages, err := repo.CountMessage(ctx, "e1", "2026-09")
-		if err != nil || messages != want {
-			t.Fatalf("CountMessage = %d, %v; want %d", messages, err, want)
+	for range 3 {
+		if reserved, err := repo.ReserveMessage(ctx, "e1", "2026-09", 500); err != nil || !reserved {
+			t.Fatalf("ReserveMessage = %v, %v; want it reserved", reserved, err)
 		}
 	}
-	if _, err := repo.CountMessage(ctx, "e1", "2026-10"); err != nil {
+	if _, err := repo.ReserveMessage(ctx, "e1", "2026-10", 500); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := repo.CountMessage(ctx, "e2", "2026-09"); err != nil {
+	if _, err := repo.ReserveMessage(ctx, "e2", "2026-09", 500); err != nil {
 		t.Fatal(err)
 	}
 
@@ -75,17 +74,54 @@ func TestAIUsageRepositoryCountsMessagesSentAtOnce(t *testing.T) {
 	repo := NewAIUsageRepository(testPool)
 
 	var wg sync.WaitGroup
+	var mu sync.Mutex
+	reserved := 0
 	for range 10 {
 		wg.Go(func() {
-			if _, err := repo.CountMessage(ctx, "e1", "2026-09"); err != nil {
+			ok, err := repo.ReserveMessage(ctx, "e1", "2026-09", 4)
+			if err != nil {
 				t.Error(err)
+			}
+			if ok {
+				mu.Lock()
+				reserved++
+				mu.Unlock()
 			}
 		})
 	}
 	wg.Wait()
 
 	messages, err := repo.MessagesThisPeriod(ctx, "e1", "2026-09")
-	if err != nil || messages != 10 {
-		t.Errorf("MessagesThisPeriod after 10 at once = %d, %v; want 10", messages, err)
+	if err != nil || messages != 4 || reserved != 4 {
+		t.Errorf("after 10 at once with room for 4: %d messages, %d reserved, %v; want 4 and 4", messages, reserved, err)
+	}
+}
+
+func TestAIUsageRepositoryReleasesAMessage(t *testing.T) {
+	seedAIUsage(t)
+	ctx := context.Background()
+	repo := NewAIUsageRepository(testPool)
+
+	if reserved, err := repo.ReserveMessage(ctx, "e1", "2026-09", 0); err != nil || reserved {
+		t.Fatalf("ReserveMessage with the assistant switched off = %v, %v", reserved, err)
+	}
+	if reserved, err := repo.ReserveMessage(ctx, "e1", "2026-09", 1); err != nil || !reserved {
+		t.Fatalf("ReserveMessage = %v, %v", reserved, err)
+	}
+	if reserved, _ := repo.ReserveMessage(ctx, "e1", "2026-09", 1); reserved {
+		t.Fatal("reserved a message over the allowance")
+	}
+
+	if err := repo.ReleaseMessage(ctx, "e1", "2026-09"); err != nil {
+		t.Fatal(err)
+	}
+	if err := repo.ReleaseMessage(ctx, "e1", "2026-09"); err != nil {
+		t.Fatal(err)
+	}
+	if messages, err := repo.MessagesThisPeriod(ctx, "e1", "2026-09"); err != nil || messages != 0 {
+		t.Errorf("after releasing = %d, %v; want 0 and never below", messages, err)
+	}
+	if reserved, _ := repo.ReserveMessage(ctx, "e1", "2026-09", 1); !reserved {
+		t.Error("a released message should leave room for another")
 	}
 }

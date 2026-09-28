@@ -39,9 +39,17 @@ func (u *aiUsage) MessagesThisPeriod(context.Context, string, string) (int, erro
 	return u.messages, nil
 }
 
-func (u *aiUsage) CountMessage(context.Context, string, string) (int, error) {
+func (u *aiUsage) ReserveMessage(_ context.Context, _, _ string, allowance int) (bool, error) {
+	if u.messages >= allowance {
+		return false, nil
+	}
 	u.messages++
-	return u.messages, nil
+	return true, nil
+}
+
+func (u *aiUsage) ReleaseMessage(context.Context, string, string) error {
+	u.messages--
+	return nil
 }
 
 // aiSecurity is what the assistant reads of testUser in e1: a staff member, or nobody,
@@ -222,14 +230,14 @@ func TestAIStreamsTheAnswer(t *testing.T) {
 	}
 }
 
-func TestAIStreamSendsEveryRefusalAsAGatewayFailure(t *testing.T) {
-	for _, member := range []bool{false, true} {
+func TestAIStreamSendsARefusalWithItsCode(t *testing.T) {
+	for member, code := range map[bool]string{false: "MEMBER_NOT_FOUND", true: "AI_QUOTA_EXCEEDED"} {
 		server := newAIServer(member)
 		server.usage.messages = 500
 
 		response := send(server, "POST", "/api/v1/establishments/e1/ai/stream", `{"prompt":"hola"}`, tillSignedIn)
 
-		want := "event: done\ndata: " + aiGatewayFailedBody + "\n\n"
+		want := "event: done\ndata: {\"text\":\"" + code + "\",\"isError\":true,\"errorKey\":\"" + code + "\"}\n\n"
 		if response.Code != http.StatusOK || response.Body.String() != want {
 			t.Errorf("member %v: %d %q", member, response.Code, response.Body)
 		}

@@ -67,6 +67,7 @@ func (m *fakeAIModel) lastRequest(t *testing.T) ports.AIRequest {
 type fakeAIUsage struct {
 	messages map[string]int // "e1/2026-09" → messages
 	counted  []string
+	released []string
 	err      error
 }
 
@@ -78,14 +79,24 @@ func (u *fakeAIUsage) MessagesThisPeriod(_ context.Context, establishmentID, per
 	return u.messages[establishmentID+"/"+period], nil
 }
 
-func (u *fakeAIUsage) CountMessage(_ context.Context, establishmentID, period string) (int, error) {
+func (u *fakeAIUsage) ReserveMessage(_ context.Context, establishmentID, period string, allowance int) (bool, error) {
 	if u.err != nil {
-		return 0, u.err
+		return false, u.err
 	}
 	key := establishmentID + "/" + period
+	if u.messages[key] >= allowance {
+		return false, nil
+	}
 	u.messages[key]++
 	u.counted = append(u.counted, key)
-	return u.messages[key], nil
+	return true, nil
+}
+
+func (u *fakeAIUsage) ReleaseMessage(_ context.Context, establishmentID, period string) error {
+	key := establishmentID + "/" + period
+	u.messages[key]--
+	u.released = append(u.released, key)
+	return nil
 }
 
 // aiProductRepo lists the products by id, so the tests read them always in the same order.

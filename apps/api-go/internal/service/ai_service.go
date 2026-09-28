@@ -154,15 +154,29 @@ func (s *AIService) Execute(ctx context.Context, establishmentID string, user do
 	if err != nil {
 		return domain.AIResponse{}, err
 	}
-	used, err := s.usage.MessagesThisPeriod(ctx, establishmentID, domain.AIPeriodOf(s.now()))
+
+	period := domain.AIPeriodOf(s.now())
+	reserved, err := s.usage.ReserveMessage(ctx, establishmentID, period, allowance)
 	if err != nil {
 		return domain.AIResponse{}, err
 	}
-	if used >= allowance {
+	if !reserved {
 		slog.Warn("an establishment has used its assistant messages this month",
-			"establishmentId", establishmentID, "used", used, "allowance", allowance)
+			"establishmentId", establishmentID, "allowance", allowance)
 		return domain.AIResponse{}, domain.Forbidden(domain.CodeAiQuotaExceeded)
 	}
+
+	response, err := s.answer(ctx, establishmentID, user, isAdmin, role, input)
+	if err != nil || response.IsError {
+		if releaseErr := s.usage.ReleaseMessage(ctx, establishmentID, period); releaseErr != nil {
+			slog.Error("could not give back an assistant message that got no answer",
+				"establishmentId", establishmentID, "error", releaseErr)
+		}
+	}
+	return response, err
+}
+
+func (s *AIService) answer(ctx context.Context, establishmentID string, user domain.User, isAdmin bool, role domain.EstablishmentRole, input AIInput) (domain.AIResponse, error) {
 
 	modules, err := s.security.EnabledModules(ctx, establishmentID)
 	if err != nil {
@@ -213,11 +227,6 @@ func (s *AIService) Execute(ctx context.Context, establishmentID string, user do
 		text, err = streamedText, nil
 	}
 	if err != nil {
-		slog.Error("the AI Gateway failed", "error", err)
-		return domain.AIGatewayFailed, nil
-	}
-
-	if _, err := s.usage.CountMessage(ctx, establishmentID, domain.AIPeriodOf(s.now())); err != nil {
 		slog.Error("the AI Gateway failed", "error", err)
 		return domain.AIGatewayFailed, nil
 	}

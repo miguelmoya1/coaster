@@ -29,6 +29,10 @@ type AIResponse struct {
 	ErrorKey string `json:"errorKey,omitempty"`
 }
 
+func AIRefused(code string) AIResponse {
+	return AIResponse{Text: code, IsError: true, ErrorKey: code}
+}
+
 // AIGatewayFailed is the answer when the model could not answer.
 var AIGatewayFailed = AIResponse{Text: AIGatewayFailedKey, IsError: true, ErrorKey: AIGatewayFailedKey}
 

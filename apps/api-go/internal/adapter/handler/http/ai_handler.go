@@ -71,7 +71,8 @@ type aiDelta struct {
 
 // stream answers with server-sent events: a delta event for each piece of the answer and a
 // done event with the whole answer. Like Nest, it answers 200 before running the command,
-// so any error (not being a member, the quota) arrives as the done event of a gateway error.
+// so a refusal (not being a member, the quota) arrives as a done event with its code as
+// errorKey, and any other error as the done event of a gateway error.
 func (h *AIHandler) stream(w http.ResponseWriter, r *http.Request) {
 	input, err := readAIInput(r)
 	if err != nil {
@@ -100,10 +101,12 @@ func (h *AIHandler) stream(w http.ResponseWriter, r *http.Request) {
 	response, err := h.ai.Execute(context.WithoutCancel(r.Context()), r.PathValue("establishmentId"), *user, input)
 	if err != nil {
 		var domainErr *domain.Error
-		if !errors.As(err, &domainErr) {
+		if errors.As(err, &domainErr) {
+			response = domain.AIRefused(domainErr.Code)
+		} else {
 			slog.Error("the assistant failed", "error", err)
+			response = domain.AIGatewayFailed
 		}
-		response = domain.AIGatewayFailed
 	}
 
 	send("done", response)

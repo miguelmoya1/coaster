@@ -13,8 +13,10 @@ import (
 var (
 	//go:embed queries/ai_usage/messages_this_period.sql
 	messagesThisPeriodQuery string
-	//go:embed queries/ai_usage/count_message.sql
-	countAIMessageQuery string
+	//go:embed queries/ai_usage/reserve_message.sql
+	reserveAIMessageQuery string
+	//go:embed queries/ai_usage/release_message.sql
+	releaseAIMessageQuery string
 )
 
 // AIUsageRepository counts the assistant messages in "AiUsage", one row per establishment
@@ -36,10 +38,25 @@ func (r *AIUsageRepository) MessagesThisPeriod(ctx context.Context, establishmen
 	return messages, err
 }
 
-// CountMessage creates the month's row with one message, or adds one to it, in a single
-// statement: two messages at once both count.
-func (r *AIUsageRepository) CountMessage(ctx context.Context, establishmentID, period string) (int, error) {
+// ReserveMessage creates the month's row with one message, or adds one to it while it is under
+// the allowance, in a single statement: of several messages at once, only those that fit count.
+func (r *AIUsageRepository) ReserveMessage(ctx context.Context, establishmentID, period string, allowance int) (bool, error) {
+	if allowance <= 0 {
+		return false, nil
+	}
+
 	var messages int
-	err := r.pool.QueryRow(ctx, countAIMessageQuery, uuid.NewV4().String(), establishmentID, period, now()).Scan(&messages)
-	return messages, err
+	err := r.pool.QueryRow(ctx, reserveAIMessageQuery, uuid.NewV4().String(), establishmentID, period, allowance, now()).Scan(&messages)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return false, nil
+	}
+	if err != nil {
+		return false, err
+	}
+	return true, nil
+}
+
+func (r *AIUsageRepository) ReleaseMessage(ctx context.Context, establishmentID, period string) error {
+	_, err := r.pool.Exec(ctx, releaseAIMessageQuery, establishmentID, period, now())
+	return err
 }
