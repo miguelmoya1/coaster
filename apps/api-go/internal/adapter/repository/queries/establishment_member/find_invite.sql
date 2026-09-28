@@ -1,4 +1,4 @@
-SELECT m.id, m."userId", u.email, u.active, u."passwordUpdatedAt",
+SELECT m.id, m."userId", m.active, u.email, u.active, u."passwordUpdatedAt",
        (SELECT count(*) FROM "AuthIdentity" i WHERE i."userId" = u.id),
        e.name
 FROM "EstablishmentMember" m

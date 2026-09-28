@@ -155,7 +155,7 @@ func (r *EstablishmentMemberRepository) FindInvite(ctx context.Context, establis
 	var identities int
 
 	err := r.pool.QueryRow(ctx, findMemberInviteQuery, memberID, establishmentID).Scan(
-		&invite.ID, &invite.UserID, &invite.UserEmail, &invite.UserActive, &passwordUpdatedAt, &identities, &invite.EstablishmentName,
+		&invite.ID, &invite.UserID, &invite.Active, &invite.UserEmail, &invite.UserActive, &passwordUpdatedAt, &identities, &invite.EstablishmentName,
 	)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, nil

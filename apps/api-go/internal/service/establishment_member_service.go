@@ -144,7 +144,7 @@ func (s *EstablishmentMemberService) ResendInvite(ctx context.Context, establish
 	if err != nil {
 		return err
 	}
-	if member == nil || !member.UserActive {
+	if member == nil || !member.Active || !member.UserActive {
 		return domain.NotFound(domain.CodeMemberNotFound)
 	}
 	if !member.Pending {

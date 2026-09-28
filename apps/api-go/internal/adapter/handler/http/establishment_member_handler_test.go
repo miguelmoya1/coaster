@@ -76,7 +76,7 @@ func (memberRouteRows) FindInvite(_ context.Context, _, memberID string) (*domai
 	if memberID != "m-sergio" {
 		return nil, nil
 	}
-	return &domain.MemberInvite{ID: "m-sergio", UserID: "u2", UserEmail: "sergio@example.com", UserActive: true, Pending: true, EstablishmentName: "Bar Pepe"}, nil
+	return &domain.MemberInvite{ID: "m-sergio", UserID: "u2", Active: true, UserEmail: "sergio@example.com", UserActive: true, Pending: true, EstablishmentName: "Bar Pepe"}, nil
 }
 
 func (memberRouteRows) HasMemberWithEmail(context.Context, string, string) (bool, error) {

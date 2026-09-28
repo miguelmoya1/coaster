@@ -81,6 +81,7 @@ type InvitedMember struct {
 type MemberInvite struct {
 	ID                string
 	UserID            string
+	Active            bool
 	UserEmail         string
 	UserActive        bool
 	Pending           bool

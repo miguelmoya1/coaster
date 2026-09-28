@@ -206,6 +206,7 @@ func TestEstablishmentMemberResendInvite(t *testing.T) {
 		{"sends a fresh invitation", "m-ana", false, ""},
 		{"the member does not exist", "missing", false, domain.CodeMemberNotFound},
 		{"the user was deactivated", "m-blocked", false, domain.CodeMemberNotFound},
+		{"the member is not active", "m-inactive", false, domain.CodeMemberNotFound},
 		{"the invitation was already accepted", "m-joined", false, domain.CodeInviteAlreadyAccepted},
 		{"the email does not leave", "m-ana", true, domain.CodeInviteEmailFailed},
 	}
@@ -213,9 +214,10 @@ func TestEstablishmentMemberResendInvite(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			f := newMemberFixture()
-			f.repo.invites["m-ana"] = &domain.MemberInvite{ID: "m-ana", UserID: "ana", UserEmail: "ana@example.com", UserActive: true, Pending: true, EstablishmentName: "Bar Pepe"}
-			f.repo.invites["m-blocked"] = &domain.MemberInvite{ID: "m-blocked", UserID: "blocked", UserEmail: "blocked@example.com", UserActive: false, Pending: true, EstablishmentName: "Bar Pepe"}
-			f.repo.invites["m-joined"] = &domain.MemberInvite{ID: "m-joined", UserID: "joined", UserEmail: "joined@example.com", UserActive: true, Pending: false, EstablishmentName: "Bar Pepe"}
+			f.repo.invites["m-ana"] = &domain.MemberInvite{ID: "m-ana", UserID: "ana", Active: true, UserEmail: "ana@example.com", UserActive: true, Pending: true, EstablishmentName: "Bar Pepe"}
+			f.repo.invites["m-blocked"] = &domain.MemberInvite{ID: "m-blocked", UserID: "blocked", Active: true, UserEmail: "blocked@example.com", UserActive: false, Pending: true, EstablishmentName: "Bar Pepe"}
+			f.repo.invites["m-joined"] = &domain.MemberInvite{ID: "m-joined", UserID: "joined", Active: true, UserEmail: "joined@example.com", UserActive: true, Pending: false, EstablishmentName: "Bar Pepe"}
+			f.repo.invites["m-inactive"] = &domain.MemberInvite{ID: "m-inactive", UserID: "inactive", Active: false, UserEmail: "inactive@example.com", UserActive: true, Pending: true, EstablishmentName: "Bar Pepe"}
 			f.mailer.fail = tt.mailerDown
 
 			err := f.service.ResendInvite(context.Background(), "e1", tt.memberID, memberCaller("marta", domain.RoleUser))

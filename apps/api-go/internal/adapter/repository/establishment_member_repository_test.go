@@ -86,7 +86,7 @@ func TestEstablishmentMemberRepositoryReads(t *testing.T) {
 	}
 
 	invite, err := members.FindInvite(ctx, "e1", "e1/paula")
-	wantInvite := domain.MemberInvite{ID: "e1/paula", UserID: "paula", UserEmail: "paula@example.com", UserActive: true, Pending: true, EstablishmentName: "Bar e1"}
+	wantInvite := domain.MemberInvite{ID: "e1/paula", UserID: "paula", Active: false, UserEmail: "paula@example.com", UserActive: true, Pending: true, EstablishmentName: "Bar e1"}
 	if err != nil || invite == nil || *invite != wantInvite {
 		t.Fatalf("FindInvite = %+v, %v", invite, err)
 	}
