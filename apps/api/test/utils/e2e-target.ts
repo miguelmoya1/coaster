@@ -1,5 +1,5 @@
 /**
- * `E2E_TARGET=go` runs the suite against the Go rewrite in `apps/api-go` instead of Nest. The global
+ * `E2E_TARGET=go` runs the suite against the Go rewrite in `apps/coaster-api` instead of Nest. The global
  * setup builds the binary once; every file then starts its own Go server, just as it would start its
  * own Nest app, so in-memory state such as the rate limiter never leaks from one file into the next.
  */

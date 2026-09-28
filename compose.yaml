@@ -52,10 +52,10 @@ services:
       - /app/apps/api/node_modules
       - /app/packages/common/node_modules
 
-  api-go:
+  coaster-api:
     build:
       context: .
-      dockerfile: ./apps/api-go/Dockerfile
+      dockerfile: ./apps/coaster-api/Dockerfile
     ports:
       - '3001:8080'
     env_file:

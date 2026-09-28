@@ -76,12 +76,12 @@ jobs:
       - name: 🧪 Go Unit Tests (Printer Service)
         run: cd apps/printer-service && go test -v ./... -cover
 
-  api-go:
+  coaster-api:
     name: 🐹 API en Go
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: apps/api-go
+        working-directory: apps/coaster-api
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
@@ -89,8 +89,8 @@ jobs:
       - name: 🐹 Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version-file: apps/api-go/go.mod
-          cache-dependency-path: apps/api-go/go.sum
+          go-version-file: apps/coaster-api/go.mod
+          cache-dependency-path: apps/coaster-api/go.sum
 
       - name: 🔎 go vet
         run: go vet ./...
@@ -98,9 +98,9 @@ jobs:
       - name: 🧪 go test
         run: go test ./...
 
-  # Los e2e de apps/api contra el servidor Go, solo los directorios de apps/api-go/e2e-paquetes.txt.
-  # Como el job api-go, no bloquea build-and-test ni el despliegue.
-  api-go-e2e:
+  # Los e2e de apps/api contra el servidor Go, solo los directorios de apps/coaster-api/e2e-paquetes.txt.
+  # Como el job coaster-api, no bloquea build-and-test ni el despliegue.
+  coaster-api-e2e:
     name: 🐹 e2e contra Go
     runs-on: ubuntu-latest
     steps:
@@ -116,8 +116,8 @@ jobs:
       - name: 🐹 Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version-file: apps/api-go/go.mod
-          cache-dependency-path: apps/api-go/go.sum
+          go-version-file: apps/coaster-api/go.mod
+          cache-dependency-path: apps/coaster-api/go.sum
 
       - name: 📦 Install Dependencies
         run: npm ci
@@ -129,7 +129,7 @@ jobs:
         run: npm run build -w @coaster/common
 
       - name: 🧪 e2e contra Go
-        run: apps/api-go/scripts/e2e-go.sh
+        run: apps/coaster-api/scripts/e2e-go.sh
 
   deploy-backend:
     name: 🚀 Deploy Backend & Migrate DB

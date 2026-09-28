@@ -80,15 +80,15 @@ export async function setup() {
 
 /**
  * Built once for the whole run; each test file then starts its own server from it (see `GoApp`).
- * `go` has to be on the PATH, with the toolchain `apps/api-go/go.mod` asks for.
+ * `go` has to be on the PATH, with the toolchain `apps/coaster-api/go.mod` asks for.
  */
 function buildGoServer() {
-  const binary = path.join(tmpdir(), 'coaster-api-go-e2e');
+  const binary = path.join(tmpdir(), 'coaster-api-e2e');
 
   console.log('⏳ Building the Go server...');
 
   execSync(`go build -o "${binary}" ./cmd/api`, {
-    cwd: path.resolve(__dirname, '../../api-go'),
+    cwd: path.resolve(__dirname, '../../coaster-api'),
     stdio: 'inherit',
   });
 
