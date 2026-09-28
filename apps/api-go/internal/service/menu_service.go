@@ -18,25 +18,6 @@ func NewMenuService(menus ports.MenuRepository) *MenuService {
 	return &MenuService{menus: menus}
 }
 
-type SaveMenuDraftInput struct {
-	Name      string
-	Languages []string
-	Sections  []MenuSectionInput
-}
-
-type MenuSectionInput struct {
-	Translations map[string]any
-	Items        []MenuItemInput
-}
-
-type MenuItemInput struct {
-	ProductID *string
-	Price     *int
-
-	IsVisible    *bool
-	Translations map[string]any
-}
-
 func (s *MenuService) Draft(ctx context.Context, establishmentID string) (domain.MenuDraft, error) {
 	existing, err := s.menus.FindByEstablishment(ctx, establishmentID)
 	if err != nil {
@@ -77,7 +58,7 @@ func (s *MenuService) Draft(ctx context.Context, establishmentID string) (domain
 	return created.Draft(), nil
 }
 
-func (s *MenuService) SaveDraft(ctx context.Context, establishmentID string, input SaveMenuDraftInput) (domain.MenuDraft, error) {
+func (s *MenuService) SaveDraft(ctx context.Context, establishmentID string, input domain.SaveMenuDraftInput) (domain.MenuDraft, error) {
 	menu, err := s.menus.FindByEstablishment(ctx, establishmentID)
 	if err != nil {
 		return domain.MenuDraft{}, err

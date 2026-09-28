@@ -17,12 +17,12 @@ type memberRouteCaller struct {
 	user domain.User
 }
 
-func (c memberRouteCaller) Resolve(_ context.Context, authorization string) (*service.Caller, error) {
+func (c memberRouteCaller) Resolve(_ context.Context, authorization string) (*domain.Caller, error) {
 	if authorization != "Bearer good" {
 		return nil, nil
 	}
 	user := c.user
-	return &service.Caller{Claims: domain.SessionClaims{Sub: user.ID, Sid: "s1"}, User: &user}, nil
+	return &domain.Caller{Claims: domain.SessionClaims{Sub: user.ID, Sid: "s1"}, User: &user}, nil
 }
 
 type memberRouteAccess struct {

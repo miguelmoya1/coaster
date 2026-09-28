@@ -26,3 +26,16 @@ type ShiftExchangeRepository interface {
 	AcceptAndSwap(ctx context.Context, exchangeID, shiftID, userID string) (bool, error)
 	Delete(ctx context.Context, id string) error
 }
+
+type ShiftExchangeService interface {
+	ListPending(ctx context.Context, establishmentID string) ([]domain.ShiftExchange, error)
+	Request(ctx context.Context, establishmentID, shiftID, requesterID string, targetID *string) error
+	Accept(ctx context.Context, establishmentID, exchangeID, userID string) error
+	Delete(ctx context.Context, establishmentID, exchangeID, userID string) error
+}
+
+type ShiftService interface {
+	List(ctx context.Context, establishmentID, startDate, endDate string) ([]domain.Shift, error)
+	Create(ctx context.Context, establishmentID string, input domain.CreateShiftInput) error
+	Delete(ctx context.Context, establishmentID, shiftID string) error
+}

@@ -15,3 +15,8 @@ type CatalogueRepository interface {
 	CreateCategories(ctx context.Context, establishmentID string, categories []domain.NewCatalogueCategory) error
 	CreateProducts(ctx context.Context, products []domain.NewProduct) error
 }
+
+type CatalogueService interface {
+	Starter(ctx context.Context, establishmentID string) ([]domain.StarterCatalogueCategory, error)
+	Import(ctx context.Context, establishmentID string, keys []string) error
+}

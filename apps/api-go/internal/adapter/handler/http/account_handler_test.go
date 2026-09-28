@@ -6,12 +6,12 @@ import (
 	"testing"
 
 	"api-go/internal/core/domain"
-	"api-go/internal/service"
+	"api-go/internal/core/ports"
 )
 
 type fakeAccount struct {
-	AccountService
-	gotPassword service.SetPasswordInput
+	ports.AccountService
+	gotPassword domain.SetPasswordInput
 	gotClosed   [3]string
 	unlinked    domain.AuthProvider
 }
@@ -20,7 +20,7 @@ func (f *fakeAccount) Account(context.Context, string) (domain.AccountSummary, e
 	return domain.AccountSummary{Email: "ana@example.com", Name: "Ana", Identities: []domain.LinkedIdentity{}}, nil
 }
 
-func (f *fakeAccount) SetPassword(_ context.Context, input service.SetPasswordInput, _ domain.SessionOrigin) error {
+func (f *fakeAccount) SetPassword(_ context.Context, input domain.SetPasswordInput, _ domain.SessionOrigin) error {
 	f.gotPassword = input
 	return nil
 }
@@ -51,7 +51,7 @@ func TestAccountHandler(t *testing.T) {
 	}
 
 	response = send(server, "PUT", "/api/v1/account/password", `{"password":"a new password","currentPassword":"old one"}`, signedIn)
-	if response.Code != http.StatusNoContent || account.gotPassword != (service.SetPasswordInput{
+	if response.Code != http.StatusNoContent || account.gotPassword != (domain.SetPasswordInput{
 		UserID: "u1", SessionID: "s1", Password: "a new password", CurrentPassword: "old one",
 	}) {
 		t.Fatalf("PUT /account/password = %d, service got %+v", response.Code, account.gotPassword)

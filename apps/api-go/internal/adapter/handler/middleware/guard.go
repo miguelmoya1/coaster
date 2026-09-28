@@ -12,7 +12,6 @@ import (
 
 	"api-go/internal/core/domain"
 	"api-go/internal/core/ports"
-	"api-go/internal/service"
 )
 
 const (
@@ -24,25 +23,14 @@ const throttledMessage = "ThrottlerException: Too Many Requests"
 
 var subscriptionManagementPath = regexp.MustCompile(`/establishments/[^/]+/establishment-subscription(/|$)`)
 
-type CallerResolver interface {
-	Resolve(ctx context.Context, authorization string) (*service.Caller, error)
-}
-
-type AccessChecker interface {
-	UserRole(ctx context.Context, userID string) (domain.Role, error)
-	Membership(ctx context.Context, userID, establishmentID string) (*domain.Membership, error)
-	EnabledModules(ctx context.Context, establishmentID string) ([]domain.EstablishmentModule, error)
-	SubscriptionActive(ctx context.Context, establishmentID string) (bool, error)
-}
-
 type Guard struct {
-	tokens         CallerResolver
-	access         AccessChecker
+	tokens         ports.AccessTokenService
+	access         ports.SecurityService
 	limiter        ports.RateLimiter
 	trustProxyHops int
 }
 
-func NewGuard(tokens CallerResolver, access AccessChecker, limiter ports.RateLimiter, trustProxyHops int) *Guard {
+func NewGuard(tokens ports.AccessTokenService, access ports.SecurityService, limiter ports.RateLimiter, trustProxyHops int) *Guard {
 	return &Guard{tokens: tokens, access: access, limiter: limiter, trustProxyHops: trustProxyHops}
 }
 

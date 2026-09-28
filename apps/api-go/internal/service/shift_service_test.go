@@ -39,15 +39,15 @@ func TestShiftServiceCreate(t *testing.T) {
 	notes := "Mañana"
 	tests := []struct {
 		name  string
-		input CreateShiftInput
+		input domain.CreateShiftInput
 		code  string
 	}{
-		{"creates and announces the shift", CreateShiftInput{UserID: "worker", StartTime: "2026-09-27T08:00:00Z", EndTime: "2026-09-27T16:00:00.000Z", Notes: &notes}, ""},
-		{"refuses a time without an offset", CreateShiftInput{UserID: "worker", StartTime: "2026-09-27T08:00:00", EndTime: "2026-09-27T16:00:00Z"}, domain.CodeInvalidDate},
-		{"refuses a shift that ends before it starts", CreateShiftInput{UserID: "worker", StartTime: "2026-09-27T16:00:00Z", EndTime: "2026-09-27T08:00:00Z"}, domain.CodeInvalidShiftRange},
-		{"refuses a shift with no duration", CreateShiftInput{UserID: "worker", StartTime: "2026-09-27T08:00:00Z", EndTime: "2026-09-27T08:00:00Z"}, domain.CodeInvalidShiftRange},
-		{"refuses somebody who does not work here", CreateShiftInput{UserID: "stranger", StartTime: "2026-09-27T08:00:00Z", EndTime: "2026-09-27T16:00:00Z"}, domain.CodeMemberNotFound},
-		{"refuses an inactive member", CreateShiftInput{UserID: "inactive", StartTime: "2026-09-27T08:00:00Z", EndTime: "2026-09-27T16:00:00Z"}, domain.CodeMemberNotFound},
+		{"creates and announces the shift", domain.CreateShiftInput{UserID: "worker", StartTime: "2026-09-27T08:00:00Z", EndTime: "2026-09-27T16:00:00.000Z", Notes: &notes}, ""},
+		{"refuses a time without an offset", domain.CreateShiftInput{UserID: "worker", StartTime: "2026-09-27T08:00:00", EndTime: "2026-09-27T16:00:00Z"}, domain.CodeInvalidDate},
+		{"refuses a shift that ends before it starts", domain.CreateShiftInput{UserID: "worker", StartTime: "2026-09-27T16:00:00Z", EndTime: "2026-09-27T08:00:00Z"}, domain.CodeInvalidShiftRange},
+		{"refuses a shift with no duration", domain.CreateShiftInput{UserID: "worker", StartTime: "2026-09-27T08:00:00Z", EndTime: "2026-09-27T08:00:00Z"}, domain.CodeInvalidShiftRange},
+		{"refuses somebody who does not work here", domain.CreateShiftInput{UserID: "stranger", StartTime: "2026-09-27T08:00:00Z", EndTime: "2026-09-27T16:00:00Z"}, domain.CodeMemberNotFound},
+		{"refuses an inactive member", domain.CreateShiftInput{UserID: "inactive", StartTime: "2026-09-27T08:00:00Z", EndTime: "2026-09-27T16:00:00Z"}, domain.CodeMemberNotFound},
 	}
 
 	for _, tt := range tests {

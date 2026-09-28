@@ -1,13 +1,12 @@
 package http
 
 import (
-	"context"
 	"net/http"
 	"time"
 
 	"api-go/internal/adapter/handler/middleware"
 	"api-go/internal/core/domain"
-	"api-go/internal/service"
+	"api-go/internal/core/ports"
 )
 
 const (
@@ -15,27 +14,12 @@ const (
 	refreshCookiePath = "/api/v1/auth"
 )
 
-type AuthService interface {
-	Register(ctx context.Context, input service.RegisterInput, origin domain.SessionOrigin) (domain.IssuedSession, error)
-	LoginWithPassword(ctx context.Context, email, password string, origin domain.SessionOrigin) (domain.IssuedSession, error)
-	LoginWithGoogle(ctx context.Context, credential string, origin domain.SessionOrigin) (domain.IssuedSession, error)
-	Refresh(ctx context.Context, refreshToken string, origin domain.SessionOrigin) (domain.IssuedSession, error)
-	Logout(ctx context.Context, refreshToken string, origin domain.SessionOrigin) error
-	LogoutEverywhere(ctx context.Context, userID string, origin domain.SessionOrigin) error
-	RequestPasswordReset(ctx context.Context, email string) error
-	PasswordReset(ctx context.Context, token string) (domain.PasswordResetSummary, error)
-	ResetPassword(ctx context.Context, token, password string, origin domain.SessionOrigin) (domain.IssuedSession, error)
-	VerifyEmail(ctx context.Context, token string) error
-	Invite(ctx context.Context, token string) (domain.InviteSummary, error)
-	AcceptInvite(ctx context.Context, token, password string, origin domain.SessionOrigin) (domain.IssuedSession, error)
-}
-
 type AuthHandler struct {
-	auth         AuthService
+	auth         ports.AuthService
 	secureCookie bool
 }
 
-func NewAuthHandler(auth AuthService, isProduction bool) *AuthHandler {
+func NewAuthHandler(auth ports.AuthService, isProduction bool) *AuthHandler {
 	return &AuthHandler{auth: auth, secureCookie: isProduction}
 }
 
@@ -96,7 +80,7 @@ func (h *AuthHandler) register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	issued, err := h.auth.Register(r.Context(), service.RegisterInput{
+	issued, err := h.auth.Register(r.Context(), domain.RegisterInput{
 		Email:    input.Email,
 		Password: input.Password,
 		Name:     input.Name,

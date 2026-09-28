@@ -179,7 +179,7 @@ func (tc *aiToolContext) tableNameOfOpenOrder(orderID string) string {
 	return "No table"
 }
 
-func (tc *aiToolContext) unknownProductIDs(lines []OrderLineInput) []string {
+func (tc *aiToolContext) unknownProductIDs(lines []domain.OrderLineInput) []string {
 	var unknown []string
 	for _, line := range lines {
 		known := false
@@ -198,7 +198,7 @@ func (tc *aiToolContext) unknownProductIDs(lines []OrderLineInput) []string {
 
 const noKnownProducts = "None of the requested products are available in this establishment's menu."
 
-func productsCheck(lines []OrderLineInput, unknown []string) (domain.AIToolResult, bool) {
+func productsCheck(lines []domain.OrderLineInput, unknown []string) (domain.AIToolResult, bool) {
 	if len(unknown) == len(lines) {
 		return aiFailed(noKnownProducts), false
 	}
@@ -272,9 +272,9 @@ func (s *AIService) orderTools(tc *aiToolContext) []ports.AITool {
 
 		newAITool("createOrder", "Create a new open order for a specific table in the establishment.",
 			func(ctx context.Context, input createOrderInput) domain.AIToolResult {
-				lines := make([]OrderLineInput, 0, len(input.Items))
+				lines := make([]domain.OrderLineInput, 0, len(input.Items))
 				for _, item := range input.Items {
-					lines = append(lines, OrderLineInput{ProductID: item.ProductID, Quantity: item.Quantity})
+					lines = append(lines, domain.OrderLineInput{ProductID: item.ProductID, Quantity: item.Quantity})
 				}
 
 				if failed, ok := productsCheck(lines, tc.unknownProductIDs(lines)); !ok {
@@ -282,7 +282,7 @@ func (s *AIService) orderTools(tc *aiToolContext) []ports.AITool {
 				}
 
 				return tc.execute(domain.PermissionCreateOrder, nil, func() error {
-					return s.orders.Create(ctx, tc.establishmentID, CreateOrderInput{
+					return s.orders.Create(ctx, tc.establishmentID, domain.CreateOrderInput{
 						CreatedByID: tc.user.ID,
 						TableID:     optionalID(&input.TableID),
 						Items:       lines,
@@ -292,9 +292,9 @@ func (s *AIService) orderTools(tc *aiToolContext) []ports.AITool {
 
 		newAITool("addOrderItems", "Add more items to an existing open order.",
 			func(ctx context.Context, input addOrderItemsInput) domain.AIToolResult {
-				lines := make([]OrderLineInput, 0, len(input.Items))
+				lines := make([]domain.OrderLineInput, 0, len(input.Items))
 				for _, item := range input.Items {
-					lines = append(lines, OrderLineInput{ProductID: item.ProductID, Quantity: item.Quantity})
+					lines = append(lines, domain.OrderLineInput{ProductID: item.ProductID, Quantity: item.Quantity})
 				}
 
 				if failed, ok := productsCheck(lines, tc.unknownProductIDs(lines)); !ok {
@@ -302,7 +302,7 @@ func (s *AIService) orderTools(tc *aiToolContext) []ports.AITool {
 				}
 
 				return tc.execute(domain.PermissionUpdateOrder, nil, func() error {
-					return s.orders.AddItems(ctx, tc.establishmentID, input.OrderID, AddOrderItemsInput{Items: lines})
+					return s.orders.AddItems(ctx, tc.establishmentID, input.OrderID, domain.AddOrderItemsInput{Items: lines})
 				})
 			}),
 
@@ -344,7 +344,7 @@ func (s *AIService) orderTools(tc *aiToolContext) []ports.AITool {
 		newAITool("mergeOrders", "Merge two or more open orders into a single one, e.g. when two tables want to pay together.",
 			func(ctx context.Context, input mergeOrdersInput) domain.AIToolResult {
 				return tc.execute(domain.PermissionMergeOrders, nil, func() error {
-					return s.orders.Merge(ctx, tc.establishmentID, MergeOrdersInput{
+					return s.orders.Merge(ctx, tc.establishmentID, domain.MergeOrdersInput{
 						OrderIDs:      input.OrderIDs,
 						TargetTableID: optionalID(input.TargetTableID),
 					})
@@ -377,7 +377,7 @@ func (s *AIService) orderTools(tc *aiToolContext) []ports.AITool {
 				}
 
 				return tc.execute(domain.PermissionUpdateOrder, nil, func() error {
-					return s.orders.AddAdjustment(ctx, tc.establishmentID, input.OrderID, OrderAdjustmentInput{
+					return s.orders.AddAdjustment(ctx, tc.establishmentID, input.OrderID, domain.OrderAdjustmentInput{
 						Target: target,
 						Type:   adjustmentType,
 						Value:  value,

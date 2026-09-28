@@ -27,3 +27,8 @@ type RealtimeBus interface {
 
 	Replay(ctx context.Context, establishmentID string, sinceID string) []domain.RealtimeFrame
 }
+
+type RealtimeService interface {
+	Watch(establishmentID string, subscriber RealtimeSubscriber) func()
+	Replay(ctx context.Context, establishmentID string, lastEventID string) []domain.RealtimeFrame
+}

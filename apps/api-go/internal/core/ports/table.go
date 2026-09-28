@@ -15,3 +15,10 @@ type TableRepository interface {
 
 	Delete(ctx context.Context, tableID string) error
 }
+
+type TableService interface {
+	List(ctx context.Context, establishmentID string) ([]domain.Table, error)
+	Create(ctx context.Context, establishmentID, name string) error
+	Update(ctx context.Context, establishmentID, tableID string, name *string) error
+	Delete(ctx context.Context, establishmentID, tableID string) error
+}

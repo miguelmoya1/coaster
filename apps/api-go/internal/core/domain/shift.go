@@ -50,3 +50,10 @@ type ShiftExchangeRecord struct {
 	ShiftEstablishmentID string
 	ShiftStartTime       time.Time
 }
+
+type CreateShiftInput struct {
+	UserID    string
+	StartTime string
+	EndTime   string
+	Notes     *string
+}

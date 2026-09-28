@@ -13,6 +13,8 @@ siendo la API en producción y la **referencia de comportamiento** hasta el camb
 
 - **Sigue `ESTRUCTURA.md`.** Arquitectura hexagonal: `core` (domain + ports), `service` y
   `adapter`. Sin CQRS: un servicio por entidad y un método por caso de uso.
+- **Las interfaces de los servicios están en `core/ports`** (`ports.OrderService`…). Los handlers
+  y middlewares reciben esas; nunca se declaran interfaces en el archivo del handler.
 - **SQL a mano, un archivo `.sql` por consulta**, en `internal/adapter/repository/queries/<entidad>/`,
   cargado con `//go:embed` en una variable por consulta. Consultas simples, sin anidar
   relaciones: si hace falta, dos consultas y se juntan en Go.

@@ -221,3 +221,21 @@ func GroupByRoot(rows []TimeEntryRow) []TimeEntry {
 
 	return entries
 }
+
+type ClockInput struct {
+	Type      TimeEntryType
+	Latitude  *float64
+	Longitude *float64
+}
+
+type ManualTimeEntryInput struct {
+	UserID     string
+	Type       TimeEntryType
+	OccurredAt string
+	Reason     string
+}
+
+type AmendTimeEntryInput struct {
+	OccurredAt string
+	Reason     string
+}

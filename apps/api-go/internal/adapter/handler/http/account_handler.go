@@ -1,30 +1,19 @@
 package http
 
 import (
-	"context"
 	"net/http"
 	"time"
 
 	"api-go/internal/adapter/handler/middleware"
 	"api-go/internal/core/domain"
-	"api-go/internal/service"
+	"api-go/internal/core/ports"
 )
 
-type AccountService interface {
-	Account(ctx context.Context, userID string) (domain.AccountSummary, error)
-	RequestEmailVerification(ctx context.Context, userID string) error
-	SetPassword(ctx context.Context, input service.SetPasswordInput, origin domain.SessionOrigin) error
-	Sessions(ctx context.Context, userID, currentSessionID string) ([]domain.AccountSession, error)
-	CloseOtherSessions(ctx context.Context, userID, currentSessionID string) error
-	CloseSession(ctx context.Context, userID, sessionID, currentSessionID string) error
-	UnlinkIdentity(ctx context.Context, userID string, provider domain.AuthProvider, origin domain.SessionOrigin) error
-}
-
 type AccountHandler struct {
-	account AccountService
+	account ports.AccountService
 }
 
-func NewAccountHandler(account AccountService) *AccountHandler {
+func NewAccountHandler(account ports.AccountService) *AccountHandler {
 	return &AccountHandler{account: account}
 }
 
@@ -74,7 +63,7 @@ func (h *AccountHandler) setPassword(w http.ResponseWriter, r *http.Request) {
 		current = *input.CurrentPassword
 	}
 
-	err := h.account.SetPassword(r.Context(), service.SetPasswordInput{
+	err := h.account.SetPassword(r.Context(), domain.SetPasswordInput{
 		UserID:          middleware.CurrentUser(r.Context()).ID,
 		SessionID:       middleware.CurrentSession(r.Context()).Sid,
 		Password:        input.Password,

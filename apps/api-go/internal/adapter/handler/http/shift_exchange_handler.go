@@ -1,25 +1,18 @@
 package http
 
 import (
-	"context"
 	"net/http"
 
 	"api-go/internal/adapter/handler/middleware"
 	"api-go/internal/core/domain"
+	"api-go/internal/core/ports"
 )
 
-type ShiftExchangeService interface {
-	ListPending(ctx context.Context, establishmentID string) ([]domain.ShiftExchange, error)
-	Request(ctx context.Context, establishmentID, shiftID, requesterID string, targetID *string) error
-	Accept(ctx context.Context, establishmentID, exchangeID, userID string) error
-	Delete(ctx context.Context, establishmentID, exchangeID, userID string) error
-}
-
 type ShiftExchangeHandler struct {
-	exchanges ShiftExchangeService
+	exchanges ports.ShiftExchangeService
 }
 
-func NewShiftExchangeHandler(exchanges ShiftExchangeService) *ShiftExchangeHandler {
+func NewShiftExchangeHandler(exchanges ports.ShiftExchangeService) *ShiftExchangeHandler {
 	return &ShiftExchangeHandler{exchanges: exchanges}
 }
 

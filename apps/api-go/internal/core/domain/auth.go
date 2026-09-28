@@ -222,3 +222,19 @@ type InviteEmail struct {
 	InviterName       string
 	Token             string
 }
+
+type RegisterInput struct {
+	Email    string
+	Password string
+	Name     string
+
+	Language *string
+}
+
+type SetPasswordInput struct {
+	UserID    string
+	SessionID string
+	Password  string
+
+	CurrentPassword string
+}

@@ -1,24 +1,17 @@
 package http
 
 import (
-	"context"
 	"net/http"
 
 	"api-go/internal/adapter/handler/middleware"
-	"api-go/internal/core/domain"
+	"api-go/internal/core/ports"
 )
 
-type BetaTesterService interface {
-	List(ctx context.Context, search string, page domain.PageRequest) (domain.AdminBetaTesters, error)
-	Add(ctx context.Context, actorID, email string, note *string) error
-	Remove(ctx context.Context, actorID, betaTesterID string) error
-}
-
 type AdminBetaTesterHandler struct {
-	testers BetaTesterService
+	testers ports.BetaTesterService
 }
 
-func NewAdminBetaTesterHandler(testers BetaTesterService) *AdminBetaTesterHandler {
+func NewAdminBetaTesterHandler(testers ports.BetaTesterService) *AdminBetaTesterHandler {
 	return &AdminBetaTesterHandler{testers: testers}
 }
 

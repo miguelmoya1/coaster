@@ -81,16 +81,19 @@ librería externa.
 
 - **`domain/`**: las entidades del negocio (structs), los inputs para crearlas o
   modificarlas y los errores de negocio (`ErrNotFound`, `ErrInvalidPayload`…).
-- **`ports/`**: las **interfaces** de lo que los servicios necesitan de fuera. Solo eso.
+- **`ports/`**: las **interfaces** (contratos) del núcleo.
   - `XxxRepository`: lo que el negocio necesita de la persistencia.
   - Una interfaz por cada servicio externo (`PaymentGateway`, `Mailer`, `FileStorage`…).
   - `EventPublisher`: para avisar de que algo ha pasado (ver más abajo).
+  - `XxxService`: lo que los handlers y middlewares usan de cada servicio (`OrderService`,
+    `AuthService`…).
 
-  Los servicios no tienen interfaz en `ports/`: en Go la interfaz la declara quien la
-  consume. Cada handler declara en su archivo una interfaz pequeña con solo los métodos del
-  servicio que usa (`OrderService` en `order_handler.go`) y la recibe en su constructor;
-  `main.go` le pasa el `*service.OrderService`. Así los tests del handler pueden usar un fake.
-  Para ver de un vistazo lo que ofrece un servicio: `go doc ./internal/service OrderService`.
+  Las interfaces de los servicios también viven en `ports/`, con el mismo nombre que el
+  servicio (`ports.OrderService`, `ports.AuthService`…) y los métodos que usan los handlers y
+  middlewares. Los handlers y middlewares reciben esas interfaces; nunca se declaran interfaces
+  en el archivo del handler. `main.go` les pasa el `*service.OrderService` concreto y el
+  compilador comprueba que cumple la interfaz. Así los tests del handler pueden usar un fake.
+  Los inputs de los servicios (`CreateOrderInput`…) están en `domain/`.
 
 #### `internal/service/`
 
@@ -212,7 +215,7 @@ HTTP → middleware → handler → service → repository → base de datos
 | Paso | Archivo |
 |---|---|
 | 1. Entidad, inputs y errores | `internal/core/domain/xxx.go` |
-| 2. Interfaz del repositorio | `internal/core/ports/xxx.go` |
+| 2. Interfaces del repositorio y del servicio | `internal/core/ports/xxx.go` |
 | 3. Lógica de negocio | `internal/service/xxx_service.go` |
 | 4. Consultas SQL | `internal/adapter/repository/queries/xxx/*.sql` |
 | 5. Persistencia | `internal/adapter/repository/xxx_repository.go` + migración en `scripts/` |

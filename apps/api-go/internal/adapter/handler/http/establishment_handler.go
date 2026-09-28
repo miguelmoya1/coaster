@@ -1,26 +1,18 @@
 package http
 
 import (
-	"context"
 	"net/http"
 
 	"api-go/internal/adapter/handler/middleware"
 	"api-go/internal/core/domain"
+	"api-go/internal/core/ports"
 )
 
-type EstablishmentService interface {
-	Create(ctx context.Context, owner domain.User, name string) error
-	ListFor(ctx context.Context, userID string) ([]domain.Establishment, error)
-	Get(ctx context.Context, establishmentID string) (*domain.Establishment, error)
-	Settings(ctx context.Context, establishmentID string) (domain.EstablishmentSettings, error)
-	UpdateSettings(ctx context.Context, establishmentID string, changes domain.EstablishmentSettingsChanges) (domain.EstablishmentSettings, error)
-}
-
 type EstablishmentHandler struct {
-	establishments EstablishmentService
+	establishments ports.EstablishmentService
 }
 
-func NewEstablishmentHandler(establishments EstablishmentService) *EstablishmentHandler {
+func NewEstablishmentHandler(establishments ports.EstablishmentService) *EstablishmentHandler {
 	return &EstablishmentHandler{establishments: establishments}
 }
 

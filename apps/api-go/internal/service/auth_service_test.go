@@ -80,7 +80,7 @@ func TestRegister(t *testing.T) {
 	t.Run("opens the account, hashes the password and signs in", func(t *testing.T) {
 		f := newAuthFixture()
 
-		issued, err := f.service.Register(ctx, RegisterInput{Email: "  Nueva@Coaster.TEST ", Password: "a-good-enough-password", Name: " Nueva "}, origin)
+		issued, err := f.service.Register(ctx, domain.RegisterInput{Email: "  Nueva@Coaster.TEST ", Password: "a-good-enough-password", Name: " Nueva "}, origin)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -104,14 +104,14 @@ func TestRegister(t *testing.T) {
 	t.Run("refuses an address that has an account", func(t *testing.T) {
 		f := newAuthFixture(domain.AuthUser{ID: "u1", Email: "nueva@coaster.test", Active: true})
 
-		_, err := f.service.Register(ctx, RegisterInput{Email: "nueva@coaster.test", Password: "a-good-enough-password", Name: "N"}, origin)
+		_, err := f.service.Register(ctx, domain.RegisterInput{Email: "nueva@coaster.test", Password: "a-good-enough-password", Name: "N"}, origin)
 		assertCode(t, err, domain.CodeUserAlreadyExists)
 	})
 
 	t.Run("refuses a leaked password", func(t *testing.T) {
 		f := newAuthFixture()
 
-		_, err := f.service.Register(ctx, RegisterInput{Email: "nueva@coaster.test", Password: "password123", Name: "N"}, origin)
+		_, err := f.service.Register(ctx, domain.RegisterInput{Email: "nueva@coaster.test", Password: "password123", Name: "N"}, origin)
 		assertCode(t, err, domain.CodePasswordCompromised)
 	})
 
@@ -119,11 +119,11 @@ func TestRegister(t *testing.T) {
 		f := newAuthFixture()
 		f.service.betaAllowlistOn = true
 
-		_, err := f.service.Register(ctx, RegisterInput{Email: "nueva@coaster.test", Password: "a-good-enough-password", Name: "N"}, origin)
+		_, err := f.service.Register(ctx, domain.RegisterInput{Email: "nueva@coaster.test", Password: "a-good-enough-password", Name: "N"}, origin)
 		assertCode(t, err, domain.CodeBetaAccessRequired)
 
 		f.users.betaTesters = []string{"nueva@coaster.test"}
-		if _, err := f.service.Register(ctx, RegisterInput{Email: "nueva@coaster.test", Password: "a-good-enough-password", Name: "N"}, origin); err != nil {
+		if _, err := f.service.Register(ctx, domain.RegisterInput{Email: "nueva@coaster.test", Password: "a-good-enough-password", Name: "N"}, origin); err != nil {
 			t.Errorf("a beta tester was refused: %v", err)
 		}
 	})

@@ -1,22 +1,18 @@
 package http
 
 import (
-	"context"
 	"net/http"
 
 	"api-go/internal/adapter/handler/middleware"
 	"api-go/internal/core/domain"
+	"api-go/internal/core/ports"
 )
 
-type UserService interface {
-	UpdateProfile(ctx context.Context, userID string, changes domain.UserProfileChanges) error
-}
-
 type UserHandler struct {
-	users UserService
+	users ports.UserService
 }
 
-func NewUserHandler(users UserService) *UserHandler {
+func NewUserHandler(users ports.UserService) *UserHandler {
 	return &UserHandler{users: users}
 }
 

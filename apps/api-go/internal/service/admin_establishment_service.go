@@ -22,12 +22,6 @@ func NewAdminEstablishmentService(establishments ports.AdminEstablishmentReposit
 	return &AdminEstablishmentService{establishments: establishments, audit: audit, events: events, cache: cache, now: time.Now}
 }
 
-type GrantPlanInput struct {
-	Plan         domain.SubscriptionPlan
-	DurationDays *int
-	Reason       *string
-}
-
 type adminRenameChange struct {
 	From string `json:"from"`
 	To   string `json:"to"`
@@ -186,7 +180,7 @@ func (s *AdminEstablishmentService) UpdateModules(ctx context.Context, actorID, 
 	return settings.Resolved(), nil
 }
 
-func (s *AdminEstablishmentService) GrantPlan(ctx context.Context, actorID, establishmentID string, input GrantPlanInput) error {
+func (s *AdminEstablishmentService) GrantPlan(ctx context.Context, actorID, establishmentID string, input domain.GrantPlanInput) error {
 	establishment, err := s.find(ctx, establishmentID)
 	if err != nil {
 		return err

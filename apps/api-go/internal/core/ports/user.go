@@ -11,3 +11,7 @@ type UserRepository interface {
 
 	UpdateProfile(ctx context.Context, userID string, changes domain.UserProfileChanges) error
 }
+
+type UserService interface {
+	UpdateProfile(ctx context.Context, userID string, changes domain.UserProfileChanges) error
+}

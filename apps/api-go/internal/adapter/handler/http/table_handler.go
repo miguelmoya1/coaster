@@ -1,25 +1,18 @@
 package http
 
 import (
-	"context"
 	"net/http"
 
 	"api-go/internal/adapter/handler/middleware"
 	"api-go/internal/core/domain"
+	"api-go/internal/core/ports"
 )
 
-type TableService interface {
-	List(ctx context.Context, establishmentID string) ([]domain.Table, error)
-	Create(ctx context.Context, establishmentID, name string) error
-	Update(ctx context.Context, establishmentID, tableID string, name *string) error
-	Delete(ctx context.Context, establishmentID, tableID string) error
-}
-
 type TableHandler struct {
-	tables TableService
+	tables ports.TableService
 }
 
-func NewTableHandler(tables TableService) *TableHandler {
+func NewTableHandler(tables ports.TableService) *TableHandler {
 	return &TableHandler{tables: tables}
 }
 

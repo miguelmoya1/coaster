@@ -1,35 +1,22 @@
 package http
 
 import (
-	"context"
 	"io"
-	"io/fs"
 	"log/slog"
 	"net/http"
 	"time"
 
 	"api-go/internal/adapter/handler/middleware"
 	"api-go/internal/core/domain"
+	"api-go/internal/core/ports"
 )
 
-type PrinterService interface {
-	RedeemPairing(ctx context.Context, code string) (domain.PrinterPairing, error)
-	RegisterAddress(ctx context.Context, establishmentID, deviceKey, ipAddress string, port *int) error
-	NextJob(ctx context.Context, establishmentID, deviceKey string) (*domain.ClaimedPrintJob, error)
-	ReportResult(ctx context.Context, establishmentID, jobID, deviceKey string, result domain.PrintJobResult) error
-}
-
-type PrinterReleaseService interface {
-	Latest(platform string) (domain.PrinterRelease, error)
-	Download(platform, code string) (fs.File, string, error)
-}
-
 type PrinterHandler struct {
-	printers PrinterService
-	releases PrinterReleaseService
+	printers ports.PrinterService
+	releases ports.PrinterReleaseService
 }
 
-func NewPrinterHandler(printers PrinterService, releases PrinterReleaseService) *PrinterHandler {
+func NewPrinterHandler(printers ports.PrinterService, releases ports.PrinterReleaseService) *PrinterHandler {
 	return &PrinterHandler{printers: printers, releases: releases}
 }
 

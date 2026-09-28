@@ -1,23 +1,19 @@
 package http
 
 import (
-	"context"
 	"net/http"
 	"strings"
 
 	"api-go/internal/adapter/handler/middleware"
 	"api-go/internal/core/domain"
+	"api-go/internal/core/ports"
 )
 
-type MediaService interface {
-	UploadURLs(ctx context.Context, establishmentID, entityType string, files []domain.MediaFile) ([]domain.MediaUpload, error)
-}
-
 type MediaHandler struct {
-	media MediaService
+	media ports.MediaService
 }
 
-func NewMediaHandler(media MediaService) *MediaHandler {
+func NewMediaHandler(media ports.MediaService) *MediaHandler {
 	return &MediaHandler{media: media}
 }
 

@@ -69,7 +69,7 @@ func TestCashCloseCloseCountsTheCash(t *testing.T) {
 	}
 	notes := "  Sin incidencias  "
 
-	closed, err := NewCashCloseService(repo).Close(context.Background(), "e1", "u1", CloseCashInput{
+	closed, err := NewCashCloseService(repo).Close(context.Background(), "e1", "u1", domain.CloseCashInput{
 		OpeningFloat: 15000,
 		CountedCash:  17100,
 		Notes:        &notes,
@@ -94,7 +94,7 @@ func TestCashCloseCloseWithBlankNotes(t *testing.T) {
 	repo := &fakeCashCloseRepository{}
 	blank := "   "
 
-	if _, err := NewCashCloseService(repo).Close(context.Background(), "e1", "u1", CloseCashInput{Notes: &blank}); err != nil {
+	if _, err := NewCashCloseService(repo).Close(context.Background(), "e1", "u1", domain.CloseCashInput{Notes: &blank}); err != nil {
 		t.Fatal(err)
 	}
 	if repo.closeInput.Notes != nil {
@@ -105,7 +105,7 @@ func TestCashCloseCloseWithBlankNotes(t *testing.T) {
 func TestCashCloseCloseFailsWithTheRepository(t *testing.T) {
 	broken := errors.New("database down")
 
-	if _, err := NewCashCloseService(&fakeCashCloseRepository{err: broken}).Close(context.Background(), "e1", "u1", CloseCashInput{}); !errors.Is(err, broken) {
+	if _, err := NewCashCloseService(&fakeCashCloseRepository{err: broken}).Close(context.Background(), "e1", "u1", domain.CloseCashInput{}); !errors.Is(err, broken) {
 		t.Errorf("err = %v, want %v", err, broken)
 	}
 }

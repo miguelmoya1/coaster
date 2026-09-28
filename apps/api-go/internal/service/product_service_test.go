@@ -20,27 +20,27 @@ func TestProductServiceCreate(t *testing.T) {
 
 	tests := []struct {
 		name      string
-		input     CreateProductInput
+		input     domain.CreateProductInput
 		wantErr   bool
 		wantSaved domain.NewProduct
 	}{
 		{
 			name:  "fills the defaults",
-			input: CreateProductInput{Name: "Beer", CategoryID: "cat-1"},
+			input: domain.CreateProductInput{Name: "Beer", CategoryID: "cat-1"},
 			wantSaved: domain.NewProduct{
 				CategoryID: "cat-1", Name: "Beer", Allergens: []string{},
 			},
 		},
 		{
 			name:  "keeps what was sent, with ownTaxRate as the product's rate",
-			input: CreateProductInput{Name: "Beer", CategoryID: "cat-1", Price: &price, Allergens: []string{"GLUTEN"}, OwnTaxRate: &ownRate},
+			input: domain.CreateProductInput{Name: "Beer", CategoryID: "cat-1", Price: &price, Allergens: []string{"GLUTEN"}, OwnTaxRate: &ownRate},
 			wantSaved: domain.NewProduct{
 				CategoryID: "cat-1", Name: "Beer", Price: 250, Allergens: []string{"GLUTEN"}, TaxRate: &ownRate,
 			},
 		},
 		{
 			name:    "refuses a category of another establishment",
-			input:   CreateProductInput{Name: "Beer", CategoryID: "cat-other"},
+			input:   domain.CreateProductInput{Name: "Beer", CategoryID: "cat-other"},
 			wantErr: true,
 		},
 	}

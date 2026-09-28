@@ -1,28 +1,18 @@
 package http
 
 import (
-	"context"
 	"net/http"
 
 	"api-go/internal/adapter/handler/middleware"
 	"api-go/internal/core/domain"
-	"api-go/internal/service"
+	"api-go/internal/core/ports"
 )
 
-type AdminEstablishmentService interface {
-	List(ctx context.Context, filter domain.AdminEstablishmentFilter, page domain.PageRequest) (domain.Paginated[domain.AdminEstablishmentSummary], error)
-	Detail(ctx context.Context, establishmentID string) (domain.AdminEstablishmentDetail, error)
-	Rename(ctx context.Context, actorID, establishmentID, name string) error
-	UpdateModules(ctx context.Context, actorID, establishmentID string, modules []domain.EstablishmentModule) (domain.AdminEstablishmentSettings, error)
-	GrantPlan(ctx context.Context, actorID, establishmentID string, input service.GrantPlanInput) error
-	RevokePlan(ctx context.Context, actorID, establishmentID string, reason *string) error
-}
-
 type AdminEstablishmentHandler struct {
-	establishments AdminEstablishmentService
+	establishments ports.AdminEstablishmentService
 }
 
-func NewAdminEstablishmentHandler(establishments AdminEstablishmentService) *AdminEstablishmentHandler {
+func NewAdminEstablishmentHandler(establishments ports.AdminEstablishmentService) *AdminEstablishmentHandler {
 	return &AdminEstablishmentHandler{establishments: establishments}
 }
 
@@ -149,7 +139,7 @@ func (h *AdminEstablishmentHandler) grantPlan(w http.ResponseWriter, r *http.Req
 	}
 
 	actor := middleware.CurrentUser(r.Context())
-	err := h.establishments.GrantPlan(r.Context(), actor.ID, r.PathValue("establishmentId"), service.GrantPlanInput{
+	err := h.establishments.GrantPlan(r.Context(), actor.ID, r.PathValue("establishmentId"), domain.GrantPlanInput{
 		Plan:         domain.SubscriptionPlan(input.Plan),
 		DurationDays: input.DurationDays,
 		Reason:       input.Reason,

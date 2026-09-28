@@ -1,23 +1,19 @@
 package http
 
 import (
-	"context"
 	"errors"
 	"io"
 	"net/http"
 
 	"api-go/internal/adapter/handler/middleware"
+	"api-go/internal/core/ports"
 )
 
-type StripeWebhookService interface {
-	HandleWebhook(ctx context.Context, payload []byte, signature string) error
-}
-
 type StripeWebhookHandler struct {
-	subscriptions StripeWebhookService
+	subscriptions ports.SubscriptionService
 }
 
-func NewStripeWebhookHandler(subscriptions StripeWebhookService) *StripeWebhookHandler {
+func NewStripeWebhookHandler(subscriptions ports.SubscriptionService) *StripeWebhookHandler {
 	return &StripeWebhookHandler{subscriptions: subscriptions}
 }
 

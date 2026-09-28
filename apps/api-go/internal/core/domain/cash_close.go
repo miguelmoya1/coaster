@@ -116,3 +116,9 @@ func CashCloseNotesOf(notes *string) *string {
 
 	return &trimmed
 }
+
+type CloseCashInput struct {
+	OpeningFloat int
+	CountedCash  int
+	Notes        *string
+}

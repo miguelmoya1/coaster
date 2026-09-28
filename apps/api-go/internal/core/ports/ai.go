@@ -40,3 +40,8 @@ type AIUsageRepository interface {
 	ReserveMessage(ctx context.Context, establishmentID, period string, allowance int) (bool, error)
 	ReleaseMessage(ctx context.Context, establishmentID, period string) error
 }
+
+type AIService interface {
+	Usage(ctx context.Context, establishmentID string) (domain.AIUsage, error)
+	Execute(ctx context.Context, establishmentID string, user domain.User, input domain.AIInput) (domain.AIResponse, error)
+}

@@ -68,7 +68,7 @@ type establishmentEvents struct{}
 
 func (establishmentEvents) Publish(context.Context, ports.Event) {}
 
-func newEstablishmentServer(access middleware.AccessChecker, rows *establishmentRows) http.Handler {
+func newEstablishmentServer(access ports.SecurityService, rows *establishmentRows) http.Handler {
 	guard := middleware.NewGuard(fakeTokens{}, access, &countingLimiter{hits: map[string]int{}}, 1)
 	mux := http.NewServeMux()
 	NewEstablishmentHandler(service.NewEstablishmentService(rows, establishmentEvents{}, nil)).RegisterRoutes(mux, guard)

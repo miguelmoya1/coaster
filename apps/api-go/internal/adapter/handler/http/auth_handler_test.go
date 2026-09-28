@@ -11,19 +11,18 @@ import (
 	"api-go/internal/adapter/handler/middleware"
 	"api-go/internal/core/domain"
 	"api-go/internal/core/ports"
-	"api-go/internal/service"
 )
 
 var testUser = domain.User{ID: "u1", Email: "ana@example.com", Name: "Ana", Active: true, Role: domain.RoleUser, Language: "es"}
 
 type fakeTokens struct{}
 
-func (fakeTokens) Resolve(_ context.Context, authorization string) (*service.Caller, error) {
+func (fakeTokens) Resolve(_ context.Context, authorization string) (*domain.Caller, error) {
 	if authorization != "Bearer good" {
 		return nil, nil
 	}
 	user := testUser
-	return &service.Caller{Claims: domain.SessionClaims{Sub: user.ID, Sid: "s1"}, User: &user}, nil
+	return &domain.Caller{Claims: domain.SessionClaims{Sub: user.ID, Sid: "s1"}, User: &user}, nil
 }
 
 type fakeAccess struct{}
@@ -45,7 +44,7 @@ func (l *countingLimiter) Hit(_ context.Context, key string, ttl time.Duration, 
 }
 
 type fakeAuth struct {
-	AuthService
+	ports.AuthService
 	issued       domain.IssuedSession
 	err          error
 	gotEmail     string
@@ -55,7 +54,7 @@ type fakeAuth struct {
 	loggedOutAll string
 }
 
-func (f *fakeAuth) Register(_ context.Context, input service.RegisterInput, origin domain.SessionOrigin) (domain.IssuedSession, error) {
+func (f *fakeAuth) Register(_ context.Context, input domain.RegisterInput, origin domain.SessionOrigin) (domain.IssuedSession, error) {
 	f.gotEmail, f.gotLanguage, f.gotOrigin = input.Email, input.Language, origin
 	return f.issued, f.err
 }
@@ -85,7 +84,7 @@ func (f *fakeAuth) PasswordReset(_ context.Context, token string) (domain.Passwo
 	return domain.PasswordResetSummary{Email: "ana@example.com"}, f.err
 }
 
-func newAuthServer(auth *fakeAuth, account AccountService) http.Handler {
+func newAuthServer(auth *fakeAuth, account ports.AccountService) http.Handler {
 	guard := middleware.NewGuard(fakeTokens{}, fakeAccess{}, &countingLimiter{hits: map[string]int{}}, 1)
 	mux := http.NewServeMux()
 	NewAuthHandler(auth, true).RegisterRoutes(mux, guard)

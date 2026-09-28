@@ -1,25 +1,18 @@
 package http
 
 import (
-	"context"
 	"net/http"
 
 	"api-go/internal/adapter/handler/middleware"
 	"api-go/internal/core/domain"
-	"api-go/internal/service"
+	"api-go/internal/core/ports"
 )
 
-type CashCloseService interface {
-	List(ctx context.Context, establishmentID string) ([]domain.CashClose, error)
-	Preview(ctx context.Context, establishmentID string) (domain.CashClosePreview, error)
-	Close(ctx context.Context, establishmentID, closedByID string, input service.CloseCashInput) (domain.CashClose, error)
-}
-
 type CashCloseHandler struct {
-	closes CashCloseService
+	closes ports.CashCloseService
 }
 
-func NewCashCloseHandler(closes CashCloseService) *CashCloseHandler {
+func NewCashCloseHandler(closes ports.CashCloseService) *CashCloseHandler {
 	return &CashCloseHandler{closes: closes}
 }
 
@@ -67,7 +60,7 @@ func (h *CashCloseHandler) closeCash(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	closed, err := h.closes.Close(r.Context(), r.PathValue("establishmentId"), middleware.CurrentUser(r.Context()).ID, service.CloseCashInput{
+	closed, err := h.closes.Close(r.Context(), r.PathValue("establishmentId"), middleware.CurrentUser(r.Context()).ID, domain.CloseCashInput{
 		OpeningFloat: input.OpeningFloat,
 		CountedCash:  input.CountedCash,
 		Notes:        input.Notes,

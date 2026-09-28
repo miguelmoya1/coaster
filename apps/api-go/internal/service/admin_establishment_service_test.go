@@ -191,7 +191,7 @@ func TestAdminEstablishmentServiceGrantPlan(t *testing.T) {
 	days := 30
 	reason := "  Compensation "
 
-	err := f.service.GrantPlan(context.Background(), "admin", "e1", GrantPlanInput{Plan: domain.PlanPro, DurationDays: &days, Reason: &reason})
+	err := f.service.GrantPlan(context.Background(), "admin", "e1", domain.GrantPlanInput{Plan: domain.PlanPro, DurationDays: &days, Reason: &reason})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -219,7 +219,7 @@ func TestAdminEstablishmentServiceGrantPlan(t *testing.T) {
 	}
 
 	openEnded := newAdminEstablishmentFixture(adminRow(nil))
-	if err := openEnded.service.GrantPlan(context.Background(), "admin", "e1", GrantPlanInput{Plan: domain.PlanPro}); err != nil {
+	if err := openEnded.service.GrantPlan(context.Background(), "admin", "e1", domain.GrantPlanInput{Plan: domain.PlanPro}); err != nil {
 		t.Fatal(err)
 	}
 	raw, _ = json.Marshal(adminActionsIn(openEnded.events.events)[0].Metadata)
@@ -229,7 +229,7 @@ func TestAdminEstablishmentServiceGrantPlan(t *testing.T) {
 	}
 
 	missing := newAdminEstablishmentFixture()
-	err = missing.service.GrantPlan(context.Background(), "admin", "e1", GrantPlanInput{Plan: domain.PlanPro})
+	err = missing.service.GrantPlan(context.Background(), "admin", "e1", domain.GrantPlanInput{Plan: domain.PlanPro})
 	if !isAdminError(err, domain.KindNotFound, domain.CodeEstablishmentNotFound) || len(missing.repo.granted) != 0 || len(missing.events.events) != 0 {
 		t.Fatalf("GrantPlan(missing) = %v", err)
 	}

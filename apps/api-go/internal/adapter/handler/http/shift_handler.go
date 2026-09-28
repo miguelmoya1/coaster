@@ -1,25 +1,18 @@
 package http
 
 import (
-	"context"
 	"net/http"
 
 	"api-go/internal/adapter/handler/middleware"
 	"api-go/internal/core/domain"
-	"api-go/internal/service"
+	"api-go/internal/core/ports"
 )
 
-type ShiftService interface {
-	List(ctx context.Context, establishmentID, startDate, endDate string) ([]domain.Shift, error)
-	Create(ctx context.Context, establishmentID string, input service.CreateShiftInput) error
-	Delete(ctx context.Context, establishmentID, shiftID string) error
-}
-
 type ShiftHandler struct {
-	shifts ShiftService
+	shifts ports.ShiftService
 }
 
-func NewShiftHandler(shifts ShiftService) *ShiftHandler {
+func NewShiftHandler(shifts ports.ShiftService) *ShiftHandler {
 	return &ShiftHandler{shifts: shifts}
 }
 
@@ -58,7 +51,7 @@ func (h *ShiftHandler) create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := h.shifts.Create(r.Context(), r.PathValue("establishmentId"), service.CreateShiftInput{
+	err := h.shifts.Create(r.Context(), r.PathValue("establishmentId"), domain.CreateShiftInput{
 		UserID:    input.UserID,
 		StartTime: input.StartTime,
 		EndTime:   input.EndTime,

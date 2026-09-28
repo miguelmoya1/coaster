@@ -42,3 +42,23 @@ type OrderRepository interface {
 	AddAdjustment(ctx context.Context, orderID string, adjustment domain.NewOrderAdjustment) (domain.OrderRow, error)
 	RemoveAdjustment(ctx context.Context, orderID, adjustmentID string) (domain.OrderRow, error)
 }
+
+type OrderService interface {
+	ListByDate(ctx context.Context, establishmentID, date string) ([]domain.Order, error)
+	List(ctx context.Context, establishmentID string, status domain.OrderStatus) ([]domain.Order, error)
+	Get(ctx context.Context, establishmentID, orderID string) (domain.Order, error)
+	Create(ctx context.Context, establishmentID string, input domain.CreateOrderInput) error
+	AddItems(ctx context.Context, establishmentID, orderID string, input domain.AddOrderItemsInput) error
+	BulkUpdate(ctx context.Context, establishmentID, orderID string, updates []domain.OrderItemUpdate) error
+	Checkout(ctx context.Context, establishmentID, orderID string, method domain.PaymentMethod) error
+	Cancel(ctx context.Context, establishmentID, orderID string) error
+	MoveTable(ctx context.Context, establishmentID, orderID, tableID string) error
+	Merge(ctx context.Context, establishmentID string, input domain.MergeOrdersInput) error
+	RemoveItem(ctx context.Context, establishmentID, orderID, itemID string) error
+	Delete(ctx context.Context, establishmentID, orderID string) error
+	UpdateTip(ctx context.Context, establishmentID, orderID string, tipAmount int) error
+	UpdateNotes(ctx context.Context, establishmentID, orderID string, input domain.UpdateOrderNotesInput) error
+	UpdateItemNotes(ctx context.Context, establishmentID, orderID, itemID string, notes *string) error
+	AddAdjustment(ctx context.Context, establishmentID, orderID string, input domain.OrderAdjustmentInput) error
+	RemoveAdjustment(ctx context.Context, establishmentID, orderID, adjustmentID string) error
+}

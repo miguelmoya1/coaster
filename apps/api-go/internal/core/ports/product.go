@@ -18,3 +18,11 @@ type ProductRepository interface {
 	AdjustStock(ctx context.Context, productID string, delta int) (domain.ProductRow, error)
 	Delete(ctx context.Context, productID string) error
 }
+
+type ProductService interface {
+	List(ctx context.Context, establishmentID string) ([]domain.Product, error)
+	Create(ctx context.Context, establishmentID string, input domain.CreateProductInput) error
+	Update(ctx context.Context, establishmentID, productID string, changes domain.ProductChanges) error
+	SetStock(ctx context.Context, establishmentID, productID string, stock int) error
+	Delete(ctx context.Context, establishmentID, productID string) error
+}

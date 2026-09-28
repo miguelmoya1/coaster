@@ -1,28 +1,19 @@
 package http
 
 import (
-	"context"
 	"net/http"
 	"time"
 
 	"api-go/internal/adapter/handler/middleware"
 	"api-go/internal/core/domain"
-	"api-go/internal/service"
+	"api-go/internal/core/ports"
 )
 
-type MenuService interface {
-	Draft(ctx context.Context, establishmentID string) (domain.MenuDraft, error)
-	SaveDraft(ctx context.Context, establishmentID string, input service.SaveMenuDraftInput) (domain.MenuDraft, error)
-	Publish(ctx context.Context, establishmentID string) error
-	Unpublish(ctx context.Context, establishmentID string) error
-	Published(ctx context.Context, slug, language string) (domain.PublishedMenu, error)
-}
-
 type MenuHandler struct {
-	menus MenuService
+	menus ports.MenuService
 }
 
-func NewMenuHandler(menus MenuService) *MenuHandler {
+func NewMenuHandler(menus ports.MenuService) *MenuHandler {
 	return &MenuHandler{menus: menus}
 }
 
@@ -74,21 +65,21 @@ func (h *MenuHandler) saveDraft(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sections := make([]service.MenuSectionInput, 0, len(input.Sections))
+	sections := make([]domain.MenuSectionInput, 0, len(input.Sections))
 	for _, section := range input.Sections {
-		items := make([]service.MenuItemInput, 0, len(section.Items))
+		items := make([]domain.MenuItemInput, 0, len(section.Items))
 		for _, item := range section.Items {
-			items = append(items, service.MenuItemInput{
+			items = append(items, domain.MenuItemInput{
 				ProductID:    item.ProductID,
 				Price:        item.Price,
 				IsVisible:    item.IsVisible,
 				Translations: item.Translations,
 			})
 		}
-		sections = append(sections, service.MenuSectionInput{Translations: section.Translations, Items: items})
+		sections = append(sections, domain.MenuSectionInput{Translations: section.Translations, Items: items})
 	}
 
-	draft, err := h.menus.SaveDraft(r.Context(), r.PathValue("establishmentId"), service.SaveMenuDraftInput{
+	draft, err := h.menus.SaveDraft(r.Context(), r.PathValue("establishmentId"), domain.SaveMenuDraftInput{
 		Name:      input.Name,
 		Languages: input.Languages,
 		Sections:  sections,

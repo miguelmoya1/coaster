@@ -2,6 +2,7 @@ package ports
 
 import (
 	"context"
+	"io/fs"
 	"time"
 
 	"api-go/internal/core/domain"
@@ -34,4 +35,22 @@ type PrintJobRepository interface {
 	Fail(ctx context.Context, id, reason string, completedAt time.Time) error
 
 	RequeueStale(ctx context.Context, establishmentID string, claimedBefore, now time.Time) error
+}
+
+type PrinterService interface {
+	RedeemPairing(ctx context.Context, code string) (domain.PrinterPairing, error)
+	RegisterAddress(ctx context.Context, establishmentID, deviceKey, ipAddress string, port *int) error
+	NextJob(ctx context.Context, establishmentID, deviceKey string) (*domain.ClaimedPrintJob, error)
+	ReportResult(ctx context.Context, establishmentID, jobID, deviceKey string, result domain.PrintJobResult) error
+	Enqueue(ctx context.Context, establishmentID string, ticket domain.PrintTicket) (domain.QueuedPrintJob, error)
+	Job(ctx context.Context, establishmentID, jobID string) (*domain.PrintJob, error)
+	Connection(ctx context.Context, establishmentID string) (domain.PrinterConnection, error)
+	Status(ctx context.Context, establishmentID string) (domain.PrinterStatus, error)
+	IssuePairing(ctx context.Context, establishmentID string) (domain.PrinterPairingCode, error)
+	GenerateDeviceKey(ctx context.Context, establishmentID string) (domain.PrinterDeviceKey, error)
+}
+
+type PrinterReleaseService interface {
+	Latest(platform string) (domain.PrinterRelease, error)
+	Download(platform, code string) (fs.File, string, error)
 }

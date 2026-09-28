@@ -24,45 +24,6 @@ func NewOrderService(orders ports.OrderRepository, tables ports.TableRepository,
 	return &OrderService{orders: orders, tables: tables, events: events, now: time.Now}
 }
 
-type OrderLineInput struct {
-	ProductID string
-	Quantity  int
-	Notes     *string
-}
-
-type OrderAdjustmentInput struct {
-	Target domain.AdjustmentTarget
-	Type   domain.AdjustmentType
-	Value  int
-	Reason *string
-	ItemID *string
-}
-
-type CreateOrderInput struct {
-	CreatedByID string
-	TableID     *string
-	Items       []OrderLineInput
-	Notes       *string
-	Adjustments []OrderAdjustmentInput
-	TipAmount   *int
-}
-
-type AddOrderItemsInput struct {
-	Items      []OrderLineInput
-	Notes      *string
-	ClearNotes bool
-}
-
-type MergeOrdersInput struct {
-	OrderIDs      []string
-	TargetTableID *string
-}
-
-type UpdateOrderNotesInput struct {
-	Notes       *string
-	TicketNotes *string
-}
-
 func (s *OrderService) List(ctx context.Context, establishmentID string, status domain.OrderStatus) ([]domain.Order, error) {
 	switch status {
 	case "", domain.OrderOpen, domain.OrderClosed, domain.OrderCancelled:
@@ -98,7 +59,7 @@ func (s *OrderService) Get(ctx context.Context, establishmentID, orderID string)
 	return order.ToOrder(), nil
 }
 
-func (s *OrderService) Create(ctx context.Context, establishmentID string, input CreateOrderInput) error {
+func (s *OrderService) Create(ctx context.Context, establishmentID string, input domain.CreateOrderInput) error {
 	items, totalAmount, err := s.priceLines(ctx, establishmentID, input.Items)
 	if err != nil {
 		return err
@@ -160,7 +121,7 @@ func (s *OrderService) Create(ctx context.Context, establishmentID string, input
 	return nil
 }
 
-func (s *OrderService) AddItems(ctx context.Context, establishmentID, orderID string, input AddOrderItemsInput) error {
+func (s *OrderService) AddItems(ctx context.Context, establishmentID, orderID string, input domain.AddOrderItemsInput) error {
 	order, err := s.findOpen(ctx, establishmentID, orderID)
 	if err != nil {
 		return err
@@ -296,7 +257,7 @@ func (s *OrderService) MoveTable(ctx context.Context, establishmentID, orderID, 
 	return nil
 }
 
-func (s *OrderService) Merge(ctx context.Context, establishmentID string, input MergeOrdersInput) error {
+func (s *OrderService) Merge(ctx context.Context, establishmentID string, input domain.MergeOrdersInput) error {
 	orders, err := s.orders.FindByIDs(ctx, input.OrderIDs)
 	if err != nil {
 		return err
@@ -429,7 +390,7 @@ func (s *OrderService) UpdateTip(ctx context.Context, establishmentID, orderID s
 	return nil
 }
 
-func (s *OrderService) UpdateNotes(ctx context.Context, establishmentID, orderID string, input UpdateOrderNotesInput) error {
+func (s *OrderService) UpdateNotes(ctx context.Context, establishmentID, orderID string, input domain.UpdateOrderNotesInput) error {
 	if _, err := s.findOpen(ctx, establishmentID, orderID); err != nil {
 		return err
 	}
@@ -476,7 +437,7 @@ func (s *OrderService) UpdateItemNotes(ctx context.Context, establishmentID, ord
 	return nil
 }
 
-func (s *OrderService) AddAdjustment(ctx context.Context, establishmentID, orderID string, input OrderAdjustmentInput) error {
+func (s *OrderService) AddAdjustment(ctx context.Context, establishmentID, orderID string, input domain.OrderAdjustmentInput) error {
 	order, err := s.findOpen(ctx, establishmentID, orderID)
 	if err != nil {
 		return err
@@ -584,7 +545,7 @@ func (s *OrderService) findTable(ctx context.Context, establishmentID, tableID s
 	return *table, nil
 }
 
-func (s *OrderService) priceLines(ctx context.Context, establishmentID string, lines []OrderLineInput) ([]domain.NewOrderItem, int, error) {
+func (s *OrderService) priceLines(ctx context.Context, establishmentID string, lines []domain.OrderLineInput) ([]domain.NewOrderItem, int, error) {
 	productIDs := make([]string, 0, len(lines))
 	for _, line := range lines {
 		productIDs = append(productIDs, line.ProductID)
@@ -622,7 +583,7 @@ func (s *OrderService) priceLines(ctx context.Context, establishmentID string, l
 	return items, total, nil
 }
 
-func newOrderAdjustment(input OrderAdjustmentInput) domain.NewOrderAdjustment {
+func newOrderAdjustment(input domain.OrderAdjustmentInput) domain.NewOrderAdjustment {
 	adjustment := domain.NewOrderAdjustment{
 		Target: input.Target,
 		Type:   input.Type,

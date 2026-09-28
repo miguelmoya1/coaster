@@ -1,7 +1,6 @@
 package http
 
 import (
-	"context"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -10,24 +9,14 @@ import (
 
 	"api-go/internal/adapter/handler/middleware"
 	"api-go/internal/core/domain"
-	"api-go/internal/service"
+	"api-go/internal/core/ports"
 )
 
-type TimeEntryService interface {
-	Clock(ctx context.Context, establishmentID string, actor *domain.User, input service.ClockInput) (domain.TimeEntry, error)
-	CurrentWorkday(ctx context.Context, establishmentID, userID string) (*domain.Workday, error)
-	TimeSheet(ctx context.Context, establishmentID string, from, to *string, userID string) ([]domain.Workday, error)
-	Integrity(ctx context.Context, establishmentID string) (domain.TimeSheetIntegrity, error)
-	CreateManual(ctx context.Context, establishmentID string, actor *domain.User, input service.ManualTimeEntryInput) (domain.TimeEntry, error)
-	Amend(ctx context.Context, establishmentID, entryID string, actor *domain.User, input service.AmendTimeEntryInput) (domain.TimeEntry, error)
-	Void(ctx context.Context, establishmentID, entryID string, actor *domain.User, reason string) (domain.TimeEntry, error)
-}
-
 type TimeEntryHandler struct {
-	entries TimeEntryService
+	entries ports.TimeEntryService
 }
 
-func NewTimeEntryHandler(entries TimeEntryService) *TimeEntryHandler {
+func NewTimeEntryHandler(entries ports.TimeEntryService) *TimeEntryHandler {
 	return &TimeEntryHandler{entries: entries}
 }
 
@@ -130,7 +119,7 @@ func (h *TimeEntryHandler) clock(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx := r.Context()
-	entry, err := h.entries.Clock(ctx, r.PathValue("establishmentId"), middleware.CurrentUser(ctx), service.ClockInput{
+	entry, err := h.entries.Clock(ctx, r.PathValue("establishmentId"), middleware.CurrentUser(ctx), domain.ClockInput{
 		Type:      input.Type,
 		Latitude:  input.Latitude,
 		Longitude: input.Longitude,
@@ -224,7 +213,7 @@ func (h *TimeEntryHandler) create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx := r.Context()
-	entry, err := h.entries.CreateManual(ctx, r.PathValue("establishmentId"), middleware.CurrentUser(ctx), service.ManualTimeEntryInput{
+	entry, err := h.entries.CreateManual(ctx, r.PathValue("establishmentId"), middleware.CurrentUser(ctx), domain.ManualTimeEntryInput{
 		UserID:     input.UserID,
 		Type:       input.Type,
 		OccurredAt: input.OccurredAt,
@@ -246,7 +235,7 @@ func (h *TimeEntryHandler) amend(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx := r.Context()
-	entry, err := h.entries.Amend(ctx, r.PathValue("establishmentId"), r.PathValue("entryId"), middleware.CurrentUser(ctx), service.AmendTimeEntryInput{
+	entry, err := h.entries.Amend(ctx, r.PathValue("establishmentId"), r.PathValue("entryId"), middleware.CurrentUser(ctx), domain.AmendTimeEntryInput{
 		OccurredAt: input.OccurredAt,
 		Reason:     input.Reason,
 	})

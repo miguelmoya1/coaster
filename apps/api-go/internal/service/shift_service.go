@@ -19,13 +19,6 @@ func NewShiftService(shifts ports.ShiftRepository, security *SecurityService, ev
 	return &ShiftService{shifts: shifts, security: security, events: events, realtime: realtime}
 }
 
-type CreateShiftInput struct {
-	UserID    string
-	StartTime string
-	EndTime   string
-	Notes     *string
-}
-
 func (s *ShiftService) List(ctx context.Context, establishmentID, startDate, endDate string) ([]domain.Shift, error) {
 	var from, to *time.Time
 
@@ -56,7 +49,7 @@ func (s *ShiftService) ListBetween(ctx context.Context, establishmentID string, 
 	return s.shifts.ListByEstablishment(ctx, establishmentID, &from, &to)
 }
 
-func (s *ShiftService) Create(ctx context.Context, establishmentID string, input CreateShiftInput) error {
+func (s *ShiftService) Create(ctx context.Context, establishmentID string, input domain.CreateShiftInput) error {
 	start, startOK := domain.ParseInstant(input.StartTime)
 	end, endOK := domain.ParseInstant(input.EndTime)
 	if !startOK || !endOK {

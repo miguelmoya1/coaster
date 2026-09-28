@@ -56,12 +56,12 @@ func TestMenuServiceSaveDraft(t *testing.T) {
 	productID := "prod-1"
 	hidden := false
 
-	input := SaveMenuDraftInput{
+	input := domain.SaveMenuDraftInput{
 		Name:      "  Carta  ",
 		Languages: []string{"es", "en", "es"},
-		Sections: []MenuSectionInput{{
+		Sections: []domain.MenuSectionInput{{
 			Translations: map[string]any{"es": map[string]any{"name": " Cafetería "}, "de": map[string]any{"name": "Kaffee"}},
-			Items: []MenuItemInput{
+			Items: []domain.MenuItemInput{
 				{ProductID: &productID, Translations: map[string]any{"en": map[string]any{"name": "Coffee"}}},
 				{IsVisible: &hidden, Translations: map[string]any{}},
 			},
@@ -70,24 +70,24 @@ func TestMenuServiceSaveDraft(t *testing.T) {
 
 	tests := []struct {
 		name     string
-		change   func(input *SaveMenuDraftInput, repo *fakeMenuRepo)
+		change   func(input *domain.SaveMenuDraftInput, repo *fakeMenuRepo)
 		wantKind domain.ErrorKind
 		wantCode string
 	}{
 		{name: "saves"},
 		{
 			name:     "no menu yet",
-			change:   func(_ *SaveMenuDraftInput, repo *fakeMenuRepo) { delete(repo.menus, "est-1") },
+			change:   func(_ *domain.SaveMenuDraftInput, repo *fakeMenuRepo) { delete(repo.menus, "est-1") },
 			wantKind: domain.KindNotFound, wantCode: domain.CodeMenuNotFound,
 		},
 		{
 			name:     "dropping the default language",
-			change:   func(input *SaveMenuDraftInput, _ *fakeMenuRepo) { input.Languages = []string{"en"} },
+			change:   func(input *domain.SaveMenuDraftInput, _ *fakeMenuRepo) { input.Languages = []string{"en"} },
 			wantKind: domain.KindBadRequest, wantCode: domain.CodeMenuLanguageNotOffered,
 		},
 		{
 			name:     "a product of another establishment",
-			change:   func(_ *SaveMenuDraftInput, repo *fakeMenuRepo) { repo.ownedProducts = nil },
+			change:   func(_ *domain.SaveMenuDraftInput, repo *fakeMenuRepo) { repo.ownedProducts = nil },
 			wantKind: domain.KindNotFound, wantCode: domain.CodeProductNotFound,
 		},
 	}

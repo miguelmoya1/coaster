@@ -1,39 +1,18 @@
 package http
 
 import (
-	"context"
 	"net/http"
 
 	"api-go/internal/adapter/handler/middleware"
 	"api-go/internal/core/domain"
-	"api-go/internal/service"
+	"api-go/internal/core/ports"
 )
 
-type OrderService interface {
-	ListByDate(ctx context.Context, establishmentID, date string) ([]domain.Order, error)
-	List(ctx context.Context, establishmentID string, status domain.OrderStatus) ([]domain.Order, error)
-	Get(ctx context.Context, establishmentID, orderID string) (domain.Order, error)
-	Create(ctx context.Context, establishmentID string, input service.CreateOrderInput) error
-	AddItems(ctx context.Context, establishmentID, orderID string, input service.AddOrderItemsInput) error
-	BulkUpdate(ctx context.Context, establishmentID, orderID string, updates []domain.OrderItemUpdate) error
-	Checkout(ctx context.Context, establishmentID, orderID string, method domain.PaymentMethod) error
-	Cancel(ctx context.Context, establishmentID, orderID string) error
-	MoveTable(ctx context.Context, establishmentID, orderID, tableID string) error
-	Merge(ctx context.Context, establishmentID string, input service.MergeOrdersInput) error
-	RemoveItem(ctx context.Context, establishmentID, orderID, itemID string) error
-	Delete(ctx context.Context, establishmentID, orderID string) error
-	UpdateTip(ctx context.Context, establishmentID, orderID string, tipAmount int) error
-	UpdateNotes(ctx context.Context, establishmentID, orderID string, input service.UpdateOrderNotesInput) error
-	UpdateItemNotes(ctx context.Context, establishmentID, orderID, itemID string, notes *string) error
-	AddAdjustment(ctx context.Context, establishmentID, orderID string, input service.OrderAdjustmentInput) error
-	RemoveAdjustment(ctx context.Context, establishmentID, orderID, adjustmentID string) error
-}
-
 type OrderHandler struct {
-	orders OrderService
+	orders ports.OrderService
 }
 
-func NewOrderHandler(orders OrderService) *OrderHandler {
+func NewOrderHandler(orders ports.OrderService) *OrderHandler {
 	return &OrderHandler{orders: orders}
 }
 
@@ -175,7 +154,7 @@ func (h *OrderHandler) create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	create := service.CreateOrderInput{
+	create := domain.CreateOrderInput{
 		CreatedByID: middleware.CurrentUser(r.Context()).ID,
 		TableID:     input.TableID,
 		Items:       orderLines(input.Items),
@@ -204,7 +183,7 @@ func (h *OrderHandler) addItems(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.orders.AddItems(r.Context(), r.PathValue("establishmentId"), r.PathValue("orderId"), service.AddOrderItemsInput{
+	err = h.orders.AddItems(r.Context(), r.PathValue("establishmentId"), r.PathValue("orderId"), domain.AddOrderItemsInput{
 		Items:      orderLines(input.Items),
 		Notes:      input.Notes,
 		ClearNotes: nulls["notes"],
@@ -288,7 +267,7 @@ func (h *OrderHandler) merge(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := h.orders.Merge(r.Context(), r.PathValue("establishmentId"), service.MergeOrdersInput{
+	err := h.orders.Merge(r.Context(), r.PathValue("establishmentId"), domain.MergeOrdersInput{
 		OrderIDs:      input.OrderIDs,
 		TargetTableID: input.TargetTableID,
 	})
@@ -341,7 +320,7 @@ func (h *OrderHandler) updateNotes(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := h.orders.UpdateNotes(r.Context(), r.PathValue("establishmentId"), r.PathValue("orderId"), service.UpdateOrderNotesInput{
+	err := h.orders.UpdateNotes(r.Context(), r.PathValue("establishmentId"), r.PathValue("orderId"), domain.UpdateOrderNotesInput{
 		Notes:       input.Notes,
 		TicketNotes: input.TicketNotes,
 	})
@@ -395,16 +374,16 @@ func (h *OrderHandler) removeAdjustment(w http.ResponseWriter, r *http.Request) 
 	w.WriteHeader(http.StatusOK)
 }
 
-func orderLines(lines []orderLineRequest) []service.OrderLineInput {
-	inputs := make([]service.OrderLineInput, 0, len(lines))
+func orderLines(lines []orderLineRequest) []domain.OrderLineInput {
+	inputs := make([]domain.OrderLineInput, 0, len(lines))
 	for _, line := range lines {
-		inputs = append(inputs, service.OrderLineInput{ProductID: line.ProductID, Quantity: line.Quantity, Notes: line.Notes})
+		inputs = append(inputs, domain.OrderLineInput{ProductID: line.ProductID, Quantity: line.Quantity, Notes: line.Notes})
 	}
 	return inputs
 }
 
-func orderAdjustment(adjustment orderAdjustmentRequest) service.OrderAdjustmentInput {
-	return service.OrderAdjustmentInput{
+func orderAdjustment(adjustment orderAdjustmentRequest) domain.OrderAdjustmentInput {
+	return domain.OrderAdjustmentInput{
 		Target: adjustment.Target,
 		Type:   adjustment.Type,
 		Value:  adjustment.Value,

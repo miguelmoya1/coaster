@@ -1,27 +1,18 @@
 package http
 
 import (
-	"context"
 	"net/http"
 
 	"api-go/internal/adapter/handler/middleware"
 	"api-go/internal/core/domain"
-	"api-go/internal/service"
+	"api-go/internal/core/ports"
 )
 
-type ProductService interface {
-	List(ctx context.Context, establishmentID string) ([]domain.Product, error)
-	Create(ctx context.Context, establishmentID string, input service.CreateProductInput) error
-	Update(ctx context.Context, establishmentID, productID string, changes domain.ProductChanges) error
-	SetStock(ctx context.Context, establishmentID, productID string, stock int) error
-	Delete(ctx context.Context, establishmentID, productID string) error
-}
-
 type ProductHandler struct {
-	products ProductService
+	products ports.ProductService
 }
 
-func NewProductHandler(products ProductService) *ProductHandler {
+func NewProductHandler(products ports.ProductService) *ProductHandler {
 	return &ProductHandler{products: products}
 }
 
@@ -89,7 +80,7 @@ func (h *ProductHandler) create(w http.ResponseWriter, r *http.Request) {
 		allergens = *input.Allergens
 	}
 
-	err := h.products.Create(r.Context(), r.PathValue("establishmentId"), service.CreateProductInput{
+	err := h.products.Create(r.Context(), r.PathValue("establishmentId"), domain.CreateProductInput{
 		Name:          input.Name,
 		CategoryID:    input.CategoryID,
 		Price:         input.Price,

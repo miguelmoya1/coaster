@@ -82,3 +82,32 @@ type LoginAttempts interface {
 	Remember(ctx context.Context, email string)
 	Forget(ctx context.Context, email string)
 }
+
+type AccountService interface {
+	Account(ctx context.Context, userID string) (domain.AccountSummary, error)
+	RequestEmailVerification(ctx context.Context, userID string) error
+	SetPassword(ctx context.Context, input domain.SetPasswordInput, origin domain.SessionOrigin) error
+	Sessions(ctx context.Context, userID, currentSessionID string) ([]domain.AccountSession, error)
+	CloseOtherSessions(ctx context.Context, userID, currentSessionID string) error
+	CloseSession(ctx context.Context, userID, sessionID, currentSessionID string) error
+	UnlinkIdentity(ctx context.Context, userID string, provider domain.AuthProvider, origin domain.SessionOrigin) error
+}
+
+type AuthService interface {
+	Register(ctx context.Context, input domain.RegisterInput, origin domain.SessionOrigin) (domain.IssuedSession, error)
+	LoginWithPassword(ctx context.Context, email, password string, origin domain.SessionOrigin) (domain.IssuedSession, error)
+	LoginWithGoogle(ctx context.Context, credential string, origin domain.SessionOrigin) (domain.IssuedSession, error)
+	Refresh(ctx context.Context, refreshToken string, origin domain.SessionOrigin) (domain.IssuedSession, error)
+	Logout(ctx context.Context, refreshToken string, origin domain.SessionOrigin) error
+	LogoutEverywhere(ctx context.Context, userID string, origin domain.SessionOrigin) error
+	RequestPasswordReset(ctx context.Context, email string) error
+	PasswordReset(ctx context.Context, token string) (domain.PasswordResetSummary, error)
+	ResetPassword(ctx context.Context, token, password string, origin domain.SessionOrigin) (domain.IssuedSession, error)
+	VerifyEmail(ctx context.Context, token string) error
+	Invite(ctx context.Context, token string) (domain.InviteSummary, error)
+	AcceptInvite(ctx context.Context, token, password string, origin domain.SessionOrigin) (domain.IssuedSession, error)
+}
+
+type AccessTokenService interface {
+	Resolve(ctx context.Context, authorization string) (*domain.Caller, error)
+}

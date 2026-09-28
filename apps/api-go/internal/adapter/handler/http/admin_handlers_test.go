@@ -146,7 +146,7 @@ func (adminNoCache) Get(context.Context, string, any) bool { return false }
 func (adminNoCache) Set(context.Context, string, any)      {}
 func (adminNoCache) Forget(context.Context, ...string)     {}
 
-func newAdminServer(access middleware.AccessChecker) http.Handler {
+func newAdminServer(access ports.SecurityService) http.Handler {
 	guard := middleware.NewGuard(fakeTokens{}, access, &countingLimiter{hits: map[string]int{}}, 1)
 	mux := http.NewServeMux()
 	NewAdminOverviewHandler(service.NewAdminMetricsService(nil), service.NewAdminAuditService(nil)).RegisterRoutes(mux, guard)

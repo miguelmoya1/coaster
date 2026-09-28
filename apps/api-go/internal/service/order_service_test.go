@@ -60,16 +60,16 @@ func TestOrderServiceCreate(t *testing.T) {
 	longNote := strings.Repeat("ñ", 501)
 
 	f := newOrderFixture()
-	err := f.service.Create(context.Background(), "e1", CreateOrderInput{
+	err := f.service.Create(context.Background(), "e1", domain.CreateOrderInput{
 		CreatedByID: "u1",
 		TableID:     orderPtr("t-free"),
-		Items: []OrderLineInput{
+		Items: []domain.OrderLineInput{
 			{ProductID: "beer", Quantity: 2, Notes: &longNote},
 			{ProductID: "beer", Quantity: 1, Notes: orderPtr("")},
 			{ProductID: "coke", Quantity: 1},
 		},
 		Notes:       orderPtr("para llevar"),
-		Adjustments: []OrderAdjustmentInput{{Target: domain.AdjustmentOrder, Type: domain.AdjustmentPercentage, Value: 10, Reason: orderPtr("")}},
+		Adjustments: []domain.OrderAdjustmentInput{{Target: domain.AdjustmentOrder, Type: domain.AdjustmentPercentage, Value: 10, Reason: orderPtr("")}},
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -101,20 +101,20 @@ func TestOrderServiceCreate(t *testing.T) {
 func TestOrderServiceCreateRefuses(t *testing.T) {
 	tests := []struct {
 		name  string
-		input CreateOrderInput
+		input domain.CreateOrderInput
 		code  string
 	}{
-		{"a product another establishment sells", CreateOrderInput{Items: []OrderLineInput{{ProductID: "theirs", Quantity: 1}}}, domain.CodeProductNotFound},
-		{"a table that does not exist", CreateOrderInput{TableID: orderPtr("missing"), Items: []OrderLineInput{{ProductID: "beer", Quantity: 1}}}, domain.CodeTableNotFound},
-		{"a table of another establishment", CreateOrderInput{TableID: orderPtr("t-other"), Items: []OrderLineInput{{ProductID: "beer", Quantity: 1}}}, domain.CodeTableNotFound},
-		{"a table that is taken", CreateOrderInput{TableID: orderPtr("t-busy"), Items: []OrderLineInput{{ProductID: "beer", Quantity: 1}}}, domain.CodeTableAlreadyOccupied},
-		{"a discount of a line of another order", CreateOrderInput{
-			Items:       []OrderLineInput{{ProductID: "beer", Quantity: 1}},
-			Adjustments: []OrderAdjustmentInput{{Target: domain.AdjustmentItem, Type: domain.AdjustmentFixedAmount, Value: 1, ItemID: orderPtr("i1")}},
+		{"a product another establishment sells", domain.CreateOrderInput{Items: []domain.OrderLineInput{{ProductID: "theirs", Quantity: 1}}}, domain.CodeProductNotFound},
+		{"a table that does not exist", domain.CreateOrderInput{TableID: orderPtr("missing"), Items: []domain.OrderLineInput{{ProductID: "beer", Quantity: 1}}}, domain.CodeTableNotFound},
+		{"a table of another establishment", domain.CreateOrderInput{TableID: orderPtr("t-other"), Items: []domain.OrderLineInput{{ProductID: "beer", Quantity: 1}}}, domain.CodeTableNotFound},
+		{"a table that is taken", domain.CreateOrderInput{TableID: orderPtr("t-busy"), Items: []domain.OrderLineInput{{ProductID: "beer", Quantity: 1}}}, domain.CodeTableAlreadyOccupied},
+		{"a discount of a line of another order", domain.CreateOrderInput{
+			Items:       []domain.OrderLineInput{{ProductID: "beer", Quantity: 1}},
+			Adjustments: []domain.OrderAdjustmentInput{{Target: domain.AdjustmentItem, Type: domain.AdjustmentFixedAmount, Value: 1, ItemID: orderPtr("i1")}},
 		}, domain.CodeOrderItemNotFound},
-		{"a discount of a line without the line", CreateOrderInput{
-			Items:       []OrderLineInput{{ProductID: "beer", Quantity: 1}},
-			Adjustments: []OrderAdjustmentInput{{Target: domain.AdjustmentItem, Type: domain.AdjustmentFixedAmount, Value: 1}},
+		{"a discount of a line without the line", domain.CreateOrderInput{
+			Items:       []domain.OrderLineInput{{ProductID: "beer", Quantity: 1}},
+			Adjustments: []domain.OrderAdjustmentInput{{Target: domain.AdjustmentItem, Type: domain.AdjustmentFixedAmount, Value: 1}},
 		}, domain.MessageItemIDRequiredForItemTarget},
 	}
 
@@ -132,7 +132,7 @@ func TestOrderServiceCreateRefuses(t *testing.T) {
 func TestOrderServiceNeedsAnOpenOrderOfTheEstablishment(t *testing.T) {
 	commands := map[string]func(s *OrderService, orderID string) error{
 		"AddItems": func(s *OrderService, id string) error {
-			return s.AddItems(context.Background(), "e1", id, AddOrderItemsInput{Items: []OrderLineInput{{ProductID: "beer", Quantity: 1}}})
+			return s.AddItems(context.Background(), "e1", id, domain.AddOrderItemsInput{Items: []domain.OrderLineInput{{ProductID: "beer", Quantity: 1}}})
 		},
 		"BulkUpdate": func(s *OrderService, id string) error {
 			return s.BulkUpdate(context.Background(), "e1", id, []domain.OrderItemUpdate{{ItemID: "i1", ServedQuantity: orderPtr(1)}})
@@ -147,13 +147,13 @@ func TestOrderServiceNeedsAnOpenOrderOfTheEstablishment(t *testing.T) {
 		},
 		"UpdateTip": func(s *OrderService, id string) error { return s.UpdateTip(context.Background(), "e1", id, 100) },
 		"UpdateNotes": func(s *OrderService, id string) error {
-			return s.UpdateNotes(context.Background(), "e1", id, UpdateOrderNotesInput{Notes: orderPtr("x")})
+			return s.UpdateNotes(context.Background(), "e1", id, domain.UpdateOrderNotesInput{Notes: orderPtr("x")})
 		},
 		"UpdateItemNotes": func(s *OrderService, id string) error {
 			return s.UpdateItemNotes(context.Background(), "e1", id, "i1", orderPtr("x"))
 		},
 		"AddAdjustment": func(s *OrderService, id string) error {
-			return s.AddAdjustment(context.Background(), "e1", id, OrderAdjustmentInput{Target: domain.AdjustmentOrder, Type: domain.AdjustmentFixedAmount, Value: 1})
+			return s.AddAdjustment(context.Background(), "e1", id, domain.OrderAdjustmentInput{Target: domain.AdjustmentOrder, Type: domain.AdjustmentFixedAmount, Value: 1})
 		},
 		"RemoveAdjustment": func(s *OrderService, id string) error {
 			return s.RemoveAdjustment(context.Background(), "e1", id, "a1")
@@ -232,7 +232,7 @@ func TestOrderServiceAddItems(t *testing.T) {
 	f := newOrderFixture(sampleOpenOrder())
 	ctx := context.Background()
 
-	err := f.service.AddItems(ctx, "e1", "o1", AddOrderItemsInput{Items: []OrderLineInput{{ProductID: "coke", Quantity: 2}}})
+	err := f.service.AddItems(ctx, "e1", "o1", domain.AddOrderItemsInput{Items: []domain.OrderLineInput{{ProductID: "coke", Quantity: 2}}})
 	if err != nil || f.orders.addition.TotalAmount != 1900 || f.orders.addition.ChangeNotes {
 		t.Fatalf("err = %v, addition = %+v", err, f.orders.addition)
 	}
@@ -241,14 +241,14 @@ func TestOrderServiceAddItems(t *testing.T) {
 		t.Fatalf("event = %+v", f.events.events)
 	}
 
-	if err := f.service.AddItems(ctx, "e1", "o1", AddOrderItemsInput{Items: []OrderLineInput{{ProductID: "coke", Quantity: 1}}, ClearNotes: true}); err != nil {
+	if err := f.service.AddItems(ctx, "e1", "o1", domain.AddOrderItemsInput{Items: []domain.OrderLineInput{{ProductID: "coke", Quantity: 1}}, ClearNotes: true}); err != nil {
 		t.Fatal(err)
 	}
 	if !f.orders.addition.ChangeNotes || f.orders.addition.Notes != nil {
 		t.Fatalf("notes sent as null must empty them: %+v", f.orders.addition)
 	}
 
-	err = f.service.AddItems(ctx, "e1", "o1", AddOrderItemsInput{Items: []OrderLineInput{{ProductID: "theirs", Quantity: 1}}})
+	err = f.service.AddItems(ctx, "e1", "o1", domain.AddOrderItemsInput{Items: []domain.OrderLineInput{{ProductID: "theirs", Quantity: 1}}})
 	if !domain.HasCode(err, domain.CodeProductNotFound) {
 		t.Fatalf("a product they do not sell = %v", err)
 	}
@@ -358,12 +358,12 @@ func TestOrderServiceMerge(t *testing.T) {
 	fourth.ID, fourth.TableID, fourth.CreatedAt = "o4", nil, orderToday.Add(3*time.Minute)
 
 	f := newOrderFixture(first, second)
-	if err := f.service.Merge(context.Background(), "e1", MergeOrdersInput{OrderIDs: []string{"o1", "o2"}, TargetTableID: orderPtr("t-busy")}); err != nil {
+	if err := f.service.Merge(context.Background(), "e1", domain.MergeOrdersInput{OrderIDs: []string{"o1", "o2"}, TargetTableID: orderPtr("t-busy")}); err != nil {
 		t.Fatalf("merging into the table of one of the orders = %v", err)
 	}
 
 	f = newOrderFixture(third, first, second)
-	err := f.service.Merge(context.Background(), "e1", MergeOrdersInput{OrderIDs: []string{"o3", "o2", "o1"}, TargetTableID: orderPtr("t-free")})
+	err := f.service.Merge(context.Background(), "e1", domain.MergeOrdersInput{OrderIDs: []string{"o3", "o2", "o1"}, TargetTableID: orderPtr("t-free")})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -379,16 +379,16 @@ func TestOrderServiceMerge(t *testing.T) {
 
 	tests := []struct {
 		name  string
-		input MergeOrdersInput
+		input domain.MergeOrdersInput
 		code  string
 		kind  domain.ErrorKind
 	}{
-		{"an order that does not exist", MergeOrdersInput{OrderIDs: []string{"o1", "missing"}}, domain.CodeOrderNotFound, domain.KindNotFound},
-		{"the same order twice", MergeOrdersInput{OrderIDs: []string{"o1", "o1"}}, domain.CodeOrderNotFound, domain.KindNotFound},
-		{"an order of another establishment", MergeOrdersInput{OrderIDs: []string{"o1", "theirs"}}, domain.CodeOrderNotFound, domain.KindNotFound},
-		{"a table another order is using", MergeOrdersInput{OrderIDs: []string{"o2", "o4"}, TargetTableID: orderPtr("t-busy")}, domain.CodeTableAlreadyOccupied, domain.KindBadRequest},
-		{"an order already closed", MergeOrdersInput{OrderIDs: []string{"o1", "closed"}}, domain.CodeOrderNotOpen, domain.KindBadRequest},
-		{"a table of another establishment", MergeOrdersInput{OrderIDs: []string{"o1", "o2"}, TargetTableID: orderPtr("t-other")}, domain.CodeTableNotFound, domain.KindNotFound},
+		{"an order that does not exist", domain.MergeOrdersInput{OrderIDs: []string{"o1", "missing"}}, domain.CodeOrderNotFound, domain.KindNotFound},
+		{"the same order twice", domain.MergeOrdersInput{OrderIDs: []string{"o1", "o1"}}, domain.CodeOrderNotFound, domain.KindNotFound},
+		{"an order of another establishment", domain.MergeOrdersInput{OrderIDs: []string{"o1", "theirs"}}, domain.CodeOrderNotFound, domain.KindNotFound},
+		{"a table another order is using", domain.MergeOrdersInput{OrderIDs: []string{"o2", "o4"}, TargetTableID: orderPtr("t-busy")}, domain.CodeTableAlreadyOccupied, domain.KindBadRequest},
+		{"an order already closed", domain.MergeOrdersInput{OrderIDs: []string{"o1", "closed"}}, domain.CodeOrderNotOpen, domain.KindBadRequest},
+		{"a table of another establishment", domain.MergeOrdersInput{OrderIDs: []string{"o1", "o2"}, TargetTableID: orderPtr("t-other")}, domain.CodeTableNotFound, domain.KindNotFound},
 	}
 
 	for _, tt := range tests {
@@ -479,7 +479,7 @@ func TestOrderServiceNotesAndTip(t *testing.T) {
 	ctx := context.Background()
 
 	f := newOrderFixture(sampleOpenOrder())
-	if err := f.service.UpdateNotes(ctx, "e1", "o1", UpdateOrderNotesInput{Notes: orderPtr("  sin sal  "), TicketNotes: orderPtr("   ")}); err != nil {
+	if err := f.service.UpdateNotes(ctx, "e1", "o1", domain.UpdateOrderNotesInput{Notes: orderPtr("  sin sal  "), TicketNotes: orderPtr("   ")}); err != nil {
 		t.Fatal(err)
 	}
 	notes := f.orders.notes
@@ -488,7 +488,7 @@ func TestOrderServiceNotesAndTip(t *testing.T) {
 	}
 
 	f = newOrderFixture(sampleOpenOrder())
-	if err := f.service.UpdateNotes(ctx, "e1", "o1", UpdateOrderNotesInput{TicketNotes: orderPtr("gracias")}); err != nil {
+	if err := f.service.UpdateNotes(ctx, "e1", "o1", domain.UpdateOrderNotesInput{TicketNotes: orderPtr("gracias")}); err != nil {
 		t.Fatal(err)
 	}
 	if f.orders.notes.ChangeNotes || *f.orders.notes.TicketNotes != "gracias" {
@@ -520,18 +520,18 @@ func TestOrderServiceAddAdjustment(t *testing.T) {
 
 	tests := []struct {
 		name  string
-		input OrderAdjustmentInput
+		input domain.OrderAdjustmentInput
 		code  string
 	}{
-		{"a fixed discount on the order", OrderAdjustmentInput{Target: domain.AdjustmentOrder, Type: domain.AdjustmentFixedAmount, Value: 1200}, ""},
-		{"a fixed discount of a line", OrderAdjustmentInput{Target: domain.AdjustmentItem, Type: domain.AdjustmentFixedAmount, Value: 300, ItemID: orderPtr("i2")}, ""},
-		{"more than the net left, less than with tax", OrderAdjustmentInput{Target: domain.AdjustmentOrder, Type: domain.AdjustmentFixedAmount, Value: 1201}, domain.MessageNegativeTotalNotAllowed},
-		{"an order discount that names a line", OrderAdjustmentInput{Target: domain.AdjustmentOrder, Type: domain.AdjustmentFixedAmount, Value: 100, ItemID: orderPtr("i1")}, ""},
-		{"more than the line is worth", OrderAdjustmentInput{Target: domain.AdjustmentItem, Type: domain.AdjustmentFixedAmount, Value: 301, ItemID: orderPtr("i2")}, domain.MessageNegativeTotalNotAllowed},
-		{"a percentage of a line", OrderAdjustmentInput{Target: domain.AdjustmentItem, Type: domain.AdjustmentPercentage, Value: 100, ItemID: orderPtr("i1")}, ""},
-		{"more than the order is worth", OrderAdjustmentInput{Target: domain.AdjustmentOrder, Type: domain.AdjustmentFixedAmount, Value: 1321}, domain.MessageNegativeTotalNotAllowed},
-		{"a line discount without the line", OrderAdjustmentInput{Target: domain.AdjustmentItem, Type: domain.AdjustmentFixedAmount, Value: 1}, domain.MessageItemIDRequiredForItemTarget},
-		{"a line of another order", OrderAdjustmentInput{Target: domain.AdjustmentItem, Type: domain.AdjustmentFixedAmount, Value: 1, ItemID: orderPtr("other")}, domain.CodeOrderItemNotFound},
+		{"a fixed discount on the order", domain.OrderAdjustmentInput{Target: domain.AdjustmentOrder, Type: domain.AdjustmentFixedAmount, Value: 1200}, ""},
+		{"a fixed discount of a line", domain.OrderAdjustmentInput{Target: domain.AdjustmentItem, Type: domain.AdjustmentFixedAmount, Value: 300, ItemID: orderPtr("i2")}, ""},
+		{"more than the net left, less than with tax", domain.OrderAdjustmentInput{Target: domain.AdjustmentOrder, Type: domain.AdjustmentFixedAmount, Value: 1201}, domain.MessageNegativeTotalNotAllowed},
+		{"an order discount that names a line", domain.OrderAdjustmentInput{Target: domain.AdjustmentOrder, Type: domain.AdjustmentFixedAmount, Value: 100, ItemID: orderPtr("i1")}, ""},
+		{"more than the line is worth", domain.OrderAdjustmentInput{Target: domain.AdjustmentItem, Type: domain.AdjustmentFixedAmount, Value: 301, ItemID: orderPtr("i2")}, domain.MessageNegativeTotalNotAllowed},
+		{"a percentage of a line", domain.OrderAdjustmentInput{Target: domain.AdjustmentItem, Type: domain.AdjustmentPercentage, Value: 100, ItemID: orderPtr("i1")}, ""},
+		{"more than the order is worth", domain.OrderAdjustmentInput{Target: domain.AdjustmentOrder, Type: domain.AdjustmentFixedAmount, Value: 1321}, domain.MessageNegativeTotalNotAllowed},
+		{"a line discount without the line", domain.OrderAdjustmentInput{Target: domain.AdjustmentItem, Type: domain.AdjustmentFixedAmount, Value: 1}, domain.MessageItemIDRequiredForItemTarget},
+		{"a line of another order", domain.OrderAdjustmentInput{Target: domain.AdjustmentItem, Type: domain.AdjustmentFixedAmount, Value: 1, ItemID: orderPtr("other")}, domain.CodeOrderItemNotFound},
 	}
 
 	for _, tt := range tests {

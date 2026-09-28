@@ -32,11 +32,6 @@ type accessTokenClaims struct {
 	jwt.RegisteredClaims
 }
 
-type Caller struct {
-	Claims domain.SessionClaims
-	User   *domain.User
-}
-
 func (s *AccessTokenService) Sign(userID, sessionID string) (string, error) {
 	now := s.now()
 
@@ -78,7 +73,7 @@ func (s *AccessTokenService) Verify(token string) *domain.SessionClaims {
 	return &domain.SessionClaims{Sub: claims.Subject, Sid: claims.SessionID}
 }
 
-func (s *AccessTokenService) Resolve(ctx context.Context, token string) (*Caller, error) {
+func (s *AccessTokenService) Resolve(ctx context.Context, token string) (*domain.Caller, error) {
 	claims := s.Verify(token)
 	if claims == nil {
 		return nil, nil
@@ -95,7 +90,7 @@ func (s *AccessTokenService) Resolve(ctx context.Context, token string) (*Caller
 		return nil, err
 	}
 
-	caller := &Caller{Claims: *claims}
+	caller := &domain.Caller{Claims: *claims}
 	if cached != nil {
 		user := cached.toUser()
 		caller.User = &user

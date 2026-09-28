@@ -12,19 +12,14 @@ import (
 
 	"api-go/internal/adapter/handler/middleware"
 	"api-go/internal/core/domain"
-	"api-go/internal/service"
+	"api-go/internal/core/ports"
 )
 
-type AIService interface {
-	Usage(ctx context.Context, establishmentID string) (domain.AIUsage, error)
-	Execute(ctx context.Context, establishmentID string, user domain.User, input service.AIInput) (domain.AIResponse, error)
-}
-
 type AIHandler struct {
-	ai AIService
+	ai ports.AIService
 }
 
-func NewAIHandler(ai AIService) *AIHandler {
+func NewAIHandler(ai ports.AIService) *AIHandler {
 	return &AIHandler{ai: ai}
 }
 
@@ -111,16 +106,16 @@ type aiRequest struct {
 	Messages []domain.AIMessage `json:"messages"`
 }
 
-func readAIInput(r *http.Request) (service.AIInput, error) {
+func readAIInput(r *http.Request) (domain.AIInput, error) {
 	body, _, err := readJSON(r)
 	if err != nil {
-		return service.AIInput{}, err
+		return domain.AIInput{}, err
 	}
 
 	var request aiRequest
 	_ = json.Unmarshal(body, &request)
 
-	input := service.AIInput{Messages: request.Messages}
+	input := domain.AIInput{Messages: request.Messages}
 	var prompt string
 	if strings.HasPrefix(string(request.Prompt), `"`) && json.Unmarshal(request.Prompt, &prompt) == nil {
 		input.Prompt = &prompt

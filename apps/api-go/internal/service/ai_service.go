@@ -86,12 +86,6 @@ func NewAIService(deps AIDependencies) *AIService {
 	}
 }
 
-type AIInput struct {
-	Prompt   *string
-	Messages []domain.AIMessage
-	OnDelta  func(delta string)
-}
-
 func (s *AIService) Usage(ctx context.Context, establishmentID string) (domain.AIUsage, error) {
 	now := s.now()
 
@@ -113,7 +107,7 @@ func (s *AIService) Usage(ctx context.Context, establishmentID string) (domain.A
 	}, nil
 }
 
-func (s *AIService) Execute(ctx context.Context, establishmentID string, user domain.User, input AIInput) (domain.AIResponse, error) {
+func (s *AIService) Execute(ctx context.Context, establishmentID string, user domain.User, input domain.AIInput) (domain.AIResponse, error) {
 	slog.Debug("the assistant got a message", "userId", user.ID, "establishmentId", establishmentID)
 
 	platformRole, err := s.security.UserRole(ctx, user.ID)
@@ -160,7 +154,7 @@ func (s *AIService) Execute(ctx context.Context, establishmentID string, user do
 	return response, err
 }
 
-func (s *AIService) answer(ctx context.Context, establishmentID string, user domain.User, isAdmin bool, role domain.EstablishmentRole, input AIInput) (domain.AIResponse, error) {
+func (s *AIService) answer(ctx context.Context, establishmentID string, user domain.User, isAdmin bool, role domain.EstablishmentRole, input domain.AIInput) (domain.AIResponse, error) {
 
 	modules, err := s.security.EnabledModules(ctx, establishmentID)
 	if err != nil {
@@ -269,7 +263,7 @@ func (s *AIService) snapshot(ctx context.Context, establishmentID string, module
 	return tc, nil
 }
 
-func conversation(input AIInput) ([]domain.AIMessage, error) {
+func conversation(input domain.AIInput) ([]domain.AIMessage, error) {
 	if len(input.Messages) == 0 {
 		if input.Prompt == nil {
 			return nil, errors.New("invalid prompt: the message has no content")

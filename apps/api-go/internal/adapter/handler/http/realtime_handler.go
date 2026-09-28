@@ -1,7 +1,6 @@
 package http
 
 import (
-	"context"
 	"log/slog"
 	"net/http"
 
@@ -10,16 +9,11 @@ import (
 	"api-go/internal/core/ports"
 )
 
-type RealtimeService interface {
-	Watch(establishmentID string, subscriber ports.RealtimeSubscriber) func()
-	Replay(ctx context.Context, establishmentID string, lastEventID string) []domain.RealtimeFrame
-}
-
 type RealtimeHandler struct {
-	realtime RealtimeService
+	realtime ports.RealtimeService
 }
 
-func NewRealtimeHandler(realtime RealtimeService) *RealtimeHandler {
+func NewRealtimeHandler(realtime ports.RealtimeService) *RealtimeHandler {
 	return &RealtimeHandler{realtime: realtime}
 }
 

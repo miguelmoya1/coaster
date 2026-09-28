@@ -60,15 +60,7 @@ func NewAuthService(deps AuthDependencies) *AuthService {
 	}
 }
 
-type RegisterInput struct {
-	Email    string
-	Password string
-	Name     string
-
-	Language *string
-}
-
-func (s *AuthService) Register(ctx context.Context, input RegisterInput, origin domain.SessionOrigin) (domain.IssuedSession, error) {
+func (s *AuthService) Register(ctx context.Context, input domain.RegisterInput, origin domain.SessionOrigin) (domain.IssuedSession, error) {
 	email := normalizeEmail(input.Email)
 
 	outside, err := s.outsideBeta(ctx, email)

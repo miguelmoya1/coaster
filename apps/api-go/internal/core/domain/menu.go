@@ -378,3 +378,22 @@ func buildAccentFolds() map[rune]rune {
 	}
 	return folds
 }
+
+type SaveMenuDraftInput struct {
+	Name      string
+	Languages []string
+	Sections  []MenuSectionInput
+}
+
+type MenuSectionInput struct {
+	Translations map[string]any
+	Items        []MenuItemInput
+}
+
+type MenuItemInput struct {
+	ProductID *string
+	Price     *int
+
+	IsVisible    *bool
+	Translations map[string]any
+}

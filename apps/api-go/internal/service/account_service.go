@@ -92,15 +92,7 @@ func (s *AccountService) RequestEmailVerification(ctx context.Context, userID st
 	return s.mailer.SendEmailVerification(ctx, user.Email, user.Name, token, user.MailLanguage())
 }
 
-type SetPasswordInput struct {
-	UserID    string
-	SessionID string
-	Password  string
-
-	CurrentPassword string
-}
-
-func (s *AccountService) SetPassword(ctx context.Context, input SetPasswordInput, origin domain.SessionOrigin) error {
+func (s *AccountService) SetPassword(ctx context.Context, input domain.SetPasswordInput, origin domain.SessionOrigin) error {
 	current, err := s.findUser(ctx, input.UserID)
 	if err != nil {
 		return err

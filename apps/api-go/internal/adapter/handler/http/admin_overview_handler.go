@@ -1,27 +1,19 @@
 package http
 
 import (
-	"context"
 	"net/http"
 
 	"api-go/internal/adapter/handler/middleware"
 	"api-go/internal/core/domain"
+	"api-go/internal/core/ports"
 )
 
-type AdminMetricsService interface {
-	Overview(ctx context.Context) (domain.AdminPlatformMetrics, error)
-}
-
-type AdminAuditService interface {
-	List(ctx context.Context, filter domain.AdminAuditFilter, page domain.PageRequest) (domain.Paginated[domain.AdminAuditLogEntry], error)
-}
-
 type AdminOverviewHandler struct {
-	metrics AdminMetricsService
-	audit   AdminAuditService
+	metrics ports.AdminMetricsService
+	audit   ports.AdminAuditService
 }
 
-func NewAdminOverviewHandler(metrics AdminMetricsService, audit AdminAuditService) *AdminOverviewHandler {
+func NewAdminOverviewHandler(metrics ports.AdminMetricsService, audit ports.AdminAuditService) *AdminOverviewHandler {
 	return &AdminOverviewHandler{metrics: metrics, audit: audit}
 }
 

@@ -1,23 +1,19 @@
 package http
 
 import (
-	"context"
 	"net/http"
 	"slices"
 
 	"api-go/internal/adapter/handler/middleware"
 	"api-go/internal/core/domain"
+	"api-go/internal/core/ports"
 )
 
-type StatsService interface {
-	EstablishmentStats(ctx context.Context, establishmentID string, includeHistory bool) (domain.EstablishmentStats, error)
-}
-
 type StatsHandler struct {
-	stats StatsService
+	stats ports.StatsService
 }
 
-func NewStatsHandler(stats StatsService) *StatsHandler {
+func NewStatsHandler(stats ports.StatsService) *StatsHandler {
 	return &StatsHandler{stats: stats}
 }
 

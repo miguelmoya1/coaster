@@ -109,7 +109,7 @@ func TestSetPassword(t *testing.T) {
 			mine := f.sessions.add(domain.AuthSession{UserID: "u1", FamilyID: "this-device"})
 			other := f.sessions.add(domain.AuthSession{UserID: "u1", FamilyID: "otra-sesion"})
 
-			err := f.service.SetPassword(ctx, SetPasswordInput{UserID: "u1", SessionID: mine.ID, Password: tt.password, CurrentPassword: tt.currentPassword}, origin)
+			err := f.service.SetPassword(ctx, domain.SetPasswordInput{UserID: "u1", SessionID: mine.ID, Password: tt.password, CurrentPassword: tt.currentPassword}, origin)
 
 			if tt.wantCode != "" {
 				assertCode(t, err, tt.wantCode)

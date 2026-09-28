@@ -38,3 +38,10 @@ type RateLimit struct {
 type RateLimiter interface {
 	Hit(ctx context.Context, key string, ttl time.Duration, limit int, blockDuration time.Duration) RateLimit
 }
+
+type SecurityService interface {
+	UserRole(ctx context.Context, userID string) (domain.Role, error)
+	Membership(ctx context.Context, userID, establishmentID string) (*domain.Membership, error)
+	EnabledModules(ctx context.Context, establishmentID string) ([]domain.EstablishmentModule, error)
+	SubscriptionActive(ctx context.Context, establishmentID string) (bool, error)
+}

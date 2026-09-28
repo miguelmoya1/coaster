@@ -444,3 +444,9 @@ func (c *SubscriptionPlanCounts) Set(plan SubscriptionPlan, count int) {
 		c.Pro = count
 	}
 }
+
+type GrantPlanInput struct {
+	Plan         SubscriptionPlan
+	DurationDays *int
+	Reason       *string
+}

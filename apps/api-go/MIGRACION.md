@@ -19,10 +19,12 @@ El rendimiento **no** es el motivo. Casi toda la latencia de la API viene de Pos
 - **Los efectos secundarios van por eventos.** Hablamos del realtime, la auditoría y la
   invalidación de caché. Hay una interfaz `EventPublisher` en `ports/` y cada suscriptor se
   ejecuta en su goroutine. Solo se publica después de guardar en la base de datos.
-- **Interfaces solo para lo que el servicio necesita de fuera**: repositorios, servicios
-  externos y `EventPublisher`. Los handlers reciben una interfaz pequeña, declarada en el
-  propio handler, con solo los métodos del servicio que usan (`OrderService` en
-  `order_handler.go`); `main.go` les pasa el `*service.XService` de siempre.
+- **Interfaces en `core/ports`**: repositorios, servicios externos, `EventPublisher` y
+  también los servicios. Cada servicio tiene su interfaz en `ports` con su mismo nombre
+  (`ports.OrderService`, `ports.AuthService`…) y los métodos que usan los handlers y
+  middlewares; los handlers y middlewares reciben esas y nunca declaran interfaces en su
+  archivo. `main.go` les pasa el `*service.XService` de siempre. Los inputs de los servicios
+  están en `domain`.
 - **Las transacciones viven dentro del repositorio**, igual que en `apps/api`, donde los 14
   archivos que usan `$transaction` son repositorios. No hay `TxManager` ni `UnitOfWork`.
 - **SQL a mano, un archivo `.sql` por consulta**, incrustado con `go:embed` (ver
@@ -161,7 +163,7 @@ Actualizar esta tabla al terminar cada paquete.
 | P2f Realtime | ✅ Hecho | `GET /establishments/{establishmentId}/events` (SSE con `: open`, heartbeat de 25 s, cierre a los 30 min y `Last-Event-ID`), `service.RealtimeService` (implementa `ports.Realtime`: registro de streams por local, `Publish`, `Revoke`), bus en Redis compatible con Nest (canal `coaster:realtime`, replay de 2 min en `realtime:<id>:replay`), sin Redis solo en este proceso, cierre de streams al apagar. `test/realtime` pasa contra Go (publicar y revocar, en los tests de Go). Los suscriptores de `realtime/events/handlers/` los escribe cada paquete |
 | P3 IA | ✅ Hecho | Ola 4. `/establishments/{establishmentId}/ai`: `GET usage`, `POST` (201) y `POST stream` (SSE con `delta` y `done`), con solo auth, ser miembro y 20 por minuto. `AIService.Execute` es `ExecuteAiCommand`: membresía, cuota por local y mes en `AiUsage` (500, o 100 en prueba; cuenta solo tras una respuesta), módulos, instantánea y el mismo prompt de sistema, los 10 últimos mensajes y `zai/glm-4.7` a 0.1 con 8 pasos y sus cuatro modelos de respaldo. `adapter/ai.Gateway` habla con la API compatible con OpenAI del AI Gateway con openai-go y hace lo del AI SDK: el bucle de herramientas, la comprobación de su entrada como zod y el streaming. Las 40 herramientas (`service/ai_tools_*.go`) llaman a los servicios de P2 con los permisos, `confirmed`, textos y euros/céntimos de Nest; sus respuestas, esquemas y el prompt se comparan byte a byte con lo que da Nest (`service/testdata`). `test/ai` pasa contra Go. **Pendiente de Miguel**: confirmar los modelos de respaldo con la clave de verdad. Los errores del stream, la cuota, los productos desconocidos, `getOrdersByDate` y los precios negativos se arreglaron después (fila «Bugs de Nest de P2d y P3»). Sigue igual que en Nest: las mesas y productos de los pedidos se nombran con la instantánea del turno (`deleteOrder` de un pedido cerrado siempre confirma la mesa «No table») |
 | P4 Arnés e2e | ✅ Hecho | `E2E_TARGET=go` lanza los e2e de `apps/api` contra Go: el `globalSetup` compila el binario, cada archivo arranca su servidor detrás de un proxy que pone `/api/v1` y un JWT de verdad, buzón de test y claves de Google por HTTP, `e2e-paquetes.txt`, `scripts/e2e-go.sh` y job de CI `api-go-e2e`. Lo que falta en Go está en «Convenciones de P4» |
-| Interfaces en los handlers | ✅ Hecho | Los 25 handlers de P2 y P3 reciben una interfaz declarada en su archivo con los métodos que usan. Se llama como el servicio salvo choque: `PrinterConnectionService` (`printer_connection_handler.go`), `EstablishmentSubscriptionService` y `StripeWebhookService` (los dos sobre `SubscriptionService`). Sin cambios en `main.go` ni en los tests |
+| Interfaces de servicio en `core/ports` | ✅ Hecho | Cada servicio tiene su interfaz en `core/ports` con su nombre (`ports.OrderService`, `ports.AuthService`…) y la unión de los métodos que usan sus handlers: `ports.SubscriptionService` lo usan los handlers de la suscripción y del webhook de Stripe, y `ports.PrinterService` los de la impresora y su conexión. El `Guard` recibe `ports.AccessTokenService` y `ports.SecurityService`. Los handlers ya no declaran interfaces. Los inputs de los servicios (`CreateOrderInput`, `Caller`…) pasan de `service` a `domain` |
 | P5 Salida | ⬜ Pendiente | |
 | Bugs de Nest de P2d y P3 | ✅ Hecho | Arreglados en Go los posibles bugs de pedidos, impresoras, estadísticas, cierres de caja e IA (ver «Diferencias conocidas» y «Convenciones de los bugs de P2d y P3»). Las estadísticas siguen contando por apertura (`createdAt`): es una decisión, no un bug |
 

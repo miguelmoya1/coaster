@@ -11,20 +11,19 @@ import (
 
 	"api-go/internal/core/domain"
 	"api-go/internal/core/ports"
-	"api-go/internal/service"
 )
 
 type fakeTokens struct {
 	users map[string]*domain.User
 }
 
-func (f fakeTokens) Resolve(_ context.Context, authorization string) (*service.Caller, error) {
+func (f fakeTokens) Resolve(_ context.Context, authorization string) (*domain.Caller, error) {
 	id := strings.TrimPrefix(authorization, "Bearer ")
 	user, ok := f.users[id]
 	if !ok {
 		return nil, nil
 	}
-	return &service.Caller{Claims: domain.SessionClaims{Sub: id, Sid: "session-" + id}, User: user}, nil
+	return &domain.Caller{Claims: domain.SessionClaims{Sub: id, Sid: "session-" + id}, User: user}, nil
 }
 
 type fakeAccess struct {

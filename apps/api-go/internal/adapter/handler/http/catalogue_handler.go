@@ -1,23 +1,18 @@
 package http
 
 import (
-	"context"
 	"net/http"
 
 	"api-go/internal/adapter/handler/middleware"
 	"api-go/internal/core/domain"
+	"api-go/internal/core/ports"
 )
 
-type CatalogueService interface {
-	Starter(ctx context.Context, establishmentID string) ([]domain.StarterCatalogueCategory, error)
-	Import(ctx context.Context, establishmentID string, keys []string) error
-}
-
 type CatalogueHandler struct {
-	catalogue CatalogueService
+	catalogue ports.CatalogueService
 }
 
-func NewCatalogueHandler(catalogue CatalogueService) *CatalogueHandler {
+func NewCatalogueHandler(catalogue ports.CatalogueService) *CatalogueHandler {
 	return &CatalogueHandler{catalogue: catalogue}
 }
 

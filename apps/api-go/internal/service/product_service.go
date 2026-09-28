@@ -16,18 +16,6 @@ func NewProductService(products ports.ProductRepository, events ports.EventPubli
 	return &ProductService{products: products, events: events}
 }
 
-type CreateProductInput struct {
-	Name          string
-	CategoryID    string
-	Price         *int
-	CurrentStock  *int
-	MinStockAlert *int
-	ImageURL      *string
-	Icon          *string
-	Allergens     []string
-	OwnTaxRate    *int
-}
-
 func (s *ProductService) List(ctx context.Context, establishmentID string) ([]domain.Product, error) {
 	rows, err := s.products.ListOf(ctx, establishmentID)
 	if err != nil {
@@ -41,7 +29,7 @@ func (s *ProductService) List(ctx context.Context, establishmentID string) ([]do
 	return products, nil
 }
 
-func (s *ProductService) Create(ctx context.Context, establishmentID string, input CreateProductInput) error {
+func (s *ProductService) Create(ctx context.Context, establishmentID string, input domain.CreateProductInput) error {
 	if err := s.checkCategory(ctx, input.CategoryID, establishmentID); err != nil {
 		return err
 	}

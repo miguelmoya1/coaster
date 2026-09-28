@@ -24,3 +24,11 @@ type MenuRepository interface {
 
 	SoldOutAmong(ctx context.Context, productIDs []string) (map[string]bool, error)
 }
+
+type MenuService interface {
+	Draft(ctx context.Context, establishmentID string) (domain.MenuDraft, error)
+	SaveDraft(ctx context.Context, establishmentID string, input domain.SaveMenuDraftInput) (domain.MenuDraft, error)
+	Publish(ctx context.Context, establishmentID string) error
+	Unpublish(ctx context.Context, establishmentID string) error
+	Published(ctx context.Context, slug, language string) (domain.PublishedMenu, error)
+}

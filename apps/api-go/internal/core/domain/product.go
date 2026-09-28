@@ -98,3 +98,15 @@ type ProductChanges struct {
 	OwnTaxRate      *int
 	ClearOwnTaxRate bool
 }
+
+type CreateProductInput struct {
+	Name          string
+	CategoryID    string
+	Price         *int
+	CurrentStock  *int
+	MinStockAlert *int
+	ImageURL      *string
+	Icon          *string
+	Allergens     []string
+	OwnTaxRate    *int
+}

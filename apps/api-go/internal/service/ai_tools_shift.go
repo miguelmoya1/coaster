@@ -100,7 +100,7 @@ func (s *AIService) shiftTools(tc *aiToolContext) []ports.AITool {
 				}
 
 				return tc.execute(domain.PermissionCreateShift, nil, func() error {
-					return s.shifts.Create(ctx, tc.establishmentID, CreateShiftInput{
+					return s.shifts.Create(ctx, tc.establishmentID, domain.CreateShiftInput{
 						UserID:    input.UserID,
 						StartTime: input.StartTime,
 						EndTime:   input.EndTime,

@@ -15,12 +15,6 @@ func NewCashCloseService(closes ports.CashCloseRepository) *CashCloseService {
 	return &CashCloseService{closes: closes}
 }
 
-type CloseCashInput struct {
-	OpeningFloat int
-	CountedCash  int
-	Notes        *string
-}
-
 func (s *CashCloseService) List(ctx context.Context, establishmentID string) ([]domain.CashClose, error) {
 	closes, err := s.closes.ListRecent(ctx, establishmentID)
 	if err != nil {
@@ -55,7 +49,7 @@ func (s *CashCloseService) Preview(ctx context.Context, establishmentID string) 
 	return preview, nil
 }
 
-func (s *CashCloseService) Close(ctx context.Context, establishmentID, closedByID string, input CloseCashInput) (domain.CashClose, error) {
+func (s *CashCloseService) Close(ctx context.Context, establishmentID, closedByID string, input domain.CloseCashInput) (domain.CashClose, error) {
 	closed, err := s.closes.Close(ctx, domain.NewCashClose{
 		EstablishmentID: establishmentID,
 		ClosedByID:      closedByID,

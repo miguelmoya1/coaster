@@ -15,8 +15,8 @@ import (
 
 var aiAna = domain.User{ID: "u1", Name: "Ana", Language: "es"}
 
-func aiPrompt(text string) AIInput {
-	return AIInput{Prompt: &text}
+func aiPrompt(text string) domain.AIInput {
+	return domain.AIInput{Prompt: &text}
 }
 
 func TestAIRefusesSomebodyWhoIsNotAMember(t *testing.T) {
@@ -163,7 +163,7 @@ func TestAISendsTheHistoryInsteadOfThePrompt(t *testing.T) {
 		{Role: "user", Content: "Crear mesa 3"},
 	}
 
-	if _, err := f.service.Execute(context.Background(), "e1", aiAna, AIInput{Messages: history}); err != nil {
+	if _, err := f.service.Execute(context.Background(), "e1", aiAna, domain.AIInput{Messages: history}); err != nil {
 		t.Fatal(err)
 	}
 	if got := f.model.lastRequest(t).Messages; !slices.Equal(got, history) {
@@ -182,7 +182,7 @@ func TestAIOnlySendsTheLastTenMessages(t *testing.T) {
 		history = append(history, domain.AIMessage{Role: role, Content: "mensaje " + strconv.Itoa(i)})
 	}
 
-	if _, err := f.service.Execute(context.Background(), "e1", aiAna, AIInput{Messages: history}); err != nil {
+	if _, err := f.service.Execute(context.Background(), "e1", aiAna, domain.AIInput{Messages: history}); err != nil {
 		t.Fatal(err)
 	}
 
@@ -274,7 +274,7 @@ func TestAICountsTheMessageBeforeAnswering(t *testing.T) {
 }
 
 func TestAIFailsLikeTheGatewayWithoutAPromptOrWithAnUnknownRole(t *testing.T) {
-	for _, input := range []AIInput{
+	for _, input := range []domain.AIInput{
 		{},
 		{Messages: []domain.AIMessage{{Role: "tool", Content: "hola"}}},
 	} {
@@ -312,7 +312,7 @@ func TestAIKeepsTheStreamedTranscriptAsTheAnswer(t *testing.T) {
 	f.model.text = "Hoy llevas 240 €."
 	var deltas []string
 
-	response, err := f.service.Execute(context.Background(), "e1", aiAna, AIInput{
+	response, err := f.service.Execute(context.Background(), "e1", aiAna, domain.AIInput{
 		Prompt:  new("¿cuánto llevamos hoy?"),
 		OnDelta: func(delta string) { deltas = append(deltas, delta) },
 	})
@@ -336,7 +336,7 @@ func TestAIKeepsWhatWasStreamedWhenALaterStepFails(t *testing.T) {
 	f.model.deltas = []string{"He creado la mesa."}
 	f.model.err = errors.New("gateway down")
 
-	response, err := f.service.Execute(context.Background(), "e1", aiAna, AIInput{Prompt: new("crea una mesa"), OnDelta: func(string) {}})
+	response, err := f.service.Execute(context.Background(), "e1", aiAna, domain.AIInput{Prompt: new("crea una mesa"), OnDelta: func(string) {}})
 	if err != nil || response != (domain.AIResponse{Text: "He creado la mesa."}) {
 		t.Errorf("response = %+v, %v", response, err)
 	}
@@ -350,7 +350,7 @@ func TestAIStreamingWithoutTextUsesTheLastStep(t *testing.T) {
 	f.model.deltas = []string{"  "}
 	f.model.text = ""
 
-	response, err := f.service.Execute(context.Background(), "e1", aiAna, AIInput{Prompt: new("hola"), OnDelta: func(string) {}})
+	response, err := f.service.Execute(context.Background(), "e1", aiAna, domain.AIInput{Prompt: new("hola"), OnDelta: func(string) {}})
 	if err != nil || response.Text != "Acción completada con éxito." {
 		t.Errorf("response = %+v, %v", response, err)
 	}

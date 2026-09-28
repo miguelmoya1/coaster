@@ -23,29 +23,11 @@ func NewTimeEntryService(entries ports.TimeEntryRepository, shifts *ShiftService
 	return &TimeEntryService{entries: entries, shifts: shifts, events: events, now: time.Now}
 }
 
-type ClockInput struct {
-	Type      domain.TimeEntryType
-	Latitude  *float64
-	Longitude *float64
-}
-
-type ManualTimeEntryInput struct {
-	UserID     string
-	Type       domain.TimeEntryType
-	OccurredAt string
-	Reason     string
-}
-
-type AmendTimeEntryInput struct {
-	OccurredAt string
-	Reason     string
-}
-
 func (s *TimeEntryService) serverNow() time.Time {
 	return s.now().UTC().Truncate(time.Millisecond)
 }
 
-func (s *TimeEntryService) Clock(ctx context.Context, establishmentID string, actor *domain.User, input ClockInput) (domain.TimeEntry, error) {
+func (s *TimeEntryService) Clock(ctx context.Context, establishmentID string, actor *domain.User, input domain.ClockInput) (domain.TimeEntry, error) {
 	occurredAt := s.serverNow()
 
 	rows, err := s.entries.FindLatestWorkday(ctx, establishmentID, actor.ID)
@@ -86,7 +68,7 @@ func (s *TimeEntryService) Clock(ctx context.Context, establishmentID string, ac
 	return entry, nil
 }
 
-func (s *TimeEntryService) CreateManual(ctx context.Context, establishmentID string, actor *domain.User, input ManualTimeEntryInput) (domain.TimeEntry, error) {
+func (s *TimeEntryService) CreateManual(ctx context.Context, establishmentID string, actor *domain.User, input domain.ManualTimeEntryInput) (domain.TimeEntry, error) {
 	occurredAt, ok := domain.ParseDate(input.OccurredAt)
 	if !ok {
 		return domain.TimeEntry{}, domain.BadRequest(domain.CodeInvalidDate)
@@ -167,7 +149,7 @@ func (s *TimeEntryService) canManageOthers(ctx context.Context, establishmentID 
 	return domain.HasPermission(member.Role, domain.PermissionManageTimeEntries), nil
 }
 
-func (s *TimeEntryService) Amend(ctx context.Context, establishmentID, entryID string, actor *domain.User, input AmendTimeEntryInput) (domain.TimeEntry, error) {
+func (s *TimeEntryService) Amend(ctx context.Context, establishmentID, entryID string, actor *domain.User, input domain.AmendTimeEntryInput) (domain.TimeEntry, error) {
 	current, err := s.currentRow(ctx, establishmentID, entryID)
 	if err != nil {
 		return domain.TimeEntry{}, err

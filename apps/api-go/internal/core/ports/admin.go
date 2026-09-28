@@ -59,3 +59,32 @@ type AdminEstablishmentRepository interface {
 type AdminMetricsRepository interface {
 	Collect(ctx context.Context, now, last7Days, last30Days time.Time) (domain.AdminPlatformMetrics, error)
 }
+
+type BetaTesterService interface {
+	List(ctx context.Context, search string, page domain.PageRequest) (domain.AdminBetaTesters, error)
+	Add(ctx context.Context, actorID, email string, note *string) error
+	Remove(ctx context.Context, actorID, betaTesterID string) error
+}
+
+type AdminEstablishmentService interface {
+	List(ctx context.Context, filter domain.AdminEstablishmentFilter, page domain.PageRequest) (domain.Paginated[domain.AdminEstablishmentSummary], error)
+	Detail(ctx context.Context, establishmentID string) (domain.AdminEstablishmentDetail, error)
+	Rename(ctx context.Context, actorID, establishmentID, name string) error
+	UpdateModules(ctx context.Context, actorID, establishmentID string, modules []domain.EstablishmentModule) (domain.AdminEstablishmentSettings, error)
+	GrantPlan(ctx context.Context, actorID, establishmentID string, input domain.GrantPlanInput) error
+	RevokePlan(ctx context.Context, actorID, establishmentID string, reason *string) error
+}
+
+type AdminMetricsService interface {
+	Overview(ctx context.Context) (domain.AdminPlatformMetrics, error)
+}
+
+type AdminAuditService interface {
+	List(ctx context.Context, filter domain.AdminAuditFilter, page domain.PageRequest) (domain.Paginated[domain.AdminAuditLogEntry], error)
+}
+
+type AdminUserService interface {
+	List(ctx context.Context, filter domain.AdminUserFilter, page domain.PageRequest) (domain.Paginated[domain.AdminUserSummary], error)
+	Detail(ctx context.Context, userID string) (domain.AdminUserDetail, error)
+	Update(ctx context.Context, actorID, userID string, changes domain.AdminUserChanges) error
+}

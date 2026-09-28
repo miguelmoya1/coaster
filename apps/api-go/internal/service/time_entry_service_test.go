@@ -78,7 +78,7 @@ func TestTimeEntryServiceClock(t *testing.T) {
 		f := newTimeEntryFixture()
 		f.now = f.now.Add(123456 * time.Microsecond)
 
-		entry, err := f.service.Clock(context.Background(), "e1", timeEntryWorker, ClockInput{Type: domain.TimeEntryClockIn, Latitude: &latitude, Longitude: &longitude})
+		entry, err := f.service.Clock(context.Background(), "e1", timeEntryWorker, domain.ClockInput{Type: domain.TimeEntryClockIn, Latitude: &latitude, Longitude: &longitude})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -104,7 +104,7 @@ func TestTimeEntryServiceClock(t *testing.T) {
 		f := newTimeEntryFixture()
 		f.punch("worker", domain.TimeEntryClockIn, "2026-08-07T20:00:00Z", "2026-08-07")
 
-		entry, err := f.service.Clock(context.Background(), "e1", timeEntryWorker, ClockInput{Type: domain.TimeEntryClockOut})
+		entry, err := f.service.Clock(context.Background(), "e1", timeEntryWorker, domain.ClockInput{Type: domain.TimeEntryClockOut})
 		if err != nil || entry.WorkdayDate != "2026-08-07" {
 			t.Fatalf("entry = %+v, %v", entry, err)
 		}
@@ -114,7 +114,7 @@ func TestTimeEntryServiceClock(t *testing.T) {
 		f := newTimeEntryFixture()
 		f.punch("worker", domain.TimeEntryClockIn, "2026-08-04T20:00:00Z", "2026-08-04")
 
-		entry, err := f.service.Clock(context.Background(), "e1", timeEntryWorker, ClockInput{Type: domain.TimeEntryClockOut})
+		entry, err := f.service.Clock(context.Background(), "e1", timeEntryWorker, domain.ClockInput{Type: domain.TimeEntryClockOut})
 		if err != nil || entry.WorkdayDate != "2026-08-04" {
 			t.Fatalf("entry = %+v, %v", entry, err)
 		}
@@ -137,7 +137,7 @@ func TestTimeEntryServiceClock(t *testing.T) {
 			tt.setup(f)
 			before := len(f.repo.rows)
 
-			_, err := f.service.Clock(context.Background(), "e1", timeEntryWorker, ClockInput{Type: tt.punch})
+			_, err := f.service.Clock(context.Background(), "e1", timeEntryWorker, domain.ClockInput{Type: tt.punch})
 			if !domain.HasCode(err, domain.CodeInvalidClockSequence) || len(f.repo.rows) != before {
 				t.Fatalf("err = %v, rows = %d", err, len(f.repo.rows))
 			}
@@ -148,15 +148,15 @@ func TestTimeEntryServiceClock(t *testing.T) {
 func TestTimeEntryServiceCreateManual(t *testing.T) {
 	tests := []struct {
 		name  string
-		input ManualTimeEntryInput
+		input domain.ManualTimeEntryInput
 		setup func(f *timeEntryFixture)
 		code  string
 	}{
-		{"records it as manual with the reason", ManualTimeEntryInput{UserID: "worker", Type: domain.TimeEntryClockIn, OccurredAt: "2026-08-08T06:00:00.000Z", Reason: "  Olvidó fichar  "}, nil, ""},
-		{"refuses somebody who does not work here", ManualTimeEntryInput{UserID: "stranger", Type: domain.TimeEntryClockIn, OccurredAt: "2026-08-08T06:00:00Z", Reason: "Olvidó fichar"}, nil, domain.CodeMemberNotFound},
-		{"refuses a mark that breaks the day", ManualTimeEntryInput{UserID: "worker", Type: domain.TimeEntryClockOut, OccurredAt: "2026-08-08T06:00:00Z", Reason: "Olvidó fichar"}, nil, domain.CodeInvalidClockSequence},
-		{"refuses a date it cannot read", ManualTimeEntryInput{UserID: "worker", Type: domain.TimeEntryClockIn, OccurredAt: "2026-02-30", Reason: "Olvidó fichar"}, nil, domain.CodeInvalidDate},
-		{"files a clock out after midnight on the day before", ManualTimeEntryInput{UserID: "worker", Type: domain.TimeEntryClockOut, OccurredAt: "2026-08-08T01:00:00Z", Reason: "Olvidó fichar"}, func(f *timeEntryFixture) {
+		{"records it as manual with the reason", domain.ManualTimeEntryInput{UserID: "worker", Type: domain.TimeEntryClockIn, OccurredAt: "2026-08-08T06:00:00.000Z", Reason: "  Olvidó fichar  "}, nil, ""},
+		{"refuses somebody who does not work here", domain.ManualTimeEntryInput{UserID: "stranger", Type: domain.TimeEntryClockIn, OccurredAt: "2026-08-08T06:00:00Z", Reason: "Olvidó fichar"}, nil, domain.CodeMemberNotFound},
+		{"refuses a mark that breaks the day", domain.ManualTimeEntryInput{UserID: "worker", Type: domain.TimeEntryClockOut, OccurredAt: "2026-08-08T06:00:00Z", Reason: "Olvidó fichar"}, nil, domain.CodeInvalidClockSequence},
+		{"refuses a date it cannot read", domain.ManualTimeEntryInput{UserID: "worker", Type: domain.TimeEntryClockIn, OccurredAt: "2026-02-30", Reason: "Olvidó fichar"}, nil, domain.CodeInvalidDate},
+		{"files a clock out after midnight on the day before", domain.ManualTimeEntryInput{UserID: "worker", Type: domain.TimeEntryClockOut, OccurredAt: "2026-08-08T01:00:00Z", Reason: "Olvidó fichar"}, func(f *timeEntryFixture) {
 			f.punch("worker", domain.TimeEntryClockIn, "2026-08-07T18:00:00Z", "2026-08-07")
 		}, ""},
 	}
@@ -220,7 +220,7 @@ func TestTimeEntryServiceAmend(t *testing.T) {
 		{"a mark that does not exist", func(*timeEntryFixture) string { return "missing" }, timeEntryWorker, "2026-08-08T07:00:00Z", domain.CodeTimeEntryNotFound},
 		{"a mark that is not the current one", func(f *timeEntryFixture) string {
 			original := f.punch("worker", domain.TimeEntryClockIn, "2026-08-08T08:00:00Z", "2026-08-08")
-			f.service.Amend(context.Background(), "e1", original.ID, timeEntryWorker, AmendTimeEntryInput{OccurredAt: "2026-08-08T07:30:00Z", Reason: "Primera corrección"})
+			f.service.Amend(context.Background(), "e1", original.ID, timeEntryWorker, domain.AmendTimeEntryInput{OccurredAt: "2026-08-08T07:30:00Z", Reason: "Primera corrección"})
 			return original.ID
 		}, timeEntryWorker, "2026-08-08T07:00:00Z", domain.CodeTimeEntryNotCurrent},
 		{"an hour that leaves the day out of order", func(f *timeEntryFixture) string {
@@ -240,7 +240,7 @@ func TestTimeEntryServiceAmend(t *testing.T) {
 			f.events.events = nil
 			before := len(f.repo.rows)
 
-			entry, err := f.service.Amend(context.Background(), "e1", entryID, tt.actor, AmendTimeEntryInput{OccurredAt: tt.occurredAt, Reason: " Entré antes "})
+			entry, err := f.service.Amend(context.Background(), "e1", entryID, tt.actor, domain.AmendTimeEntryInput{OccurredAt: tt.occurredAt, Reason: " Entré antes "})
 
 			if tt.code != "" {
 				if !domain.HasCode(err, tt.code) || len(f.repo.rows) != before {

@@ -1,27 +1,18 @@
 package http
 
 import (
-	"context"
 	"net/http"
 
 	"api-go/internal/adapter/handler/middleware"
 	"api-go/internal/core/domain"
+	"api-go/internal/core/ports"
 )
 
-type PrinterConnectionService interface {
-	Enqueue(ctx context.Context, establishmentID string, ticket domain.PrintTicket) (domain.QueuedPrintJob, error)
-	Job(ctx context.Context, establishmentID, jobID string) (*domain.PrintJob, error)
-	Connection(ctx context.Context, establishmentID string) (domain.PrinterConnection, error)
-	Status(ctx context.Context, establishmentID string) (domain.PrinterStatus, error)
-	IssuePairing(ctx context.Context, establishmentID string) (domain.PrinterPairingCode, error)
-	GenerateDeviceKey(ctx context.Context, establishmentID string) (domain.PrinterDeviceKey, error)
-}
-
 type PrinterConnectionHandler struct {
-	printers PrinterConnectionService
+	printers ports.PrinterService
 }
 
-func NewPrinterConnectionHandler(printers PrinterConnectionService) *PrinterConnectionHandler {
+func NewPrinterConnectionHandler(printers ports.PrinterService) *PrinterConnectionHandler {
 	return &PrinterConnectionHandler{printers: printers}
 }
 

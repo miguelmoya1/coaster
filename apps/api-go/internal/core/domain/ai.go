@@ -124,3 +124,9 @@ func utf16Length(s string) int {
 	}
 	return length
 }
+
+type AIInput struct {
+	Prompt   *string
+	Messages []AIMessage
+	OnDelta  func(delta string)
+}

@@ -103,7 +103,7 @@ func (s *AIService) productTools(tc *aiToolContext) []ports.AITool {
 
 				price := toCents(input.Price)
 				return tc.execute(domain.PermissionCreateProduct, nil, func() error {
-					return s.products.Create(ctx, tc.establishmentID, CreateProductInput{
+					return s.products.Create(ctx, tc.establishmentID, domain.CreateProductInput{
 						Name:          input.Name,
 						CategoryID:    input.CategoryID,
 						Price:         &price,

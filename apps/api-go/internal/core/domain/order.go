@@ -481,3 +481,42 @@ func nonEmpty(value *string) *string {
 	}
 	return value
 }
+
+type OrderLineInput struct {
+	ProductID string
+	Quantity  int
+	Notes     *string
+}
+
+type OrderAdjustmentInput struct {
+	Target AdjustmentTarget
+	Type   AdjustmentType
+	Value  int
+	Reason *string
+	ItemID *string
+}
+
+type CreateOrderInput struct {
+	CreatedByID string
+	TableID     *string
+	Items       []OrderLineInput
+	Notes       *string
+	Adjustments []OrderAdjustmentInput
+	TipAmount   *int
+}
+
+type AddOrderItemsInput struct {
+	Items      []OrderLineInput
+	Notes      *string
+	ClearNotes bool
+}
+
+type MergeOrdersInput struct {
+	OrderIDs      []string
+	TargetTableID *string
+}
+
+type UpdateOrderNotesInput struct {
+	Notes       *string
+	TicketNotes *string
+}
