@@ -163,7 +163,7 @@ func TestEstablishmentMemberInvite(t *testing.T) {
 				MemberID:          "member-ana@example.com",
 				Email:             "ana@example.com",
 				EstablishmentName: "Bar Pepe",
-				InviterName:       "ana",
+				InviterName:       tt.inviter.Name,
 				InviterLanguage:   "en",
 				UserID:            "user-ana@example.com",
 			}

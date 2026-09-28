@@ -113,7 +113,7 @@ func (s *EstablishmentMemberService) Invite(ctx context.Context, establishmentID
 		MemberID:          invited.ID,
 		Email:             invited.UserEmail,
 		EstablishmentName: invited.EstablishmentName,
-		InviterName:       invited.UserName,
+		InviterName:       inviter.Name,
 		InviterLanguage:   inviter.Language,
 		UserID:            invited.UserID,
 	})

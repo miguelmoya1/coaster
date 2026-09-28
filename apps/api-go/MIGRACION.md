@@ -723,6 +723,7 @@ Lo que Go hace distinto de Nest a propósito o porque no se ha podido copiar.
 | P2b-1 | `PATCH /users/me` guarda el `name` sin espacios alrededor y responde 400 `REQUIRED` si queda vacío, y 400 `INVALID_TYPE` si `language` no es `es` ni `en` (también `""`, que Nest ignoraba). Nest acepta cualquier texto en los dos | Arreglado en Go; Nest sigue con el bug. `apps/web` solo manda `language` con `es` o `en` |
 | P2b-1 | Un admin de la plataforma sobre un local que no existe recibe 404 `ESTABLISHMENT_NOT_FOUND` en `GET /establishments/{id}`, `GET …/settings` y `PATCH …/settings`. Nest responde 200 `null`, los ajustes por defecto y un 500 (clave foránea) | Arreglado en Go; Nest sigue con el bug. Un usuario normal ya recibía el 403 del guard antes |
 | P2b-2 | Invitar a un usuario que ya existe no le cambia el `name`; Nest lo cambia por lo que va antes de la `@` sin publicar `UserUpdated` | Arreglado en Go; Nest sigue con el bug. Como no cambia nada del usuario, no hace falta olvidar su caché |
+| P2b-2 | El email de la invitación lleva el nombre de quien invita (`MemberInvited.InviterName`), como al reenviarla; en Nest lleva el nombre del invitado | Arreglado en Go; Nest sigue con el bug |
 | P2d-1 | `GET /orders?date=` solo lee `YYYY-MM-DD`; cualquier otra cosa responde 500, como una fecha que `Temporal.PlainDate.from` no entiende | `PlainDate.from` acepta además fecha y hora y otras formas ISO; `apps/web` y la IA mandan `YYYY-MM-DD` |
 | P2d-1 | `null` en `notes`/`ticketNotes` de `PATCH /orders/{id}/notes` o en `name` de `PATCH /tables/{id}` se ignora como si no viniera; Nest responde 500 (`.trim()` de `null`, o Prisma con `null` en una columna que no lo admite) | El mismo criterio que P2a; `apps/web` manda texto. En `POST /orders/{id}/items`, `notes: null` sí vacía las notas, como en Nest |
 | P2d-1 | Las notas del pedido y de las líneas y el motivo de un ajuste se cortan a 500 caracteres (runas), y `@MaxLength(500)` también cuenta runas, no unidades UTF-16. `trim` no quita el BOM (U+FEFF) | Solo cambia con emojis y otros caracteres fuera del plano básico |
@@ -746,7 +747,6 @@ Lo que Go sí hace distinto está en «Diferencias conocidas».
 
 | Paquete | Qué pasa |
 |---|---|
-| P2b-2 | El email de la invitación dice que invita el propio invitado: `MemberInvitedEvent.inviterName` lleva su nombre (al reenviar sí va el de quien invita) |
 | P2b-2 | El email de la invitación no se pasa a minúsculas: invitar a `Ana@X.com` cuando existe `ana@x.com` crea otro usuario, que luego no puede entrar con contraseña |
 | P2b-2 | Volver a invitar a un miembro quitado sin `role` le devuelve su rol antiguo: un MANAGER puede devolver a un ex-OWNER como OWNER |
 | P2b-2 | Reenviar la invitación mira si el usuario está activo, no el miembro |
