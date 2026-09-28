@@ -159,10 +159,11 @@ Actualizar esta tabla al terminar cada paquete.
 | P2d-3 Cierres de caja y estadísticas | ✅ Hecho | Ola 3b. `/establishments/{id}/cash-closes` (lista de los 60 últimos, `preview` y cierre en una transacción con `FOR UPDATE` del local) y `/establishments/{id}/stats` (sin módulo; el histórico según `EstablishmentPermissionsOf`). `CashCloseTotalsOf`, arqueo y `EstablishmentStatsOf` en el dominio, comprobados contra Nest con los mismos pedidos, en UTC y en `Europe/Madrid`. SQL propio sobre `"Order"`, `"OrderItem"` y `"OrderAdjustment"`. Para P3: `StatsService.EstablishmentStats(ctx, establishmentID, includeHistory)` es `GetEstablishmentStatsQuery` (en `main.go`, `statsService`). `test/cash-closes` y `test/stats` crean pedidos por HTTP: quedan fuera de `e2e-paquetes.txt` hasta la integración con P2d-1 (los tests que no usan pedidos ya pasan contra Go) |
 | P2e Cobros | ✅ Hecho | `/establishments/{id}/establishment-subscription` (lectura, asientos, Checkout y portal), `/stripe/webhook` con firma, refresco desde Stripe (`SubscriptionRefresher` ya cableado), sincronización de asientos como método (`SyncSeatsOnMemberChange`, falta suscribirlo a los eventos de miembros de P2b), eventos `Subscription*` y `DuplicateSubscriptionDetected` con sus suscriptores (caché, realtime y log), y emails con Resend. Ningún directorio de `apps/api/test` es solo suyo: el test del portal de `test/permissions` pasa contra Go |
 | P2f Realtime | ✅ Hecho | `GET /establishments/{establishmentId}/events` (SSE con `: open`, heartbeat de 25 s, cierre a los 30 min y `Last-Event-ID`), `service.RealtimeService` (implementa `ports.Realtime`: registro de streams por local, `Publish`, `Revoke`), bus en Redis compatible con Nest (canal `coaster:realtime`, replay de 2 min en `realtime:<id>:replay`), sin Redis solo en este proceso, cierre de streams al apagar. `test/realtime` pasa contra Go (publicar y revocar, en los tests de Go). Los suscriptores de `realtime/events/handlers/` los escribe cada paquete |
-| P3 IA | ✅ Hecho | Ola 4. `/establishments/{establishmentId}/ai`: `GET usage`, `POST` (201) y `POST stream` (SSE con `delta` y `done`), con solo auth, ser miembro y 20 por minuto. `AIService.Execute` es `ExecuteAiCommand`: membresía, cuota por local y mes en `AiUsage` (500, o 100 en prueba; cuenta solo tras una respuesta), módulos, instantánea y el mismo prompt de sistema, los 10 últimos mensajes y `zai/glm-4.7` a 0.1 con 8 pasos y sus cuatro modelos de respaldo. `adapter/ai.Gateway` habla con la API compatible con OpenAI del AI Gateway con openai-go y hace lo del AI SDK: el bucle de herramientas, la comprobación de su entrada como zod y el streaming. Las 40 herramientas (`service/ai_tools_*.go`) llaman a los servicios de P2 con los permisos, `confirmed`, textos y euros/céntimos de Nest; sus respuestas, esquemas y el prompt se comparan byte a byte con lo que da Nest (`service/testdata`). `test/ai` pasa contra Go. **Pendiente de Miguel**: confirmar los modelos de respaldo con la clave de verdad. Posibles bugs de Nest copiados tal cual: en el stream cualquier error (también `AI_QUOTA_EXCEEDED` y `MEMBER_NOT_FOUND`) llega como `ai_gateway_failed` y `apps/web` no lo distingue; la cuota se mira antes y se cuenta después, así que varios mensajes a la vez pueden pasarla; si falla contar el mensaje se responde el error del gateway aunque las herramientas ya se ejecutaron; `createOrder` y `addOrderItems` quitan en silencio los productos que no están en la instantánea y responden éxito; las mesas y productos de los pedidos se nombran con la instantánea del turno (`deleteOrder` de un pedido cerrado siempre confirma la mesa «No table»); `getOrdersByDate` suma `totalAmount` (sin IVA ni descuentos) mientras cada pedido enseña `orderTotal`; `updateProduct` acepta precios negativos |
+| P3 IA | ✅ Hecho | Ola 4. `/establishments/{establishmentId}/ai`: `GET usage`, `POST` (201) y `POST stream` (SSE con `delta` y `done`), con solo auth, ser miembro y 20 por minuto. `AIService.Execute` es `ExecuteAiCommand`: membresía, cuota por local y mes en `AiUsage` (500, o 100 en prueba; cuenta solo tras una respuesta), módulos, instantánea y el mismo prompt de sistema, los 10 últimos mensajes y `zai/glm-4.7` a 0.1 con 8 pasos y sus cuatro modelos de respaldo. `adapter/ai.Gateway` habla con la API compatible con OpenAI del AI Gateway con openai-go y hace lo del AI SDK: el bucle de herramientas, la comprobación de su entrada como zod y el streaming. Las 40 herramientas (`service/ai_tools_*.go`) llaman a los servicios de P2 con los permisos, `confirmed`, textos y euros/céntimos de Nest; sus respuestas, esquemas y el prompt se comparan byte a byte con lo que da Nest (`service/testdata`). `test/ai` pasa contra Go. **Pendiente de Miguel**: confirmar los modelos de respaldo con la clave de verdad. Los errores del stream, la cuota, los productos desconocidos, `getOrdersByDate` y los precios negativos se arreglaron después (fila «Bugs de Nest de P2d y P3»). Sigue igual que en Nest: las mesas y productos de los pedidos se nombran con la instantánea del turno (`deleteOrder` de un pedido cerrado siempre confirma la mesa «No table») |
 | P4 Arnés e2e | ✅ Hecho | `E2E_TARGET=go` lanza los e2e de `apps/api` contra Go: el `globalSetup` compila el binario, cada archivo arranca su servidor detrás de un proxy que pone `/api/v1` y un JWT de verdad, buzón de test y claves de Google por HTTP, `e2e-paquetes.txt`, `scripts/e2e-go.sh` y job de CI `api-go-e2e`. Lo que falta en Go está en «Convenciones de P4» |
 | Interfaces en los handlers | ✅ Hecho | Los 25 handlers de P2 y P3 reciben una interfaz declarada en su archivo con los métodos que usan. Se llama como el servicio salvo choque: `PrinterConnectionService` (`printer_connection_handler.go`), `EstablishmentSubscriptionService` y `StripeWebhookService` (los dos sobre `SubscriptionService`). Sin cambios en `main.go` ni en los tests |
 | P5 Salida | ⬜ Pendiente | |
+| Bugs de Nest de P2d y P3 | ✅ Hecho | Arreglados en Go los posibles bugs de pedidos, impresoras, estadísticas, cierres de caja e IA (ver «Diferencias conocidas» y «Convenciones de los bugs de P2d y P3»). Las estadísticas siguen contando por apertura (`createdAt`): es una decisión, no un bug |
 
 ## Siguiente paso
 
@@ -628,6 +629,20 @@ como el `void` de Nest: para leer cómo queda un pedido, `Get`.
 - La URL del gateway no se puede cambiar por entorno: los e2e no llaman al modelo (sin clave, el
   gateway falla sin llamar y la ruta responde 201 con el error).
 
+## Convenciones de los bugs de P2d y P3
+
+- Las estadísticas cuentan cada pedido por `createdAt` (cuando se abrió), igual que Nest. Contar
+  por cobro necesita una columna `closedAt` en `Order`, que es una migración de Prisma; `updatedAt`
+  no sirve porque el cierre de caja lo toca. Así cuadran con el histórico de pedidos por día.
+- `domain.InEstablishmentZone(t)` pasa un instante a `Europe/Madrid`; las estadísticas lo usan para
+  `now`.
+- `OrderRepository` escribe con `execWhileOpen` lo que solo vale para un pedido abierto
+  (`WHERE status = 'OPEN'`): sin fila, 400 `ORDER_NOT_OPEN`.
+- `CashCloseRepository.FindTill` sustituye a `FindLast`, `FindUnclosedOrders` y
+  `FindOpenOrdersCharges`: las tres lecturas en una transacción.
+- `AIUsageRepository.ReserveMessage(ctx, local, periodo, cuota)` y `ReleaseMessage` sustituyen a
+  `CountMessage`. `domain.AIRefused(código)` es la respuesta de error con ese código como `errorKey`.
+
 ## Ejecución con agentes
 
 Los paquetes los ejecuta un agente orquestador que lanza subagentes. Se hace en olas:
@@ -749,6 +764,19 @@ Lo que Go hace distinto de Nest a propósito o porque no se ha podido copiar.
 | P3 | Sin `AI_GATEWAY_API_KEY` Go falla sin llamar al gateway; el AI SDK aún prueba el token OIDC de Vercel | La API no corre en Vercel; la respuesta es la misma (201 con el error traducible) |
 | P3 | `POST ai/stream` manda las cabeceras en cuanto empieza; Node las manda con el primer `delta` o con el `done` | Así el cliente no espera sin respuesta mientras el modelo piensa; las cabeceras son las mismas |
 | P3 | El error de una herramienta que no es de negocio (la base de datos caída, una fecha imposible en `getOrdersByDate`) lleva el texto del error de Go, no el de Prisma o Temporal | Como en el resto de paquetes; los errores con código de `ErrorCodes` son idénticos y llevan `errorKey` |
+| P2d-1 | Cancelar, mover de mesa y quitar la última línea solo escriben si el pedido sigue `OPEN` (en la misma transacción); si no, 400 `ORDER_NOT_OPEN`. Un cancel a la vez que un cobro ya no cancela un pedido cobrado ni devuelve su stock | Arreglado en Go; Nest sigue con el bug |
+| P2d-1 | Borrar un pedido abierto responde 400 `CANNOT_DELETE_OPEN_ORDER` (texto suelto, como `CANNOT_DELETE_PAST_ORDER`) en vez de `ORDER_NOT_OPEN`; mover un pedido a su misma mesa responde 200 sin hacer nada ni publicar eventos | Arreglado en Go; Nest sigue con el bug |
+| P2d-1 | `merge`: un pedido de otro local es 404 `ORDER_NOT_FOUND`, como uno que no existe, y la mesa destino ocupada da 400 `TABLE_ALREADY_OCCUPIED` salvo que sea la de uno de los pedidos que se juntan | Arreglado en Go; Nest sigue con el bug |
+| P2d-1 | Un ajuste se compara con el neto que queda: el `netTotal` del pedido para un ajuste ORDER y el total de la línea con sus descuentos para uno ITEM (`NEGATIVE_TOTAL_NOT_ALLOWED` si lo pasa). Un ajuste ORDER no guarda `itemId`, y crear un pedido con un ajuste ITEM responde 404 `ORDER_ITEM_NOT_FOUND` (o `itemId is required for ITEM target` sin línea), porque sus líneas aún no existen | Arreglado en Go; Nest sigue con el bug |
+| P2d-1 | `GET /orders?status=` con un valor que no es `OPEN`, `CLOSED` ni `CANCELLED` responde 400 `INVALID_TYPE` (vacío sigue siendo todos). En el bulk, `paymentMethod` solo acepta `CASH` y `CARD` (`items.N.INVALID_TYPE`); la IA que cobra con `NONE` o `MIXED` recibe `INVALID_TYPE` | Arreglado en Go; Nest sigue con el bug |
+| P2d-2 | `check-version` responde 404 «No bridge binary is published for this OS yet» cuando falta el binario (400 solo para un OS no soportado) y el sha256 se vuelve a calcular si cambian el tamaño o la fecha del archivo | Arreglado en Go; Nest sigue con el bug |
+| P2d-2 | `POST printer/pair` quita espacios y pasa a mayúsculas antes de mirar la longitud: un código de otra longitud es 404 `PRINTER_PAIRING_INVALID` en vez del 400 de validación | Arreglado en Go; Nest sigue con el bug |
+| P2d-2 | Reclamar un trabajo es una sola sentencia con `FOR UPDATE SKIP LOCKED`: si otro puente se lleva uno, se da el siguiente. `GET …/printer/jobs/{jobId}` también devuelve a la cola (o falla) los trabajos colgados. `POST …/printer/pairing` sobre un local inexistente responde 404 `ESTABLISHMENT_NOT_FOUND` | Arreglado en Go; Nest sigue con el bug |
+| P2d-3 | Las estadísticas agrupan por día, semana, mes y año en `Europe/Madrid`, no en la zona del proceso (UTC en Cloud Run): un pedido de las 00:30 cuenta ese día | Arreglado en Go; Nest sigue con el bug |
+| P2d-3 | La previsualización del cierre lee el último cierre, los pedidos sin cerrar y lo cobrado en los abiertos en una transacción `REPEATABLE READ` de solo lectura; los cierres del mismo instante se ordenan por `id`; cerrar la caja de un local inexistente responde 404 `ESTABLISHMENT_NOT_FOUND` | Arreglado en Go; Nest sigue con el bug |
+| P3 | En `POST ai/stream`, un rechazo con código (`AI_QUOTA_EXCEEDED`, `MEMBER_NOT_FOUND`) llega en el `done` como `{"text":código,"isError":true,"errorKey":código}`, que `apps/web` traduce; los demás errores siguen siendo `ai_gateway_failed` | Arreglado en Go; Nest sigue con el bug |
+| P3 | El mensaje se reserva antes de llamar al modelo con un solo `INSERT … ON CONFLICT … WHERE messages < cuota`, así que varios a la vez no pasan la cuota; si el modelo no responde, se devuelve. Un fallo de la base de datos al reservar es un 500 antes de ejecutar nada | Arreglado en Go; Nest sigue con el bug |
+| P3 | `createOrder` y `addOrderItems` fallan sin tocar nada si algún producto no está en la carta y dicen cuáles; `getOrdersByDate` suma el `orderTotal` de los pedidos cerrados (lo que enseña cada pedido); `updateProduct` rechaza un precio negativo | Arreglado en Go; Nest sigue con el bug |
 
 ## Posibles bugs de Nest copiados tal cual
 
@@ -758,19 +786,8 @@ Lo que Go sí hace distinto está en «Diferencias conocidas».
 
 | Paquete | Qué pasa |
 |---|---|
-| P2d-1 | `cancel` y `move-table` no son condicionales: un cancel a la vez que un cobro puede cancelar un pedido ya cobrado y devolver su stock |
-| P2d-1 | Borrar un pedido abierto responde 400 `ORDER_NOT_OPEN`; mover un pedido a su misma mesa da `TABLE_ALREADY_OCCUPIED` |
-| P2d-1 | `merge`: un pedido de otro local da 400 `ORDER_NOT_FOUND` y uno que no existe 404; no mira si la mesa destino está libre |
-| P2d-1 | `AddAdjustment` compara el total neto (`totalAmount`) con `orderTotal`, que lleva IVA; un ajuste ORDER guarda el `itemId` si llega, y los de un pedido nuevo pueden apuntar a líneas de otro |
-| P2d-1 | `?status` no se valida (un valor desconocido da 500) y en el bulk `MIXED` y `NONE` cuentan como efectivo |
-| P2d-2 | `check-version` responde 400 «Unsupported OS» también cuando falta el binario; el sha256 se guarda hasta reiniciar; el código de emparejamiento se valida antes del `trim` y las mayúsculas |
-| P2d-2 | Si otro puente se lleva el trabajo, `claimNext` espera un segundo en vez de probar el siguiente; los trabajos colgados solo vuelven a la cola cuando un puente pregunta; `POST pairing` sobre un local inexistente da 500 |
-| P2d-3 | Las estadísticas agrupan por día, semana, mes y año en la zona del proceso (UTC en Cloud Run), no en `Europe/Madrid`: un pedido de las 00:30 cuenta el día anterior |
-| P2d-3 | Las estadísticas cuentan cada pedido por `createdAt` (cuando se abrió), no por cuando se cobró |
-| P2d-3 | La previsualización del cierre hace tres lecturas sin transacción; los cierres se ordenan solo por `closedAt`; cerrar la caja de un local inexistente da 500 |
-| P3 | En el stream, cualquier error (también `AI_QUOTA_EXCEEDED` y `MEMBER_NOT_FOUND`) llega como `ai_gateway_failed` |
-| P3 | La cuota se mira antes y se cuenta después: varios mensajes a la vez pueden pasarla. Si falla contar, se responde error aunque las herramientas ya se hayan ejecutado |
-| P3 | `createOrder` y `addOrderItems` quitan en silencio los productos que no existen; `getOrdersByDate` suma `totalAmount` (sin IVA) y cada pedido muestra `orderTotal`; `updateProduct` acepta precios negativos |
+
+Ya no queda ninguno: los de P2b, P2d y P3 se arreglaron en Go.
 
 ## Comprobar que Go se comporta igual que Nest
 
