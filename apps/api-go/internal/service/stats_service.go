@@ -20,9 +20,9 @@ func NewStatsService(stats ports.StatsRepository) *StatsService {
 
 // EstablishmentStats is GetEstablishmentStatsQuery: today, yesterday, this week and, with
 // includeHistory, this month, last month and this year. Without the history it does not even
-// read the orders of the year. The days are those of the process's zone, as in Nest.
+// read the orders of the year. The days are those of the establishment's zone (Europe/Madrid).
 func (s *StatsService) EstablishmentStats(ctx context.Context, establishmentID string, includeHistory bool) (domain.EstablishmentStats, error) {
-	now := s.now()
+	now := domain.InEstablishmentZone(s.now())
 
 	orders, err := s.stats.FindClosedOrders(ctx, establishmentID, domain.StatsSince(now, includeHistory))
 	if err != nil {

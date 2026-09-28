@@ -20,6 +20,10 @@ func mustLoadLocation(name string) *time.Location {
 	return location
 }
 
+func InEstablishmentZone(instant time.Time) time.Time {
+	return instant.In(establishmentLocation)
+}
+
 // workdayLayout is how a workday is written: "2026-08-08".
 const workdayLayout = "2006-01-02"
 

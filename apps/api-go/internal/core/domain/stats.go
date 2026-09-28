@@ -81,8 +81,7 @@ func StatsSince(now time.Time, includeHistory bool) time.Time {
 
 // EstablishmentStatsOf is GetEstablishmentStatsHandler: it adds up the closed orders by day,
 // week and month. The revenue of an order is what was charged minus the tip, and its day is
-// the day it was created on. The days are those of now's zone, which in Nest is the
-// process's (UTC on Cloud Run), not the establishment's.
+// the day it was created on. The days are those of now's zone.
 func EstablishmentStatsOf(orders []StatsOrder, now time.Time, includeHistory bool) EstablishmentStats {
 	location := now.Location()
 	startOfWeek := startOfStatsWeek(now)

@@ -52,6 +52,26 @@ func TestStatsWithoutClosedOrders(t *testing.T) {
 	}
 }
 
+func TestStatsCountTheDaysOfTheEstablishment(t *testing.T) {
+	service, _ := newStatsFixture(
+		statsClosedOrder(100, 0, 0, time.Date(2026, 6, 16, 22, 30, 0, 0, time.UTC)),
+		statsClosedOrder(40, 0, 0, time.Date(2026, 6, 16, 21, 30, 0, 0, time.UTC)),
+		statsClosedOrder(7, 0, 0, time.Date(2026, 5, 31, 22, 30, 0, 0, time.UTC)),
+	)
+
+	stats, err := service.EstablishmentStats(context.Background(), "establishment-1", true)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if stats.TodayRevenue != 100 || stats.YesterdayRevenue != 40 {
+		t.Errorf("today %d, yesterday %d; want 100 and 40: 00:30 in Madrid is already today", stats.TodayRevenue, stats.YesterdayRevenue)
+	}
+	if stats.History.CurrentMonthRevenue != 147 || stats.History.PreviousMonthRevenue != 0 {
+		t.Errorf("this month %d, last month %d; want 147 and 0", stats.History.CurrentMonthRevenue, stats.History.PreviousMonthRevenue)
+	}
+}
+
 func TestStatsAggregateRevenuesAndTrends(t *testing.T) {
 	service, _ := newStatsFixture(
 		statsClosedOrder(100, 0, 0, statsToday),
@@ -160,7 +180,7 @@ func TestStatsReadTheYearBeforeWithTheHistory(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if want := time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC); !repo.since.Equal(want) {
+	if want := time.Date(2024, 12, 31, 23, 0, 0, 0, time.UTC); !repo.since.Equal(want) {
 		t.Errorf("read orders since %s, want %s", repo.since, want)
 	}
 }
