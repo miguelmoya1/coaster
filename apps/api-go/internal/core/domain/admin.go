@@ -277,9 +277,9 @@ func (row AdminEstablishmentRow) Summary(now time.Time) AdminEstablishmentSummar
 	return summary
 }
 
-// hasStripeAccess is the backoffice's own reading of the Stripe columns: an active paid
-// period, a running trial or a cancelled period that has not ended. Unlike the route check,
-// PAST_DUE does not count.
+// hasStripeAccess is the backoffice's reading of the Stripe columns: an active paid
+// period, a running trial, a cancelled period that has not ended or a payment Stripe is
+// still retrying (PAST_DUE), as in the route check.
 func (b *AdminBilling) hasStripeAccess(now time.Time) bool {
 	switch b.Status {
 	case SubscriptionActive:
@@ -288,6 +288,8 @@ func (b *AdminBilling) hasStripeAccess(now time.Time) bool {
 		return b.TrialEndsAt != nil && !now.After(*b.TrialEndsAt)
 	case SubscriptionCanceled:
 		return b.CurrentPeriodEnd != nil && !now.After(*b.CurrentPeriodEnd)
+	case SubscriptionPastDue:
+		return true
 	default:
 		return false
 	}

@@ -370,6 +370,8 @@ func TestAdminEstablishmentRepositoryBillingSource(t *testing.T) {
 	insertAdminSubscription(t, "trial", "TRIALING", `"trialEndsAt" = $2`, future)
 	insertAdminEstablishment(t, "stripe-live", "Stripe live", daysBefore(5))
 	insertAdminSubscription(t, "stripe-live", "ACTIVE", `"stripeSubscriptionId" = 'sub_2', "currentPeriodEnd" = $2`, future)
+	insertAdminEstablishment(t, "past-due", "Past due", daysBefore(6))
+	insertAdminSubscription(t, "past-due", "PAST_DUE", `"stripeSubscriptionId" = 'sub_3', "currentPeriodEnd" = $2`, future)
 
 	page := domain.PageRequest{Page: 1, PageSize: 20}
 	tests := []struct {
@@ -377,7 +379,7 @@ func TestAdminEstablishmentRepositoryBillingSource(t *testing.T) {
 		want   []string
 	}{
 		{domain.BillingSourceManual, []string{"pro-grant"}},
-		{domain.BillingSourceStripe, []string{"trial", "stripe-live"}},
+		{domain.BillingSourceStripe, []string{"trial", "stripe-live", "past-due"}},
 		{domain.BillingSourceNone, []string{"free-grant", "stripe-ended"}},
 	}
 	for _, tt := range tests {

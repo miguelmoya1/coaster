@@ -1,5 +1,5 @@
--- live_grant is a manual paid plan that has not ended; live_stripe a paid period, a trial or a
--- cancelled period that has not ended.
+-- live_grant is a manual paid plan that has not ended; live_stripe a paid period, a trial, a
+-- cancelled period that has not ended or a payment Stripe is still retrying.
 SELECT count(*) FILTER (WHERE live_grant),
        count(*) FILTER (WHERE live_stripe AND NOT live_grant),
        count(*) FILTER (WHERE live_grant OR live_stripe)
@@ -8,7 +8,8 @@ FROM (
            COALESCE(
                (status = 'ACTIVE' AND "stripeSubscriptionId" IS NOT NULL AND "currentPeriodEnd" >= $1)
                OR (status = 'TRIALING' AND "trialEndsAt" >= $1)
-               OR (status = 'CANCELED' AND "currentPeriodEnd" >= $1),
+               OR (status = 'CANCELED' AND "currentPeriodEnd" >= $1)
+               OR status = 'PAST_DUE',
                false
            ) AS live_stripe
     FROM "EstablishmentSubscription"

@@ -123,7 +123,7 @@ func TestAdminEstablishmentRowSummary(t *testing.T) {
 			hasAccess:    true,
 		},
 		{
-			name: "past due is not access in the backoffice",
+			name: "past due is access while Stripe retries, as in the route check",
 			billing: adminBilling(func(b *AdminBilling) {
 				b.Plan, b.Status = PlanPro, SubscriptionPastDue
 				b.StripeSubscriptionID = adminText("sub_123")
@@ -131,8 +131,9 @@ func TestAdminEstablishmentRowSummary(t *testing.T) {
 			}),
 			plan:         PlanPro,
 			status:       SubscriptionPastDue,
-			source:       BillingSourceNone,
+			source:       BillingSourceStripe,
 			accessEndsAt: "2026-04-01T00:00:00.000Z",
+			hasAccess:    true,
 		},
 	}
 

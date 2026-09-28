@@ -7,7 +7,8 @@ CROSS JOIN LATERAL (
            COALESCE(
                (s.status = 'ACTIVE' AND s."stripeSubscriptionId" IS NOT NULL AND s."currentPeriodEnd" >= $4)
                OR (s.status = 'TRIALING' AND s."trialEndsAt" >= $4)
-               OR (s.status = 'CANCELED' AND s."currentPeriodEnd" >= $4),
+               OR (s.status = 'CANCELED' AND s."currentPeriodEnd" >= $4)
+               OR s.status = 'PAST_DUE',
                false
            ) AS live_stripe
 ) access
