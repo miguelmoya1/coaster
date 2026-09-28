@@ -23,6 +23,7 @@ const (
 // The messages Nest answers with where it has no error code.
 const (
 	MessageUnsupportedPrinterOS    = `Unsupported OS. Use "windows" or "linux".`
+	MessagePrinterBinaryMissing    = "No bridge binary is published for this OS yet"
 	MessageDeviceKeyRequired       = "X-Device-Key header is required"
 	MessageEstablishmentIDRequired = "establishmentId is required"
 )

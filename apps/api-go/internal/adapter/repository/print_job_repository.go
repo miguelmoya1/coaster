@@ -18,8 +18,6 @@ var (
 	insertPrintJobQuery string
 	//go:embed queries/print_job/find_by_id.sql
 	findPrintJobQuery string
-	//go:embed queries/print_job/find_next_pending.sql
-	findNextPendingPrintJobQuery string
 	//go:embed queries/print_job/claim.sql
 	claimPrintJobQuery string
 	//go:embed queries/print_job/complete.sql
@@ -66,24 +64,16 @@ func (r *PrintJobRepository) FindByID(ctx context.Context, id string) (*domain.P
 	return &job, nil
 }
 
-// ClaimNext looks up the oldest pending job and then claims it only if it is still pending,
-// as Nest does, so two bridges polling at once never get the same job.
+// ClaimNext claims the oldest pending job in one statement, skipping the ones another bridge
+// is claiming at that moment, so two bridges polling at once never get the same job.
 func (r *PrintJobRepository) ClaimNext(ctx context.Context, establishmentID string, claimedAt time.Time) (*domain.ClaimedPrintJob, error) {
 	var job domain.ClaimedPrintJob
-	err := r.pool.QueryRow(ctx, findNextPendingPrintJobQuery, establishmentID).Scan(&job.ID, &job.Payload)
+	err := r.pool.QueryRow(ctx, claimPrintJobQuery, establishmentID, claimedAt.UTC()).Scan(&job.ID, &job.Payload)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, nil
 	}
 	if err != nil {
 		return nil, err
-	}
-
-	tag, err := r.pool.Exec(ctx, claimPrintJobQuery, job.ID, claimedAt.UTC())
-	if err != nil {
-		return nil, err
-	}
-	if tag.RowsAffected() == 0 {
-		return nil, nil
 	}
 
 	return &job, nil

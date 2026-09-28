@@ -92,7 +92,12 @@ func (s *PrinterService) IssuePairing(ctx context.Context, establishmentID strin
 // RedeemPairing is RedeemPairingCommand: the bridge trades the code in its filename for the
 // ids it needs. An establishment that already has a bridge keeps its device key.
 func (s *PrinterService) RedeemPairing(ctx context.Context, code string) (domain.PrinterPairing, error) {
-	establishmentID, err := s.pairings.Redeem(ctx, strings.ToUpper(strings.TrimSpace(code)), s.now())
+	code = strings.ToUpper(strings.TrimSpace(code))
+	if len(code) != domain.PairingCodeLength {
+		return domain.PrinterPairing{}, domain.NotFound(domain.CodePrinterPairingInvalid)
+	}
+
+	establishmentID, err := s.pairings.Redeem(ctx, code, s.now())
 	if err != nil {
 		return domain.PrinterPairing{}, err
 	}
@@ -212,6 +217,10 @@ func (s *PrinterService) Enqueue(ctx context.Context, establishmentID string, ti
 
 // Job is GetPrintJobQuery: whether a queued ticket has printed.
 func (s *PrinterService) Job(ctx context.Context, establishmentID, jobID string) (*domain.PrintJob, error) {
+	if err := s.requeueStale(ctx, establishmentID); err != nil {
+		return nil, err
+	}
+
 	job, err := s.jobs.FindByID(ctx, jobID)
 	if err != nil {
 		return nil, err
@@ -236,8 +245,7 @@ func (s *PrinterService) NextJob(ctx context.Context, establishmentID, deviceKey
 		return nil, err
 	}
 
-	now := s.now()
-	if err := s.jobs.RequeueStale(ctx, establishmentID, now.Add(-domain.PrintJobStaleAfter), now); err != nil {
+	if err := s.requeueStale(ctx, establishmentID); err != nil {
 		return nil, err
 	}
 
@@ -266,6 +274,11 @@ func (s *PrinterService) NextJob(ctx context.Context, establishmentID, deviceKey
 		case <-check.C:
 		}
 	}
+}
+
+func (s *PrinterService) requeueStale(ctx context.Context, establishmentID string) error {
+	now := s.now()
+	return s.jobs.RequeueStale(ctx, establishmentID, now.Add(-domain.PrintJobStaleAfter), now)
 }
 
 // StopWaiting makes every long poll answer at once, now and from now on. main calls it when

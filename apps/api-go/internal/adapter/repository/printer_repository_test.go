@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -100,6 +101,9 @@ func TestPrinterPairingRepository(t *testing.T) {
 	}
 	if err := pairings.Issue(ctx, "7F3KB92X", "e1", now.Add(time.Hour)); err == nil {
 		t.Error("a code issued twice should fail")
+	}
+	if err := pairings.Issue(ctx, "CDFGHJKL", "missing", now.Add(time.Hour)); !domain.HasCode(err, domain.CodeEstablishmentNotFound) {
+		t.Errorf("a code for an establishment that does not exist = %v, want ESTABLISHMENT_NOT_FOUND", err)
 	}
 
 	tests := []struct {
@@ -281,5 +285,42 @@ func assertPrintJob(t *testing.T, id string, status domain.PrintJobStatus, attem
 		(claimedAt != nil && gotClaimedAt != nil && gotClaimedAt.Equal(*claimedAt))
 	if gotStatus != string(status) || gotAttempts != attempts || !sameClaim {
 		t.Errorf("job %s = %s, %d attempts, claimed at %v; want %s, %d, %v", id, gotStatus, gotAttempts, gotClaimedAt, status, attempts, claimedAt)
+	}
+}
+
+func TestPrintJobRepositoryClaimNextAtOnce(t *testing.T) {
+	resetDB(t)
+	ctx := context.Background()
+	jobs := NewPrintJobRepository(testPool)
+	insertPrinterEstablishment(t, "e1")
+
+	queued := map[string]bool{}
+	for range 6 {
+		id, err := jobs.Enqueue(ctx, "e1", domain.PrintTicket{Type: "raw"})
+		if err != nil {
+			t.Fatal(err)
+		}
+		queued[id] = true
+	}
+
+	now := time.Date(2026, 9, 27, 10, 0, 0, 0, time.UTC)
+	claimed := make([]*domain.ClaimedPrintJob, 6)
+	errs := make([]error, 6)
+	var wg sync.WaitGroup
+	for i := range claimed {
+		wg.Go(func() {
+			claimed[i], errs[i] = jobs.ClaimNext(ctx, "e1", now)
+		})
+	}
+	wg.Wait()
+
+	for i, job := range claimed {
+		if errs[i] != nil || job == nil {
+			t.Fatalf("ClaimNext %d = %+v, %v; every bridge should get a job while there are some", i, job, errs[i])
+		}
+		if !queued[job.ID] {
+			t.Fatalf("job %s was handed out twice", job.ID)
+		}
+		delete(queued, job.ID)
 	}
 }

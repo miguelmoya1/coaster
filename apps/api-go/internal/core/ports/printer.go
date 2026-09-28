@@ -35,8 +35,7 @@ type PrintJobRepository interface {
 	// FindByID returns nil, nil when there is no such job.
 	FindByID(ctx context.Context, id string) (*domain.PrintJob, error)
 	// ClaimNext hands out the oldest pending job of the establishment: it marks it printing
-	// and counts one more attempt. It returns nil, nil when nothing is pending, or when
-	// another request took that job first.
+	// and counts one more attempt. It returns nil, nil when nothing is pending.
 	ClaimNext(ctx context.Context, establishmentID string, claimedAt time.Time) (*domain.ClaimedPrintJob, error)
 	// Complete and Fail close a job that is printing; a job in any other state stays as it is.
 	Complete(ctx context.Context, id string, completedAt time.Time) error

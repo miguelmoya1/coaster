@@ -8,6 +8,7 @@ import (
 	"log/slog"
 	"strings"
 	"sync"
+	"time"
 
 	"api-go/internal/core/domain"
 )
@@ -23,17 +24,23 @@ type PrinterReleaseService struct {
 	publicURL string
 
 	mu        sync.Mutex
-	checksums map[string]string
+	checksums map[string]binaryChecksum
+}
+
+type binaryChecksum struct {
+	size    int64
+	modTime time.Time
+	sum     string
 }
 
 // NewPrinterReleaseService reads the binaries from downloads (public/downloads) and
 // advertises them under publicURL (PUBLIC_URL).
 func NewPrinterReleaseService(downloads fs.FS, publicURL string) *PrinterReleaseService {
-	return &PrinterReleaseService{downloads: downloads, publicURL: publicURL, checksums: make(map[string]string)}
+	return &PrinterReleaseService{downloads: downloads, publicURL: publicURL, checksums: make(map[string]binaryChecksum)}
 }
 
 // Latest is GET printer/check-version: the release for the operating system. An operating
-// system without a binary is a 400, as in Nest.
+// system that is not supported is a 400, and one whose binary is missing a 404.
 func (s *PrinterReleaseService) Latest(platform string) (domain.PrinterRelease, error) {
 	filename := domain.PrinterBinaryFor(platform)
 	if filename == "" {
@@ -47,7 +54,7 @@ func (s *PrinterReleaseService) Latest(platform string) (domain.PrinterRelease, 
 	if !found {
 		slog.Error("no bridge binary in public/downloads; bridges on this OS cannot update until it is published",
 			"file", filename, "os", platform)
-		return domain.PrinterRelease{}, domain.BadRequest(domain.MessageUnsupportedPrinterOS)
+		return domain.PrinterRelease{}, domain.NotFound(domain.MessagePrinterBinaryMissing)
 	}
 
 	return domain.PrinterRelease{
@@ -84,21 +91,26 @@ func (s *PrinterReleaseService) baseURL() string {
 	return strings.TrimRight(s.publicURL, "/")
 }
 
-// checksum is the SHA-256 of the binary, in hex. It is worked out once per binary and kept,
-// as in Nest; found is false when the binary is not there.
+// checksum is the SHA-256 of the binary, in hex. It is worked out again only when the file
+// changes size or modification time; found is false when the binary is not there.
 func (s *PrinterReleaseService) checksum(filename string) (sum string, found bool, err error) {
-	s.mu.Lock()
-	cached, ok := s.checksums[filename]
-	s.mu.Unlock()
-	if ok {
-		return cached, true, nil
-	}
-
 	binary, err := s.downloads.Open(filename)
 	if err != nil {
 		return "", false, nil
 	}
 	defer binary.Close()
+
+	info, err := binary.Stat()
+	if err != nil {
+		return "", false, err
+	}
+
+	s.mu.Lock()
+	cached, ok := s.checksums[filename]
+	s.mu.Unlock()
+	if ok && cached.size == info.Size() && cached.modTime.Equal(info.ModTime()) {
+		return cached.sum, true, nil
+	}
 
 	hash := sha256.New()
 	if _, err := io.Copy(hash, binary); err != nil {
@@ -107,7 +119,7 @@ func (s *PrinterReleaseService) checksum(filename string) (sum string, found boo
 	sum = hex.EncodeToString(hash.Sum(nil))
 
 	s.mu.Lock()
-	s.checksums[filename] = sum
+	s.checksums[filename] = binaryChecksum{size: info.Size(), modTime: info.ModTime(), sum: sum}
 	s.mu.Unlock()
 
 	return sum, true, nil

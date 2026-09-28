@@ -30,11 +30,16 @@ func TestPrinterReleaseServiceLatest(t *testing.T) {
 	}
 
 	downloads["printer-service-linux"] = &fstest.MapFile{Data: []byte("a bridge published later")}
-	if again, _ := releases.Latest("linux"); again.SHA256 != want.SHA256 {
-		t.Errorf("the checksum should be worked out once, as in Nest: %s", again.SHA256)
+	later := sha256.Sum256([]byte("a bridge published later"))
+	if again, _ := releases.Latest("linux"); again.SHA256 != hex.EncodeToString(later[:]) {
+		t.Errorf("a new binary kept the old checksum: %s", again.SHA256)
 	}
 
-	for _, platform := range []string{"windows", "mac", ""} {
+	if _, err := releases.Latest("windows"); !isPrinterError(err, domain.KindNotFound, domain.MessagePrinterBinaryMissing) {
+		t.Errorf("Latest of an OS without its binary = %v, want 404 %q", err, domain.MessagePrinterBinaryMissing)
+	}
+
+	for _, platform := range []string{"mac", ""} {
 		if _, err := releases.Latest(platform); !isPrinterError(err, domain.KindBadRequest, domain.MessageUnsupportedPrinterOS) {
 			t.Errorf("Latest(%q) = %v, want 400 %q", platform, err, domain.MessageUnsupportedPrinterOS)
 		}

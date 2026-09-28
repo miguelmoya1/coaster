@@ -47,7 +47,7 @@ func (h *PrinterHandler) RegisterRoutes(mux *http.ServeMux, guard *middleware.Gu
 
 // redeemPairingRequest is RedeemPairingDto.
 type redeemPairingRequest struct {
-	Code string `json:"code" validate:"required,min=8,max=8"`
+	Code string `json:"code" validate:"required"`
 }
 
 // registerPrinterIPRequest is RegisterPrinterIpDto.

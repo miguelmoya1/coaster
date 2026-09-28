@@ -8,7 +8,10 @@ import (
 	"uuid"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
+
+	"api-go/internal/core/domain"
 )
 
 var (
@@ -29,6 +32,11 @@ func NewPrinterPairingRepository(pool *pgxpool.Pool) *PrinterPairingRepository {
 
 func (r *PrinterPairingRepository) Issue(ctx context.Context, code, establishmentID string, expiresAt time.Time) error {
 	_, err := r.pool.Exec(ctx, insertPrinterPairingQuery, uuid.NewV4().String(), code, establishmentID, expiresAt.UTC())
+
+	var pgErr *pgconn.PgError
+	if errors.As(err, &pgErr) && pgErr.Code == "23503" {
+		return domain.NotFound(domain.CodeEstablishmentNotFound)
+	}
 	return err
 }
 

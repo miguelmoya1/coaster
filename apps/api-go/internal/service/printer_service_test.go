@@ -78,6 +78,12 @@ func TestPrinterServicePairing(t *testing.T) {
 		t.Errorf("a spent code = %v, want 404 %s", err, domain.CodePrinterPairingInvalid)
 	}
 
+	for _, code := range []string{"ZZZ", "ZZZZZZZZZ", "        "} {
+		if _, err := printers.RedeemPairing(ctx, code); !isPrinterError(err, domain.KindNotFound, domain.CodePrinterPairingInvalid) {
+			t.Errorf("RedeemPairing(%q) = %v, want 404 %s", code, err, domain.CodePrinterPairingInvalid)
+		}
+	}
+
 	other, _ := printers.IssuePairing(ctx, "e2")
 	redeemed, err = printers.RedeemPairing(ctx, other.Code)
 	if err != nil || redeemed.DeviceKey != "existing-key" || configs.created != 1 {
@@ -297,6 +303,9 @@ func TestPrinterServiceQueue(t *testing.T) {
 	job, err := printers.Job(ctx, "e1", queued.JobID)
 	if err != nil || job.Status != domain.PrintJobPending {
 		t.Fatalf("Job = %+v, %v", job, err)
+	}
+	if len(jobs.requeuedFrom) != 1 || !jobs.requeuedFrom[0].Equal(printerTestNow.Add(-domain.PrintJobStaleAfter)) {
+		t.Errorf("requeued = %v; reading a job should put the stale ones back in the queue first", jobs.requeuedFrom)
 	}
 	for _, jobID := range []string{"other", "nope"} {
 		if _, err := printers.Job(ctx, "e1", jobID); !isPrinterError(err, domain.KindNotFound, domain.CodePrintJobNotFound) {
