@@ -25,12 +25,13 @@ func (s *AdminAuditService) List(ctx context.Context, filter domain.AdminAuditFi
 	return domain.NewPage(entries, total, page), nil
 }
 
-func (s *AdminAuditService) RecordAction(ctx context.Context, event ports.Event) {
-	action, ok := event.(domain.AdminAction)
-	if !ok {
-		return
+func (s *AdminAuditService) EventHandlers() []ports.EventHandler {
+	return []ports.EventHandler{
+		ports.On(s.recordAction),
 	}
+}
 
+func (s *AdminAuditService) recordAction(ctx context.Context, action domain.AdminActionEvent) {
 	entry := action.Entry
 	if err := s.audit.Record(ctx, entry); err != nil {
 		slog.Error("failed to record an admin action; the action itself went through and is now unaudited",

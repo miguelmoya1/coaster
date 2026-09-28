@@ -65,7 +65,7 @@ func TestProductServiceCreate(t *testing.T) {
 			if !reflect.DeepEqual(repo.created, tt.wantSaved) {
 				t.Errorf("saved %+v\nwant  %+v", repo.created, tt.wantSaved)
 			}
-			if len(events.events) != 1 || events.events[0].Name() != "ProductCreatedEvent" {
+			if len(events.events) != 1 || eventName(events.events[0]) != "ProductCreatedEvent" {
 				t.Errorf("events = %+v", events.events)
 			}
 		})
@@ -153,7 +153,7 @@ func TestProductServiceWritesCheckTheProduct(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			if len(events.events) != 1 || events.events[0].Name() != tt.wantEvent {
+			if len(events.events) != 1 || eventName(events.events[0]) != tt.wantEvent {
 				t.Errorf("events = %+v, want one %s", events.events, tt.wantEvent)
 			}
 		})

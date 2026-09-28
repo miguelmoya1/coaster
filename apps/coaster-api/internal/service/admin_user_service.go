@@ -102,10 +102,10 @@ func (s *AdminUserService) Update(ctx context.Context, actorID, userID string, c
 		return err
 	}
 
-	s.events.Publish(ctx, domain.UserUpdated{UserID: userID})
+	s.events.Publish(ctx, domain.UserUpdatedEvent{UserID: userID})
 
 	if changes.Role != nil && *changes.Role != user.Role {
-		s.events.Publish(ctx, domain.AdminAction{Entry: domain.AdminAuditEntry{
+		s.events.Publish(ctx, domain.AdminActionEvent{Entry: domain.AdminAuditEntry{
 			ActorID:     actorID,
 			Action:      domain.AuditUserRoleChanged,
 			TargetType:  domain.AuditTargetUser,
@@ -116,7 +116,7 @@ func (s *AdminUserService) Update(ctx context.Context, actorID, userID string, c
 	}
 
 	if changes.Active != nil && *changes.Active != user.Active {
-		s.events.Publish(ctx, domain.AdminAction{Entry: domain.AdminAuditEntry{
+		s.events.Publish(ctx, domain.AdminActionEvent{Entry: domain.AdminAuditEntry{
 			ActorID:     actorID,
 			Action:      domain.AuditUserActivationChanged,
 			TargetType:  domain.AuditTargetUser,

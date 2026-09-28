@@ -206,7 +206,7 @@ func TestEstablishmentServiceUpdateSettings(t *testing.T) {
 		t.Errorf("got %+v", got)
 	}
 
-	if len(events.events) != 1 || events.events[0] != (domain.EstablishmentSettingsUpdated{EstablishmentID: "e1"}) {
+	if len(events.events) != 1 || events.events[0] != (domain.EstablishmentSettingsUpdatedEvent{EstablishmentID: "e1"}) {
 		t.Errorf("events = %+v", events.events)
 	}
 }
@@ -225,10 +225,8 @@ func TestEstablishmentServiceUpdateSettingsFails(t *testing.T) {
 
 func TestEstablishmentServiceForgetModulesCache(t *testing.T) {
 	establishments, _, cache := newTestEstablishmentService(&fakeEstablishmentRepo{})
-	ctx := context.Background()
 
-	establishments.ForgetModulesCache(ctx, domain.UserUpdated{UserID: "u1"})
-	establishments.ForgetModulesCache(ctx, domain.EstablishmentSettingsUpdated{EstablishmentID: "e1"})
+	deliver(establishments.EventHandlers(), domain.EstablishmentSettingsUpdatedEvent{EstablishmentID: "e1"})
 
 	if !slices.Equal(cache.forgotten, []string{"establishment:e1:modules"}) {
 		t.Errorf("forgotten = %v", cache.forgotten)

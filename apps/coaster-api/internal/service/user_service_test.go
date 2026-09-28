@@ -106,7 +106,7 @@ func TestUserServiceUpdateProfile(t *testing.T) {
 			if len(repo.updates) != 1 || !reflect.DeepEqual(repo.updates[0], tt.want) {
 				t.Errorf("updates = %+v, want %+v", repo.updates, tt.want)
 			}
-			if len(events.events) != 1 || events.events[0] != (domain.UserUpdated{UserID: "u1"}) {
+			if len(events.events) != 1 || events.events[0] != (domain.UserUpdatedEvent{UserID: "u1"}) {
 				t.Errorf("events = %+v", events.events)
 			}
 		})
@@ -116,10 +116,8 @@ func TestUserServiceUpdateProfile(t *testing.T) {
 func TestUserServiceForgetCache(t *testing.T) {
 	cache := newFakeCache()
 	users := NewUserService(&fakeUserRepo{}, &recordedEvents{}, cache)
-	ctx := context.Background()
 
-	users.ForgetCache(ctx, domain.EstablishmentSettingsUpdated{EstablishmentID: "e1"})
-	users.ForgetCache(ctx, domain.UserUpdated{UserID: "u1"})
+	deliver(users.EventHandlers(), domain.UserUpdatedEvent{UserID: "u1"})
 
 	if !slices.Equal(cache.forgotten, []string{"user:u1:role", "user:u1"}) {
 		t.Errorf("forgotten = %v", cache.forgotten)

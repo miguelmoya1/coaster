@@ -110,7 +110,7 @@ func (memberRouteTokens) Issue(context.Context, string, domain.AuthTokenPurpose)
 
 type memberRouteEvents struct{}
 
-func (memberRouteEvents) Publish(context.Context, ports.Event) {}
+func (memberRouteEvents) Publish(context.Context, any) {}
 
 func newMemberRouteServer(caller domain.User, access memberRouteAccess, mailer memberRouteMailer) http.Handler {
 	members := service.NewEstablishmentMemberService(service.EstablishmentMemberDependencies{

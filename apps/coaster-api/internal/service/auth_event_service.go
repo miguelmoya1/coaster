@@ -16,12 +16,13 @@ func NewAuthEventService(events ports.AuthEventRepository) *AuthEventService {
 	return &AuthEventService{events: events}
 }
 
-func (s *AuthEventService) Record(ctx context.Context, event ports.Event) {
-	occurred, ok := event.(domain.AuthEventOccurred)
-	if !ok {
-		return
+func (s *AuthEventService) EventHandlers() []ports.EventHandler {
+	return []ports.EventHandler{
+		ports.On(s.record),
 	}
+}
 
+func (s *AuthEventService) record(ctx context.Context, occurred domain.AuthEvent) {
 	if err := s.events.Record(ctx, occurred); err != nil {
 		who := occurred.UserID
 		if who == "" {

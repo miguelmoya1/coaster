@@ -6,7 +6,6 @@ import (
 	"sync"
 
 	"coaster-api/internal/core/domain"
-	"coaster-api/internal/core/ports"
 )
 
 type fakeMemberRow struct {
@@ -127,10 +126,10 @@ func (f *fakeMemberRepository) EstablishmentName(_ context.Context, establishmen
 
 type memberEventRecorder struct {
 	mu     sync.Mutex
-	events []ports.Event
+	events []any
 }
 
-func (r *memberEventRecorder) Publish(_ context.Context, event ports.Event) {
+func (r *memberEventRecorder) Publish(_ context.Context, event any) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	r.events = append(r.events, event)

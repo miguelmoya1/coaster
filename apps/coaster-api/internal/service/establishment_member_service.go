@@ -9,12 +9,6 @@ import (
 	"coaster-api/internal/core/ports"
 )
 
-var EstablishmentMemberEvents = []string{
-	domain.MemberInvited{}.Name(),
-	domain.MemberRemoved{}.Name(),
-	domain.MemberRoleChanged{}.Name(),
-}
-
 type EstablishmentMemberService struct {
 	members  ports.EstablishmentMemberRepository
 	security *SecurityService
@@ -101,7 +95,7 @@ func (s *EstablishmentMemberService) Invite(ctx context.Context, establishmentID
 		return err
 	}
 
-	s.events.Publish(ctx, domain.MemberInvited{
+	s.events.Publish(ctx, domain.MemberInvitedEvent{
 		EstablishmentID:   establishmentID,
 		MemberID:          invited.ID,
 		Email:             invited.UserEmail,
@@ -181,7 +175,7 @@ func (s *EstablishmentMemberService) UpdateRole(ctx context.Context, establishme
 		return domain.NotFound(domain.CodeMemberNotFound)
 	}
 
-	s.events.Publish(ctx, domain.MemberRoleChanged{
+	s.events.Publish(ctx, domain.MemberRoleChangedEvent{
 		EstablishmentID: establishmentID,
 		MemberID:        memberID,
 		UserID:          member.UserID,
@@ -219,7 +213,7 @@ func (s *EstablishmentMemberService) Remove(ctx context.Context, establishmentID
 		return domain.BadRequest(domain.CodeMemberNotFound)
 	}
 
-	s.events.Publish(ctx, domain.MemberRemoved{EstablishmentID: establishmentID, MemberID: memberID, UserID: member.UserID})
+	s.events.Publish(ctx, domain.MemberRemovedEvent{EstablishmentID: establishmentID, MemberID: memberID, UserID: member.UserID})
 
 	return nil
 }
@@ -243,30 +237,35 @@ func ownersAmong(members []domain.EstablishmentMember) int {
 	return owners
 }
 
-func (s *EstablishmentMemberService) ForgetCache(ctx context.Context, event ports.Event) {
-	switch e := event.(type) {
-	case domain.MemberInvited:
-		s.cache.Forget(ctx, membershipCacheKey(e.EstablishmentID, e.UserID))
-	case domain.MemberRemoved:
-		s.cache.Forget(ctx, membershipCacheKey(e.EstablishmentID, e.UserID))
-	case domain.MemberRoleChanged:
-		s.cache.Forget(ctx, membershipCacheKey(e.EstablishmentID, e.UserID))
+func (s *EstablishmentMemberService) EventHandlers() []ports.EventHandler {
+	return []ports.EventHandler{
+		ports.On(func(ctx context.Context, event domain.MemberInvitedEvent) {
+			s.cache.Forget(ctx, membershipCacheKey(event.EstablishmentID, event.UserID))
+			s.realtime.Publish(event.EstablishmentID, domain.RealtimeMemberInvited, memberIDPayload{ID: event.MemberID})
+		}),
+		ports.On(s.sendInvitation),
+		ports.On(func(ctx context.Context, event domain.MemberRemovedEvent) {
+			s.cache.Forget(ctx, membershipCacheKey(event.EstablishmentID, event.UserID))
+			s.realtime.Publish(event.EstablishmentID, domain.RealtimeMemberRemoved, memberIDPayload{ID: event.MemberID})
+			s.realtime.Revoke(event.EstablishmentID, event.UserID)
+		}),
+		ports.On(func(ctx context.Context, event domain.MemberRoleChangedEvent) {
+			s.cache.Forget(ctx, membershipCacheKey(event.EstablishmentID, event.UserID))
+			s.realtime.Publish(event.EstablishmentID, domain.RealtimeMemberRoleChanged,
+				memberRoleChangedPayload{ID: event.MemberID, UserID: event.UserID, Role: event.To})
+		}),
+		ports.On(s.auditRoleChange),
 	}
 }
 
-func (s *EstablishmentMemberService) SendInvitation(ctx context.Context, event ports.Event) {
-	invited, ok := event.(domain.MemberInvited)
-	if !ok {
-		return
-	}
-
-	if err := s.sendInvitation(ctx, invited); err != nil {
+func (s *EstablishmentMemberService) sendInvitation(ctx context.Context, invited domain.MemberInvitedEvent) {
+	if err := s.mailInvitation(ctx, invited); err != nil {
 		slog.Error("the invitation never left",
 			"email", invited.Email, "establishment", invited.EstablishmentName, "error", err)
 	}
 }
 
-func (s *EstablishmentMemberService) sendInvitation(ctx context.Context, invited domain.MemberInvited) error {
+func (s *EstablishmentMemberService) mailInvitation(ctx context.Context, invited domain.MemberInvitedEvent) error {
 	token, err := s.tokens.Issue(ctx, invited.UserID, domain.AuthTokenInvite)
 	if err != nil {
 		return err
@@ -287,22 +286,8 @@ type memberRoleChangedPayload struct {
 	Role   domain.EstablishmentRole `json:"role"`
 }
 
-func (s *EstablishmentMemberService) PublishRealtime(_ context.Context, event ports.Event) {
-	switch e := event.(type) {
-	case domain.MemberInvited:
-		s.realtime.Publish(e.EstablishmentID, domain.RealtimeMemberInvited, memberIDPayload{ID: e.MemberID})
-	case domain.MemberRemoved:
-		s.realtime.Publish(e.EstablishmentID, domain.RealtimeMemberRemoved, memberIDPayload{ID: e.MemberID})
-		s.realtime.Revoke(e.EstablishmentID, e.UserID)
-	case domain.MemberRoleChanged:
-		s.realtime.Publish(e.EstablishmentID, domain.RealtimeMemberRoleChanged,
-			memberRoleChangedPayload{ID: e.MemberID, UserID: e.UserID, Role: e.To})
-	}
-}
-
-func (s *EstablishmentMemberService) AuditRoleChange(ctx context.Context, event ports.Event) {
-	changed, ok := event.(domain.MemberRoleChanged)
-	if !ok || changed.ActorRole != domain.RoleAdmin {
+func (s *EstablishmentMemberService) auditRoleChange(ctx context.Context, changed domain.MemberRoleChangedEvent) {
+	if changed.ActorRole != domain.RoleAdmin {
 		return
 	}
 
@@ -312,7 +297,7 @@ func (s *EstablishmentMemberService) AuditRoleChange(ctx context.Context, event 
 		return
 	}
 
-	s.events.Publish(ctx, domain.AdminAction{Entry: domain.AdminAuditEntry{
+	s.events.Publish(ctx, domain.AdminActionEvent{Entry: domain.AdminAuditEntry{
 		ActorID:     changed.ActorID,
 		Action:      domain.AuditEstablishmentMemberRoleChanged,
 		TargetType:  domain.AuditTargetEstablishment,

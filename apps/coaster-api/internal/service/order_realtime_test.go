@@ -1,8 +1,8 @@
 package service
 
 import (
-	"context"
 	"encoding/json"
+	"reflect"
 	"slices"
 	"testing"
 
@@ -17,7 +17,7 @@ func TestOrderRealtimeForward(t *testing.T) {
 
 	tests := []struct {
 		name  string
-		event ports.Event
+		event any
 		want  []string
 	}{
 		{"created at a table", domain.OrderCreatedEvent{EstablishmentID: "e1", Order: order, TableID: &newTable},
@@ -53,7 +53,7 @@ func TestOrderRealtimeForward(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			realtime := &orderRealtimeFake{}
-			NewOrderRealtime(realtime).Forward(context.Background(), tt.event)
+			deliver(NewOrderRealtime(realtime).EventHandlers(), tt.event)
 
 			var got []string
 			for _, message := range realtime.messages {
@@ -77,10 +77,13 @@ func TestOrderRealtimeForward(t *testing.T) {
 }
 
 func TestOrderRealtimeListensToWhatItForwards(t *testing.T) {
-	if slices.Contains(OrderRealtimeEvents, domain.OrderItemRemovedEvent{}.Name()) {
+	handlers := NewOrderRealtime(nil).EventHandlers()
+
+	itemRemoved := reflect.TypeFor[domain.OrderItemRemovedEvent]()
+	if slices.ContainsFunc(handlers, func(handler ports.EventHandler) bool { return handler.Event == itemRemoved }) {
 		t.Error("Nest sends nothing for OrderItemRemovedEvent")
 	}
-	if len(OrderRealtimeEvents) != 13 {
-		t.Errorf("listens to %d events, want the 10 of orders with realtime and the 3 of tables", len(OrderRealtimeEvents))
+	if len(handlers) != 13 {
+		t.Errorf("listens to %d events, want the 10 of orders with realtime and the 3 of tables", len(handlers))
 	}
 }

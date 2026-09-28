@@ -240,10 +240,17 @@ Lo que P0 deja hecho y cómo se usa desde P1 en adelante.
   `newValidator` y su texto en `defaultRuleMessage`.
 
 **Eventos**
-- `ports.Event` tiene `Name()`; `ports.EventPublisher` tiene `Publish(ctx, event)`.
-- `event.Bus` es la implementación en memoria: `Subscribe(nombre, handler)` y cada handler
-  corre en su goroutine con un contexto que no se cancela al acabar la petición. `main`
-  espera a que terminen al apagar (`bus.Wait()`).
+- Un evento es un struct de `domain/<entidad>_events.go` que acaba en `Event`
+  (`OrderCreatedEvent`), como la clase de Nest. Se publica con `ports.EventPublisher`
+  (`Publish(ctx, event)`) después de guardar.
+- Quien escucha implementa `ports.EventSubscriber`: `EventHandlers()` devuelve su tabla, una
+  entrada `ports.On(func(ctx, event domain.XEvent) {…})` por evento. El tipo del parámetro es la
+  suscripción: no hay nombres, listas ni `switch`. `main` pasa las tablas de todos los
+  suscriptores a `bus.Subscribe`.
+- `event.Bus` es la implementación en memoria: busca los manejadores por el tipo del evento y
+  cada uno corre en su goroutine con un contexto que no se cancela al acabar la petición.
+  `main` espera a que terminen al apagar (`bus.Wait()`). En los tests de `service`,
+  `deliver(handlers, event)` hace lo mismo sin goroutines.
 
 **Base de datos**
 - `repository.NewPool` en `client.go`. En los tests de `repository/`, `testPool` ya tiene
@@ -258,9 +265,9 @@ Lo que P0 deja hecho y cómo se usa desde P1 en adelante.
 
 **Eventos entre paquetes**
 - Cada evento de Nest (`<módulo>/events/impl/*.event.ts`) es un struct en
-  `domain/<entidad>_events.go` del paquete dueño de la entidad, con los mismos campos, y
-  `Name()` devuelve el nombre de la clase de Nest (`"OrderCreatedEvent"`). El servicio lo
-  publica con `ports.EventPublisher` después de guardar.
+  `domain/<entidad>_events.go` del paquete dueño de la entidad, con los mismos campos y el
+  nombre de la clase de Nest (`OrderCreatedEvent`). El servicio lo publica con
+  `ports.EventPublisher` después de guardar.
 - El dueño del evento escribe también sus suscriptores, aunque en Nest estén en otro módulo:
   los de `realtime/events/handlers/` (con `ports.Realtime`), los de caché y los de auditoría.
   Así nadie depende de un struct que otro paquete está escribiendo a la vez. Si el suscriptor
@@ -333,8 +340,8 @@ Cómo se protege una ruta y cómo lee el handler quién llama. Todo está en
 - Los emails van por `ports.Mailer`. Hoy `email.LogMailer` solo los escribe en el log (con el
   enlace fuera de producción) y, con `TEST_MAILBOX_URL`, `email.TestMailbox` los manda al arnés
   de los e2e. P2e añade el de Resend y lo elige en `main.go`.
-- Los eventos de auth (`domain.AuthEventOccurred`) se guardan en `AuthEvent` desde un
-  suscriptor del bus (`AuthEventService.Record`).
+- Los eventos de auth (`domain.AuthEvent`) se guardan en la tabla `AuthEvent` desde un
+  suscriptor del bus (`AuthEventService`).
 
 ## Convenciones de P2e
 
@@ -346,16 +353,14 @@ Cómo se protege una ruta y cómo lee el handler quién llama. Todo está en
 - `service.SubscriptionService` es todo `establishment-subscription`: los handlers de las
   rutas y del webhook reciben el mismo servicio. `HandleWebhook(ctx, cuerpo, firma)` verifica
   y enruta; el handler solo lee el cuerpo crudo.
-- Los eventos `SubscriptionActivated`, `SubscriptionCancelled`, `SubscriptionOverridden`,
-  `SubscriptionPaymentFailed`, `SubscriptionRenewed` y `DuplicateSubscriptionDetected` están
-  en `domain/subscription_events.go`. `domain.SubscriptionEventNames` son los que olvidan la
-  caché de la suscripción y avisan por realtime (`subscriptionUpdated`). Quien conceda o
-  revoque un plan a mano (admin, P2b) publica `domain.SubscriptionOverridden` después de
-  guardar, y con eso basta.
-- Los asientos: al cambiar los miembros de un local hay que llamar a
-  `SubscriptionService.SyncSeatsOnMemberChange(ctx, establishmentID)` desde un suscriptor de
-  los eventos de miembro invitado y eliminado (en Nest, `MemberInvitedEvent` y
-  `MemberRemovedEvent`). Traga y registra el error, como en Nest.
+- Los eventos `SubscriptionActivatedEvent`, `SubscriptionCancelledEvent`,
+  `SubscriptionOverriddenEvent`, `SubscriptionPaymentFailedEvent`, `SubscriptionRenewedEvent` y
+  `DuplicateSubscriptionDetectedEvent` están en `domain/subscription_events.go`. Los cinco
+  primeros olvidan la caché de la suscripción y después avisan por realtime
+  (`subscriptionUpdated`). Quien conceda o revoque un plan a mano (admin, P2b) publica
+  `domain.SubscriptionOverriddenEvent` después de guardar, y con eso basta.
+- Los asientos: `SubscriptionService` escucha `MemberInvitedEvent` y `MemberRemovedEvent` y
+  sincroniza los asientos de Stripe. Traga y registra el error, como en Nest.
 - `email.ResendMailer` se usa cuando hay `RESEND_API_KEY`; `TEST_MAILBOX_URL` sigue ganando.
   Los textos están en `adapter/email/templates.go` y el marco en `templates/layout.html`.
 
@@ -473,9 +478,8 @@ Cómo se manda algo por tiempo real desde otro paquete.
   para un DTO con `@Transform(trim + toLowerCase)` antes de `@IsIn`.
 - `domain.Languages`, `domain.IsLanguage` y `domain.AsLanguage` (`domain/language.go`) son
   `LANGUAGES`, `isLanguage` y `asLanguage` de `@coaster/common`.
-- Suscriptores de realtime: `service.CatalogRealtime.Forward` recibe los eventos del paquete con
-  un `switch` de tipos y llama a `ports.Realtime`; `main` lo suscribe a cada nombre de
-  `service.CatalogRealtimeEvents`.
+- Suscriptores de realtime: la tabla de `service.CatalogRealtime` tiene una entrada por evento
+  del paquete, que llama a `ports.Realtime`.
 - Prisma pone `@default(uuid())` y `@updatedAt` desde el cliente, no en la base de datos: Go
   genera el `id` con `uuid.NewV4()` y cada `UPDATE` de una tabla con `@updatedAt` escribe
   `"updatedAt" = now()` (la carta usa el `updatedAt` del producto para saber si hay cambios sin publicar).
@@ -487,14 +491,14 @@ Cómo se manda algo por tiempo real desde otro paquete.
 ## Convenciones de la ola 3b
 
 **Lo que ya está hecho para que los subpaquetes no escriban lo mismo a la vez**
-- `domain/user_events.go`: `UserUpdated` (`UserUpdatedEvent`). Lo publican users (P2b-1) y
+- `domain/user_events.go`: `UserUpdatedEvent`. Lo publican users (P2b-1) y
   admin (P2b-3); el suscriptor que olvida `userCacheKey` y `userRoleCacheKey` lo escribe P2b-1.
 - `domain/admin_audit.go`: las acciones y tipos de destino de `AdminAuditLog`,
-  `AdminAuditEntry` (`RecordAuditEntry`) y el evento `AdminAction` (`AdminActionEvent`). Quien
-  hace algo que se audita publica `AdminAction` después de guardar: admin (P2b-3) y el cambio de
+  `AdminAuditEntry` (`RecordAuditEntry`) y el evento `AdminActionEvent`. Quien
+  hace algo que se audita publica `AdminActionEvent` después de guardar: admin (P2b-3) y el cambio de
   rol de un miembro hecho por un admin de la plataforma (P2b-2, el `audit-member-role-changed`
   de Nest). El suscriptor que escribe la fila (`RecordAdminActionHandler`) es de P2b-3. Los
-  fichajes que toca un admin también publican `AdminAction` (`TimeEntryService.Audit`).
+  fichajes que toca un admin también publican `AdminActionEvent` (`TimeEntryService`).
 - `domain/order.go` y `domain/table.go`: `OrderStatus`, `PaymentStatus`, `DeliveryStatus`,
   `PaymentMethod`, `AdjustmentTarget`, `AdjustmentType` y `TableStatus`. Los structs del JSON
   (`Order`, `OrderItem`, `Table`…) los escribe P2d-1, que es dueño del mapper.
@@ -503,9 +507,9 @@ Cómo se manda algo por tiempo real desde otro paquete.
   cierres de caja, estadísticas e IA; nadie lo vuelve a escribir.
 
 **Quién cablea qué**
-- P2b-2 suscribe `SubscriptionService.SyncSeatsOnMemberChange` a sus eventos de miembro
-  invitado y eliminado en `main.go` (ver «Convenciones de P2e»).
-- P2b-3 publica `domain.SubscriptionOverridden` al conceder o revocar un plan, y con eso basta.
+- `SubscriptionService` escucha los eventos de miembro invitado y eliminado (ver «Convenciones
+  de P2e»).
+- P2b-3 publica `domain.SubscriptionOverriddenEvent` al conceder o revocar un plan, y con eso basta.
 - P2d-1 resta y devuelve stock con `ProductService.AdjustStock` desde suscriptores de sus
   eventos, como `orders.sagas.ts`.
 - Cada subpaquete escribe su propio SQL, aunque toque tablas de otro (admin lee pedidos y
@@ -578,9 +582,8 @@ como el `void` de Nest: para leer cómo queda un pedido, `Get`.
   ajuste) o vacías no tocan el `updatedAt` del pedido. Go hace lo mismo.
 
 **Eventos**
-- Están en `domain/order_events.go` y `domain/table_events.go`, con `Name()` igual a la clase de
-  Nest. `OrderStock.Adjust` (suscrito a `service.OrderStockEvents`) mueve el stock y
-  `OrderRealtime.Forward` (a `service.OrderRealtimeEvents`) manda el realtime. Quien tenga que
+- Están en `domain/order_events.go` y `domain/table_events.go`, con el nombre de la clase de
+  Nest. `OrderStock` mueve el stock y `OrderRealtime` manda el realtime. Quien tenga que
   reaccionar a un pedido cobrado se suscribe a `OrderClosedEvent`, que lleva el pedido ya cerrado.
 
 **Validación**

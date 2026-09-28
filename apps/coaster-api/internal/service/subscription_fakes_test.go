@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"coaster-api/internal/core/domain"
-	"coaster-api/internal/core/ports"
 )
 
 type fakeSubscriptions struct {
@@ -167,10 +166,10 @@ func (f *fakePayments) ParseWebhook([]byte, string) (*domain.StripeEvent, error)
 
 type recordedEvents struct {
 	mu     sync.Mutex
-	events []ports.Event
+	events []any
 }
 
-func (r *recordedEvents) Publish(_ context.Context, event ports.Event) {
+func (r *recordedEvents) Publish(_ context.Context, event any) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	r.events = append(r.events, event)
@@ -179,7 +178,7 @@ func (r *recordedEvents) Publish(_ context.Context, event ports.Event) {
 func (r *recordedEvents) names() []string {
 	var names []string
 	for _, event := range r.events {
-		names = append(names, event.Name())
+		names = append(names, eventName(event))
 	}
 	return names
 }

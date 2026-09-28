@@ -8,15 +8,14 @@ import (
 	"time"
 
 	"coaster-api/internal/core/domain"
-	"coaster-api/internal/core/ports"
 )
 
 type shiftEventRecorder struct {
 	mu     sync.Mutex
-	events []ports.Event
+	events []any
 }
 
-func (r *shiftEventRecorder) Publish(_ context.Context, event ports.Event) {
+func (r *shiftEventRecorder) Publish(_ context.Context, event any) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	r.events = append(r.events, event)

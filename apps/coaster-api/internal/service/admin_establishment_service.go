@@ -133,7 +133,7 @@ func (s *AdminEstablishmentService) Rename(ctx context.Context, actorID, establi
 		return err
 	}
 
-	s.events.Publish(ctx, domain.AdminAction{Entry: domain.AdminAuditEntry{
+	s.events.Publish(ctx, domain.AdminActionEvent{Entry: domain.AdminAuditEntry{
 		ActorID:     actorID,
 		Action:      domain.AuditEstablishmentRenamed,
 		TargetType:  domain.AuditTargetEstablishment,
@@ -168,7 +168,7 @@ func (s *AdminEstablishmentService) UpdateModules(ctx context.Context, actorID, 
 		from = before.Modules
 	}
 
-	s.events.Publish(ctx, domain.AdminAction{Entry: domain.AdminAuditEntry{
+	s.events.Publish(ctx, domain.AdminActionEvent{Entry: domain.AdminAuditEntry{
 		ActorID:     actorID,
 		Action:      domain.AuditEstablishmentModulesChanged,
 		TargetType:  domain.AuditTargetEstablishment,
@@ -206,7 +206,7 @@ func (s *AdminEstablishmentService) GrantPlan(ctx context.Context, actorID, esta
 		return err
 	}
 
-	s.events.Publish(ctx, domain.AdminAction{Entry: domain.AdminAuditEntry{
+	s.events.Publish(ctx, domain.AdminActionEvent{Entry: domain.AdminAuditEntry{
 		ActorID:     actorID,
 		Action:      domain.AuditEstablishmentPlanGranted,
 		TargetType:  domain.AuditTargetEstablishment,
@@ -215,7 +215,7 @@ func (s *AdminEstablishmentService) GrantPlan(ctx context.Context, actorID, esta
 		Reason:      reason,
 		Metadata:    adminPlanGrant{Plan: input.Plan, DurationDays: input.DurationDays, ExpiresAt: expiresAtText},
 	}})
-	s.events.Publish(ctx, domain.SubscriptionOverridden{EstablishmentID: establishmentID})
+	s.events.Publish(ctx, domain.SubscriptionOverriddenEvent{EstablishmentID: establishmentID})
 	return nil
 }
 
@@ -240,7 +240,7 @@ func (s *AdminEstablishmentService) RevokePlan(ctx context.Context, actorID, est
 		return err
 	}
 
-	s.events.Publish(ctx, domain.AdminAction{Entry: domain.AdminAuditEntry{
+	s.events.Publish(ctx, domain.AdminActionEvent{Entry: domain.AdminAuditEntry{
 		ActorID:     actorID,
 		Action:      domain.AuditEstablishmentPlanRevoked,
 		TargetType:  domain.AuditTargetEstablishment,
@@ -249,7 +249,7 @@ func (s *AdminEstablishmentService) RevokePlan(ctx context.Context, actorID, est
 		Reason:      trimmedOrNil(reason),
 		Metadata:    revoked,
 	}})
-	s.events.Publish(ctx, domain.SubscriptionOverridden{EstablishmentID: establishmentID})
+	s.events.Publish(ctx, domain.SubscriptionOverriddenEvent{EstablishmentID: establishmentID})
 	return nil
 }
 

@@ -72,13 +72,17 @@ func (s *EstablishmentService) UpdateSettings(ctx context.Context, establishment
 		return domain.EstablishmentSettings{}, err
 	}
 
-	s.events.Publish(ctx, domain.EstablishmentSettingsUpdated{EstablishmentID: establishmentID})
+	s.events.Publish(ctx, domain.EstablishmentSettingsUpdatedEvent{EstablishmentID: establishmentID})
 
 	return saved.Resolved(), nil
 }
 
-func (s *EstablishmentService) ForgetModulesCache(ctx context.Context, event ports.Event) {
-	if updated, ok := event.(domain.EstablishmentSettingsUpdated); ok {
-		s.cache.Forget(ctx, modulesCacheKey(updated.EstablishmentID))
+func (s *EstablishmentService) EventHandlers() []ports.EventHandler {
+	return []ports.EventHandler{
+		ports.On(s.forgetModulesCache),
 	}
+}
+
+func (s *EstablishmentService) forgetModulesCache(ctx context.Context, event domain.EstablishmentSettingsUpdatedEvent) {
+	s.cache.Forget(ctx, modulesCacheKey(event.EstablishmentID))
 }

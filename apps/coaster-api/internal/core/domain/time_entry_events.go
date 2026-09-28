@@ -1,6 +1,6 @@
 package domain
 
-type TimeEntryRecorded struct {
+type TimeEntryRecordedEvent struct {
 	EstablishmentID string
 	Entry           TimeEntry
 	ActorID         string
@@ -8,9 +8,7 @@ type TimeEntryRecorded struct {
 	Reason          *string
 }
 
-func (TimeEntryRecorded) Name() string { return "TimeEntryRecordedEvent" }
-
-type TimeEntryAmended struct {
+type TimeEntryAmendedEvent struct {
 	EstablishmentID    string
 	Entry              TimeEntry
 	PreviousOccurredAt string
@@ -19,17 +17,13 @@ type TimeEntryAmended struct {
 	Reason             string
 }
 
-func (TimeEntryAmended) Name() string { return "TimeEntryAmendedEvent" }
-
-type TimeEntryVoided struct {
+type TimeEntryVoidedEvent struct {
 	EstablishmentID string
 	Entry           TimeEntry
 	ActorID         string
 	ActorRole       Role
 	Reason          string
 }
-
-func (TimeEntryVoided) Name() string { return "TimeEntryVoidedEvent" }
 
 const (
 	AuditTimeEntryCreated = "TIME_ENTRY_CREATED"

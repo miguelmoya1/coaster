@@ -8,9 +8,9 @@ import (
 	"coaster-api/internal/core/ports"
 )
 
-type testEvent struct{ name string }
+type orderCreated struct{ id string }
 
-func (e testEvent) Name() string { return e.name }
+type orderDeleted struct{}
 
 var _ ports.EventPublisher = (*Bus)(nil)
 
@@ -18,18 +18,21 @@ func TestPublishRunsEverySubscriberOfTheEvent(t *testing.T) {
 	bus := NewBus()
 
 	var created, deleted atomic.Int32
-	bus.Subscribe("order.created", func(ctx context.Context, event ports.Event) { created.Add(1) })
-	bus.Subscribe("order.created", func(ctx context.Context, event ports.Event) { created.Add(1) })
-	bus.Subscribe("order.deleted", func(ctx context.Context, event ports.Event) { deleted.Add(1) })
+	var id atomic.Value
+	bus.Subscribe(
+		ports.On(func(ctx context.Context, event orderCreated) { created.Add(1) }),
+		ports.On(func(ctx context.Context, event orderCreated) { id.Store(event.id) }),
+		ports.On(func(ctx context.Context, event orderDeleted) { deleted.Add(1) }),
+	)
 
-	bus.Publish(context.Background(), testEvent{name: "order.created"})
+	bus.Publish(context.Background(), orderCreated{id: "o1"})
 	bus.Wait()
 
-	if created.Load() != 2 {
-		t.Errorf("order.created handlers ran %d times, want 2", created.Load())
+	if created.Load() != 1 || id.Load() != "o1" {
+		t.Errorf("orderCreated handlers saw %d events and id %v, want 1 and o1", created.Load(), id.Load())
 	}
 	if deleted.Load() != 0 {
-		t.Errorf("order.deleted handlers ran %d times, want 0", deleted.Load())
+		t.Errorf("orderDeleted handlers ran %d times, want 0", deleted.Load())
 	}
 }
 
@@ -37,14 +40,14 @@ func TestPublishDoesNotPassACancelledContext(t *testing.T) {
 	bus := NewBus()
 
 	var cancelled atomic.Bool
-	bus.Subscribe("order.created", func(ctx context.Context, event ports.Event) {
+	bus.Subscribe(ports.On(func(ctx context.Context, event orderCreated) {
 		cancelled.Store(ctx.Err() != nil)
-	})
+	}))
 
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
 
-	bus.Publish(ctx, testEvent{name: "order.created"})
+	bus.Publish(ctx, orderCreated{})
 	bus.Wait()
 
 	if cancelled.Load() {
@@ -56,10 +59,12 @@ func TestAPanickingHandlerDoesNotStopTheOthers(t *testing.T) {
 	bus := NewBus()
 
 	var ran atomic.Bool
-	bus.Subscribe("order.created", func(ctx context.Context, event ports.Event) { panic("boom") })
-	bus.Subscribe("order.created", func(ctx context.Context, event ports.Event) { ran.Store(true) })
+	bus.Subscribe(
+		ports.On(func(ctx context.Context, event orderCreated) { panic("boom") }),
+		ports.On(func(ctx context.Context, event orderCreated) { ran.Store(true) }),
+	)
 
-	bus.Publish(context.Background(), testEvent{name: "order.created"})
+	bus.Publish(context.Background(), orderCreated{})
 	bus.Wait()
 
 	if !ran.Load() {

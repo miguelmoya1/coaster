@@ -1,11 +1,26 @@
 package ports
 
-import "context"
-
-type Event interface {
-	Name() string
-}
+import (
+	"context"
+	"reflect"
+)
 
 type EventPublisher interface {
-	Publish(ctx context.Context, event Event)
+	Publish(ctx context.Context, event any)
+}
+
+type EventSubscriber interface {
+	EventHandlers() []EventHandler
+}
+
+type EventHandler struct {
+	Event  reflect.Type
+	Handle func(ctx context.Context, event any)
+}
+
+func On[E any](handle func(ctx context.Context, event E)) EventHandler {
+	return EventHandler{
+		Event:  reflect.TypeFor[E](),
+		Handle: func(ctx context.Context, event any) { handle(ctx, event.(E)) },
+	}
 }

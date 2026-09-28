@@ -138,9 +138,7 @@ type AuthIdentity struct {
 	CreatedAt time.Time
 }
 
-const AuthEventName = "auth.event"
-
-type AuthEventOccurred struct {
+type AuthEvent struct {
 	Type      AuthEventType
 	UserID    string
 	Email     string
@@ -148,8 +146,6 @@ type AuthEventOccurred struct {
 	Origin    SessionOrigin
 	Metadata  map[string]any
 }
-
-func (AuthEventOccurred) Name() string { return AuthEventName }
 
 type AuthEventRecord struct {
 	ID        string         `json:"id"`

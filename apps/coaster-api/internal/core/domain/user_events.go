@@ -1,7 +1,5 @@
 package domain
 
-type UserUpdated struct {
+type UserUpdatedEvent struct {
 	UserID string
 }
-
-func (UserUpdated) Name() string { return "UserUpdatedEvent" }

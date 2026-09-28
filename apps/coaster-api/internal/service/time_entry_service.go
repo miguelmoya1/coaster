@@ -57,7 +57,7 @@ func (s *TimeEntryService) Clock(ctx context.Context, establishmentID string, ac
 	}
 
 	entry := domain.ToTimeEntry([]domain.TimeEntryRow{*created})
-	s.events.Publish(ctx, domain.TimeEntryRecorded{
+	s.events.Publish(ctx, domain.TimeEntryRecordedEvent{
 		EstablishmentID: establishmentID,
 		Entry:           entry,
 		ActorID:         actor.ID,
@@ -110,7 +110,7 @@ func (s *TimeEntryService) CreateManual(ctx context.Context, establishmentID str
 	}
 
 	entry := domain.ToTimeEntry([]domain.TimeEntryRow{*created})
-	s.events.Publish(ctx, domain.TimeEntryRecorded{
+	s.events.Publish(ctx, domain.TimeEntryRecordedEvent{
 		EstablishmentID: establishmentID,
 		Entry:           entry,
 		ActorID:         actor.ID,
@@ -195,7 +195,7 @@ func (s *TimeEntryService) Amend(ctx context.Context, establishmentID, entryID s
 		return domain.TimeEntry{}, err
 	}
 
-	s.events.Publish(ctx, domain.TimeEntryAmended{
+	s.events.Publish(ctx, domain.TimeEntryAmendedEvent{
 		EstablishmentID:    establishmentID,
 		Entry:              entry,
 		PreviousOccurredAt: domain.FormatISO(current.OccurredAt),
@@ -233,7 +233,7 @@ func (s *TimeEntryService) Void(ctx context.Context, establishmentID, entryID st
 		return domain.TimeEntry{}, err
 	}
 
-	s.events.Publish(ctx, domain.TimeEntryVoided{
+	s.events.Publish(ctx, domain.TimeEntryVoidedEvent{
 		EstablishmentID: establishmentID,
 		Entry:           entry,
 		ActorID:         actor.ID,
@@ -466,49 +466,61 @@ func (s *TimeEntryService) Integrity(ctx context.Context, establishmentID string
 	}, nil
 }
 
-func (s *TimeEntryService) Audit(ctx context.Context, event ports.Event) {
-	var audit domain.AdminAuditEntry
-	var entry domain.TimeEntry
-	var role domain.Role
-	var establishmentID string
-	var previousOccurredAt *string
+type timeEntryChange struct {
+	establishmentID    string
+	entry              domain.TimeEntry
+	actorID            string
+	actorRole          domain.Role
+	action             string
+	reason             *string
+	previousOccurredAt *string
+}
 
-	switch e := event.(type) {
-	case domain.TimeEntryRecorded:
-		if e.Entry.Source != domain.TimeEntryManual {
-			return
-		}
-		audit = domain.AdminAuditEntry{ActorID: e.ActorID, Action: domain.AuditTimeEntryCreated, Reason: e.Reason}
-		entry, role, establishmentID = e.Entry, e.ActorRole, e.EstablishmentID
-	case domain.TimeEntryAmended:
-		reason := e.Reason
-		previous := e.PreviousOccurredAt
-		audit = domain.AdminAuditEntry{ActorID: e.ActorID, Action: domain.AuditTimeEntryAmended, Reason: &reason}
-		entry, role, establishmentID = e.Entry, e.ActorRole, e.EstablishmentID
-		previousOccurredAt = &previous
-	case domain.TimeEntryVoided:
-		reason := e.Reason
-		audit = domain.AdminAuditEntry{ActorID: e.ActorID, Action: domain.AuditTimeEntryVoided, Reason: &reason}
-		entry, role, establishmentID = e.Entry, e.ActorRole, e.EstablishmentID
-	default:
+func (s *TimeEntryService) EventHandlers() []ports.EventHandler {
+	return []ports.EventHandler{
+		ports.On(func(ctx context.Context, event domain.TimeEntryRecordedEvent) {
+			if event.Entry.Source != domain.TimeEntryManual {
+				return
+			}
+			s.audit(ctx, timeEntryChange{
+				establishmentID: event.EstablishmentID, entry: event.Entry, actorID: event.ActorID, actorRole: event.ActorRole,
+				action: domain.AuditTimeEntryCreated, reason: event.Reason,
+			})
+		}),
+		ports.On(func(ctx context.Context, event domain.TimeEntryAmendedEvent) {
+			s.audit(ctx, timeEntryChange{
+				establishmentID: event.EstablishmentID, entry: event.Entry, actorID: event.ActorID, actorRole: event.ActorRole,
+				action: domain.AuditTimeEntryAmended, reason: &event.Reason, previousOccurredAt: &event.PreviousOccurredAt,
+			})
+		}),
+		ports.On(func(ctx context.Context, event domain.TimeEntryVoidedEvent) {
+			s.audit(ctx, timeEntryChange{
+				establishmentID: event.EstablishmentID, entry: event.Entry, actorID: event.ActorID, actorRole: event.ActorRole,
+				action: domain.AuditTimeEntryVoided, reason: &event.Reason,
+			})
+		}),
+	}
+}
+
+func (s *TimeEntryService) audit(ctx context.Context, change timeEntryChange) {
+	if change.actorRole != domain.RoleAdmin {
 		return
 	}
 
-	if role != domain.RoleAdmin {
-		return
-	}
-
-	label := entry.UserName + " · " + entry.WorkdayDate
-	audit.TargetType = domain.AuditTargetTimeEntry
-	audit.TargetID = entry.RootID
-	audit.TargetLabel = &label
-	audit.Metadata = domain.TimeEntryAuditMetadata{
-		EstablishmentID:    establishmentID,
-		UserID:             entry.UserID,
-		Type:               entry.Type,
-		OccurredAt:         entry.OccurredAt,
-		PreviousOccurredAt: previousOccurredAt,
-	}
-
-	s.events.Publish(ctx, domain.AdminAction{Entry: audit})
+	label := change.entry.UserName + " · " + change.entry.WorkdayDate
+	s.events.Publish(ctx, domain.AdminActionEvent{Entry: domain.AdminAuditEntry{
+		ActorID:     change.actorID,
+		Action:      change.action,
+		TargetType:  domain.AuditTargetTimeEntry,
+		TargetID:    change.entry.RootID,
+		TargetLabel: &label,
+		Reason:      change.reason,
+		Metadata: domain.TimeEntryAuditMetadata{
+			EstablishmentID:    change.establishmentID,
+			UserID:             change.entry.UserID,
+			Type:               change.entry.Type,
+			OccurredAt:         change.entry.OccurredAt,
+			PreviousOccurredAt: change.previousOccurredAt,
+		},
+	}})
 }

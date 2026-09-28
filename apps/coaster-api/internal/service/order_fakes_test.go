@@ -9,15 +9,14 @@ import (
 	"time"
 
 	"coaster-api/internal/core/domain"
-	"coaster-api/internal/core/ports"
 )
 
 type orderEventRecorder struct {
 	mu     sync.Mutex
-	events []ports.Event
+	events []any
 }
 
-func (r *orderEventRecorder) Publish(_ context.Context, event ports.Event) {
+func (r *orderEventRecorder) Publish(_ context.Context, event any) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	r.events = append(r.events, event)
@@ -26,7 +25,7 @@ func (r *orderEventRecorder) Publish(_ context.Context, event ports.Event) {
 func (r *orderEventRecorder) names() []string {
 	names := make([]string, 0, len(r.events))
 	for _, event := range r.events {
-		names = append(names, event.Name())
+		names = append(names, eventName(event))
 	}
 	return names
 }

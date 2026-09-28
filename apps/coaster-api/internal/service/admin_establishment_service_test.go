@@ -208,7 +208,7 @@ func TestAdminEstablishmentServiceGrantPlan(t *testing.T) {
 	if names := f.events.names(); !slices.Equal(names, []string{"AdminActionEvent", "SubscriptionOverriddenEvent"}) {
 		t.Fatalf("events = %v", names)
 	}
-	if overridden := f.events.events[1].(domain.SubscriptionOverridden); overridden.EstablishmentID != "e1" {
+	if overridden := f.events.events[1].(domain.SubscriptionOverriddenEvent); overridden.EstablishmentID != "e1" {
 		t.Errorf("overridden = %+v", overridden)
 	}
 	entry := adminActionsIn(f.events.events)[0]

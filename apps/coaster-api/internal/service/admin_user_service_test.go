@@ -80,8 +80,8 @@ func TestAdminUserServiceUpdate(t *testing.T) {
 			if len(users.updated) != 1 {
 				t.Fatalf("updates = %+v", users.updated)
 			}
-			if updated, ok := events.events[0].(domain.UserUpdated); !ok || updated.UserID != tt.userID {
-				t.Errorf("first event = %+v, want UserUpdated", events.events[0])
+			if updated, ok := events.events[0].(domain.UserUpdatedEvent); !ok || updated.UserID != tt.userID {
+				t.Errorf("first event = %+v, want UserUpdatedEvent", events.events[0])
 			}
 
 			var actions []string

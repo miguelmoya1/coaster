@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"reflect"
 	"slices"
 	"sync"
 	"time"
@@ -14,6 +15,18 @@ import (
 )
 
 var errDatabaseDown = errors.New("database down")
+
+func deliver(handlers []ports.EventHandler, event any) {
+	for _, handler := range handlers {
+		if handler.Event == reflect.TypeOf(event) {
+			handler.Handle(context.Background(), event)
+		}
+	}
+}
+
+func eventName(event any) string {
+	return reflect.TypeOf(event).Name()
+}
 
 type fakeCache struct {
 	values    map[string][]byte
@@ -46,20 +59,20 @@ func (c *fakeCache) Forget(_ context.Context, keys ...string) {
 
 type fakePublisher struct {
 	mu     sync.Mutex
-	events []domain.AuthEventOccurred
+	events []domain.AuthEvent
 }
 
-func (p *fakePublisher) Publish(_ context.Context, event ports.Event) {
+func (p *fakePublisher) Publish(_ context.Context, event any) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
-	if occurred, ok := event.(domain.AuthEventOccurred); ok {
+	if occurred, ok := event.(domain.AuthEvent); ok {
 		p.events = append(p.events, occurred)
 	}
 }
 
-func (p *fakePublisher) ofType(eventType domain.AuthEventType) []domain.AuthEventOccurred {
-	var found []domain.AuthEventOccurred
+func (p *fakePublisher) ofType(eventType domain.AuthEventType) []domain.AuthEvent {
+	var found []domain.AuthEvent
 	for _, event := range p.events {
 		if event.Type == eventType {
 			found = append(found, event)
@@ -453,11 +466,11 @@ func (a *fakeAttempts) Forget(_ context.Context, email string) {
 }
 
 type fakeAuthEvents struct {
-	recorded []domain.AuthEventOccurred
+	recorded []domain.AuthEvent
 	fail     bool
 }
 
-func (f *fakeAuthEvents) Record(_ context.Context, event domain.AuthEventOccurred) error {
+func (f *fakeAuthEvents) Record(_ context.Context, event domain.AuthEvent) error {
 	if f.fail {
 		return errDatabaseDown
 	}

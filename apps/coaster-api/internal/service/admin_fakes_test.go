@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"coaster-api/internal/core/domain"
-	"coaster-api/internal/core/ports"
 )
 
 type adminAuditFake struct {
@@ -235,10 +234,10 @@ func (f *adminMetricsFake) Collect(_ context.Context, now, last7Days, last30Days
 	return domain.AdminPlatformMetrics{Users: domain.AdminUserMetrics{Total: 3}}, nil
 }
 
-func adminActionsIn(events []ports.Event) []domain.AdminAuditEntry {
+func adminActionsIn(events []any) []domain.AdminAuditEntry {
 	var entries []domain.AdminAuditEntry
 	for _, event := range events {
-		if action, ok := event.(domain.AdminAction); ok {
+		if action, ok := event.(domain.AdminActionEvent); ok {
 			entries = append(entries, action.Entry)
 		}
 	}

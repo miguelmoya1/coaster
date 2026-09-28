@@ -126,7 +126,7 @@ func (s *AccountService) SetPassword(ctx context.Context, input domain.SetPasswo
 	}
 	s.cache.Forget(ctx, userCacheKey(input.UserID))
 
-	s.events.Publish(ctx, domain.AuthEventOccurred{
+	s.events.Publish(ctx, domain.AuthEvent{
 		Type:      domain.AuthEventPasswordChanged,
 		UserID:    current.ID,
 		Email:     current.Email,
@@ -285,7 +285,7 @@ func (s *AccountService) UnlinkIdentity(ctx context.Context, userID string, prov
 		return err
 	}
 
-	s.events.Publish(ctx, domain.AuthEventOccurred{
+	s.events.Publish(ctx, domain.AuthEvent{
 		Type:     domain.AuthEventIdentityUnlinked,
 		UserID:   user.ID,
 		Email:    user.Email,

@@ -1,11 +1,9 @@
 package service
 
 import (
-	"context"
 	"testing"
 
 	"coaster-api/internal/core/domain"
-	"coaster-api/internal/core/ports"
 )
 
 func TestOrderStockAdjust(t *testing.T) {
@@ -21,7 +19,7 @@ func TestOrderStockAdjust(t *testing.T) {
 
 	tests := []struct {
 		name       string
-		event      ports.Event
+		event      any
 		beer, coke int
 	}{
 		{"an order sells its lines", domain.OrderCreatedEvent{EstablishmentID: "est-1", Order: order}, 8, 9},
@@ -37,7 +35,7 @@ func TestOrderStockAdjust(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			stock, products, _ := newStock()
-			stock.Adjust(context.Background(), tt.event)
+			deliver(stock.EventHandlers(), tt.event)
 
 			if beer, coke := products.products["beer"].CurrentStock, products.products["coke"].CurrentStock; beer != tt.beer || coke != tt.coke {
 				t.Errorf("stock = %d beer, %d coke; want %d and %d", beer, coke, tt.beer, tt.coke)
@@ -52,14 +50,14 @@ func TestOrderStockGoesOnWhenAProductIsGone(t *testing.T) {
 	events := &catalogEvents{}
 	stock := NewOrderStock(NewProductService(products, events))
 
-	stock.Adjust(context.Background(), domain.OrderCancelledEvent{EstablishmentID: "est-1", Order: domain.Order{
+	deliver(stock.EventHandlers(), domain.OrderCancelledEvent{EstablishmentID: "est-1", Order: domain.Order{
 		Items: []domain.OrderItem{{ProductID: "deleted", Quantity: 1}, {ProductID: "coke", Quantity: 2}},
 	}})
 
 	if products.products["coke"].CurrentStock != 12 {
 		t.Errorf("coke stock = %d, want 12", products.products["coke"].CurrentStock)
 	}
-	if len(events.events) != 1 || events.events[0].Name() != "ProductStockChangedEvent" {
+	if len(events.events) != 1 || eventName(events.events[0]) != "ProductStockChangedEvent" {
 		t.Errorf("events = %v", events.events)
 	}
 }

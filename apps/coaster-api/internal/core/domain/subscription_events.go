@@ -2,63 +2,34 @@ package domain
 
 import "time"
 
-const (
-	SubscriptionActivatedEventName         = "SubscriptionActivatedEvent"
-	SubscriptionCancelledEventName         = "SubscriptionCancelledEvent"
-	SubscriptionOverriddenEventName        = "SubscriptionOverriddenEvent"
-	SubscriptionPaymentFailedEventName     = "SubscriptionPaymentFailedEvent"
-	SubscriptionRenewedEventName           = "SubscriptionRenewedEvent"
-	DuplicateSubscriptionDetectedEventName = "DuplicateSubscriptionDetectedEvent"
-)
-
-var SubscriptionEventNames = []string{
-	SubscriptionActivatedEventName,
-	SubscriptionCancelledEventName,
-	SubscriptionOverriddenEventName,
-	SubscriptionPaymentFailedEventName,
-	SubscriptionRenewedEventName,
-}
-
-type SubscriptionActivated struct {
+type SubscriptionActivatedEvent struct {
 	EstablishmentID      string
 	StripeSubscriptionID string
 }
 
-func (SubscriptionActivated) Name() string { return SubscriptionActivatedEventName }
-
-type SubscriptionCancelled struct {
+type SubscriptionCancelledEvent struct {
 	EstablishmentID      string
 	StripeSubscriptionID string
 	CanceledAt           *time.Time
 }
 
-func (SubscriptionCancelled) Name() string { return SubscriptionCancelledEventName }
-
-type SubscriptionOverridden struct {
+type SubscriptionOverriddenEvent struct {
 	EstablishmentID string
 }
 
-func (SubscriptionOverridden) Name() string { return SubscriptionOverriddenEventName }
-
-type SubscriptionPaymentFailed struct {
+type SubscriptionPaymentFailedEvent struct {
 	EstablishmentID  string
 	StripeCustomerID string
 }
 
-func (SubscriptionPaymentFailed) Name() string { return SubscriptionPaymentFailedEventName }
-
-type SubscriptionRenewed struct {
+type SubscriptionRenewedEvent struct {
 	EstablishmentID      string
 	StripeSubscriptionID string
 	CurrentPeriodEnd     *time.Time
 }
 
-func (SubscriptionRenewed) Name() string { return SubscriptionRenewedEventName }
-
-type DuplicateSubscriptionDetected struct {
+type DuplicateSubscriptionDetectedEvent struct {
 	EstablishmentID         string
 	KeptSubscriptionID      string
 	CancelledSubscriptionID string
 }
-
-func (DuplicateSubscriptionDetected) Name() string { return DuplicateSubscriptionDetectedEventName }

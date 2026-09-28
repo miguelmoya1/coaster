@@ -72,7 +72,7 @@ func (s *SubscriptionService) checkoutCompleted(ctx context.Context, session *do
 		return err
 	}
 
-	s.events.Publish(ctx, domain.SubscriptionActivated{EstablishmentID: establishmentID, StripeSubscriptionID: session.SubscriptionID})
+	s.events.Publish(ctx, domain.SubscriptionActivatedEvent{EstablishmentID: establishmentID, StripeSubscriptionID: session.SubscriptionID})
 	return nil
 }
 
@@ -136,7 +136,7 @@ func (s *SubscriptionService) cancelIfDuplicate(ctx context.Context, establishme
 		return false, err
 	}
 
-	s.events.Publish(ctx, domain.DuplicateSubscriptionDetected{
+	s.events.Publish(ctx, domain.DuplicateSubscriptionDetectedEvent{
 		EstablishmentID:         establishmentID,
 		KeptSubscriptionID:      trackedID,
 		CancelledSubscriptionID: incomingID,
@@ -199,7 +199,7 @@ func (s *SubscriptionService) subscriptionChanged(ctx context.Context, subscript
 	}
 
 	if snapshot.IsCancellation {
-		s.events.Publish(ctx, domain.SubscriptionCancelled{
+		s.events.Publish(ctx, domain.SubscriptionCancelledEvent{
 			EstablishmentID:      establishmentID,
 			StripeSubscriptionID: subscription.ID,
 			CanceledAt:           snapshot.Billing.CanceledAt,
@@ -208,7 +208,7 @@ func (s *SubscriptionService) subscriptionChanged(ctx context.Context, subscript
 	}
 
 	if subscription.Status == domain.StripeStatusActive || subscription.Status == domain.StripeStatusTrialing {
-		s.events.Publish(ctx, domain.SubscriptionRenewed{
+		s.events.Publish(ctx, domain.SubscriptionRenewedEvent{
 			EstablishmentID:      establishmentID,
 			StripeSubscriptionID: subscription.ID,
 			CurrentPeriodEnd:     snapshot.Billing.CurrentPeriodEnd,
@@ -239,7 +239,7 @@ func (s *SubscriptionService) invoicePaid(ctx context.Context, invoice *domain.S
 		subscriptionID = *existing.StripeSubscriptionID
 	}
 
-	s.events.Publish(ctx, domain.SubscriptionRenewed{
+	s.events.Publish(ctx, domain.SubscriptionRenewedEvent{
 		EstablishmentID:      existing.EstablishmentID,
 		StripeSubscriptionID: subscriptionID,
 		CurrentPeriodEnd:     existing.CurrentPeriodEnd,
@@ -262,7 +262,7 @@ func (s *SubscriptionService) invoicePaymentFailed(ctx context.Context, invoice 
 		customerID = *existing.StripeCustomerID
 	}
 
-	s.events.Publish(ctx, domain.SubscriptionPaymentFailed{EstablishmentID: existing.EstablishmentID, StripeCustomerID: customerID})
+	s.events.Publish(ctx, domain.SubscriptionPaymentFailedEvent{EstablishmentID: existing.EstablishmentID, StripeCustomerID: customerID})
 	return nil
 }
 

@@ -1,15 +1,11 @@
 package domain
 
-type ShiftCreated struct {
+type ShiftCreatedEvent struct {
 	EstablishmentID string
 	Shift           Shift
 }
 
-func (ShiftCreated) Name() string { return "ShiftCreatedEvent" }
-
-type ShiftDeleted struct {
+type ShiftDeletedEvent struct {
 	EstablishmentID string
 	ShiftID         string
 }
-
-func (ShiftDeleted) Name() string { return "ShiftDeletedEvent" }

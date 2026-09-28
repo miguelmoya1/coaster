@@ -30,7 +30,7 @@ func NewAuthEventRepository(pool *pgxpool.Pool) *AuthEventRepository {
 	return &AuthEventRepository{pool: pool}
 }
 
-func (r *AuthEventRepository) Record(ctx context.Context, event domain.AuthEventOccurred) error {
+func (r *AuthEventRepository) Record(ctx context.Context, event domain.AuthEvent) error {
 	var metadata any
 	if len(event.Metadata) > 0 {
 		metadata = event.Metadata

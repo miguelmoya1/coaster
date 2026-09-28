@@ -19,15 +19,14 @@ func TestAdminAuditServiceRecordAction(t *testing.T) {
 		TargetID: "e1", TargetLabel: &label, Metadata: adminRenameChange{From: "Bar", To: "Bar Pepe"},
 	}
 
-	service.RecordAction(context.Background(), domain.AdminAction{Entry: entry})
-	service.RecordAction(context.Background(), domain.UserUpdated{UserID: "u1"})
+	deliver(service.EventHandlers(), domain.AdminActionEvent{Entry: entry})
 
 	if len(audit.recorded) != 1 || !reflect.DeepEqual(audit.recorded[0], entry) {
 		t.Fatalf("recorded = %+v", audit.recorded)
 	}
 
 	audit.fail = true
-	service.RecordAction(context.Background(), domain.AdminAction{Entry: entry})
+	deliver(service.EventHandlers(), domain.AdminActionEvent{Entry: entry})
 }
 
 func TestAdminAuditServiceList(t *testing.T) {

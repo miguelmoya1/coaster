@@ -66,7 +66,7 @@ func (r *establishmentRows) SaveSettings(_ context.Context, establishmentID stri
 
 type establishmentEvents struct{}
 
-func (establishmentEvents) Publish(context.Context, ports.Event) {}
+func (establishmentEvents) Publish(context.Context, any) {}
 
 func newEstablishmentServer(access ports.SecurityService, rows *establishmentRows) http.Handler {
 	guard := middleware.NewGuard(fakeTokens{}, access, &countingLimiter{hits: map[string]int{}}, 1)

@@ -1,7 +1,5 @@
 package domain
 
-type EstablishmentSettingsUpdated struct {
+type EstablishmentSettingsUpdatedEvent struct {
 	EstablishmentID string
 }
-
-func (EstablishmentSettingsUpdated) Name() string { return "EstablishmentSettingsUpdatedEvent" }

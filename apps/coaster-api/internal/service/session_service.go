@@ -72,7 +72,7 @@ func (s *SessionService) Revoke(ctx context.Context, refreshToken string, origin
 		return err
 	}
 
-	s.events.Publish(ctx, domain.AuthEventOccurred{
+	s.events.Publish(ctx, domain.AuthEvent{
 		Type:      domain.AuthEventLoggedOut,
 		UserID:    session.UserID,
 		SessionID: session.ID,
@@ -87,7 +87,7 @@ func (s *SessionService) RevokeEverySessionOf(ctx context.Context, userID string
 		return err
 	}
 
-	s.events.Publish(ctx, domain.AuthEventOccurred{
+	s.events.Publish(ctx, domain.AuthEvent{
 		Type:     domain.AuthEventLoggedOut,
 		UserID:   userID,
 		Origin:   origin,

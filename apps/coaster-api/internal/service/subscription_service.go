@@ -292,50 +292,48 @@ func (s *SubscriptionService) SyncSeats(ctx context.Context, establishmentID str
 	return err
 }
 
-func (s *SubscriptionService) SyncSeatsOnMemberChange(ctx context.Context, establishmentID string) {
+func (s *SubscriptionService) EventHandlers() []ports.EventHandler {
+	return []ports.EventHandler{
+		ports.On(func(ctx context.Context, event domain.SubscriptionActivatedEvent) {
+			s.forgetAndBroadcast(ctx, event.EstablishmentID)
+		}),
+		ports.On(func(ctx context.Context, event domain.SubscriptionCancelledEvent) {
+			s.forgetAndBroadcast(ctx, event.EstablishmentID)
+		}),
+		ports.On(func(ctx context.Context, event domain.SubscriptionOverriddenEvent) {
+			s.forgetAndBroadcast(ctx, event.EstablishmentID)
+		}),
+		ports.On(func(ctx context.Context, event domain.SubscriptionPaymentFailedEvent) {
+			s.forgetAndBroadcast(ctx, event.EstablishmentID)
+		}),
+		ports.On(func(ctx context.Context, event domain.SubscriptionRenewedEvent) {
+			s.forgetAndBroadcast(ctx, event.EstablishmentID)
+		}),
+		ports.On(s.reportDuplicate),
+		ports.On(func(ctx context.Context, event domain.MemberInvitedEvent) {
+			s.syncSeatsOnMemberChange(ctx, event.EstablishmentID)
+		}),
+		ports.On(func(ctx context.Context, event domain.MemberRemovedEvent) {
+			s.syncSeatsOnMemberChange(ctx, event.EstablishmentID)
+		}),
+	}
+}
+
+func (s *SubscriptionService) forgetAndBroadcast(ctx context.Context, establishmentID string) {
+	s.cache.Forget(ctx, subscriptionCacheKey(establishmentID))
+	s.realtime.Publish(establishmentID, domain.RealtimeSubscriptionUpdated, map[string]string{"establishmentId": establishmentID})
+}
+
+func (s *SubscriptionService) syncSeatsOnMemberChange(ctx context.Context, establishmentID string) {
 	if err := s.SyncSeats(ctx, establishmentID); err != nil {
 		slog.Error("the staff changed but Stripe was not told: it keeps billing the old number of seats until the next change; check it by hand",
 			"establishmentId", establishmentID, "error", err)
 	}
 }
 
-func (s *SubscriptionService) ForgetCache(ctx context.Context, event ports.Event) {
-	if establishmentID, ok := subscriptionEventEstablishment(event); ok {
-		s.cache.Forget(ctx, subscriptionCacheKey(establishmentID))
-	}
-}
-
-func (s *SubscriptionService) PublishRealtime(_ context.Context, event ports.Event) {
-	if establishmentID, ok := subscriptionEventEstablishment(event); ok {
-		s.realtime.Publish(establishmentID, domain.RealtimeSubscriptionUpdated, map[string]string{"establishmentId": establishmentID})
-	}
-}
-
-func (s *SubscriptionService) ReportDuplicate(_ context.Context, event ports.Event) {
-	duplicate, ok := event.(domain.DuplicateSubscriptionDetected)
-	if !ok {
-		return
-	}
-
+func (s *SubscriptionService) reportDuplicate(_ context.Context, duplicate domain.DuplicateSubscriptionDetectedEvent) {
 	slog.Error("billing incident: a duplicated subscription was cancelled; check Stripe for a charge on it and refund it by hand if it went through",
 		"establishmentId", duplicate.EstablishmentID,
 		"cancelledSubscriptionId", duplicate.CancelledSubscriptionID,
 		"keptSubscriptionId", duplicate.KeptSubscriptionID)
-}
-
-func subscriptionEventEstablishment(event ports.Event) (string, bool) {
-	switch e := event.(type) {
-	case domain.SubscriptionActivated:
-		return e.EstablishmentID, true
-	case domain.SubscriptionCancelled:
-		return e.EstablishmentID, true
-	case domain.SubscriptionOverridden:
-		return e.EstablishmentID, true
-	case domain.SubscriptionPaymentFailed:
-		return e.EstablishmentID, true
-	case domain.SubscriptionRenewed:
-		return e.EstablishmentID, true
-	default:
-		return "", false
-	}
 }

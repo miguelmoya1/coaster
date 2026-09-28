@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"coaster-api/internal/core/domain"
-	"coaster-api/internal/core/ports"
 )
 
 type memberFixture struct {
@@ -158,7 +157,7 @@ func TestEstablishmentMemberInvite(t *testing.T) {
 				t.Fatalf("invitation = %+v", invitation)
 			}
 
-			want := domain.MemberInvited{
+			want := domain.MemberInvitedEvent{
 				EstablishmentID:   "e1",
 				MemberID:          "member-ana@example.com",
 				Email:             "ana@example.com",
@@ -284,7 +283,7 @@ func TestEstablishmentMemberUpdateRole(t *testing.T) {
 				return
 			}
 
-			want := domain.MemberRoleChanged{
+			want := domain.MemberRoleChangedEvent{
 				EstablishmentID: "e1",
 				MemberID:        tt.memberID,
 				UserID:          map[string]string{"m-sergio": "sergio", "m-olga": "olga"}[tt.memberID],
@@ -333,7 +332,7 @@ func TestEstablishmentMemberRemove(t *testing.T) {
 			}
 
 			userID := map[string]string{"m-sergio": "sergio", "m-olga": "olga"}[tt.memberID]
-			want := domain.MemberRemoved{EstablishmentID: "e1", MemberID: tt.memberID, UserID: userID}
+			want := domain.MemberRemovedEvent{EstablishmentID: "e1", MemberID: tt.memberID, UserID: userID}
 			if err != nil || !reflect.DeepEqual(f.repo.removedIDs, []string{tt.memberID}) || len(f.events.events) != 1 || f.events.events[0] != want {
 				t.Fatalf("err = %v, removed = %v, events = %+v", err, f.repo.removedIDs, f.events.events)
 			}
@@ -341,31 +340,50 @@ func TestEstablishmentMemberRemove(t *testing.T) {
 	}
 }
 
-func TestEstablishmentMemberForgetCache(t *testing.T) {
-	events := []struct {
+func TestEstablishmentMemberChangesForgetTheMembershipAndReachRealtime(t *testing.T) {
+	tests := []struct {
 		name  string
-		event ports.Event
+		event any
+		want  []memberRealtimeMessage
 	}{
-		{"invited", domain.MemberInvited{EstablishmentID: "e1", UserID: "ana"}},
-		{"removed", domain.MemberRemoved{EstablishmentID: "e1", UserID: "ana"}},
-		{"role changed", domain.MemberRoleChanged{EstablishmentID: "e1", UserID: "ana"}},
+		{
+			"invited",
+			domain.MemberInvitedEvent{EstablishmentID: "e1", MemberID: "m-ana", UserID: "ana"},
+			[]memberRealtimeMessage{{establishmentID: "e1", event: domain.RealtimeMemberInvited, payload: memberIDPayload{ID: "m-ana"}}},
+		},
+		{
+			"removed",
+			domain.MemberRemovedEvent{EstablishmentID: "e1", MemberID: "m-ana", UserID: "ana"},
+			[]memberRealtimeMessage{
+				{establishmentID: "e1", event: domain.RealtimeMemberRemoved, payload: memberIDPayload{ID: "m-ana"}},
+				{establishmentID: "e1", revokedUserID: "ana"},
+			},
+		},
+		{
+			"role changed",
+			domain.MemberRoleChangedEvent{EstablishmentID: "e1", MemberID: "m-ana", UserID: "ana", From: domain.EstablishmentRoleManager, To: domain.EstablishmentRoleOwner},
+			[]memberRealtimeMessage{{establishmentID: "e1", event: domain.RealtimeMemberRoleChanged, payload: memberRoleChangedPayload{ID: "m-ana", UserID: "ana", Role: domain.EstablishmentRoleOwner}}},
+		},
 	}
 
-	for _, tt := range events {
+	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			f := newMemberFixture()
 
-			f.service.ForgetCache(context.Background(), tt.event)
+			deliver(f.service.EventHandlers(), tt.event)
 
 			if !reflect.DeepEqual(f.cache.forgotten, []string{"establishment:e1:member:ana"}) {
 				t.Fatalf("forgotten = %v", f.cache.forgotten)
+			}
+			if !reflect.DeepEqual(f.realtime.messages, tt.want) {
+				t.Fatalf("messages = %+v\nwant %+v", f.realtime.messages, tt.want)
 			}
 		})
 	}
 }
 
 func TestEstablishmentMemberSendInvitation(t *testing.T) {
-	invited := domain.MemberInvited{
+	invited := domain.MemberInvitedEvent{
 		EstablishmentID:   "e1",
 		MemberID:          "m-ana",
 		Email:             "ana@example.com",
@@ -376,7 +394,7 @@ func TestEstablishmentMemberSendInvitation(t *testing.T) {
 	}
 
 	f := newMemberFixture()
-	f.service.SendInvitation(context.Background(), invited)
+	deliver(f.service.EventHandlers(), invited)
 
 	want := memberInviteEmail{
 		to:       "ana@example.com",
@@ -389,37 +407,18 @@ func TestEstablishmentMemberSendInvitation(t *testing.T) {
 
 	failing := newMemberFixture()
 	failing.tokens.fail = true
-	failing.service.SendInvitation(context.Background(), invited)
+	deliver(failing.service.EventHandlers(), invited)
 	if len(failing.mailer.invites) != 0 {
 		t.Fatalf("without a token it still sent %+v", failing.mailer.invites)
 	}
 
 	down := newMemberFixture()
 	down.mailer.fail = true
-	down.service.SendInvitation(context.Background(), invited)
-}
-
-func TestEstablishmentMemberPublishRealtime(t *testing.T) {
-	f := newMemberFixture()
-	ctx := context.Background()
-
-	f.service.PublishRealtime(ctx, domain.MemberInvited{EstablishmentID: "e1", MemberID: "m-ana", UserID: "ana"})
-	f.service.PublishRealtime(ctx, domain.MemberRemoved{EstablishmentID: "e1", MemberID: "m-sergio", UserID: "sergio"})
-	f.service.PublishRealtime(ctx, domain.MemberRoleChanged{EstablishmentID: "e1", MemberID: "m-marta", UserID: "marta", From: domain.EstablishmentRoleManager, To: domain.EstablishmentRoleOwner})
-
-	want := []memberRealtimeMessage{
-		{establishmentID: "e1", event: domain.RealtimeMemberInvited, payload: memberIDPayload{ID: "m-ana"}},
-		{establishmentID: "e1", event: domain.RealtimeMemberRemoved, payload: memberIDPayload{ID: "m-sergio"}},
-		{establishmentID: "e1", revokedUserID: "sergio"},
-		{establishmentID: "e1", event: domain.RealtimeMemberRoleChanged, payload: memberRoleChangedPayload{ID: "m-marta", UserID: "marta", Role: domain.EstablishmentRoleOwner}},
-	}
-	if !reflect.DeepEqual(f.realtime.messages, want) {
-		t.Fatalf("messages = %+v\nwant %+v", f.realtime.messages, want)
-	}
+	deliver(down.service.EventHandlers(), invited)
 }
 
 func TestEstablishmentMemberAuditRoleChange(t *testing.T) {
-	changed := domain.MemberRoleChanged{
+	changed := domain.MemberRoleChangedEvent{
 		EstablishmentID: "e1",
 		MemberID:        "m-sergio",
 		UserID:          "sergio",
@@ -431,10 +430,10 @@ func TestEstablishmentMemberAuditRoleChange(t *testing.T) {
 
 	t.Run("a platform admin changed it", func(t *testing.T) {
 		f := newMemberFixture()
-		f.service.AuditRoleChange(context.Background(), changed)
+		deliver(f.service.EventHandlers(), changed)
 
 		name := "Bar Pepe"
-		want := domain.AdminAction{Entry: domain.AdminAuditEntry{
+		want := domain.AdminActionEvent{Entry: domain.AdminAuditEntry{
 			ActorID:     "admin",
 			Action:      domain.AuditEstablishmentMemberRoleChanged,
 			TargetType:  domain.AuditTargetEstablishment,
@@ -451,9 +450,9 @@ func TestEstablishmentMemberAuditRoleChange(t *testing.T) {
 		f := newMemberFixture()
 		gone := changed
 		gone.EstablishmentID = "e9"
-		f.service.AuditRoleChange(context.Background(), gone)
+		deliver(f.service.EventHandlers(), gone)
 
-		action, ok := f.events.events[0].(domain.AdminAction)
+		action, ok := f.events.events[0].(domain.AdminActionEvent)
 		if !ok || action.Entry.TargetLabel != nil || action.Entry.TargetID != "e9" {
 			t.Fatalf("events = %+v", f.events.events)
 		}
@@ -463,7 +462,7 @@ func TestEstablishmentMemberAuditRoleChange(t *testing.T) {
 		f := newMemberFixture()
 		byOwner := changed
 		byOwner.ActorRole = domain.RoleUser
-		f.service.AuditRoleChange(context.Background(), byOwner)
+		deliver(f.service.EventHandlers(), byOwner)
 
 		if len(f.events.events) != 0 {
 			t.Fatalf("events = %+v, want none", f.events.events)
@@ -473,7 +472,7 @@ func TestEstablishmentMemberAuditRoleChange(t *testing.T) {
 	t.Run("the database is down", func(t *testing.T) {
 		f := newMemberFixture()
 		f.repo.fail = true
-		f.service.AuditRoleChange(context.Background(), changed)
+		deliver(f.service.EventHandlers(), changed)
 
 		if len(f.events.events) != 0 {
 			t.Fatalf("events = %+v, want none", f.events.events)

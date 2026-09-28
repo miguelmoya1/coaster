@@ -68,7 +68,7 @@ func (s *BetaTesterService) Add(ctx context.Context, actorID, email string, note
 		return err
 	}
 
-	s.events.Publish(ctx, domain.AdminAction{Entry: domain.AdminAuditEntry{
+	s.events.Publish(ctx, domain.AdminActionEvent{Entry: domain.AdminAuditEntry{
 		ActorID:     actorID,
 		Action:      domain.AuditBetaTesterAdded,
 		TargetType:  domain.AuditTargetBetaTester,
@@ -92,7 +92,7 @@ func (s *BetaTesterService) Remove(ctx context.Context, actorID, betaTesterID st
 		return err
 	}
 
-	s.events.Publish(ctx, domain.AdminAction{Entry: domain.AdminAuditEntry{
+	s.events.Publish(ctx, domain.AdminActionEvent{Entry: domain.AdminAuditEntry{
 		ActorID:     actorID,
 		Action:      domain.AuditBetaTesterRemoved,
 		TargetType:  domain.AuditTargetBetaTester,

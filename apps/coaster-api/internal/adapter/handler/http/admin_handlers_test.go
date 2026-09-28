@@ -138,7 +138,7 @@ func (adminEstablishments) GrantPlan(context.Context, string, domain.ManualPlanG
 
 type adminPublisher struct{}
 
-func (adminPublisher) Publish(context.Context, ports.Event) {}
+func (adminPublisher) Publish(context.Context, any) {}
 
 type adminNoCache struct{}
 

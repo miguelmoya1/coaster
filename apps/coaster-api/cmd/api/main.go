@@ -24,7 +24,6 @@ import (
 	"coaster-api/internal/adapter/repository"
 	"coaster-api/internal/adapter/storage"
 	"coaster-api/internal/config"
-	"coaster-api/internal/core/domain"
 	"coaster-api/internal/core/ports"
 	"coaster-api/internal/service"
 )
@@ -110,15 +109,9 @@ func run() error {
 			FrontendURL:         cfg.FrontendURL,
 		},
 	})
-	for _, name := range domain.SubscriptionEventNames {
-		bus.Subscribe(name, subscriptions.ForgetCache)
-		bus.Subscribe(name, subscriptions.PublishRealtime)
-	}
-	bus.Subscribe(domain.DuplicateSubscriptionDetectedEventName, subscriptions.ReportDuplicate)
 
 	security := service.NewSecurityService(repository.NewSecurityRepository(pool), valueCache, subscriptions)
 	authEvents := service.NewAuthEventService(repository.NewAuthEventRepository(pool))
-	bus.Subscribe(domain.AuthEventName, authEvents.Record)
 
 	authService := service.NewAuthService(service.AuthDependencies{
 		Users:           authUsers,
@@ -146,9 +139,6 @@ func run() error {
 	})
 
 	catalogRealtime := service.NewCatalogRealtime(realtime)
-	for _, name := range service.CatalogRealtimeEvents {
-		bus.Subscribe(name, catalogRealtime.Forward)
-	}
 
 	mediaStorage := storage.NewGCS(cfg.MediaBucket)
 	defer mediaStorage.Close()
@@ -179,19 +169,12 @@ func run() error {
 	shiftService := service.NewShiftService(shiftRepository, security, bus, realtime)
 	shiftExchangeService := service.NewShiftExchangeService(shiftRepository, repository.NewShiftExchangeRepository(pool), security)
 	timeEntryService := service.NewTimeEntryService(repository.NewTimeEntryRepository(pool), shiftService, bus)
-	bus.Subscribe(domain.ShiftCreated{}.Name(), shiftService.PublishRealtime)
-	bus.Subscribe(domain.ShiftDeleted{}.Name(), shiftService.PublishRealtime)
-	bus.Subscribe(domain.TimeEntryRecorded{}.Name(), timeEntryService.Audit)
-	bus.Subscribe(domain.TimeEntryAmended{}.Name(), timeEntryService.Audit)
-	bus.Subscribe(domain.TimeEntryVoided{}.Name(), timeEntryService.Audit)
 	handlers.Shift = httphandler.NewShiftHandler(shiftService)
 	handlers.ShiftExchange = httphandler.NewShiftExchangeHandler(shiftExchangeService)
 	handlers.TimeEntry = httphandler.NewTimeEntryHandler(timeEntryService)
 
 	establishmentService := service.NewEstablishmentService(repository.NewEstablishmentRepository(pool), bus, valueCache)
 	userService := service.NewUserService(repository.NewUserRepository(pool), bus, valueCache)
-	bus.Subscribe(domain.EstablishmentSettingsUpdated{}.Name(), establishmentService.ForgetModulesCache)
-	bus.Subscribe(domain.UserUpdated{}.Name(), userService.ForgetCache)
 	handlers.Establishment = httphandler.NewEstablishmentHandler(establishmentService)
 	handlers.User = httphandler.NewUserHandler(userService)
 
@@ -203,18 +186,6 @@ func run() error {
 		Cache:    valueCache,
 		Events:   bus,
 		Realtime: realtime,
-	})
-	for _, name := range service.EstablishmentMemberEvents {
-		bus.Subscribe(name, establishmentMemberService.ForgetCache)
-		bus.Subscribe(name, establishmentMemberService.PublishRealtime)
-	}
-	bus.Subscribe(domain.MemberInvited{}.Name(), establishmentMemberService.SendInvitation)
-	bus.Subscribe(domain.MemberRoleChanged{}.Name(), establishmentMemberService.AuditRoleChange)
-	bus.Subscribe(domain.MemberInvited{}.Name(), func(ctx context.Context, e ports.Event) {
-		subscriptions.SyncSeatsOnMemberChange(ctx, e.(domain.MemberInvited).EstablishmentID)
-	})
-	bus.Subscribe(domain.MemberRemoved{}.Name(), func(ctx context.Context, e ports.Event) {
-		subscriptions.SyncSeatsOnMemberChange(ctx, e.(domain.MemberRemoved).EstablishmentID)
 	})
 	handlers.EstablishmentMember = httphandler.NewEstablishmentMemberHandler(establishmentMemberService)
 
@@ -234,7 +205,6 @@ func run() error {
 
 	adminAudit := repository.NewAdminAuditRepository(pool)
 	adminAuditService := service.NewAdminAuditService(adminAudit)
-	bus.Subscribe(domain.AdminAction{}.Name(), adminAuditService.RecordAction)
 	handlers.AdminOverview = httphandler.NewAdminOverviewHandler(
 		service.NewAdminMetricsService(repository.NewAdminMetricsRepository(pool)), adminAuditService)
 	handlers.AdminUser = httphandler.NewAdminUserHandler(
@@ -248,13 +218,7 @@ func run() error {
 	tableService := service.NewTableService(tableRepository, bus)
 	orderService := service.NewOrderService(repository.NewOrderRepository(pool), tableRepository, bus)
 	orderStock := service.NewOrderStock(productService)
-	for _, name := range service.OrderStockEvents {
-		bus.Subscribe(name, orderStock.Adjust)
-	}
 	orderRealtime := service.NewOrderRealtime(realtime)
-	for _, name := range service.OrderRealtimeEvents {
-		bus.Subscribe(name, orderRealtime.Forward)
-	}
 	handlers.Order = httphandler.NewOrderHandler(orderService)
 	handlers.Table = httphandler.NewTableHandler(tableService)
 
@@ -274,6 +238,13 @@ func run() error {
 		Members:    establishmentMemberService,
 	})
 	handlers.AI = httphandler.NewAIHandler(aiService)
+
+	for _, subscriber := range []ports.EventSubscriber{
+		subscriptions, authEvents, catalogRealtime, shiftService, timeEntryService, establishmentService, userService,
+		establishmentMemberService, adminAuditService, orderStock, orderRealtime,
+	} {
+		bus.Subscribe(subscriber.EventHandlers()...)
+	}
 
 	router, err := httphandler.NewRouter(
 		httphandler.RouterConfig{CORSOrigins: cfg.CORSOrigins, PublicDir: cfg.PublicDir},

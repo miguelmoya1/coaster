@@ -26,8 +26,6 @@ type AdminAuditEntry struct {
 	Metadata    any
 }
 
-type AdminAction struct {
+type AdminActionEvent struct {
 	Entry AdminAuditEntry
 }
-
-func (AdminAction) Name() string { return "AdminActionEvent" }

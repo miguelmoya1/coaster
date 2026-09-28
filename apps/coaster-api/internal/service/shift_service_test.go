@@ -65,7 +65,7 @@ func TestShiftServiceCreate(t *testing.T) {
 			if err != nil || len(f.repo.shifts) != 1 {
 				t.Fatalf("err = %v, shifts = %+v", err, f.repo.shifts)
 			}
-			created, ok := f.events.events[0].(domain.ShiftCreated)
+			created, ok := f.events.events[0].(domain.ShiftCreatedEvent)
 			if !ok || created.EstablishmentID != "e1" || created.Shift.ID != f.repo.shifts[0].ID || *created.Shift.Notes != notes {
 				t.Fatalf("event = %+v", f.events.events)
 			}
@@ -124,7 +124,7 @@ func TestShiftServiceDelete(t *testing.T) {
 				}
 				return
 			}
-			if err != nil || len(f.repo.deleted) != 1 || f.events.events[0] != (domain.ShiftDeleted{EstablishmentID: "e1", ShiftID: "s1"}) {
+			if err != nil || len(f.repo.deleted) != 1 || f.events.events[0] != (domain.ShiftDeletedEvent{EstablishmentID: "e1", ShiftID: "s1"}) {
 				t.Fatalf("err = %v, deleted = %v, events = %+v", err, f.repo.deleted, f.events.events)
 			}
 		})
@@ -135,8 +135,8 @@ func TestShiftServicePublishRealtime(t *testing.T) {
 	f := newShiftFixture()
 	shift := domain.Shift{ID: "s1", EstablishmentID: "e1"}
 
-	f.service.PublishRealtime(context.Background(), domain.ShiftCreated{EstablishmentID: "e1", Shift: shift})
-	f.service.PublishRealtime(context.Background(), domain.ShiftDeleted{EstablishmentID: "e1", ShiftID: "s1"})
+	deliver(f.service.EventHandlers(), domain.ShiftCreatedEvent{EstablishmentID: "e1", Shift: shift})
+	deliver(f.service.EventHandlers(), domain.ShiftDeletedEvent{EstablishmentID: "e1", ShiftID: "s1"})
 
 	want := []shiftRealtimeMessage{
 		{"e1", domain.RealtimeShiftCreated, shift},

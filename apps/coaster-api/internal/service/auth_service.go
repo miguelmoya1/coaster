@@ -106,7 +106,7 @@ func (s *AuthService) Register(ctx context.Context, input domain.RegisterInput, 
 		return domain.IssuedSession{}, err
 	}
 
-	s.events.Publish(ctx, domain.AuthEventOccurred{
+	s.events.Publish(ctx, domain.AuthEvent{
 		Type:      domain.AuthEventRegistered,
 		UserID:    user.ID,
 		Email:     user.Email,
@@ -121,7 +121,7 @@ func (s *AuthService) LoginWithPassword(ctx context.Context, email, password str
 	email = normalizeEmail(email)
 
 	if wait := s.attempts.LockedFor(ctx, email); wait > 0 {
-		s.events.Publish(ctx, domain.AuthEventOccurred{
+		s.events.Publish(ctx, domain.AuthEvent{
 			Type:     domain.AuthEventLoginBlocked,
 			Email:    email,
 			Origin:   origin,
@@ -146,7 +146,7 @@ func (s *AuthService) LoginWithPassword(ctx context.Context, email, password str
 	if user == nil || !matches || !user.Active {
 		s.attempts.Remember(ctx, email)
 
-		event := domain.AuthEventOccurred{
+		event := domain.AuthEvent{
 			Type:     domain.AuthEventLoginFailed,
 			Email:    email,
 			Origin:   origin,
@@ -167,7 +167,7 @@ func (s *AuthService) LoginWithPassword(ctx context.Context, email, password str
 		return domain.IssuedSession{}, err
 	}
 
-	s.events.Publish(ctx, domain.AuthEventOccurred{
+	s.events.Publish(ctx, domain.AuthEvent{
 		Type:      domain.AuthEventLoginSucceeded,
 		UserID:    user.ID,
 		Email:     email,
@@ -236,7 +236,7 @@ func (s *AuthService) LoginWithGoogle(ctx context.Context, credential string, or
 			return domain.IssuedSession{}, err
 		}
 
-		s.events.Publish(ctx, domain.AuthEventOccurred{
+		s.events.Publish(ctx, domain.AuthEvent{
 			Type:     domain.AuthEventIdentityLinked,
 			UserID:   claimed.ID,
 			Email:    identity.Email,
@@ -285,7 +285,7 @@ func (s *AuthService) LoginWithGoogle(ctx context.Context, credential string, or
 
 	google := map[string]any{"provider": string(domain.AuthProviderGoogle)}
 
-	s.events.Publish(ctx, domain.AuthEventOccurred{
+	s.events.Publish(ctx, domain.AuthEvent{
 		Type:      domain.AuthEventRegistered,
 		UserID:    created.ID,
 		Email:     created.Email,
@@ -293,7 +293,7 @@ func (s *AuthService) LoginWithGoogle(ctx context.Context, credential string, or
 		Origin:    origin,
 		Metadata:  google,
 	})
-	s.events.Publish(ctx, domain.AuthEventOccurred{
+	s.events.Publish(ctx, domain.AuthEvent{
 		Type:     domain.AuthEventIdentityLinked,
 		UserID:   created.ID,
 		Email:    created.Email,
@@ -318,7 +318,7 @@ func (s *AuthService) googleSignedIn(ctx context.Context, user domain.AuthUser, 
 }
 
 func (s *AuthService) publishGoogleLogin(ctx context.Context, issued domain.IssuedSession, userID, email string, origin domain.SessionOrigin) {
-	s.events.Publish(ctx, domain.AuthEventOccurred{
+	s.events.Publish(ctx, domain.AuthEvent{
 		Type:      domain.AuthEventLoginSucceeded,
 		UserID:    userID,
 		Email:     email,
@@ -329,7 +329,7 @@ func (s *AuthService) publishGoogleLogin(ctx context.Context, issued domain.Issu
 }
 
 func (s *AuthService) googleRefused(ctx context.Context, origin domain.SessionOrigin, userID, email, reason string) {
-	s.events.Publish(ctx, domain.AuthEventOccurred{
+	s.events.Publish(ctx, domain.AuthEvent{
 		Type:     domain.AuthEventLoginFailed,
 		UserID:   userID,
 		Email:    email,
@@ -394,7 +394,7 @@ func (s *AuthService) Refresh(ctx context.Context, refreshToken string, origin d
 			return domain.IssuedSession{}, err
 		}
 
-		s.events.Publish(ctx, domain.AuthEventOccurred{
+		s.events.Publish(ctx, domain.AuthEvent{
 			Type:      domain.AuthEventRefreshReuseDetected,
 			UserID:    session.UserID,
 			SessionID: session.ID,
@@ -443,7 +443,7 @@ func (s *AuthService) RequestPasswordReset(ctx context.Context, email string) er
 		return err
 	}
 
-	s.events.Publish(ctx, domain.AuthEventOccurred{
+	s.events.Publish(ctx, domain.AuthEvent{
 		Type:   domain.AuthEventPasswordResetRequested,
 		UserID: user.ID,
 		Email:  user.Email,
@@ -494,7 +494,7 @@ func (s *AuthService) ResetPassword(ctx context.Context, token, password string,
 		return domain.IssuedSession{}, err
 	}
 
-	s.events.Publish(ctx, domain.AuthEventOccurred{
+	s.events.Publish(ctx, domain.AuthEvent{
 		Type:      domain.AuthEventPasswordResetCompleted,
 		UserID:    user.ID,
 		Email:     user.Email,
@@ -516,7 +516,7 @@ func (s *AuthService) VerifyEmail(ctx context.Context, token string) error {
 	}
 	s.cache.Forget(ctx, userCacheKey(stored.UserID))
 
-	s.events.Publish(ctx, domain.AuthEventOccurred{
+	s.events.Publish(ctx, domain.AuthEvent{
 		Type:   domain.AuthEventEmailVerified,
 		UserID: stored.UserID,
 		Email:  stored.User.Email,
@@ -574,7 +574,7 @@ func (s *AuthService) AcceptInvite(ctx context.Context, token, password string, 
 		return domain.IssuedSession{}, err
 	}
 
-	s.events.Publish(ctx, domain.AuthEventOccurred{
+	s.events.Publish(ctx, domain.AuthEvent{
 		Type:      domain.AuthEventInviteAccepted,
 		UserID:    user.ID,
 		Email:     user.Email,

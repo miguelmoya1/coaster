@@ -1,6 +1,6 @@
 package domain
 
-type MemberInvited struct {
+type MemberInvitedEvent struct {
 	EstablishmentID   string
 	MemberID          string
 	Email             string
@@ -10,17 +10,13 @@ type MemberInvited struct {
 	UserID            string
 }
 
-func (MemberInvited) Name() string { return "MemberInvitedEvent" }
-
-type MemberRemoved struct {
+type MemberRemovedEvent struct {
 	EstablishmentID string
 	MemberID        string
 	UserID          string
 }
 
-func (MemberRemoved) Name() string { return "MemberRemovedEvent" }
-
-type MemberRoleChanged struct {
+type MemberRoleChangedEvent struct {
 	EstablishmentID string
 	MemberID        string
 	UserID          string
@@ -29,8 +25,6 @@ type MemberRoleChanged struct {
 	ActorID         string
 	ActorRole       Role
 }
-
-func (MemberRoleChanged) Name() string { return "MemberRoleChangedEvent" }
 
 type MemberRoleChangedAudit struct {
 	MemberID string            `json:"memberId"`

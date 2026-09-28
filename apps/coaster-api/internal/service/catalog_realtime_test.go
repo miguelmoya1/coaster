@@ -1,12 +1,10 @@
 package service
 
 import (
-	"context"
 	"encoding/json"
 	"testing"
 
 	"coaster-api/internal/core/domain"
-	"coaster-api/internal/core/ports"
 )
 
 func TestCatalogRealtimeForward(t *testing.T) {
@@ -14,7 +12,7 @@ func TestCatalogRealtimeForward(t *testing.T) {
 	product := domain.Product{ID: "prod-1", CategoryID: "cat-1", Name: "Beer", Allergens: []string{}}
 
 	tests := []struct {
-		event       ports.Event
+		event       any
 		wantEvent   string
 		wantPayload string
 	}{
@@ -33,15 +31,15 @@ func TestCatalogRealtimeForward(t *testing.T) {
 			wantPayload: `{"establishmentId":"est-1"}`},
 	}
 
-	if len(tests) != len(CatalogRealtimeEvents) {
-		t.Fatalf("the test covers %d events, CatalogRealtimeEvents lists %d", len(tests), len(CatalogRealtimeEvents))
+	if handlers := NewCatalogRealtime(nil).EventHandlers(); len(tests) != len(handlers) {
+		t.Fatalf("the test covers %d events, CatalogRealtime listens to %d", len(tests), len(handlers))
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.event.Name(), func(t *testing.T) {
+		t.Run(eventName(tt.event), func(t *testing.T) {
 			realtime := &catalogRealtimeFake{}
 
-			NewCatalogRealtime(realtime).Forward(context.Background(), tt.event)
+			deliver(NewCatalogRealtime(realtime).EventHandlers(), tt.event)
 
 			if len(realtime.sent) != 1 || realtime.sent[0].establishmentID != "est-1" || realtime.sent[0].event != tt.wantEvent {
 				t.Fatalf("sent = %+v", realtime.sent)

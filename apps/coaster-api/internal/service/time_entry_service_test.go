@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"coaster-api/internal/core/domain"
-	"coaster-api/internal/core/ports"
 )
 
 type timeEntryFixture struct {
@@ -94,7 +93,7 @@ func TestTimeEntryServiceClock(t *testing.T) {
 			t.Fatalf("snapshot = %+v", row.UserSnapshot)
 		}
 
-		recorded, ok := f.events.events[0].(domain.TimeEntryRecorded)
+		recorded, ok := f.events.events[0].(domain.TimeEntryRecordedEvent)
 		if !ok || recorded.ActorID != "worker" || recorded.ActorRole != domain.RoleUser || recorded.Reason != nil || recorded.Entry.ID != entry.ID {
 			t.Fatalf("event = %+v", f.events.events)
 		}
@@ -189,7 +188,7 @@ func TestTimeEntryServiceCreateManual(t *testing.T) {
 				t.Fatalf("workday = %s", entry.WorkdayDate)
 			}
 
-			recorded := f.events.events[0].(domain.TimeEntryRecorded)
+			recorded := f.events.events[0].(domain.TimeEntryRecordedEvent)
 			if recorded.Reason == nil || *recorded.Reason != "Olvidó fichar" {
 				t.Fatalf("event = %+v", recorded)
 			}
@@ -265,7 +264,7 @@ func TestTimeEntryServiceAmend(t *testing.T) {
 				t.Fatalf("entry = %+v", entry)
 			}
 
-			amended := f.events.events[0].(domain.TimeEntryAmended)
+			amended := f.events.events[0].(domain.TimeEntryAmendedEvent)
 			if amended.PreviousOccurredAt != "2026-08-08T08:00:00.000Z" || amended.Reason != "Entré antes" || amended.ActorRole != tt.actor.Role {
 				t.Fatalf("event = %+v", amended)
 			}
@@ -287,7 +286,7 @@ func TestTimeEntryServiceVoid(t *testing.T) {
 		if voided.Action != domain.TimeEntryVoidedAction || !voided.OccurredAt.Equal(punch.OccurredAt) || *voided.SupersedesID != punch.ID {
 			t.Fatalf("row = %+v", voided)
 		}
-		if !entry.Voided || f.events.events[0].(domain.TimeEntryVoided).Reason != "Marca duplicada" {
+		if !entry.Voided || f.events.events[0].(domain.TimeEntryVoidedEvent).Reason != "Marca duplicada" {
 			t.Fatalf("entry = %+v", entry)
 		}
 	})
@@ -433,22 +432,22 @@ func TestTimeEntryServiceAudit(t *testing.T) {
 
 	tests := []struct {
 		name     string
-		event    ports.Event
+		event    any
 		action   string
 		previous string
 	}{
-		{"an amendment by a platform admin", domain.TimeEntryAmended{EstablishmentID: "e1", Entry: entry, PreviousOccurredAt: "2026-08-08T08:00:00.000Z", ActorID: "admin", ActorRole: domain.RoleAdmin, Reason: reason}, domain.AuditTimeEntryAmended, "2026-08-08T08:00:00.000Z"},
-		{"a mark voided by a platform admin", domain.TimeEntryVoided{EstablishmentID: "e1", Entry: entry, ActorID: "admin", ActorRole: domain.RoleAdmin, Reason: reason}, domain.AuditTimeEntryVoided, ""},
-		{"a manual entry by a platform admin", domain.TimeEntryRecorded{EstablishmentID: "e1", Entry: entry, ActorID: "admin", ActorRole: domain.RoleAdmin, Reason: &reason}, domain.AuditTimeEntryCreated, ""},
-		{"an timeEntryAdmin simply clocking in", domain.TimeEntryRecorded{EstablishmentID: "e1", Entry: onDevice, ActorID: "admin", ActorRole: domain.RoleAdmin}, "", ""},
-		{"an establishment manager", domain.TimeEntryAmended{EstablishmentID: "e1", Entry: entry, ActorID: "manager", ActorRole: domain.RoleUser, Reason: reason}, "", ""},
+		{"an amendment by a platform admin", domain.TimeEntryAmendedEvent{EstablishmentID: "e1", Entry: entry, PreviousOccurredAt: "2026-08-08T08:00:00.000Z", ActorID: "admin", ActorRole: domain.RoleAdmin, Reason: reason}, domain.AuditTimeEntryAmended, "2026-08-08T08:00:00.000Z"},
+		{"a mark voided by a platform admin", domain.TimeEntryVoidedEvent{EstablishmentID: "e1", Entry: entry, ActorID: "admin", ActorRole: domain.RoleAdmin, Reason: reason}, domain.AuditTimeEntryVoided, ""},
+		{"a manual entry by a platform admin", domain.TimeEntryRecordedEvent{EstablishmentID: "e1", Entry: entry, ActorID: "admin", ActorRole: domain.RoleAdmin, Reason: &reason}, domain.AuditTimeEntryCreated, ""},
+		{"an timeEntryAdmin simply clocking in", domain.TimeEntryRecordedEvent{EstablishmentID: "e1", Entry: onDevice, ActorID: "admin", ActorRole: domain.RoleAdmin}, "", ""},
+		{"an establishment manager", domain.TimeEntryAmendedEvent{EstablishmentID: "e1", Entry: entry, ActorID: "manager", ActorRole: domain.RoleUser, Reason: reason}, "", ""},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			f := newTimeEntryFixture()
 
-			f.service.Audit(context.Background(), tt.event)
+			deliver(f.service.EventHandlers(), tt.event)
 
 			if tt.action == "" {
 				if len(f.events.events) != 0 {
@@ -460,7 +459,7 @@ func TestTimeEntryServiceAudit(t *testing.T) {
 			if len(f.events.events) != 1 {
 				t.Fatalf("events = %+v", f.events.events)
 			}
-			audit := f.events.events[0].(domain.AdminAction).Entry
+			audit := f.events.events[0].(domain.AdminActionEvent).Entry
 			if audit.Action != tt.action || audit.ActorID != "admin" || audit.TargetType != domain.AuditTargetTimeEntry ||
 				audit.TargetID != "root-1" || *audit.TargetLabel != "Luis · 2026-08-08" || *audit.Reason != reason {
 				t.Fatalf("audit = %+v", audit)

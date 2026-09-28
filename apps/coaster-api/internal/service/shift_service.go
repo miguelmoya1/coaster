@@ -79,7 +79,7 @@ func (s *ShiftService) Create(ctx context.Context, establishmentID string, input
 		return err
 	}
 
-	s.events.Publish(ctx, domain.ShiftCreated{EstablishmentID: establishmentID, Shift: *created})
+	s.events.Publish(ctx, domain.ShiftCreatedEvent{EstablishmentID: establishmentID, Shift: *created})
 	return nil
 }
 
@@ -96,7 +96,7 @@ func (s *ShiftService) Delete(ctx context.Context, establishmentID, shiftID stri
 		return err
 	}
 
-	s.events.Publish(ctx, domain.ShiftDeleted{EstablishmentID: shift.EstablishmentID, ShiftID: shiftID})
+	s.events.Publish(ctx, domain.ShiftDeletedEvent{EstablishmentID: shift.EstablishmentID, ShiftID: shiftID})
 	return nil
 }
 
@@ -104,11 +104,13 @@ type shiftDeletedPayload struct {
 	ID string `json:"id"`
 }
 
-func (s *ShiftService) PublishRealtime(_ context.Context, event ports.Event) {
-	switch e := event.(type) {
-	case domain.ShiftCreated:
-		s.realtime.Publish(e.EstablishmentID, domain.RealtimeShiftCreated, e.Shift)
-	case domain.ShiftDeleted:
-		s.realtime.Publish(e.EstablishmentID, domain.RealtimeShiftDeleted, shiftDeletedPayload{ID: e.ShiftID})
+func (s *ShiftService) EventHandlers() []ports.EventHandler {
+	return []ports.EventHandler{
+		ports.On(func(_ context.Context, event domain.ShiftCreatedEvent) {
+			s.realtime.Publish(event.EstablishmentID, domain.RealtimeShiftCreated, event.Shift)
+		}),
+		ports.On(func(_ context.Context, event domain.ShiftDeletedEvent) {
+			s.realtime.Publish(event.EstablishmentID, domain.RealtimeShiftDeleted, shiftDeletedPayload{ID: event.ShiftID})
+		}),
 	}
 }

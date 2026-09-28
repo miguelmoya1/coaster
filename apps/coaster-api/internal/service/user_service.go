@@ -42,12 +42,16 @@ func (s *UserService) UpdateProfile(ctx context.Context, userID string, changes 
 		return err
 	}
 
-	s.events.Publish(ctx, domain.UserUpdated{UserID: userID})
+	s.events.Publish(ctx, domain.UserUpdatedEvent{UserID: userID})
 	return nil
 }
 
-func (s *UserService) ForgetCache(ctx context.Context, event ports.Event) {
-	if updated, ok := event.(domain.UserUpdated); ok {
-		s.cache.Forget(ctx, userRoleCacheKey(updated.UserID), userCacheKey(updated.UserID))
+func (s *UserService) EventHandlers() []ports.EventHandler {
+	return []ports.EventHandler{
+		ports.On(s.forgetCache),
 	}
+}
+
+func (s *UserService) forgetCache(ctx context.Context, event domain.UserUpdatedEvent) {
+	s.cache.Forget(ctx, userRoleCacheKey(event.UserID), userCacheKey(event.UserID))
 }

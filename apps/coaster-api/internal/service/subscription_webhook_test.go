@@ -7,7 +7,6 @@ import (
 	"testing"
 
 	"coaster-api/internal/core/domain"
-	"coaster-api/internal/core/ports"
 )
 
 func (test *subscriptionTest) deliver(event domain.StripeEvent) error {
@@ -66,7 +65,7 @@ func TestCheckoutCompleted(t *testing.T) {
 			*upsert.StripeSubscriptionID != "sub_new" || upsert.Billing == nil || upsert.Billing.Seats != 4 {
 			t.Errorf("upsert = %+v", upsert)
 		}
-		want := []ports.Event{domain.SubscriptionActivated{EstablishmentID: "establishment-1", StripeSubscriptionID: "sub_new"}}
+		want := []any{domain.SubscriptionActivatedEvent{EstablishmentID: "establishment-1", StripeSubscriptionID: "sub_new"}}
 		if !reflect.DeepEqual(test.events.events, want) {
 			t.Errorf("events = %v", test.events.events)
 		}
@@ -154,7 +153,7 @@ func TestCheckoutCompletedDuplicates(t *testing.T) {
 		if !slices.Equal(test.payments.cancelled, []string{"sub_duplicate"}) || len(test.repo.upserts) != 0 {
 			t.Errorf("cancelled = %v, upserts = %v", test.payments.cancelled, test.repo.upserts)
 		}
-		want := []ports.Event{domain.DuplicateSubscriptionDetected{
+		want := []any{domain.DuplicateSubscriptionDetectedEvent{
 			EstablishmentID: "establishment-1", KeptSubscriptionID: "sub_original", CancelledSubscriptionID: "sub_duplicate",
 		}}
 		if !reflect.DeepEqual(test.events.events, want) {
@@ -240,28 +239,28 @@ func TestSubscriptionChanged(t *testing.T) {
 			name: "processes a subscription that replaced a dead one",
 			rows: []domain.EstablishmentSubscription{tracked("sub_old")}, stripe: []domain.StripeSubscription{dead},
 			incoming: liveStripeSubscription("sub_new"), wantUpserted: "establishment-1",
-			wantEvents: []string{domain.SubscriptionRenewedEventName}, wantStatus: domain.SubscriptionActive, wantPlan: domain.PlanPro, wantKeepsID: true,
+			wantEvents: []string{"SubscriptionRenewedEvent"}, wantStatus: domain.SubscriptionActive, wantPlan: domain.PlanPro, wantKeepsID: true,
 		},
 		{name: "fails without a customer", incoming: noCustomer, wantCode: domain.CodeStripeWebhookCustomerMissing},
 		{name: "acknowledges a subscription of no establishment", incoming: orphan},
 		{
 			name: "ACTIVE with its period", rows: []domain.EstablishmentSubscription{tracked("sub_1")},
 			incoming: liveStripeSubscription("sub_1"), wantUpserted: "establishment-1",
-			wantEvents: []string{domain.SubscriptionRenewedEventName}, wantStatus: domain.SubscriptionActive, wantPlan: domain.PlanPro, wantKeepsID: true,
+			wantEvents: []string{"SubscriptionRenewedEvent"}, wantStatus: domain.SubscriptionActive, wantPlan: domain.PlanPro, wantKeepsID: true,
 		},
 		{
 			name: "falls back to metadata.establishmentId", incoming: fromMetadata, wantUpserted: "establishment-9",
-			wantEvents: []string{domain.SubscriptionRenewedEventName}, wantStatus: domain.SubscriptionActive, wantPlan: domain.PlanPro, wantKeepsID: true,
+			wantEvents: []string{"SubscriptionRenewedEvent"}, wantStatus: domain.SubscriptionActive, wantPlan: domain.PlanPro, wantKeepsID: true,
 		},
 		{
 			name: "a terminal cancellation is CANCELED, FREE and without id", rows: []domain.EstablishmentSubscription{tracked("sub_1")},
 			incoming: terminal, wantUpserted: "establishment-1",
-			wantEvents: []string{domain.SubscriptionCancelledEventName}, wantStatus: domain.SubscriptionCanceled, wantPlan: domain.PlanFree, wantKeepsID: false,
+			wantEvents: []string{"SubscriptionCancelledEvent"}, wantStatus: domain.SubscriptionCanceled, wantPlan: domain.PlanFree, wantKeepsID: false,
 		},
 		{
 			name: "a scheduled cancellation is CANCELED and keeps the id", rows: []domain.EstablishmentSubscription{tracked("sub_1")},
 			incoming: scheduled, wantUpserted: "establishment-1",
-			wantEvents: []string{domain.SubscriptionCancelledEventName}, wantStatus: domain.SubscriptionCanceled, wantPlan: domain.PlanPro, wantKeepsID: true,
+			wantEvents: []string{"SubscriptionCancelledEvent"}, wantStatus: domain.SubscriptionCanceled, wantPlan: domain.PlanPro, wantKeepsID: true,
 		},
 	}
 
@@ -312,7 +311,7 @@ func TestInvoiceEvents(t *testing.T) {
 		row        domain.EstablishmentSubscription
 		invoice    domain.StripeInvoice
 		wantStatus domain.SubscriptionStatus
-		wantEvent  ports.Event
+		wantEvent  any
 	}{
 		{
 			name: "paid: nothing without customer and subscription", eventType: domain.StripeEventInvoicePaid,
@@ -330,13 +329,13 @@ func TestInvoiceEvents(t *testing.T) {
 			name: "paid: PAST_DUE recovers", eventType: domain.StripeEventInvoicePaid,
 			row: stored(domain.SubscriptionPastDue), invoice: domain.StripeInvoice{ID: "in_1", CustomerID: "cus_1", SubscriptionID: "sub_1"},
 			wantStatus: domain.SubscriptionActive,
-			wantEvent:  domain.SubscriptionRenewed{EstablishmentID: "establishment-1", StripeSubscriptionID: "sub_1"},
+			wantEvent:  domain.SubscriptionRenewedEvent{EstablishmentID: "establishment-1", StripeSubscriptionID: "sub_1"},
 		},
 		{
 			name: "paid: UNPAID found by customer recovers", eventType: domain.StripeEventInvoicePaid,
 			row: stored(domain.SubscriptionUnpaid), invoice: domain.StripeInvoice{ID: "in_1", CustomerID: "cus_1"},
 			wantStatus: domain.SubscriptionActive,
-			wantEvent:  domain.SubscriptionRenewed{EstablishmentID: "establishment-1", StripeSubscriptionID: "sub_1"},
+			wantEvent:  domain.SubscriptionRenewedEvent{EstablishmentID: "establishment-1", StripeSubscriptionID: "sub_1"},
 		},
 		{
 			name: "failed: nothing without customer and subscription", eventType: domain.StripeEventInvoicePaymentFailed,
@@ -350,13 +349,13 @@ func TestInvoiceEvents(t *testing.T) {
 			name: "failed: marks PAST_DUE", eventType: domain.StripeEventInvoicePaymentFailed,
 			row: stored(domain.SubscriptionActive), invoice: domain.StripeInvoice{ID: "in_1", CustomerID: "cus_1", SubscriptionID: "sub_1"},
 			wantStatus: domain.SubscriptionPastDue,
-			wantEvent:  domain.SubscriptionPaymentFailed{EstablishmentID: "establishment-1", StripeCustomerID: "cus_1"},
+			wantEvent:  domain.SubscriptionPaymentFailedEvent{EstablishmentID: "establishment-1", StripeCustomerID: "cus_1"},
 		},
 		{
 			name: "failed: found by customer", eventType: domain.StripeEventInvoicePaymentFailed,
 			row: stored(domain.SubscriptionActive), invoice: domain.StripeInvoice{ID: "in_1", CustomerID: "cus_1"},
 			wantStatus: domain.SubscriptionPastDue,
-			wantEvent:  domain.SubscriptionPaymentFailed{EstablishmentID: "establishment-1", StripeCustomerID: "cus_1"},
+			wantEvent:  domain.SubscriptionPaymentFailedEvent{EstablishmentID: "establishment-1", StripeCustomerID: "cus_1"},
 		},
 	}
 
@@ -371,9 +370,9 @@ func TestInvoiceEvents(t *testing.T) {
 				t.Errorf("status = %s, want %s", got, tt.wantStatus)
 			}
 
-			var want []ports.Event
+			var want []any
 			if tt.wantEvent != nil {
-				want = []ports.Event{tt.wantEvent}
+				want = []any{tt.wantEvent}
 			}
 			if !reflect.DeepEqual(test.events.events, want) {
 				t.Errorf("events = %+v, want %+v", test.events.events, want)

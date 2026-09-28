@@ -56,7 +56,7 @@ type AuthIdentityRepository interface {
 }
 
 type AuthEventRepository interface {
-	Record(ctx context.Context, event domain.AuthEventOccurred) error
+	Record(ctx context.Context, event domain.AuthEvent) error
 	FindRecentOf(ctx context.Context, userID string, limit int) ([]domain.AuthEventRecord, error)
 }
 

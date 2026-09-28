@@ -421,26 +421,19 @@ func TestSyncSeats(t *testing.T) {
 	}
 }
 
-func TestSubscriptionEventSubscribers(t *testing.T) {
+func TestSubscriptionChangesForgetTheCacheAndReachRealtime(t *testing.T) {
 	test := newSubscriptionTest(newFakeSubscriptions(), newFakePayments())
-	ctx := context.Background()
 
-	events := []domain.SubscriptionRenewed{{EstablishmentID: "establishment-1", StripeSubscriptionID: "sub_123"}}
-	for _, event := range events {
-		test.service.ForgetCache(ctx, event)
-		test.service.PublishRealtime(ctx, event)
-	}
-	test.service.ForgetCache(ctx, domain.SubscriptionCancelled{EstablishmentID: "establishment-2"})
-	test.service.PublishRealtime(ctx, domain.SubscriptionPaymentFailed{EstablishmentID: "establishment-3"})
-	test.service.PublishRealtime(ctx, domain.SubscriptionOverridden{EstablishmentID: "establishment-4"})
-	test.service.ForgetCache(ctx, domain.DuplicateSubscriptionDetected{EstablishmentID: "ignored"})
+	deliver(test.service.EventHandlers(), domain.SubscriptionRenewedEvent{EstablishmentID: "establishment-1", StripeSubscriptionID: "sub_123"})
+	deliver(test.service.EventHandlers(), domain.SubscriptionCancelledEvent{EstablishmentID: "establishment-2"})
+	deliver(test.service.EventHandlers(), domain.DuplicateSubscriptionDetectedEvent{EstablishmentID: "establishment-3"})
 
 	wantForgotten := []string{"establishment:establishment-1:subscription", "establishment:establishment-2:subscription"}
 	if !slices.Equal(test.cache.forgotten, wantForgotten) {
 		t.Errorf("forgotten = %v, want %v", test.cache.forgotten, wantForgotten)
 	}
 
-	wantPublished := []string{"establishment-1:subscriptionUpdated", "establishment-3:subscriptionUpdated", "establishment-4:subscriptionUpdated"}
+	wantPublished := []string{"establishment-1:subscriptionUpdated", "establishment-2:subscriptionUpdated"}
 	if !slices.Equal(test.realtime.published, wantPublished) {
 		t.Errorf("published = %v, want %v", test.realtime.published, wantPublished)
 	}

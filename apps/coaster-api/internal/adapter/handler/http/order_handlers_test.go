@@ -114,7 +114,7 @@ func (r *tableHandlerRepo) Delete(context.Context, string) error {
 
 type orderHandlerEvents struct{}
 
-func (orderHandlerEvents) Publish(context.Context, ports.Event) {}
+func (orderHandlerEvents) Publish(context.Context, any) {}
 
 func newOrderServer(modules []domain.EstablishmentModule) (http.Handler, *orderHandlerRepo, *tableHandlerRepo) {
 	orders := &orderHandlerRepo{}

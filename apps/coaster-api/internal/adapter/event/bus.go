@@ -3,33 +3,34 @@ package event
 import (
 	"context"
 	"log/slog"
+	"reflect"
 	"sync"
 
 	"coaster-api/internal/core/ports"
 )
 
-type Handler func(ctx context.Context, event ports.Event)
-
 type Bus struct {
 	mu       sync.RWMutex
-	handlers map[string][]Handler
+	handlers map[reflect.Type][]ports.EventHandler
 	running  sync.WaitGroup
 }
 
 func NewBus() *Bus {
-	return &Bus{handlers: make(map[string][]Handler)}
+	return &Bus{handlers: make(map[reflect.Type][]ports.EventHandler)}
 }
 
-func (b *Bus) Subscribe(name string, handler Handler) {
+func (b *Bus) Subscribe(handlers ...ports.EventHandler) {
 	b.mu.Lock()
 	defer b.mu.Unlock()
 
-	b.handlers[name] = append(b.handlers[name], handler)
+	for _, handler := range handlers {
+		b.handlers[handler.Event] = append(b.handlers[handler.Event], handler)
+	}
 }
 
-func (b *Bus) Publish(ctx context.Context, event ports.Event) {
+func (b *Bus) Publish(ctx context.Context, event any) {
 	b.mu.RLock()
-	handlers := b.handlers[event.Name()]
+	handlers := b.handlers[reflect.TypeOf(event)]
 	b.mu.RUnlock()
 
 	ctx = context.WithoutCancel(ctx)
@@ -38,11 +39,10 @@ func (b *Bus) Publish(ctx context.Context, event ports.Event) {
 		b.running.Go(func() {
 			defer func() {
 				if recovered := recover(); recovered != nil {
-					slog.Error("event handler panicked", "event", event.Name(), "panic", recovered)
+					slog.Error("event handler panicked", "event", handler.Event.String(), "panic", recovered)
 				}
 			}()
-
-			handler(ctx, event)
+			handler.Handle(ctx, event)
 		})
 	}
 }

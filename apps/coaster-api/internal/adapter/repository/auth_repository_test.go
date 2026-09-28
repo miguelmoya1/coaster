@@ -237,7 +237,7 @@ func TestAuthEventRepository(t *testing.T) {
 	user := createTestUser(t, "ana@example.com")
 	events := NewAuthEventRepository(testPool)
 
-	err := events.Record(ctx, domain.AuthEventOccurred{
+	err := events.Record(ctx, domain.AuthEvent{
 		Type:     domain.AuthEventLoginSucceeded,
 		UserID:   user.ID,
 		Email:    " ANA@example.com",
@@ -247,7 +247,7 @@ func TestAuthEventRepository(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Record: %v", err)
 	}
-	if err := events.Record(ctx, domain.AuthEventOccurred{Type: domain.AuthEventLoginFailed, Email: "nadie@example.com"}); err != nil {
+	if err := events.Record(ctx, domain.AuthEvent{Type: domain.AuthEventLoginFailed, Email: "nadie@example.com"}); err != nil {
 		t.Fatalf("Record without user: %v", err)
 	}
 

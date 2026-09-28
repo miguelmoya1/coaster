@@ -8,15 +8,14 @@ import (
 	"time"
 
 	"coaster-api/internal/core/domain"
-	"coaster-api/internal/core/ports"
 )
 
 type catalogEvents struct {
 	mu     sync.Mutex
-	events []ports.Event
+	events []any
 }
 
-func (p *catalogEvents) Publish(_ context.Context, event ports.Event) {
+func (p *catalogEvents) Publish(_ context.Context, event any) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 	p.events = append(p.events, event)
