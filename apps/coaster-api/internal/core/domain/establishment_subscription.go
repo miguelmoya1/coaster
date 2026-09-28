@@ -31,10 +31,10 @@ func (s *EstablishmentSubscription) State() *SubscriptionState {
 	return &SubscriptionState{
 		Status:               s.Status,
 		StripeSubscriptionID: s.StripeSubscriptionID,
-		CurrentPeriodEnd:     billingTime(s.CurrentPeriodEnd),
-		TrialEndsAt:          billingTime(s.TrialEndsAt),
+		CurrentPeriodEnd:     OptionalTime(s.CurrentPeriodEnd),
+		TrialEndsAt:          OptionalTime(s.TrialEndsAt),
 		ManualPlan:           s.ManualPlan,
-		ManualGrantExpiresAt: billingTime(s.ManualGrantExpiresAt),
+		ManualGrantExpiresAt: OptionalTime(s.ManualGrantExpiresAt),
 	}
 }
 
@@ -46,10 +46,10 @@ func (s *EstablishmentSubscription) View(now time.Time) EstablishmentSubscriptio
 		Status:               s.effectiveStatus(now),
 		StripeCustomerID:     s.StripeCustomerID,
 		StripeSubscriptionID: s.StripeSubscriptionID,
-		CurrentPeriodStart:   billingTime(s.CurrentPeriodStart),
-		CurrentPeriodEnd:     billingTime(s.CurrentPeriodEnd),
-		TrialEndsAt:          billingTime(s.TrialEndsAt),
-		CanceledAt:           billingTime(s.CanceledAt),
+		CurrentPeriodStart:   OptionalTime(s.CurrentPeriodStart),
+		CurrentPeriodEnd:     OptionalTime(s.CurrentPeriodEnd),
+		TrialEndsAt:          OptionalTime(s.TrialEndsAt),
+		CanceledAt:           OptionalTime(s.CanceledAt),
 		CreatedAt:            Time{Time: s.CreatedAt},
 		UpdatedAt:            Time{Time: s.UpdatedAt},
 	}
@@ -57,7 +57,7 @@ func (s *EstablishmentSubscription) View(now time.Time) EstablishmentSubscriptio
 	if IsManualGrantActive(s.State(), now) {
 		view.Plan = *s.ManualPlan
 		view.Status = SubscriptionActive
-		view.ManualGrant = &ManualGrant{Plan: *s.ManualPlan, ExpiresAt: billingTime(s.ManualGrantExpiresAt)}
+		view.ManualGrant = &ManualGrant{Plan: *s.ManualPlan, ExpiresAt: OptionalTime(s.ManualGrantExpiresAt)}
 	}
 
 	return view
@@ -179,11 +179,4 @@ type SubscriptionUpsert struct {
 	StripeCustomerID     string
 	StripeSubscriptionID *string
 	Billing              *SubscriptionBilling
-}
-
-func billingTime(t *time.Time) *Time {
-	if t == nil {
-		return nil
-	}
-	return &Time{Time: *t}
 }

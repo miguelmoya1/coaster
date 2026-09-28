@@ -1,12 +1,11 @@
 package middleware
 
 import (
-	"bytes"
-	"encoding/json"
 	"errors"
 	"log/slog"
 	"net/http"
 
+	"coaster-api/internal/adapter/nodejson"
 	"coaster-api/internal/core/domain"
 )
 
@@ -29,29 +28,16 @@ type paymentRequiredError struct {
 }
 
 func WriteJSON(w http.ResponseWriter, status int, v any) {
-	body, err := marshal(v)
+	body, err := nodejson.Marshal(v)
 	if err != nil {
 		slog.Error("encoding a response", "error", err)
 		status = http.StatusInternalServerError
-		body, _ = marshal(plainError{Status: status, Message: "Internal server error"})
+		body, _ = nodejson.Marshal(plainError{Status: status, Message: "Internal server error"})
 	}
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(status)
 	w.Write(body)
-}
-
-func marshal(v any) ([]byte, error) {
-	var buf bytes.Buffer
-
-	encoder := json.NewEncoder(&buf)
-	encoder.SetEscapeHTML(false)
-
-	if err := encoder.Encode(v); err != nil {
-		return nil, err
-	}
-
-	return bytes.TrimSuffix(buf.Bytes(), []byte("\n")), nil
 }
 
 func WriteError(w http.ResponseWriter, err error) {

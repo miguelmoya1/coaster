@@ -13,6 +13,7 @@ import (
 	"github.com/openai/openai-go/v3/option"
 	"github.com/openai/openai-go/v3/shared"
 
+	"coaster-api/internal/adapter/nodejson"
 	"coaster-api/internal/core/ports"
 )
 
@@ -227,7 +228,7 @@ func runTool(ctx context.Context, tools []ports.AITool, call toolCall) string {
 		return err.Error()
 	}
 
-	result, err := marshal(tool.Run(ctx, input))
+	result, err := nodejson.Marshal(tool.Run(ctx, input))
 	if err != nil {
 		return fmt.Sprintf("the result of %s could not be written as JSON: %v", call.name, err)
 	}
@@ -266,14 +267,4 @@ func toolParams(tools []ports.AITool) ([]openai.ChatCompletionToolUnionParam, er
 		}))
 	}
 	return params, nil
-}
-
-func marshal(v any) ([]byte, error) {
-	var buf bytes.Buffer
-	encoder := json.NewEncoder(&buf)
-	encoder.SetEscapeHTML(false)
-	if err := encoder.Encode(v); err != nil {
-		return nil, err
-	}
-	return bytes.TrimSuffix(buf.Bytes(), []byte("\n")), nil
 }

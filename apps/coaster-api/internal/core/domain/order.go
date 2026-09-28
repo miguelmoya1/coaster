@@ -214,7 +214,7 @@ func (row OrderRow) ToOrder() Order {
 	return Order{
 		ID:              row.ID,
 		EstablishmentID: row.EstablishmentID,
-		TableID:         nonEmpty(row.TableID),
+		TableID:         NilIfEmpty(row.TableID),
 		TableName:       tableName,
 		Status:          row.Status,
 		TotalAmount:     row.TotalAmount,
@@ -223,8 +223,8 @@ func (row OrderRow) ToOrder() Order {
 		Items:           items,
 		Adjustments:     row.ToAdjustments(),
 		PaymentMethod:   row.PaymentMethod,
-		Notes:           nonEmpty(row.Notes),
-		TicketNotes:     nonEmpty(row.TicketNotes),
+		Notes:           NilIfEmpty(row.Notes),
+		TicketNotes:     NilIfEmpty(row.TicketNotes),
 		TipAmount:       row.TipAmount,
 		NetTotal:        pricing.NetTotal,
 		TaxBreakdown:    pricing.TaxBreakdown,
@@ -243,10 +243,10 @@ func (row OrderRow) ToAdjustments() []OrderAdjustment {
 			ID:        adjustment.ID,
 			OrderID:   adjustment.OrderID,
 			Target:    adjustment.Target,
-			ItemID:    nonEmpty(adjustment.ItemID),
+			ItemID:    NilIfEmpty(adjustment.ItemID),
 			Type:      adjustment.Type,
 			Value:     adjustment.Value,
-			Reason:    nonEmpty(adjustment.Reason),
+			Reason:    NilIfEmpty(adjustment.Reason),
 			CreatedAt: NewInstant(adjustment.CreatedAt),
 		})
 	}
@@ -268,7 +268,7 @@ func (item OrderItemRow) ToOrderItem() OrderItem {
 		PaymentStatus:    item.PaymentStatus,
 		DeliveryStatus:   item.DeliveryStatus,
 		PaymentMethod:    item.PaymentMethod,
-		Notes:            nonEmpty(item.Notes),
+		Notes:            NilIfEmpty(item.Notes),
 		CreatedAt:        NewInstant(item.CreatedAt),
 		UpdatedAt:        NewInstant(item.UpdatedAt),
 	}
@@ -473,13 +473,6 @@ type OrderMerge struct {
 	PrimaryTableName *string
 	Sources          []MergedOrder
 	TargetTableID    *string
-}
-
-func nonEmpty(value *string) *string {
-	if value == nil || *value == "" {
-		return nil
-	}
-	return value
 }
 
 type OrderLineInput struct {

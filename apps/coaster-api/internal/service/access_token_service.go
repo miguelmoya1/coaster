@@ -135,9 +135,7 @@ func newCachedUser(user domain.AuthUser) *cachedUser {
 		Role:     user.Role,
 	}
 
-	if user.EmailVerifiedAt != nil {
-		cached.EmailVerifiedAt = &domain.Time{Time: *user.EmailVerifiedAt}
-	}
+	cached.EmailVerifiedAt = domain.OptionalTime(user.EmailVerifiedAt)
 	if user.Language != nil {
 		cached.Preferences = &cachedPreferences{Language: *user.Language}
 	}

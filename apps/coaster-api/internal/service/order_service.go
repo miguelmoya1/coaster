@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"strings"
 	"time"
 
 	"coaster-api/internal/core/domain"
@@ -101,7 +100,7 @@ func (s *OrderService) Create(ctx context.Context, establishmentID string, input
 	row, err := s.orders.Create(ctx, domain.NewOrder{
 		EstablishmentID: establishmentID,
 		CreatedByID:     createdByID,
-		TableID:         tableIDOrNil(input.TableID),
+		TableID:         domain.NilIfEmpty(input.TableID),
 		TableName:       tableName,
 		TotalAmount:     totalAmount,
 		Items:           items,
@@ -116,7 +115,7 @@ func (s *OrderService) Create(ctx context.Context, establishmentID string, input
 	s.events.Publish(ctx, domain.OrderCreatedEvent{
 		EstablishmentID: establishmentID,
 		Order:           row.ToOrder(),
-		TableID:         tableIDOrNil(input.TableID),
+		TableID:         domain.NilIfEmpty(input.TableID),
 	})
 	return nil
 }
@@ -280,7 +279,7 @@ func (s *OrderService) Merge(ctx context.Context, establishmentID string, input 
 		}
 	}
 
-	targetTableID := tableIDOrNil(input.TargetTableID)
+	targetTableID := domain.NilIfEmpty(input.TargetTableID)
 	if targetTableID != nil {
 		table, err := findTable(ctx, s.tables, establishmentID, *targetTableID)
 		if err != nil {
@@ -398,11 +397,11 @@ func (s *OrderService) UpdateNotes(ctx context.Context, establishmentID, orderID
 	var changes domain.OrderNotesChanges
 	if input.Notes != nil {
 		changes.ChangeNotes = true
-		changes.Notes = trimOrderNote(*input.Notes)
+		changes.Notes = trimmedOrNil(input.Notes)
 	}
 	if input.TicketNotes != nil {
 		changes.ChangeTicketNotes = true
-		changes.TicketNotes = trimOrderNote(*input.TicketNotes)
+		changes.TicketNotes = trimmedOrNil(input.TicketNotes)
 	}
 
 	row, err := s.orders.UpdateNotes(ctx, orderID, changes)
@@ -423,12 +422,7 @@ func (s *OrderService) UpdateItemNotes(ctx context.Context, establishmentID, ord
 		return domain.NotFound(domain.CodeOrderItemNotFound)
 	}
 
-	var trimmed *string
-	if notes != nil {
-		trimmed = trimOrderNote(*notes)
-	}
-
-	row, err := s.orders.UpdateItemNotes(ctx, orderID, itemID, trimmed)
+	row, err := s.orders.UpdateItemNotes(ctx, orderID, itemID, trimmedOrNil(notes))
 	if err != nil {
 		return err
 	}
@@ -623,21 +617,6 @@ func cutOrderNote(note *string) *string {
 
 	cut := string(runes[:orderNoteMaxLength])
 	return &cut
-}
-
-func trimOrderNote(note string) *string {
-	trimmed := strings.TrimSpace(note)
-	if trimmed == "" {
-		return nil
-	}
-	return &trimmed
-}
-
-func tableIDOrNil(value *string) *string {
-	if value == nil || *value == "" {
-		return nil
-	}
-	return value
 }
 
 func orderDayUTC(t time.Time) time.Time {

@@ -118,7 +118,7 @@ func (s *AIService) productTools(tc *aiToolContext) []ports.AITool {
 			func(ctx context.Context, input updateProductInput) domain.AIToolResult {
 				changes := domain.ProductChanges{
 					Name:          input.Name,
-					CategoryID:    optionalID(input.CategoryID),
+					CategoryID:    domain.NilIfEmpty(input.CategoryID),
 					MinStockAlert: input.MinStockAlert,
 				}
 				if input.Price != nil {

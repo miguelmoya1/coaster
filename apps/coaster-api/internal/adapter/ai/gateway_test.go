@@ -13,6 +13,7 @@ import (
 
 	"github.com/openai/openai-go/v3/option"
 
+	"coaster-api/internal/adapter/nodejson"
 	"coaster-api/internal/core/domain"
 	"coaster-api/internal/core/ports"
 )
@@ -423,7 +424,7 @@ func TestGatewayLeavesOutFallbackModelsWhenThereAreNone(t *testing.T) {
 
 func mustJSON(t *testing.T, v any) string {
 	t.Helper()
-	data, err := marshal(v)
+	data, err := nodejson.Marshal(v)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -146,7 +146,7 @@ func scanEstablishmentSettings(row pgx.Row) (*domain.EstablishmentSettings, erro
 	for _, module := range modules {
 		settings.Modules = append(settings.Modules, domain.EstablishmentModule(module))
 	}
-	settings.ConfiguredAt = timeOrNil(configuredAt)
+	settings.ConfiguredAt = domain.OptionalTime(configuredAt)
 
 	return &settings, nil
 }

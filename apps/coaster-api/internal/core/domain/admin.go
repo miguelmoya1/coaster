@@ -218,15 +218,15 @@ func (row AdminEstablishmentRow) Summary(now time.Time) AdminEstablishmentSummar
 	switch {
 	case grantIsLive:
 		summary.BillingSource = BillingSourceManual
-		summary.AccessEndsAt = billingTime(billing.ManualGrantExpiresAt)
+		summary.AccessEndsAt = OptionalTime(billing.ManualGrantExpiresAt)
 	case stripeAccess:
 		summary.BillingSource = BillingSourceStripe
 	}
 
 	if !grantIsLive {
-		summary.AccessEndsAt = billingTime(billing.CurrentPeriodEnd)
+		summary.AccessEndsAt = OptionalTime(billing.CurrentPeriodEnd)
 		if summary.AccessEndsAt == nil {
-			summary.AccessEndsAt = billingTime(billing.TrialEndsAt)
+			summary.AccessEndsAt = OptionalTime(billing.TrialEndsAt)
 		}
 	}
 

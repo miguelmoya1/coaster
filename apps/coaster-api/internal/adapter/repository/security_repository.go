@@ -92,20 +92,13 @@ func (r *SecurityRepository) SubscriptionState(ctx context.Context, establishmen
 	}
 
 	state.Status = domain.SubscriptionStatus(status)
-	state.CurrentPeriodEnd = timeOrNil(currentPeriodEnd)
-	state.TrialEndsAt = timeOrNil(trialEndsAt)
-	state.ManualGrantExpiresAt = timeOrNil(manualGrantExpiresAt)
+	state.CurrentPeriodEnd = domain.OptionalTime(currentPeriodEnd)
+	state.TrialEndsAt = domain.OptionalTime(trialEndsAt)
+	state.ManualGrantExpiresAt = domain.OptionalTime(manualGrantExpiresAt)
 	if manualPlan != nil {
 		plan := domain.SubscriptionPlan(*manualPlan)
 		state.ManualPlan = &plan
 	}
 
 	return &state, nil
-}
-
-func timeOrNil(t *time.Time) *domain.Time {
-	if t == nil {
-		return nil
-	}
-	return &domain.Time{Time: *t}
 }

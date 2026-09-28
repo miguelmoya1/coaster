@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"regexp"
+	"slices"
 	"strings"
 
 	"coaster-api/internal/core/domain"
@@ -179,26 +180,16 @@ func (tc *aiToolContext) tableNameOfOpenOrder(orderID string) string {
 	return "No table"
 }
 
-func (tc *aiToolContext) unknownProductIDs(lines []domain.OrderLineInput) []string {
+const noKnownProducts = "None of the requested products are available in this establishment's menu."
+
+func (tc *aiToolContext) checkProducts(lines []domain.OrderLineInput) (domain.AIToolResult, bool) {
 	var unknown []string
 	for _, line := range lines {
-		known := false
-		for _, product := range tc.products {
-			if product.ID == line.ProductID {
-				known = true
-				break
-			}
-		}
-		if !known {
+		if !slices.ContainsFunc(tc.products, func(product domain.Product) bool { return product.ID == line.ProductID }) {
 			unknown = append(unknown, line.ProductID)
 		}
 	}
-	return unknown
-}
 
-const noKnownProducts = "None of the requested products are available in this establishment's menu."
-
-func productsCheck(lines []domain.OrderLineInput, unknown []string) (domain.AIToolResult, bool) {
 	if len(unknown) == len(lines) {
 		return aiFailed(noKnownProducts), false
 	}
@@ -277,14 +268,14 @@ func (s *AIService) orderTools(tc *aiToolContext) []ports.AITool {
 					lines = append(lines, domain.OrderLineInput{ProductID: item.ProductID, Quantity: item.Quantity})
 				}
 
-				if failed, ok := productsCheck(lines, tc.unknownProductIDs(lines)); !ok {
+				if failed, ok := tc.checkProducts(lines); !ok {
 					return failed
 				}
 
 				return tc.execute(domain.PermissionCreateOrder, nil, func() error {
 					return s.orders.Create(ctx, tc.establishmentID, domain.CreateOrderInput{
 						CreatedByID: tc.user.ID,
-						TableID:     optionalID(&input.TableID),
+						TableID:     domain.NilIfEmpty(&input.TableID),
 						Items:       lines,
 					})
 				})
@@ -297,7 +288,7 @@ func (s *AIService) orderTools(tc *aiToolContext) []ports.AITool {
 					lines = append(lines, domain.OrderLineInput{ProductID: item.ProductID, Quantity: item.Quantity})
 				}
 
-				if failed, ok := productsCheck(lines, tc.unknownProductIDs(lines)); !ok {
+				if failed, ok := tc.checkProducts(lines); !ok {
 					return failed
 				}
 
@@ -346,7 +337,7 @@ func (s *AIService) orderTools(tc *aiToolContext) []ports.AITool {
 				return tc.execute(domain.PermissionMergeOrders, nil, func() error {
 					return s.orders.Merge(ctx, tc.establishmentID, domain.MergeOrdersInput{
 						OrderIDs:      input.OrderIDs,
-						TargetTableID: optionalID(input.TargetTableID),
+						TargetTableID: domain.NilIfEmpty(input.TargetTableID),
 					})
 				})
 			}),
@@ -364,7 +355,7 @@ func (s *AIService) orderTools(tc *aiToolContext) []ports.AITool {
 				target := domain.AdjustmentTarget(input.Target)
 				adjustmentType := domain.AdjustmentType(input.Type)
 
-				if target == domain.AdjustmentItem && optionalID(input.ItemID) == nil {
+				if target == domain.AdjustmentItem && domain.NilIfEmpty(input.ItemID) == nil {
 					return aiFailed("An itemId is required to discount a single order item.")
 				}
 				if adjustmentType == domain.AdjustmentPercentage && (input.Value < 1 || input.Value > 100) {
@@ -381,7 +372,7 @@ func (s *AIService) orderTools(tc *aiToolContext) []ports.AITool {
 						Target: target,
 						Type:   adjustmentType,
 						Value:  value,
-						ItemID: optionalID(input.ItemID),
+						ItemID: domain.NilIfEmpty(input.ItemID),
 						Reason: input.Reason,
 					})
 				})

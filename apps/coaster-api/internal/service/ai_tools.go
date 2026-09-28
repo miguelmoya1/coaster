@@ -179,10 +179,3 @@ func tableNameIn(tables []domain.Table, tableID *string) string {
 	}
 	return "No table"
 }
-
-func optionalID(id *string) *string {
-	if id == nil || *id == "" {
-		return nil
-	}
-	return id
-}

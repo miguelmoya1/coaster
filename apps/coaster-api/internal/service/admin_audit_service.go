@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"log/slog"
-	"strings"
 
 	"coaster-api/internal/core/domain"
 	"coaster-api/internal/core/ports"
@@ -37,16 +36,4 @@ func (s *AdminAuditService) RecordAction(ctx context.Context, event ports.Event)
 		slog.Error("failed to record an admin action; the action itself went through and is now unaudited",
 			"action", entry.Action, "actor", entry.ActorID, "targetType", entry.TargetType, "target", entry.TargetID, "error", err)
 	}
-}
-
-func adminNote(value *string) *string {
-	if value == nil {
-		return nil
-	}
-
-	trimmed := strings.TrimSpace(*value)
-	if trimmed == "" {
-		return nil
-	}
-	return &trimmed
 }

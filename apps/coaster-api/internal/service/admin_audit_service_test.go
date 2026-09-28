@@ -54,17 +54,3 @@ func TestAdminMetricsServiceOverview(t *testing.T) {
 		t.Errorf("windows = %v, %v, %v", metrics.now, metrics.last7Days, metrics.last30Days)
 	}
 }
-
-func TestAdminNote(t *testing.T) {
-	text := func(value string) *string { return &value }
-
-	if got := adminNote(text("  Bar Pepe ")); got == nil || *got != "Bar Pepe" {
-		t.Errorf("adminNote(padded) = %v", got)
-	}
-	if got := adminNote(text("   ")); got != nil {
-		t.Errorf("adminNote(blank) = %q", *got)
-	}
-	if got := adminNote(nil); got != nil {
-		t.Errorf("adminNote(nil) = %q", *got)
-	}
-}

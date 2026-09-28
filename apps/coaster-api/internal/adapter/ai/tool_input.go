@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"strings"
 
+	"coaster-api/internal/adapter/nodejson"
 	"coaster-api/internal/core/ports"
 )
 
@@ -33,7 +34,7 @@ func parseToolInput(tool ports.AITool, arguments string) (json.RawMessage, error
 			tool.Name, compactJSON(arguments), issuesText(issues))
 	}
 
-	return marshal(value)
+	return nodejson.Marshal(value)
 }
 
 type toolSchema struct {

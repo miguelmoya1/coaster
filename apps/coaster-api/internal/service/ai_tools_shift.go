@@ -142,7 +142,7 @@ func (s *AIService) shiftTools(tc *aiToolContext) []ports.AITool {
 			`Ask to swap one of the current user's own shifts, optionally targeting a specific colleague. Use it for "no puedo el sábado, ¿alguien me cambia el turno?".`,
 			func(ctx context.Context, input requestShiftExchangeInput) domain.AIToolResult {
 				return tc.execute(domain.PermissionCreateExchange, nil, func() error {
-					return s.exchanges.Request(ctx, tc.establishmentID, input.ShiftID, tc.user.ID, optionalID(input.TargetUserID))
+					return s.exchanges.Request(ctx, tc.establishmentID, input.ShiftID, tc.user.ID, domain.NilIfEmpty(input.TargetUserID))
 				})
 			}),
 

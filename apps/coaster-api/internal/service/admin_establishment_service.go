@@ -194,7 +194,7 @@ func (s *AdminEstablishmentService) GrantPlan(ctx context.Context, actorID, esta
 		expiresAt, expiresAtText = &expires, &text
 	}
 
-	reason := adminNote(input.Reason)
+	reason := trimmedOrNil(input.Reason)
 
 	err = s.establishments.GrantPlan(ctx, establishmentID, domain.ManualPlanGrant{
 		Plan:        input.Plan,
@@ -246,7 +246,7 @@ func (s *AdminEstablishmentService) RevokePlan(ctx context.Context, actorID, est
 		TargetType:  domain.AuditTargetEstablishment,
 		TargetID:    establishmentID,
 		TargetLabel: &establishment.Name,
-		Reason:      adminNote(reason),
+		Reason:      trimmedOrNil(reason),
 		Metadata:    revoked,
 	}})
 	s.events.Publish(ctx, domain.SubscriptionOverridden{EstablishmentID: establishmentID})

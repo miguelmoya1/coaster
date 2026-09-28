@@ -62,7 +62,7 @@ func (s *BetaTesterService) Add(ctx context.Context, actorID, email string, note
 		return domain.Conflict(domain.CodeBetaTesterAlreadyExists)
 	}
 
-	note = adminNote(note)
+	note = trimmedOrNil(note)
 	id, err := s.testers.Add(ctx, email, note, actorID)
 	if err != nil {
 		return err

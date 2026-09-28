@@ -59,7 +59,8 @@ internal/
     ├── payment/        Stripe
     ├── email/          Resend + plantillas
     ├── storage/        GCS (URLs firmadas)
-    └── ai/             AI Gateway + herramientas
+    ├── ai/             AI Gateway + herramientas
+    └── nodejson/       JSON como lo escribe JSON.stringify (respuestas HTTP e IA)
 ```
 
 | En Nest | En Go |

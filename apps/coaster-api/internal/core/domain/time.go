@@ -16,6 +16,13 @@ func NewTime(t time.Time) Time {
 	return Time{Time: t}
 }
 
+func OptionalTime(t *time.Time) *Time {
+	if t == nil {
+		return nil
+	}
+	return &Time{Time: *t}
+}
+
 func (t Time) MarshalJSON() ([]byte, error) {
 	return []byte(`"` + t.UTC().Format(isoLayout) + `"`), nil
 }
