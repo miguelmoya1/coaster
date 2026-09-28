@@ -1,5 +1,5 @@
 SELECT e.id, e.name, e."createdAt",
-       (SELECT count(*) FROM "EstablishmentMember" m WHERE m."establishmentId" = e.id),
+       (SELECT count(*) FROM "EstablishmentMember" m WHERE m."establishmentId" = e.id AND m.active AND m."deletedAt" IS NULL),
        owner.name, owner.email,
        s.id, s.plan::text, s.status::text, s."stripeCustomerId", s."stripeSubscriptionId", s."currentPeriodStart",
        s."currentPeriodEnd", s."trialEndsAt", s."canceledAt", s.seats, s."manualPlan"::text, s."manualGrantExpiresAt",

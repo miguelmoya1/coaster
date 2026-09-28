@@ -198,7 +198,7 @@ func TestAdminUserRepository(t *testing.T) {
 		t.Fatalf("List = %+v, %d, %v", all, total, err)
 	}
 	ana := all[0]
-	if ana.Language != "en" || ana.EstablishmentCount != 3 || ana.Role != domain.RoleUser || ana.PhotoURL != nil {
+	if ana.Language != "en" || ana.EstablishmentCount != 1 || ana.Role != domain.RoleUser || ana.PhotoURL != nil {
 		t.Errorf("ana = %+v", ana)
 	}
 	if all[2].Language != domain.DefaultLanguage || all[2].EstablishmentCount != 0 {
@@ -305,7 +305,7 @@ func TestAdminEstablishmentRepositoryList(t *testing.T) {
 	}
 
 	manual := all[3]
-	if manual.MemberCount != 3 || *manual.OwnerName != "Ana" || *manual.OwnerEmail != "ana@bar.com" {
+	if manual.MemberCount != 1 || *manual.OwnerName != "Ana" || *manual.OwnerEmail != "ana@bar.com" {
 		t.Errorf("manual = %+v", manual)
 	}
 	billing := manual.Billing
@@ -321,7 +321,8 @@ func TestAdminEstablishmentRepositoryList(t *testing.T) {
 	}{
 		{"by id", domain.AdminEstablishmentFilter{Search: "stripe"}, []string{"stripe"}},
 		{"by part of the name", domain.AdminEstablishmentFilter{Search: "LUNA"}, []string{"stripe"}},
-		{"by the email of a member, removed ones too", domain.AdminEstablishmentFilter{Search: "old.com"}, []string{"manual"}},
+		{"not by the email of a removed member", domain.AdminEstablishmentFilter{Search: "old.com"}, nil},
+		{"by the email of a member, inactive ones too", domain.AdminEstablishmentFilter{Search: "cafe.com"}, []string{"stripe", "manual"}},
 		{"by status", domain.AdminEstablishmentFilter{Status: domain.SubscriptionActive}, []string{"stripe", "manual"}},
 		{"a live manual grant", domain.AdminEstablishmentFilter{BillingSource: domain.BillingSourceManual}, []string{"manual"}},
 		{"linked to Stripe without a live grant", domain.AdminEstablishmentFilter{BillingSource: domain.BillingSourceStripe}, []string{"stripe"}},

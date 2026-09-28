@@ -1,5 +1,5 @@
 SELECT e.id, e.name, e."createdAt",
-       (SELECT count(*) FROM "EstablishmentMember" m WHERE m."establishmentId" = e.id),
+       (SELECT count(*) FROM "EstablishmentMember" m WHERE m."establishmentId" = e.id AND m.active AND m."deletedAt" IS NULL),
        owner.name, owner.email,
        s.id, s.plan::text, s.status::text, s."stripeCustomerId", s."stripeSubscriptionId", s."currentPeriodStart",
        s."currentPeriodEnd", s."trialEndsAt", s."canceledAt", s.seats, s."manualPlan"::text, s."manualGrantExpiresAt",
@@ -20,7 +20,7 @@ WHERE ($1::text IS NULL
        OR EXISTS (SELECT 1
                   FROM "EstablishmentMember" m
                   JOIN "User" u ON u.id = m."userId"
-                  WHERE m."establishmentId" = e.id AND u.email ILIKE ('%' || $1 || '%')))
+                  WHERE m."establishmentId" = e.id AND m."deletedAt" IS NULL AND u.email ILIKE ('%' || $1 || '%')))
   AND ($2::text IS NULL OR s.status::text = $2)
   AND CASE $3::text
           WHEN 'MANUAL' THEN
