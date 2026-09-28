@@ -134,7 +134,7 @@ func (f *adminUserFake) Update(_ context.Context, userID string, changes domain.
 
 type adminEstablishmentFake struct {
 	rows     map[string]domain.AdminEstablishmentRow
-	settings map[string]domain.AdminEstablishmentSettings
+	settings map[string]domain.EstablishmentSettings
 	names    map[string]string
 
 	renamed []string
@@ -147,7 +147,7 @@ type adminEstablishmentFake struct {
 func newAdminEstablishmentFake(rows ...domain.AdminEstablishmentRow) *adminEstablishmentFake {
 	fake := &adminEstablishmentFake{
 		rows:     make(map[string]domain.AdminEstablishmentRow),
-		settings: make(map[string]domain.AdminEstablishmentSettings),
+		settings: make(map[string]domain.EstablishmentSettings),
 		names:    map[string]string{"admin": "Miguel"},
 	}
 	for _, row := range rows {
@@ -181,7 +181,7 @@ func (f *adminEstablishmentFake) Counters(_ context.Context, _ string, since tim
 	return domain.AdminEstablishmentCounters{Categories: 2, Orders: 5}, nil
 }
 
-func (f *adminEstablishmentFake) Settings(_ context.Context, establishmentID string) (*domain.AdminEstablishmentSettings, error) {
+func (f *adminEstablishmentFake) Settings(_ context.Context, establishmentID string) (*domain.EstablishmentSettings, error) {
 	settings, ok := f.settings[establishmentID]
 	if !ok {
 		return nil, nil
@@ -205,11 +205,11 @@ func (f *adminEstablishmentFake) Rename(_ context.Context, establishmentID, name
 	return nil
 }
 
-func (f *adminEstablishmentFake) UpdateModules(_ context.Context, establishmentID string, modules []domain.EstablishmentModule) (domain.AdminEstablishmentSettings, error) {
+func (f *adminEstablishmentFake) UpdateModules(_ context.Context, establishmentID string, modules []domain.EstablishmentModule) (domain.EstablishmentSettings, error) {
 	f.modules = append(f.modules, modules)
 	settings, ok := f.settings[establishmentID]
 	if !ok {
-		settings = domain.AdminEstablishmentSettings{EstablishmentID: establishmentID, Language: "es"}
+		settings = domain.EstablishmentSettings{EstablishmentID: establishmentID, Language: "es"}
 	}
 	settings.Modules = modules
 	f.settings[establishmentID] = settings

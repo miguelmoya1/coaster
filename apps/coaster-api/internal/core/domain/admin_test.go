@@ -2,7 +2,6 @@ package domain
 
 import (
 	"encoding/json"
-	"reflect"
 	"testing"
 	"time"
 )
@@ -223,23 +222,6 @@ func TestNewPageRequest(t *testing.T) {
 	raw, _ := json.Marshal(NewPage[string](nil, 0, PageRequest{Page: 1, PageSize: 20}))
 	if string(raw) != `{"items":[],"total":0,"page":1,"pageSize":20}` {
 		t.Errorf("empty page = %s", raw)
-	}
-}
-
-func TestAdminEstablishmentSettingsResolved(t *testing.T) {
-	stored := AdminEstablishmentSettings{EstablishmentID: "e1", Modules: []EstablishmentModule{ModuleOrders}, Language: "fr"}
-
-	want := AdminEstablishmentSettings{
-		EstablishmentID: "e1",
-		Modules:         []EstablishmentModule{ModuleTimeTracking, ModuleOrders, ModuleInventory},
-		Language:        "es",
-	}
-	if got := stored.Resolved(); !reflect.DeepEqual(got, want) {
-		t.Errorf("Resolved = %+v", got)
-	}
-
-	if got := DefaultAdminEstablishmentSettings("e1"); !reflect.DeepEqual(got, want) {
-		t.Errorf("default = %+v", got)
 	}
 }
 

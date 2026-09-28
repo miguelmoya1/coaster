@@ -492,8 +492,8 @@ Cómo se manda algo por tiempo real desde otro paquete.
   `AdminAuditEntry` (`RecordAuditEntry`) y el evento `AdminAction` (`AdminActionEvent`). Quien
   hace algo que se audita publica `AdminAction` después de guardar: admin (P2b-3) y el cambio de
   rol de un miembro hecho por un admin de la plataforma (P2b-2, el `audit-member-role-changed`
-  de Nest). El suscriptor que escribe la fila (`RecordAdminActionHandler`) es de P2b-3. Los de
-  fichajes siguen como los dejó P2c (`TimeEntryRepository.RecordAudit`).
+  de Nest). El suscriptor que escribe la fila (`RecordAdminActionHandler`) es de P2b-3. Los
+  fichajes que toca un admin también publican `AdminAction` (`TimeEntryService.Audit`).
 - `domain/order.go` y `domain/table.go`: `OrderStatus`, `PaymentStatus`, `DeliveryStatus`,
   `PaymentMethod`, `AdjustmentTarget`, `AdjustmentType` y `TableStatus`. Los structs del JSON
   (`Order`, `OrderItem`, `Table`…) los escribe P2d-1, que es dueño del mapper.

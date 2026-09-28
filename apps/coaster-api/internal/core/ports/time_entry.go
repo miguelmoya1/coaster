@@ -20,8 +20,6 @@ type TimeEntryRepository interface {
 	Append(ctx context.Context, input domain.AppendTimeEntry) (*domain.TimeEntryRow, error)
 
 	FindActiveMember(ctx context.Context, establishmentID, userID string) (*domain.TimeEntryMember, error)
-
-	RecordAudit(ctx context.Context, audit domain.TimeEntryAudit) error
 }
 
 type TimeEntryService interface {

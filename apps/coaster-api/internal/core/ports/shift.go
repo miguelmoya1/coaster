@@ -20,7 +20,6 @@ type ShiftExchangeRepository interface {
 
 	ListPending(ctx context.Context, establishmentID string, since time.Time) ([]domain.ShiftExchange, error)
 
-	Membership(ctx context.Context, userID, establishmentID string) (*domain.Membership, error)
 	Create(ctx context.Context, shiftID, requesterID string, targetID *string) error
 
 	AcceptAndSwap(ctx context.Context, exchangeID, shiftID, userID string) (bool, error)

@@ -38,7 +38,7 @@ func (s *TableService) Create(ctx context.Context, establishmentID, name string)
 }
 
 func (s *TableService) Update(ctx context.Context, establishmentID, tableID string, name *string) error {
-	table, err := s.find(ctx, establishmentID, tableID)
+	table, err := findTable(ctx, s.tables, establishmentID, tableID)
 	if err != nil {
 		return err
 	}
@@ -56,7 +56,7 @@ func (s *TableService) Update(ctx context.Context, establishmentID, tableID stri
 }
 
 func (s *TableService) Delete(ctx context.Context, establishmentID, tableID string) error {
-	if _, err := s.find(ctx, establishmentID, tableID); err != nil {
+	if _, err := findTable(ctx, s.tables, establishmentID, tableID); err != nil {
 		return err
 	}
 
@@ -68,8 +68,8 @@ func (s *TableService) Delete(ctx context.Context, establishmentID, tableID stri
 	return nil
 }
 
-func (s *TableService) find(ctx context.Context, establishmentID, tableID string) (domain.Table, error) {
-	table, err := s.tables.FindByID(ctx, tableID)
+func findTable(ctx context.Context, tables ports.TableRepository, establishmentID, tableID string) (domain.Table, error) {
+	table, err := tables.FindByID(ctx, tableID)
 	if err != nil {
 		return domain.Table{}, err
 	}

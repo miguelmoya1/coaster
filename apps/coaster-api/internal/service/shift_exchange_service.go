@@ -11,11 +11,12 @@ import (
 type ShiftExchangeService struct {
 	shifts    ports.ShiftRepository
 	exchanges ports.ShiftExchangeRepository
+	security  *SecurityService
 	now       func() time.Time
 }
 
-func NewShiftExchangeService(shifts ports.ShiftRepository, exchanges ports.ShiftExchangeRepository) *ShiftExchangeService {
-	return &ShiftExchangeService{shifts: shifts, exchanges: exchanges, now: time.Now}
+func NewShiftExchangeService(shifts ports.ShiftRepository, exchanges ports.ShiftExchangeRepository, security *SecurityService) *ShiftExchangeService {
+	return &ShiftExchangeService{shifts: shifts, exchanges: exchanges, security: security, now: time.Now}
 }
 
 func (s *ShiftExchangeService) ListPending(ctx context.Context, establishmentID string) ([]domain.ShiftExchange, error) {
@@ -95,7 +96,7 @@ func (s *ShiftExchangeService) Delete(ctx context.Context, establishmentID, exch
 		return domain.BadRequest(domain.CodeExchangeAlreadyClosed)
 	}
 
-	member, err := s.exchanges.Membership(ctx, userID, establishmentID)
+	member, err := s.security.Membership(ctx, userID, establishmentID)
 	if err != nil {
 		return err
 	}

@@ -205,7 +205,7 @@ func newAIFixture() *aiFixture {
 		ShiftEndTime:   domain.NewInstant(time.Date(2026, 9, 28, 23, 0, 0, 0, time.UTC)),
 		CreatedAt:      domain.NewInstant(time.Date(2026, 9, 27, 8, 0, 0, 0, time.UTC)),
 	}}
-	exchanges := NewShiftExchangeService(f.shifts, f.exchanges)
+	exchanges := NewShiftExchangeService(f.shifts, f.exchanges, security)
 	exchanges.now = func() time.Time { return aiNow }
 
 	f.members = newFakeMemberRepository()

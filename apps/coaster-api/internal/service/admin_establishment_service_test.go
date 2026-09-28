@@ -75,7 +75,7 @@ func TestAdminEstablishmentServiceDetail(t *testing.T) {
 	if !ok || subscription.ManualGrant == nil || *subscription.ManualGrant.GrantedByName != "Miguel" {
 		t.Fatalf("subscription = %+v", detail.Subscription)
 	}
-	if !reflect.DeepEqual(detail.Settings, domain.DefaultAdminEstablishmentSettings("e1")) {
+	if !reflect.DeepEqual(detail.Settings, domain.DefaultEstablishmentSettings("e1")) {
 		t.Errorf("settings without a row = %+v", detail.Settings)
 	}
 	if detail.Establishment.ID != "e1" || len(detail.Members) != 1 || detail.Counters.Orders != 5 || len(detail.RecentActivity) != 1 {
@@ -85,7 +85,7 @@ func TestAdminEstablishmentServiceDetail(t *testing.T) {
 		t.Errorf("since = %v, asked = %v", f.repo.since, f.audit.asked)
 	}
 
-	f.repo.settings["e1"] = domain.AdminEstablishmentSettings{EstablishmentID: "e1", Modules: []domain.EstablishmentModule{domain.ModuleOrders}, Language: "en"}
+	f.repo.settings["e1"] = domain.EstablishmentSettings{EstablishmentID: "e1", Modules: []domain.EstablishmentModule{domain.ModuleOrders}, Language: "en"}
 	detail, _ = f.service.Detail(context.Background(), "e1")
 	if !slices.Equal(detail.Settings.Modules, []domain.EstablishmentModule{domain.ModuleTimeTracking, domain.ModuleOrders, domain.ModuleInventory}) || detail.Settings.Language != "en" {
 		t.Errorf("stored settings = %+v", detail.Settings)

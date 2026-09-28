@@ -17,8 +17,14 @@ func newShiftExchangeFixture() (*ShiftExchangeService, *fakeShiftRepository, *fa
 		{ID: "elsewhere", EstablishmentID: "e2", UserID: "ana"},
 	}}
 	exchanges := newFakeShiftExchangeRepository()
+	security, _ := newTestSecurity(&fakeSecurity{memberships: map[string]*domain.Membership{
+		"e1/owner":    {Role: "OWNER", Active: true},
+		"e1/luis":     {Role: "STAFF", Active: true},
+		"e1/ana":      {Role: "MANAGER", Active: true},
+		"e1/inactive": {Role: "OWNER", Active: false},
+	}}, nil)
 
-	service := NewShiftExchangeService(shifts, exchanges)
+	service := NewShiftExchangeService(shifts, exchanges, security)
 	service.now = func() time.Time { return exchangeNow }
 
 	return service, shifts, exchanges
@@ -128,10 +134,6 @@ func TestShiftExchangeServiceDelete(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			service, _, exchanges := newShiftExchangeFixture()
-			exchanges.memberships["e1/owner"] = &domain.Membership{Role: "OWNER", Active: true}
-			exchanges.memberships["e1/luis"] = &domain.Membership{Role: "STAFF", Active: true}
-			exchanges.memberships["e1/ana"] = &domain.Membership{Role: "MANAGER", Active: true}
-			exchanges.memberships["e1/inactive"] = &domain.Membership{Role: "OWNER", Active: false}
 			if tt.exchange != nil {
 				tt.exchange.ID = "x1"
 				exchanges.exchanges["x1"] = tt.exchange

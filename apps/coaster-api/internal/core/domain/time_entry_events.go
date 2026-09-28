@@ -38,15 +38,6 @@ const (
 	AuditTargetTimeEntry  = "TIME_ENTRY"
 )
 
-type TimeEntryAudit struct {
-	ActorID     string
-	Action      string
-	TargetID    string
-	TargetLabel string
-	Reason      *string
-	Metadata    TimeEntryAuditMetadata
-}
-
 type TimeEntryAuditMetadata struct {
 	EstablishmentID    string        `json:"establishmentId"`
 	UserID             string        `json:"userId"`

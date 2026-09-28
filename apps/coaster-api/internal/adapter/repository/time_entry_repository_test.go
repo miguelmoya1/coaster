@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"encoding/json"
 	"strings"
 	"sync"
 	"testing"
@@ -183,49 +182,5 @@ func TestTimeEntryRepositoryAppendsOneAfterAnother(t *testing.T) {
 	chain, _ := entries.FindChain(ctx, "e1")
 	if result := domain.VerifyChain(chain); !result.Valid || result.Checked != 10 {
 		t.Fatalf("the chain after concurrent appends = %+v", result)
-	}
-}
-
-func TestTimeEntryRepositoryRecordAudit(t *testing.T) {
-	resetDB(t)
-	ctx := context.Background()
-	insertRotaUser(t, "admin", "Admin")
-
-	previous := "2026-08-08T08:00:00.000Z"
-	reason := "Olvidó fichar"
-	err := NewTimeEntryRepository(testPool).RecordAudit(ctx, domain.TimeEntryAudit{
-		ActorID:     "admin",
-		Action:      domain.AuditTimeEntryAmended,
-		TargetID:    "root-1",
-		TargetLabel: "Luis · 2026-08-08",
-		Reason:      &reason,
-		Metadata: domain.TimeEntryAuditMetadata{
-			EstablishmentID:    "e1",
-			UserID:             "luis",
-			Type:               domain.TimeEntryClockIn,
-			OccurredAt:         domain.NewTime(time.Date(2026, 8, 8, 7, 0, 0, 0, time.UTC)),
-			PreviousOccurredAt: &previous,
-		},
-	})
-	if err != nil {
-		t.Fatalf("RecordAudit: %v", err)
-	}
-
-	var action, targetType, targetID, label, storedReason string
-	var metadata map[string]any
-	err = testPool.QueryRow(ctx, `SELECT action, "targetType", "targetId", "targetLabel", reason, metadata FROM "AdminAuditLog"`).
-		Scan(&action, &targetType, &targetID, &label, &storedReason, &metadata)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if action != "TIME_ENTRY_AMENDED" || targetType != "TIME_ENTRY" || targetID != "root-1" || label != "Luis · 2026-08-08" || storedReason != reason {
-		t.Fatalf("row = %s %s %s %s %s", action, targetType, targetID, label, storedReason)
-	}
-
-	got, _ := json.Marshal(metadata)
-	want := `{"establishmentId":"e1","occurredAt":"2026-08-08T07:00:00.000Z","previousOccurredAt":"2026-08-08T08:00:00.000Z","type":"CLOCK_IN","userId":"luis"}`
-	if string(got) != want {
-		t.Fatalf("metadata = %s, want %s", got, want)
 	}
 }

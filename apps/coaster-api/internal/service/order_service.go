@@ -67,7 +67,7 @@ func (s *OrderService) Create(ctx context.Context, establishmentID string, input
 
 	var tableName *string
 	if input.TableID != nil && *input.TableID != "" {
-		table, err := s.findTable(ctx, establishmentID, *input.TableID)
+		table, err := findTable(ctx, s.tables, establishmentID, *input.TableID)
 		if err != nil {
 			return err
 		}
@@ -232,7 +232,7 @@ func (s *OrderService) MoveTable(ctx context.Context, establishmentID, orderID, 
 		return err
 	}
 
-	table, err := s.findTable(ctx, establishmentID, tableID)
+	table, err := findTable(ctx, s.tables, establishmentID, tableID)
 	if err != nil {
 		return err
 	}
@@ -282,7 +282,7 @@ func (s *OrderService) Merge(ctx context.Context, establishmentID string, input 
 
 	targetTableID := tableIDOrNil(input.TargetTableID)
 	if targetTableID != nil {
-		table, err := s.findTable(ctx, establishmentID, *targetTableID)
+		table, err := findTable(ctx, s.tables, establishmentID, *targetTableID)
 		if err != nil {
 			return err
 		}
@@ -532,17 +532,6 @@ func (s *OrderService) findOpen(ctx context.Context, establishmentID, orderID st
 		return domain.OrderRow{}, domain.BadRequest(domain.CodeOrderNotOpen)
 	}
 	return order, nil
-}
-
-func (s *OrderService) findTable(ctx context.Context, establishmentID, tableID string) (domain.Table, error) {
-	table, err := s.tables.FindByID(ctx, tableID)
-	if err != nil {
-		return domain.Table{}, err
-	}
-	if table == nil || table.EstablishmentID != establishmentID {
-		return domain.Table{}, domain.NotFound(domain.CodeTableNotFound)
-	}
-	return *table, nil
 }
 
 func (s *OrderService) priceLines(ctx context.Context, establishmentID string, lines []domain.OrderLineInput) ([]domain.NewOrderItem, int, error) {

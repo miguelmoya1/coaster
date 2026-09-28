@@ -155,14 +155,6 @@ func TestShiftExchangeRepository(t *testing.T) {
 		t.Fatalf("after the swap: shift %+v, exchange %+v", handed, approved)
 	}
 
-	owner, err := exchanges.Membership(ctx, "ana", "e1")
-	if err != nil || owner.Role != "OWNER" || !owner.Active {
-		t.Fatalf("Membership(ana) = %+v, %v", owner, err)
-	}
-	if nobody, err := exchanges.Membership(ctx, "nobody", "e1"); err != nil || nobody != nil {
-		t.Fatalf("Membership(nobody) = %+v, %v", nobody, err)
-	}
-
 	if err := exchanges.Delete(ctx, found.ID); err != nil {
 		t.Fatal(err)
 	}

@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"encoding/json"
 	"reflect"
 	"slices"
 	"testing"
@@ -501,7 +502,7 @@ func TestAdminEstablishmentRepositorySettings(t *testing.T) {
 	}
 
 	created, err := establishments.UpdateModules(ctx, "e1", []domain.EstablishmentModule{domain.ModuleTimeTracking, domain.ModuleOrders, domain.ModuleInventory})
-	want := domain.AdminEstablishmentSettings{
+	want := domain.EstablishmentSettings{
 		EstablishmentID: "e1",
 		Modules:         []domain.EstablishmentModule{domain.ModuleTimeTracking, domain.ModuleOrders, domain.ModuleInventory},
 		Language:        "es",
@@ -615,5 +616,51 @@ func TestAdminMetricsRepository(t *testing.T) {
 	}
 	if got != want {
 		t.Errorf("Collect =\n%+v\nwant\n%+v", got, want)
+	}
+}
+
+func TestAdminAuditRepositoryRecordsATimeEntryChange(t *testing.T) {
+	resetDB(t)
+	ctx := context.Background()
+	insertRotaUser(t, "admin", "Admin")
+
+	previous := "2026-08-08T08:00:00.000Z"
+	reason := "Olvidó fichar"
+	label := "Luis · 2026-08-08"
+	err := NewAdminAuditRepository(testPool).Record(ctx, domain.AdminAuditEntry{
+		ActorID:     "admin",
+		Action:      domain.AuditTimeEntryAmended,
+		TargetType:  domain.AuditTargetTimeEntry,
+		TargetID:    "root-1",
+		TargetLabel: &label,
+		Reason:      &reason,
+		Metadata: domain.TimeEntryAuditMetadata{
+			EstablishmentID:    "e1",
+			UserID:             "luis",
+			Type:               domain.TimeEntryClockIn,
+			OccurredAt:         domain.NewTime(time.Date(2026, 8, 8, 7, 0, 0, 0, time.UTC)),
+			PreviousOccurredAt: &previous,
+		},
+	})
+	if err != nil {
+		t.Fatalf("Record: %v", err)
+	}
+
+	var action, targetType, targetID, storedLabel, storedReason string
+	var metadata map[string]any
+	err = testPool.QueryRow(ctx, `SELECT action, "targetType", "targetId", "targetLabel", reason, metadata FROM "AdminAuditLog"`).
+		Scan(&action, &targetType, &targetID, &storedLabel, &storedReason, &metadata)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if action != "TIME_ENTRY_AMENDED" || targetType != "TIME_ENTRY" || targetID != "root-1" || storedLabel != label || storedReason != reason {
+		t.Fatalf("row = %s %s %s %s %s", action, targetType, targetID, storedLabel, storedReason)
+	}
+
+	got, _ := json.Marshal(metadata)
+	want := `{"establishmentId":"e1","occurredAt":"2026-08-08T07:00:00.000Z","previousOccurredAt":"2026-08-08T08:00:00.000Z","type":"CLOCK_IN","userId":"luis"}`
+	if string(got) != want {
+		t.Fatalf("metadata = %s, want %s", got, want)
 	}
 }

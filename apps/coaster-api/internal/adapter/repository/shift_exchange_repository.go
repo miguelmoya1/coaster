@@ -20,8 +20,6 @@ var (
 	hasPendingShiftExchangeQuery string
 	//go:embed queries/shift_exchange/list_pending.sql
 	listPendingShiftExchangesQuery string
-	//go:embed queries/shift_exchange/membership.sql
-	shiftExchangeMembershipQuery string
 	//go:embed queries/shift_exchange/insert.sql
 	insertShiftExchangeQuery string
 	//go:embed queries/shift_exchange/claim.sql
@@ -87,20 +85,6 @@ func (r *ShiftExchangeRepository) ListPending(ctx context.Context, establishment
 
 		return exchange, err
 	})
-}
-
-func (r *ShiftExchangeRepository) Membership(ctx context.Context, userID, establishmentID string) (*domain.Membership, error) {
-	var membership domain.Membership
-
-	err := r.pool.QueryRow(ctx, shiftExchangeMembershipQuery, userID, establishmentID).Scan(&membership.Role, &membership.Active)
-	if errors.Is(err, pgx.ErrNoRows) {
-		return nil, nil
-	}
-	if err != nil {
-		return nil, err
-	}
-
-	return &membership, nil
 }
 
 func (r *ShiftExchangeRepository) Create(ctx context.Context, shiftID, requesterID string, targetID *string) error {

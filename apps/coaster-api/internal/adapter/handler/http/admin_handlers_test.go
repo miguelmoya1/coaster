@@ -122,14 +122,14 @@ func (adminEstablishments) FindByID(_ context.Context, id string) (*domain.Admin
 	return &domain.AdminEstablishmentRow{ID: "e1", Name: "Bar Pepe"}, nil
 }
 
-func (adminEstablishments) Settings(context.Context, string) (*domain.AdminEstablishmentSettings, error) {
+func (adminEstablishments) Settings(context.Context, string) (*domain.EstablishmentSettings, error) {
 	return nil, nil
 }
 
 func (adminEstablishments) Rename(context.Context, string, string) error { return nil }
 
-func (adminEstablishments) UpdateModules(_ context.Context, id string, modules []domain.EstablishmentModule) (domain.AdminEstablishmentSettings, error) {
-	return domain.AdminEstablishmentSettings{EstablishmentID: id, Modules: modules, Language: "es"}, nil
+func (adminEstablishments) UpdateModules(_ context.Context, id string, modules []domain.EstablishmentModule) (domain.EstablishmentSettings, error) {
+	return domain.EstablishmentSettings{EstablishmentID: id, Modules: modules, Language: "es"}, nil
 }
 
 func (adminEstablishments) GrantPlan(context.Context, string, domain.ManualPlanGrant) error {

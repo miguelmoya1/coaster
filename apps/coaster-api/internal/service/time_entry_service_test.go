@@ -451,21 +451,21 @@ func TestTimeEntryServiceAudit(t *testing.T) {
 			f.service.Audit(context.Background(), tt.event)
 
 			if tt.action == "" {
-				if len(f.repo.audits) != 0 {
-					t.Fatalf("audits = %+v, want none", f.repo.audits)
+				if len(f.events.events) != 0 {
+					t.Fatalf("events = %+v, want none", f.events.events)
 				}
 				return
 			}
 
-			if len(f.repo.audits) != 1 {
-				t.Fatalf("audits = %+v", f.repo.audits)
+			if len(f.events.events) != 1 {
+				t.Fatalf("events = %+v", f.events.events)
 			}
-			audit := f.repo.audits[0]
-			if audit.Action != tt.action || audit.ActorID != "admin" || audit.TargetID != "root-1" ||
-				audit.TargetLabel != "Luis · 2026-08-08" || *audit.Reason != reason {
+			audit := f.events.events[0].(domain.AdminAction).Entry
+			if audit.Action != tt.action || audit.ActorID != "admin" || audit.TargetType != domain.AuditTargetTimeEntry ||
+				audit.TargetID != "root-1" || *audit.TargetLabel != "Luis · 2026-08-08" || *audit.Reason != reason {
 				t.Fatalf("audit = %+v", audit)
 			}
-			metadata := audit.Metadata
+			metadata := audit.Metadata.(domain.TimeEntryAuditMetadata)
 			if metadata.EstablishmentID != "e1" || metadata.UserID != "worker" || metadata.Type != domain.TimeEntryClockIn {
 				t.Fatalf("metadata = %+v", metadata)
 			}

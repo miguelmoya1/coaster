@@ -83,7 +83,7 @@ func (s *AdminEstablishmentService) Detail(ctx context.Context, establishmentID 
 		return domain.AdminEstablishmentDetail{}, err
 	}
 
-	settings := domain.DefaultAdminEstablishmentSettings(establishmentID)
+	settings := domain.DefaultEstablishmentSettings(establishmentID)
 	stored, err := s.establishments.Settings(ctx, establishmentID)
 	if err != nil {
 		return domain.AdminEstablishmentDetail{}, err
@@ -144,21 +144,21 @@ func (s *AdminEstablishmentService) Rename(ctx context.Context, actorID, establi
 	return nil
 }
 
-func (s *AdminEstablishmentService) UpdateModules(ctx context.Context, actorID, establishmentID string, modules []domain.EstablishmentModule) (domain.AdminEstablishmentSettings, error) {
+func (s *AdminEstablishmentService) UpdateModules(ctx context.Context, actorID, establishmentID string, modules []domain.EstablishmentModule) (domain.EstablishmentSettings, error) {
 	establishment, err := s.find(ctx, establishmentID)
 	if err != nil {
-		return domain.AdminEstablishmentSettings{}, err
+		return domain.EstablishmentSettings{}, err
 	}
 
 	before, err := s.establishments.Settings(ctx, establishmentID)
 	if err != nil {
-		return domain.AdminEstablishmentSettings{}, err
+		return domain.EstablishmentSettings{}, err
 	}
 
 	resolved := domain.ResolveModules(modules)
 	settings, err := s.establishments.UpdateModules(ctx, establishmentID, resolved)
 	if err != nil {
-		return domain.AdminEstablishmentSettings{}, err
+		return domain.EstablishmentSettings{}, err
 	}
 
 	s.cache.Forget(ctx, modulesCacheKey(establishmentID))

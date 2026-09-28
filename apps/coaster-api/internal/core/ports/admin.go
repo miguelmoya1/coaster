@@ -44,12 +44,12 @@ type AdminEstablishmentRepository interface {
 
 	Counters(ctx context.Context, establishmentID string, since time.Time) (domain.AdminEstablishmentCounters, error)
 
-	Settings(ctx context.Context, establishmentID string) (*domain.AdminEstablishmentSettings, error)
+	Settings(ctx context.Context, establishmentID string) (*domain.EstablishmentSettings, error)
 
 	UserName(ctx context.Context, userID string) (*string, error)
 	Rename(ctx context.Context, establishmentID, name string) error
 
-	UpdateModules(ctx context.Context, establishmentID string, modules []domain.EstablishmentModule) (domain.AdminEstablishmentSettings, error)
+	UpdateModules(ctx context.Context, establishmentID string, modules []domain.EstablishmentModule) (domain.EstablishmentSettings, error)
 
 	GrantPlan(ctx context.Context, establishmentID string, grant domain.ManualPlanGrant) error
 
@@ -70,7 +70,7 @@ type AdminEstablishmentService interface {
 	List(ctx context.Context, filter domain.AdminEstablishmentFilter, page domain.PageRequest) (domain.Paginated[domain.AdminEstablishmentSummary], error)
 	Detail(ctx context.Context, establishmentID string) (domain.AdminEstablishmentDetail, error)
 	Rename(ctx context.Context, actorID, establishmentID, name string) error
-	UpdateModules(ctx context.Context, actorID, establishmentID string, modules []domain.EstablishmentModule) (domain.AdminEstablishmentSettings, error)
+	UpdateModules(ctx context.Context, actorID, establishmentID string, modules []domain.EstablishmentModule) (domain.EstablishmentSettings, error)
 	GrantPlan(ctx context.Context, actorID, establishmentID string, input domain.GrantPlanInput) error
 	RevokePlan(ctx context.Context, actorID, establishmentID string, reason *string) error
 }

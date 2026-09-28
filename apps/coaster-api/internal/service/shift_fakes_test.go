@@ -90,20 +90,18 @@ func (f *fakeShiftRepository) Delete(_ context.Context, id string) error {
 }
 
 type fakeShiftExchangeRepository struct {
-	exchanges   map[string]*domain.ShiftExchangeRecord
-	memberships map[string]*domain.Membership
-	pending     []domain.ShiftExchange
-	since       time.Time
-	created     []string
-	deleted     []string
-	swapped     []string
-	lostRace    bool
+	exchanges map[string]*domain.ShiftExchangeRecord
+	pending   []domain.ShiftExchange
+	since     time.Time
+	created   []string
+	deleted   []string
+	swapped   []string
+	lostRace  bool
 }
 
 func newFakeShiftExchangeRepository() *fakeShiftExchangeRepository {
 	return &fakeShiftExchangeRepository{
-		exchanges:   make(map[string]*domain.ShiftExchangeRecord),
-		memberships: make(map[string]*domain.Membership),
+		exchanges: make(map[string]*domain.ShiftExchangeRecord),
 	}
 }
 
@@ -123,10 +121,6 @@ func (f *fakeShiftExchangeRepository) HasPending(_ context.Context, shiftID stri
 func (f *fakeShiftExchangeRepository) ListPending(_ context.Context, _ string, since time.Time) ([]domain.ShiftExchange, error) {
 	f.since = since
 	return f.pending, nil
-}
-
-func (f *fakeShiftExchangeRepository) Membership(_ context.Context, userID, establishmentID string) (*domain.Membership, error) {
-	return f.memberships[establishmentID+"/"+userID], nil
 }
 
 func (f *fakeShiftExchangeRepository) Create(_ context.Context, shiftID, requesterID string, targetID *string) error {
@@ -150,7 +144,6 @@ func (f *fakeShiftExchangeRepository) Delete(_ context.Context, id string) error
 type fakeTimeEntryRepository struct {
 	rows    []domain.TimeEntryRow
 	members map[string]*domain.TimeEntryMember
-	audits  []domain.TimeEntryAudit
 	names   map[string]string
 }
 
@@ -255,9 +248,4 @@ func (f *fakeTimeEntryRepository) Append(_ context.Context, input domain.AppendT
 
 func (f *fakeTimeEntryRepository) FindActiveMember(_ context.Context, _ string, userID string) (*domain.TimeEntryMember, error) {
 	return f.members[userID], nil
-}
-
-func (f *fakeTimeEntryRepository) RecordAudit(_ context.Context, audit domain.TimeEntryAudit) error {
-	f.audits = append(f.audits, audit)
-	return nil
 }

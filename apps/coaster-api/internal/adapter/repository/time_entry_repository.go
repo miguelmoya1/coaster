@@ -38,8 +38,6 @@ var (
 	insertTimeEntryQuery string
 	//go:embed queries/time_entry/find_active_member.sql
 	findActiveTimeEntryMemberQuery string
-	//go:embed queries/time_entry/insert_admin_audit.sql
-	insertTimeEntryAuditQuery string
 )
 
 type TimeEntryRepository struct {
@@ -213,12 +211,4 @@ func (r *TimeEntryRepository) FindActiveMember(ctx context.Context, establishmen
 
 	member.Role = domain.AsEstablishmentRole(role)
 	return &member, nil
-}
-
-func (r *TimeEntryRepository) RecordAudit(ctx context.Context, audit domain.TimeEntryAudit) error {
-	_, err := r.pool.Exec(ctx, insertTimeEntryAuditQuery,
-		uuid.NewV4().String(), audit.ActorID, audit.Action, domain.AuditTargetTimeEntry, audit.TargetID,
-		audit.TargetLabel, audit.Reason, audit.Metadata, now(),
-	)
-	return err
 }

@@ -24,8 +24,6 @@ var (
 	listAdminEstablishmentMembersQuery string
 	//go:embed queries/admin_establishment/counters.sql
 	adminEstablishmentCountersQuery string
-	//go:embed queries/admin_establishment/find_settings.sql
-	findAdminEstablishmentSettingsQuery string
 	//go:embed queries/admin_establishment/find_user_name.sql
 	findAdminUserNameQuery string
 	//go:embed queries/admin_establishment/rename.sql
@@ -109,15 +107,12 @@ func (r *AdminEstablishmentRepository) Counters(ctx context.Context, establishme
 	return counters, err
 }
 
-func (r *AdminEstablishmentRepository) Settings(ctx context.Context, establishmentID string) (*domain.AdminEstablishmentSettings, error) {
-	settings, err := scanAdminSettings(r.pool.QueryRow(ctx, findAdminEstablishmentSettingsQuery, establishmentID))
+func (r *AdminEstablishmentRepository) Settings(ctx context.Context, establishmentID string) (*domain.EstablishmentSettings, error) {
+	settings, err := scanEstablishmentSettings(r.pool.QueryRow(ctx, findEstablishmentSettingsQuery, establishmentID))
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, nil
 	}
-	if err != nil {
-		return nil, err
-	}
-	return &settings, nil
+	return settings, err
 }
 
 func (r *AdminEstablishmentRepository) UserName(ctx context.Context, userID string) (*string, error) {
@@ -138,15 +133,14 @@ func (r *AdminEstablishmentRepository) Rename(ctx context.Context, establishment
 	return err
 }
 
-func (r *AdminEstablishmentRepository) UpdateModules(ctx context.Context, establishmentID string, modules []domain.EstablishmentModule) (domain.AdminEstablishmentSettings, error) {
-	values := make([]string, len(modules))
-	for i, module := range modules {
-		values[i] = string(module)
-	}
-
-	return scanAdminSettings(r.pool.QueryRow(ctx, upsertEstablishmentModulesQuery,
-		uuid.NewV4().String(), establishmentID, values, now(),
+func (r *AdminEstablishmentRepository) UpdateModules(ctx context.Context, establishmentID string, modules []domain.EstablishmentModule) (domain.EstablishmentSettings, error) {
+	settings, err := scanEstablishmentSettings(r.pool.QueryRow(ctx, upsertEstablishmentModulesQuery,
+		uuid.NewV4().String(), establishmentID, moduleNames(modules), now(),
 	))
+	if err != nil {
+		return domain.EstablishmentSettings{}, err
+	}
+	return *settings, nil
 }
 
 func (r *AdminEstablishmentRepository) GrantPlan(ctx context.Context, establishmentID string, grant domain.ManualPlanGrant) error {
@@ -195,22 +189,4 @@ func scanAdminEstablishment(row pgx.Row) (domain.AdminEstablishmentRow, error) {
 
 	establishment.Billing = &billing
 	return establishment, nil
-}
-
-func scanAdminSettings(row pgx.Row) (domain.AdminEstablishmentSettings, error) {
-	var settings domain.AdminEstablishmentSettings
-	var modules []string
-	var configuredAt *time.Time
-
-	err := row.Scan(&settings.EstablishmentID, &modules, &settings.Language, &settings.MarkSoldOut, &configuredAt)
-
-	settings.Modules = make([]domain.EstablishmentModule, len(modules))
-	for i, module := range modules {
-		settings.Modules[i] = domain.EstablishmentModule(module)
-	}
-	if configuredAt != nil {
-		settings.ConfiguredAt = &domain.Time{Time: *configuredAt}
-	}
-
-	return settings, err
 }

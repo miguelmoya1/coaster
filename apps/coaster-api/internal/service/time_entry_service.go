@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"log/slog"
 	"math"
 	"slices"
 	"strings"
@@ -468,7 +467,7 @@ func (s *TimeEntryService) Integrity(ctx context.Context, establishmentID string
 }
 
 func (s *TimeEntryService) Audit(ctx context.Context, event ports.Event) {
-	var audit domain.TimeEntryAudit
+	var audit domain.AdminAuditEntry
 	var entry domain.TimeEntry
 	var role domain.Role
 	var establishmentID string
@@ -479,17 +478,17 @@ func (s *TimeEntryService) Audit(ctx context.Context, event ports.Event) {
 		if e.Entry.Source != domain.TimeEntryManual {
 			return
 		}
-		audit = domain.TimeEntryAudit{ActorID: e.ActorID, Action: domain.AuditTimeEntryCreated, Reason: e.Reason}
+		audit = domain.AdminAuditEntry{ActorID: e.ActorID, Action: domain.AuditTimeEntryCreated, Reason: e.Reason}
 		entry, role, establishmentID = e.Entry, e.ActorRole, e.EstablishmentID
 	case domain.TimeEntryAmended:
 		reason := e.Reason
 		previous := e.PreviousOccurredAt
-		audit = domain.TimeEntryAudit{ActorID: e.ActorID, Action: domain.AuditTimeEntryAmended, Reason: &reason}
+		audit = domain.AdminAuditEntry{ActorID: e.ActorID, Action: domain.AuditTimeEntryAmended, Reason: &reason}
 		entry, role, establishmentID = e.Entry, e.ActorRole, e.EstablishmentID
 		previousOccurredAt = &previous
 	case domain.TimeEntryVoided:
 		reason := e.Reason
-		audit = domain.TimeEntryAudit{ActorID: e.ActorID, Action: domain.AuditTimeEntryVoided, Reason: &reason}
+		audit = domain.AdminAuditEntry{ActorID: e.ActorID, Action: domain.AuditTimeEntryVoided, Reason: &reason}
 		entry, role, establishmentID = e.Entry, e.ActorRole, e.EstablishmentID
 	default:
 		return
@@ -499,8 +498,10 @@ func (s *TimeEntryService) Audit(ctx context.Context, event ports.Event) {
 		return
 	}
 
+	label := entry.UserName + " · " + entry.WorkdayDate
+	audit.TargetType = domain.AuditTargetTimeEntry
 	audit.TargetID = entry.RootID
-	audit.TargetLabel = entry.UserName + " · " + entry.WorkdayDate
+	audit.TargetLabel = &label
 	audit.Metadata = domain.TimeEntryAuditMetadata{
 		EstablishmentID:    establishmentID,
 		UserID:             entry.UserID,
@@ -509,8 +510,5 @@ func (s *TimeEntryService) Audit(ctx context.Context, event ports.Event) {
 		PreviousOccurredAt: previousOccurredAt,
 	}
 
-	if err := s.entries.RecordAudit(ctx, audit); err != nil {
-		slog.Error("failed to record an admin change to a time entry; it went through and is now unaudited",
-			"action", audit.Action, "actor", audit.ActorID, "target", audit.TargetID, "error", err)
-	}
+	s.events.Publish(ctx, domain.AdminAction{Entry: audit})
 }

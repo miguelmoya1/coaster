@@ -177,7 +177,7 @@ func run() error {
 
 	shiftRepository := repository.NewShiftRepository(pool)
 	shiftService := service.NewShiftService(shiftRepository, security, bus, realtime)
-	shiftExchangeService := service.NewShiftExchangeService(shiftRepository, repository.NewShiftExchangeRepository(pool))
+	shiftExchangeService := service.NewShiftExchangeService(shiftRepository, repository.NewShiftExchangeRepository(pool), security)
 	timeEntryService := service.NewTimeEntryService(repository.NewTimeEntryRepository(pool), shiftService, bus)
 	bus.Subscribe(domain.ShiftCreated{}.Name(), shiftService.PublishRealtime)
 	bus.Subscribe(domain.ShiftDeleted{}.Name(), shiftService.PublishRealtime)

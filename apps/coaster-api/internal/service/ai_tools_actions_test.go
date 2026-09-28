@@ -229,8 +229,6 @@ func TestAIShiftExchangeActionsActForTheUser(t *testing.T) {
 		ID: "x1", ShiftID: "s1", RequesterID: "u2", Status: domain.ShiftExchangePending, ShiftEstablishmentID: "e1",
 		ShiftStartTime: f.shifts.shifts[0].StartTime.Time,
 	}
-	f.exchanges.memberships["e1/u1"] = &domain.Membership{Role: "OWNER", Active: true}
-	f.exchanges.memberships["e1/u2"] = &domain.Membership{Role: "STAFF", Active: true}
 
 	if got := f.run(t, f.toolContext(t, "u1"), "acceptShiftExchange", `{"exchangeId":"x1"}`); got != aiDone || !slices.Contains(f.exchanges.swapped, "x1/s1/u1") {
 		t.Errorf("acceptShiftExchange = %s, swapped %v", got, f.exchanges.swapped)

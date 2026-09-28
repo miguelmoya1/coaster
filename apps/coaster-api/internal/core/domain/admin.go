@@ -303,28 +303,6 @@ type ManualPlanGrant struct {
 	GrantedByID string
 }
 
-type AdminEstablishmentSettings struct {
-	EstablishmentID string                `json:"establishmentId"`
-	Modules         []EstablishmentModule `json:"modules"`
-	Language        string                `json:"language"`
-	MarkSoldOut     bool                  `json:"markSoldOut"`
-	ConfiguredAt    *Time                 `json:"configuredAt"`
-}
-
-func (s AdminEstablishmentSettings) Resolved() AdminEstablishmentSettings {
-	s.Modules = ResolveModules(s.Modules)
-	s.Language = AsLanguage(s.Language)
-	return s
-}
-
-func DefaultAdminEstablishmentSettings(establishmentID string) AdminEstablishmentSettings {
-	return AdminEstablishmentSettings{
-		EstablishmentID: establishmentID,
-		Modules:         ResolveModules(DefaultEstablishmentModules),
-		Language:        DefaultLanguage,
-	}
-}
-
 type AdminEstablishmentMember struct {
 	ID       string            `json:"id"`
 	UserID   string            `json:"userId"`
@@ -346,8 +324,8 @@ type AdminEstablishmentCounters struct {
 }
 
 type AdminEstablishmentDetail struct {
-	Establishment AdminEstablishmentSummary  `json:"establishment"`
-	Settings      AdminEstablishmentSettings `json:"settings"`
+	Establishment AdminEstablishmentSummary `json:"establishment"`
+	Settings      EstablishmentSettings     `json:"settings"`
 
 	Subscription   any                        `json:"subscription"`
 	Members        []AdminEstablishmentMember `json:"members"`
