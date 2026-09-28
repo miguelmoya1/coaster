@@ -135,6 +135,8 @@ func TestEstablishmentMemberInvite(t *testing.T) {
 		{"an owner makes another owner", memberCaller("olga", domain.RoleUser), "ana@example.com", roleOf(domain.EstablishmentRoleOwner), ""},
 		{"a platform admin makes an owner", memberCaller("admin", domain.RoleAdmin), "ana@example.com", roleOf(domain.EstablishmentRoleOwner), ""},
 		{"somebody who is already a member", memberCaller("olga", domain.RoleUser), "sergio@example.com", roleOf(domain.EstablishmentRoleStaff), domain.CodeUserAlreadyMember},
+		{"a member with the email in capitals", memberCaller("olga", domain.RoleUser), "Sergio@Example.com", roleOf(domain.EstablishmentRoleStaff), domain.CodeUserAlreadyMember},
+		{"an email in capitals is saved in lower case", memberCaller("olga", domain.RoleUser), "Ana@Example.com", nil, ""},
 	}
 
 	for _, tt := range tests {
@@ -154,7 +156,7 @@ func TestEstablishmentMemberInvite(t *testing.T) {
 			}
 
 			invitation := f.repo.invitations[0]
-			if invitation.EstablishmentID != "e1" || invitation.Email != tt.email || invitation.UserName != "ana" || !reflect.DeepEqual(invitation.Role, tt.role) {
+			if invitation.EstablishmentID != "e1" || invitation.Email != "ana@example.com" || invitation.UserName != "ana" || !reflect.DeepEqual(invitation.Role, tt.role) {
 				t.Fatalf("invitation = %+v", invitation)
 			}
 

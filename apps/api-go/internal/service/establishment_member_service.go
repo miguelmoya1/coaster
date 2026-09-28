@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"log/slog"
+	"strings"
 
 	"api-go/internal/core/domain"
 	"api-go/internal/core/ports"
@@ -78,6 +79,8 @@ func (s *EstablishmentMemberService) List(ctx context.Context, establishmentID s
 // and a member who was removed comes back. Only an owner of the establishment, or a platform
 // admin, may make somebody an owner. role is nil to keep the role (STAFF for a new member).
 func (s *EstablishmentMemberService) Invite(ctx context.Context, establishmentID string, inviter domain.User, email string, role *domain.EstablishmentRole) error {
+	email = strings.ToLower(strings.TrimSpace(email))
+
 	if role != nil && *role == domain.EstablishmentRoleOwner {
 		allowed, err := s.canGrantOwner(ctx, establishmentID, inviter)
 		if err != nil {
