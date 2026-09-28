@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"regexp"
+	"strings"
 
 	"api-go/internal/core/domain"
 	"api-go/internal/core/ports"
@@ -187,21 +188,36 @@ func (tc *aiToolContext) tableNameOfOpenOrder(orderID string) string {
 	return "No table"
 }
 
-// knownProductLines keeps the lines whose product is in the snapshot.
-func (tc *aiToolContext) knownProductLines(lines []OrderLineInput) []OrderLineInput {
-	var known []OrderLineInput
+// unknownProductIDs are the products of the lines that are not in the snapshot.
+func (tc *aiToolContext) unknownProductIDs(lines []OrderLineInput) []string {
+	var unknown []string
 	for _, line := range lines {
+		known := false
 		for _, product := range tc.products {
 			if product.ID == line.ProductID {
-				known = append(known, line)
+				known = true
 				break
 			}
 		}
+		if !known {
+			unknown = append(unknown, line.ProductID)
+		}
 	}
-	return known
+	return unknown
 }
 
 const noKnownProducts = "None of the requested products are available in this establishment's menu."
+
+func productsCheck(lines []OrderLineInput, unknown []string) (domain.AIToolResult, bool) {
+	if len(unknown) == len(lines) {
+		return aiFailed(noKnownProducts), false
+	}
+	if len(unknown) > 0 {
+		return aiFailed("These products are not in this establishment's menu: " + strings.Join(unknown, ", ") +
+			". Nothing was added: use the exact product UUIDs from the menu."), false
+	}
+	return domain.AIToolResult{}, true
+}
 
 func (s *AIService) orderTools(tc *aiToolContext) []ports.AITool {
 	return []ports.AITool{
@@ -257,7 +273,7 @@ func (s *AIService) orderTools(tc *aiToolContext) []ports.AITool {
 						revenue := 0
 						for _, order := range orders {
 							if order.Status == domain.OrderClosed {
-								revenue += order.TotalAmount
+								revenue += order.OrderTotal
 							}
 						}
 						return aiOrdersOfDay{Count: len(orders), Revenue: toEuros(revenue), Orders: tc.summarizeOrders(orders)}
@@ -271,16 +287,15 @@ func (s *AIService) orderTools(tc *aiToolContext) []ports.AITool {
 					lines = append(lines, OrderLineInput{ProductID: item.ProductID, Quantity: item.Quantity})
 				}
 
-				known := tc.knownProductLines(lines)
-				if len(known) == 0 {
-					return aiFailed(noKnownProducts)
+				if failed, ok := productsCheck(lines, tc.unknownProductIDs(lines)); !ok {
+					return failed
 				}
 
 				return tc.execute(domain.PermissionCreateOrder, nil, func() error {
 					return s.orders.Create(ctx, tc.establishmentID, CreateOrderInput{
 						CreatedByID: tc.user.ID,
 						TableID:     optionalID(&input.TableID),
-						Items:       known,
+						Items:       lines,
 					})
 				})
 			}),
@@ -292,13 +307,12 @@ func (s *AIService) orderTools(tc *aiToolContext) []ports.AITool {
 					lines = append(lines, OrderLineInput{ProductID: item.ProductID, Quantity: item.Quantity})
 				}
 
-				known := tc.knownProductLines(lines)
-				if len(known) == 0 {
-					return aiFailed(noKnownProducts)
+				if failed, ok := productsCheck(lines, tc.unknownProductIDs(lines)); !ok {
+					return failed
 				}
 
 				return tc.execute(domain.PermissionUpdateOrder, nil, func() error {
-					return s.orders.AddItems(ctx, tc.establishmentID, input.OrderID, AddOrderItemsInput{Items: known})
+					return s.orders.AddItems(ctx, tc.establishmentID, input.OrderID, AddOrderItemsInput{Items: lines})
 				})
 			}),
 

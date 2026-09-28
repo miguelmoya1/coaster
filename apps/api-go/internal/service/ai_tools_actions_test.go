@@ -39,10 +39,20 @@ func TestAITableActions(t *testing.T) {
 }
 
 func TestAIOrderActions(t *testing.T) {
-	t.Run("createOrder keeps the products of the menu and who opened it", func(t *testing.T) {
+	t.Run("createOrder refuses a product that is not on the menu", func(t *testing.T) {
 		f := newAIFixture()
 		got := f.run(t, f.toolContext(t, "u2"), "createOrder",
 			`{"tableId":"t2","items":[{"productId":"p1","quantity":2},{"productId":"p9","quantity":1}]}`)
+
+		want := `{"status":"error","message":"These products are not in this establishment's menu: p9. Nothing was added: use the exact product UUIDs from the menu."}`
+		if got != want || len(f.orders.writes) != 0 {
+			t.Fatalf("createOrder = %s, writes %v", got, f.orders.writes)
+		}
+	})
+
+	t.Run("createOrder records who opened it", func(t *testing.T) {
+		f := newAIFixture()
+		got := f.run(t, f.toolContext(t, "u2"), "createOrder", `{"tableId":"t2","items":[{"productId":"p1","quantity":2}]}`)
 
 		created := f.orders.created
 		if got != aiDone || created.CreatedByID == nil || *created.CreatedByID != "u2" || created.TableID == nil || *created.TableID != "t2" {
@@ -65,7 +75,7 @@ func TestAIOrderActions(t *testing.T) {
 		name, tool, input string
 		check             func(f *aiFixture) bool
 	}{
-		{"addOrderItems", "addOrderItems", `{"orderId":"o2","items":[{"productId":"p9","quantity":1},{"productId":"p2","quantity":3}]}`,
+		{"addOrderItems", "addOrderItems", `{"orderId":"o2","items":[{"productId":"p2","quantity":3}]}`,
 			func(f *aiFixture) bool {
 				items := f.orders.addition.Items
 				return len(items) == 1 && items[0].ProductID == "p2" && items[0].Quantity == 3 && !f.orders.addition.ChangeNotes
@@ -114,6 +124,14 @@ func TestAIOrderActions(t *testing.T) {
 		})
 	}
 
+	t.Run("addOrderItems refuses a product that is not on the menu", func(t *testing.T) {
+		f := newAIFixture()
+		got := f.run(t, f.toolContext(t, "u1"), "addOrderItems", `{"orderId":"o2","items":[{"productId":"p9","quantity":1},{"productId":"p2","quantity":3}]}`)
+		if !strings.Contains(got, "not in this establishment's menu: p9") || len(f.orders.writes) != 0 {
+			t.Errorf("addOrderItems = %s, writes %v", got, f.orders.writes)
+		}
+	})
+
 	t.Run("deleteOrder of an open order", func(t *testing.T) {
 		f := newAIFixture()
 		got := f.run(t, f.toolContext(t, "u1"), "deleteOrder", `{"orderId":"o1","confirmed":true}`)
@@ -149,6 +167,12 @@ func TestAIProductAndCategoryActions(t *testing.T) {
 	changes := f.products.updatedWith
 	if *changes.Price != 275 || changes.CategoryID != nil || changes.Name != nil || changes.MinStockAlert != nil {
 		t.Errorf("changes %+v", changes)
+	}
+	if got := f.run(t, owner, "updateProduct", `{"productId":"p1","price":-1}`); got != `{"status":"error","message":"The price cannot be negative."}` {
+		t.Errorf("updateProduct with a negative price = %s", got)
+	}
+	if *f.products.updatedWith.Price != 275 {
+		t.Errorf("a negative price was saved: %d", *f.products.updatedWith.Price)
 	}
 
 	if got := f.run(t, owner, "updateProductStock", `{"productId":"p1","currentStock":12}`); got != aiDone || f.products.products["p1"].CurrentStock != 12 {

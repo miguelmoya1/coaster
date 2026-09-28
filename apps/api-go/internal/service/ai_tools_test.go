@@ -59,7 +59,6 @@ func TestAIToolsAnswerLikeNest(t *testing.T) {
 		{"listCategories", "u1", "listCategories", `{}`},
 		{"listOpenOrders", "u1", "listOpenOrders", `{}`},
 		{"getOrderDetails", "u1", "getOrderDetails", `{"orderId":"o1"}`},
-		{"getOrdersByDate", "u1", "getOrdersByDate", `{"date":"2026-09-27"}`},
 		{"getOrdersByDate bad date", "u1", "getOrdersByDate", `{"date":"27/09/2026"}`},
 		{"getEstablishmentStats owner", "u1", "getEstablishmentStats", `{}`},
 		{"getEstablishmentStats manager", "u3", "getEstablishmentStats", `{}`},
@@ -103,6 +102,19 @@ func TestAIToolsAnswerLikeNest(t *testing.T) {
 				t.Errorf("%s(%s) =\n%s\nwant\n%s", test.tool, test.input, got, want)
 			}
 		})
+	}
+}
+
+func TestAIOrdersByDateAddUpWhatEachOrderShows(t *testing.T) {
+	f := newAIFixture()
+
+	got := f.run(t, f.toolContext(t, "u1"), "getOrdersByDate", `{"date":"2026-09-27"}`)
+	nest := nestAnswer(t, nestAnswers(t), "getOrdersByDate")
+	if !strings.Contains(nest, `"revenue":10,`) || !strings.Contains(nest, `"total":11,`) {
+		t.Fatalf("the answer of Nest changed: %s", nest)
+	}
+	if want := strings.Replace(nest, `"revenue":10,`, `"revenue":11,`, 1); got != want {
+		t.Errorf("getOrdersByDate =\n%s\nwant\n%s", got, want)
 	}
 }
 

@@ -125,6 +125,9 @@ func (s *AIService) productTools(tc *aiToolContext) []ports.AITool {
 					MinStockAlert: input.MinStockAlert,
 				}
 				if input.Price != nil {
+					if *input.Price < 0 {
+						return aiFailed("The price cannot be negative.")
+					}
 					price := toCents(*input.Price)
 					changes.Price = &price
 				}
