@@ -483,6 +483,57 @@ func TestOrderRepositoryMoveCancelAndRemove(t *testing.T) {
 	}
 }
 
+func TestOrderRepositoryCancelAndMoveOnlyAnOpenOrder(t *testing.T) {
+	resetDB(t)
+	insertOrderFixtures(t)
+	ctx := context.Background()
+	orders := NewOrderRepository(testPool)
+	t1 := "t1"
+
+	order := openTestOrder(t, orders, &t1, beerLine(1))
+	if _, err := orders.Checkout(ctx, order.ID, &t1, domain.PaymentCash); err != nil {
+		t.Fatal(err)
+	}
+
+	if _, err := orders.Cancel(ctx, order.ID, &t1); !domain.HasCode(err, domain.CodeOrderNotOpen) {
+		t.Fatalf("cancelling a closed order = %v", err)
+	}
+	if _, err := orders.MoveTable(ctx, order.ID, &t1, "t2", "Mesa 2"); !domain.HasCode(err, domain.CodeOrderNotOpen) {
+		t.Fatalf("moving a closed order = %v", err)
+	}
+	if _, err := orders.RemoveLastItemAndCancel(ctx, order.ID, order.Items[0].ID, &t1); !domain.HasCode(err, domain.CodeOrderNotOpen) {
+		t.Fatalf("removing the last line of a closed order = %v", err)
+	}
+
+	closed, err := orders.FindByID(ctx, order.ID)
+	if err != nil || closed.Status != domain.OrderClosed || *closed.TableID != "t1" || len(closed.Items) != 1 {
+		t.Fatalf("the closed order changed: %+v, %v", closed, err)
+	}
+	if tableStatusOf(t, "t2") != domain.TableFree {
+		t.Fatal("moving a closed order took t2")
+	}
+
+	racing := openTestOrder(t, orders, nil, beerLine(1))
+	var wg sync.WaitGroup
+	var cancelErr, checkoutErr error
+	wg.Go(func() {
+		_, cancelErr = orders.Cancel(ctx, racing.ID, nil)
+	})
+	wg.Go(func() {
+		_, checkoutErr = orders.Checkout(ctx, racing.ID, nil, domain.PaymentCash)
+	})
+	wg.Wait()
+
+	if (cancelErr == nil) == (checkoutErr == nil) {
+		t.Fatalf("cancel = %v, checkout = %v; want exactly one to go through", cancelErr, checkoutErr)
+	}
+	for _, err := range []error{cancelErr, checkoutErr} {
+		if err != nil && !domain.HasCode(err, domain.CodeOrderNotOpen) {
+			t.Fatalf("unexpected error: %v", err)
+		}
+	}
+}
+
 func TestOrderRepositoryNotesTipDiscountsAndDelete(t *testing.T) {
 	resetDB(t)
 	insertOrderFixtures(t)

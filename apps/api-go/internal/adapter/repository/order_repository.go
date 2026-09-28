@@ -48,8 +48,8 @@ var (
 	claimOrderForCheckoutQuery string
 	//go:embed queries/order/close.sql
 	closeOrderQuery string
-	//go:embed queries/order/set_status.sql
-	setOrderStatusQuery string
+	//go:embed queries/order/cancel_open.sql
+	cancelOpenOrderQuery string
 	//go:embed queries/order/set_total.sql
 	setOrderTotalQuery string
 	//go:embed queries/order/move_to_table.sql
@@ -88,6 +88,17 @@ func execExisting(ctx context.Context, db querier, sql string, args ...any) erro
 	}
 	if tag.RowsAffected() == 0 {
 		return errMissingRow
+	}
+	return nil
+}
+
+func execWhileOpen(ctx context.Context, db querier, sql string, args ...any) error {
+	tag, err := db.Exec(ctx, sql, args...)
+	if err != nil {
+		return err
+	}
+	if tag.RowsAffected() == 0 {
+		return domain.BadRequest(domain.CodeOrderNotOpen)
 	}
 	return nil
 }
@@ -346,7 +357,7 @@ func (r *OrderRepository) Checkout(ctx context.Context, orderID string, tableID 
 func (r *OrderRepository) Cancel(ctx context.Context, orderID string, tableID *string) (domain.OrderRow, error) {
 	var cancelled domain.OrderRow
 	err := pgx.BeginFunc(ctx, r.pool, func(tx pgx.Tx) error {
-		if err := execExisting(ctx, tx, setOrderStatusQuery, orderID, domain.OrderCancelled, now()); err != nil {
+		if err := execWhileOpen(ctx, tx, cancelOpenOrderQuery, orderID, now()); err != nil {
 			return err
 		}
 
@@ -367,6 +378,10 @@ func (r *OrderRepository) Cancel(ctx context.Context, orderID string, tableID *s
 func (r *OrderRepository) MoveTable(ctx context.Context, orderID string, oldTableID *string, newTableID, newTableName string) (domain.OrderRow, error) {
 	var moved domain.OrderRow
 	err := pgx.BeginFunc(ctx, r.pool, func(tx pgx.Tx) error {
+		if err := execWhileOpen(ctx, tx, moveOrderToTableQuery, orderID, newTableID, newTableName, now()); err != nil {
+			return err
+		}
+
 		if oldTableID != nil {
 			if err := setTableStatus(ctx, tx, *oldTableID, domain.TableFree); err != nil {
 				return err
@@ -374,10 +389,6 @@ func (r *OrderRepository) MoveTable(ctx context.Context, orderID string, oldTabl
 		}
 
 		if err := setTableStatus(ctx, tx, newTableID, domain.TableOccupied); err != nil {
-			return err
-		}
-
-		if err := execExisting(ctx, tx, moveOrderToTableQuery, orderID, newTableID, newTableName, now()); err != nil {
 			return err
 		}
 
@@ -534,7 +545,7 @@ func (r *OrderRepository) RemoveLastItemAndCancel(ctx context.Context, orderID, 
 			return err
 		}
 
-		if err := execExisting(ctx, tx, setOrderStatusQuery, orderID, domain.OrderCancelled, at); err != nil {
+		if err := execWhileOpen(ctx, tx, cancelOpenOrderQuery, orderID, at); err != nil {
 			return err
 		}
 
