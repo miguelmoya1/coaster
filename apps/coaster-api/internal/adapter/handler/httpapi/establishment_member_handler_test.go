@@ -25,23 +25,6 @@ func (c memberRouteCaller) Resolve(_ context.Context, authorization string) (*do
 	return &domain.Caller{Claims: domain.SessionClaims{Sub: user.ID, Sid: "s1"}, User: &user}, nil
 }
 
-type memberRouteAccess struct {
-	fakeAccess
-	platformRole domain.Role
-	role         domain.EstablishmentRole
-}
-
-func (a memberRouteAccess) UserRole(context.Context, string) (domain.Role, error) {
-	return a.platformRole, nil
-}
-
-func (a memberRouteAccess) Membership(context.Context, string, string) (*domain.Membership, error) {
-	if a.role == "" {
-		return nil, nil
-	}
-	return &domain.Membership{Role: string(a.role), Active: true}, nil
-}
-
 type memberRouteRows struct {
 	ports.EstablishmentMemberRepository
 }
@@ -108,16 +91,12 @@ func (memberRouteTokens) Issue(context.Context, string, domain.AuthTokenPurpose)
 	return "a-token", nil
 }
 
-type memberRouteEvents struct{}
-
-func (memberRouteEvents) Publish(context.Context, any) {}
-
-func newMemberRouteServer(caller domain.User, access memberRouteAccess, mailer memberRouteMailer) http.Handler {
+func newMemberRouteServer(caller domain.User, access fakeAccess, mailer memberRouteMailer) http.Handler {
 	members := service.NewEstablishmentMemberService(service.EstablishmentMemberDependencies{
 		Members: memberRouteRows{},
 		Tokens:  memberRouteTokens{},
 		Mailer:  mailer,
-		Events:  memberRouteEvents{},
+		Events:  discardEvents{},
 	})
 
 	guard := middleware.NewGuard(memberRouteCaller{user: caller}, access, &countingLimiter{hits: map[string]int{}}, 1)
@@ -162,7 +141,7 @@ func TestEstablishmentMemberRoutes(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			server := newMemberRouteServer(testUser, memberRouteAccess{platformRole: domain.RoleUser, role: tt.role}, memberRouteMailer{})
+			server := newMemberRouteServer(testUser, fakeAccess{platformRole: domain.RoleUser, role: tt.role}, memberRouteMailer{})
 			method, target, _ := strings.Cut(tt.route, " ")
 
 			if response := send(server, method, target, tt.body, nil); response.Code != http.StatusUnauthorized {
@@ -184,7 +163,7 @@ func TestEstablishmentMemberRoutes(t *testing.T) {
 }
 
 func TestEstablishmentMemberValidation(t *testing.T) {
-	server := newMemberRouteServer(testUser, memberRouteAccess{platformRole: domain.RoleUser, role: domain.EstablishmentRoleOwner}, memberRouteMailer{})
+	server := newMemberRouteServer(testUser, fakeAccess{platformRole: domain.RoleUser, role: domain.EstablishmentRoleOwner}, memberRouteMailer{})
 	signedIn := map[string]string{"Authorization": "Bearer good"}
 
 	tests := []struct {
@@ -220,7 +199,7 @@ func TestEstablishmentMemberValidation(t *testing.T) {
 
 func TestEstablishmentMemberJSON(t *testing.T) {
 	signedIn := map[string]string{"Authorization": "Bearer good"}
-	owner := memberRouteAccess{platformRole: domain.RoleUser, role: domain.EstablishmentRoleOwner}
+	owner := fakeAccess{platformRole: domain.RoleUser, role: domain.EstablishmentRoleOwner}
 
 	server := newMemberRouteServer(testUser, owner, memberRouteMailer{})
 
@@ -243,7 +222,7 @@ func TestEstablishmentMemberJSON(t *testing.T) {
 	}
 
 	admin := domain.User{ID: "admin-1", Email: "admin@example.com", Name: "Admin", Active: true, Role: domain.RoleAdmin, Language: "es"}
-	adminServer := newMemberRouteServer(admin, memberRouteAccess{platformRole: domain.RoleAdmin}, memberRouteMailer{})
+	adminServer := newMemberRouteServer(admin, fakeAccess{platformRole: domain.RoleAdmin}, memberRouteMailer{})
 
 	standIn := send(adminServer, "GET", "/api/v1/establishments/e1/members/me", "", signedIn)
 	wantStandIn := `{"id":"mock-admin-member","userId":"admin-1","establishmentId":"e1","role":"OWNER","active":true,"pending":false,"userName":"Admin","userEmail":"admin@example.com","userImage":""}`
@@ -253,7 +232,7 @@ func TestEstablishmentMemberJSON(t *testing.T) {
 }
 
 func TestEstablishmentMemberResendInviteEmailFails(t *testing.T) {
-	owner := memberRouteAccess{platformRole: domain.RoleUser, role: domain.EstablishmentRoleOwner}
+	owner := fakeAccess{platformRole: domain.RoleUser, role: domain.EstablishmentRoleOwner}
 	server := newMemberRouteServer(testUser, owner, memberRouteMailer{down: true})
 
 	response := send(server, "POST", "/api/v1/establishments/e1/members/m-sergio/invite", "", map[string]string{"Authorization": "Bearer good"})

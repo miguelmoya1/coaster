@@ -15,8 +15,8 @@ type memberFixture struct {
 	cache    *fakeCache
 	tokens   *memberTokens
 	mailer   *memberMailer
-	events   *memberEventRecorder
-	realtime *memberRealtimeRecorder
+	events   *eventRecorder
+	realtime *realtimeRecorder
 }
 
 func newMemberFixture() *memberFixture {
@@ -38,8 +38,8 @@ func newMemberFixture() *memberFixture {
 		cache:    cache,
 		tokens:   &memberTokens{},
 		mailer:   &memberMailer{},
-		events:   &memberEventRecorder{},
-		realtime: &memberRealtimeRecorder{},
+		events:   &eventRecorder{},
+		realtime: &realtimeRecorder{},
 	}
 	f.service = NewEstablishmentMemberService(EstablishmentMemberDependencies{
 		Members:  repo,
@@ -344,17 +344,17 @@ func TestEstablishmentMemberChangesForgetTheMembershipAndReachRealtime(t *testin
 	tests := []struct {
 		name  string
 		event any
-		want  []memberRealtimeMessage
+		want  []realtimeMessage
 	}{
 		{
 			"invited",
 			domain.MemberInvitedEvent{EstablishmentID: "e1", MemberID: "m-ana", UserID: "ana"},
-			[]memberRealtimeMessage{{establishmentID: "e1", event: domain.RealtimeMemberInvited, payload: memberIDPayload{ID: "m-ana"}}},
+			[]realtimeMessage{{establishmentID: "e1", event: domain.RealtimeMemberInvited, payload: memberIDPayload{ID: "m-ana"}}},
 		},
 		{
 			"removed",
 			domain.MemberRemovedEvent{EstablishmentID: "e1", MemberID: "m-ana", UserID: "ana"},
-			[]memberRealtimeMessage{
+			[]realtimeMessage{
 				{establishmentID: "e1", event: domain.RealtimeMemberRemoved, payload: memberIDPayload{ID: "m-ana"}},
 				{establishmentID: "e1", revokedUserID: "ana"},
 			},
@@ -362,7 +362,7 @@ func TestEstablishmentMemberChangesForgetTheMembershipAndReachRealtime(t *testin
 		{
 			"role changed",
 			domain.MemberRoleChangedEvent{EstablishmentID: "e1", MemberID: "m-ana", UserID: "ana", From: domain.EstablishmentRoleManager, To: domain.EstablishmentRoleOwner},
-			[]memberRealtimeMessage{{establishmentID: "e1", event: domain.RealtimeMemberRoleChanged, payload: memberRoleChangedPayload{ID: "m-ana", UserID: "ana", Role: domain.EstablishmentRoleOwner}}},
+			[]realtimeMessage{{establishmentID: "e1", event: domain.RealtimeMemberRoleChanged, payload: memberRoleChangedPayload{ID: "m-ana", UserID: "ana", Role: domain.EstablishmentRoleOwner}}},
 		},
 	}
 

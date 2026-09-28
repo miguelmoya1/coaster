@@ -8,7 +8,7 @@ import (
 
 var subscriptionNow = time.Date(2026, 1, 15, 0, 0, 0, 0, time.UTC)
 
-func subscriptionDate(value string) *time.Time {
+func testTime(value string) *time.Time {
 	t, err := time.Parse(time.RFC3339, value)
 	if err != nil {
 		panic(err)
@@ -16,18 +16,16 @@ func subscriptionDate(value string) *time.Time {
 	return &t
 }
 
-func subscriptionText(value string) *string { return &value }
-
 func activeSubscription() *EstablishmentSubscription {
 	return &EstablishmentSubscription{
 		ID:                   "sub_id_1",
 		EstablishmentID:      "establishment_id_1",
 		Plan:                 PlanPro,
 		Status:               SubscriptionActive,
-		StripeCustomerID:     subscriptionText("cus_123"),
-		StripeSubscriptionID: subscriptionText("sub_123"),
-		CurrentPeriodStart:   subscriptionDate("2026-01-01T00:00:00Z"),
-		CurrentPeriodEnd:     subscriptionDate("2026-02-01T00:00:00Z"),
+		StripeCustomerID:     new("cus_123"),
+		StripeSubscriptionID: new("sub_123"),
+		CurrentPeriodStart:   testTime("2026-01-01T00:00:00Z"),
+		CurrentPeriodEnd:     testTime("2026-02-01T00:00:00Z"),
 		Seats:                1,
 		CreatedAt:            subscriptionNow,
 		UpdatedAt:            subscriptionNow,
@@ -58,14 +56,14 @@ func TestSubscriptionEffectiveStatus(t *testing.T) {
 	}{
 		{"ACTIVE without a Stripe subscription is INACTIVE", func(s *EstablishmentSubscription) { s.StripeSubscriptionID = nil }, SubscriptionInactive},
 		{"ACTIVE without a billing period is INACTIVE", func(s *EstablishmentSubscription) { s.CurrentPeriodEnd = nil }, SubscriptionInactive},
-		{"ACTIVE past its period is EXPIRED", func(s *EstablishmentSubscription) { s.CurrentPeriodEnd = subscriptionDate("2026-01-01T00:00:00Z") }, SubscriptionExpired},
+		{"ACTIVE past its period is EXPIRED", func(s *EstablishmentSubscription) { s.CurrentPeriodEnd = testTime("2026-01-01T00:00:00Z") }, SubscriptionExpired},
 		{"TRIALING past the trial is EXPIRED", func(s *EstablishmentSubscription) {
 			s.Status = SubscriptionTrialing
-			s.TrialEndsAt = subscriptionDate("2026-01-01T00:00:00Z")
+			s.TrialEndsAt = testTime("2026-01-01T00:00:00Z")
 		}, SubscriptionExpired},
 		{"TRIALING while the trial runs", func(s *EstablishmentSubscription) {
 			s.Status = SubscriptionTrialing
-			s.TrialEndsAt = subscriptionDate("2026-02-01T00:00:00Z")
+			s.TrialEndsAt = testTime("2026-02-01T00:00:00Z")
 		}, SubscriptionTrialing},
 		{"CANCELED while the paid period runs", func(s *EstablishmentSubscription) { s.Status = SubscriptionCanceled }, SubscriptionCanceled},
 		{"ACTIVE within its period", func(*EstablishmentSubscription) {}, SubscriptionActive},
@@ -129,7 +127,7 @@ func TestSubscriptionViewManualGrants(t *testing.T) {
 			change: func(s *EstablishmentSubscription) {
 				s.Plan, s.Status, s.StripeSubscriptionID = PlanFree, SubscriptionInactive, nil
 				s.ManualPlan = &pro
-				s.ManualGrantExpiresAt = subscriptionDate("2026-01-01T00:00:00Z")
+				s.ManualGrantExpiresAt = testTime("2026-01-01T00:00:00Z")
 			},
 			wantPlan: PlanFree, wantStatus: SubscriptionInactive, wantGrant: "null",
 		},

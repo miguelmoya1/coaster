@@ -10,9 +10,9 @@ import (
 
 var testUser = domain.AuthUser{ID: "user-1", Email: "ana@coaster.test", Name: "Ana", Active: true, Role: domain.RoleUser}
 
-func newTestSessionService() (*SessionService, *fakeSessions, *fakePublisher) {
+func newTestSessionService() (*SessionService, *fakeSessions, *eventRecorder) {
 	sessions := &fakeSessions{}
-	events := &fakePublisher{}
+	events := &eventRecorder{}
 	return NewSessionService(sessions, newTestTokens(newFakeUsers(), newFakeCache()), events), sessions, events
 }
 
@@ -101,7 +101,7 @@ func TestRevokeDropsTheWholeFamily(t *testing.T) {
 	if len(sessions.revokedFamily) != 1 || sessions.revokedFamily[0] != "family-1" {
 		t.Errorf("revoked %v", sessions.revokedFamily)
 	}
-	if logged := events.ofType(domain.AuthEventLoggedOut); len(logged) != 1 || logged[0].UserID != "user-1" {
+	if logged := events.authEvents(domain.AuthEventLoggedOut); len(logged) != 1 || logged[0].UserID != "user-1" {
 		t.Errorf("LOGGED_OUT events = %+v", logged)
 	}
 }
@@ -139,7 +139,7 @@ func TestRevokeEverySessionOf(t *testing.T) {
 	if !sessions.revoked(one.ID) || !sessions.revoked(other.ID) {
 		t.Error("a session survived")
 	}
-	logged := events.ofType(domain.AuthEventLoggedOut)
+	logged := events.authEvents(domain.AuthEventLoggedOut)
 	if len(logged) != 1 || logged[0].Metadata["everywhere"] != true {
 		t.Errorf("events = %+v", logged)
 	}

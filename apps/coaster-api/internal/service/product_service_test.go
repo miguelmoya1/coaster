@@ -48,7 +48,7 @@ func TestProductServiceCreate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			repo := newFakeProductRepo()
-			events := &catalogEvents{}
+			events := &eventRecorder{}
 
 			err := NewProductService(repo, events).Create(context.Background(), "est-1", tt.input)
 
@@ -139,7 +139,7 @@ func TestProductServiceWritesCheckTheProduct(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			events := &catalogEvents{}
+			events := &eventRecorder{}
 
 			err := tt.run(NewProductService(productRepoWithBeer(), events), tt.productID)
 
@@ -162,7 +162,7 @@ func TestProductServiceWritesCheckTheProduct(t *testing.T) {
 
 func TestProductServiceStockEvents(t *testing.T) {
 	repo := productRepoWithBeer()
-	events := &catalogEvents{}
+	events := &eventRecorder{}
 	products := NewProductService(repo, events)
 
 	if err := products.AdjustStock(context.Background(), "est-1", "prod-1", -3); err != nil {
@@ -185,7 +185,7 @@ func TestProductServiceList(t *testing.T) {
 	repo := productRepoWithBeer()
 	repo.categoryTaxRateFor = map[string]int{"cat-1": 2100}
 
-	products, err := NewProductService(repo, &catalogEvents{}).List(context.Background(), "est-1")
+	products, err := NewProductService(repo, &eventRecorder{}).List(context.Background(), "est-1")
 	if err != nil {
 		t.Fatal(err)
 	}

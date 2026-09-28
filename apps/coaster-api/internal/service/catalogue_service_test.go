@@ -106,7 +106,7 @@ func TestCatalogueServiceImport(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			events := &catalogEvents{}
+			events := &eventRecorder{}
 
 			if err := NewCatalogueService(tt.repo, events).Import(context.Background(), "est-1", tt.keys); err != nil {
 				t.Fatal(err)
@@ -124,7 +124,7 @@ func TestCatalogueServiceImport(t *testing.T) {
 
 func TestCatalogueServiceImportRefusesAnUnknownSelection(t *testing.T) {
 	repo := &fakeCatalogueRepo{language: "es"}
-	events := &catalogEvents{}
+	events := &eventRecorder{}
 
 	err := NewCatalogueService(repo, events).Import(context.Background(), "est-1", []string{"sushi"})
 
@@ -137,7 +137,7 @@ func TestCatalogueServiceImportRefusesAnUnknownSelection(t *testing.T) {
 }
 
 func TestCatalogueServiceStarter(t *testing.T) {
-	catalogue, err := NewCatalogueService(&fakeCatalogueRepo{language: "en"}, &catalogEvents{}).Starter(context.Background(), "est-1")
+	catalogue, err := NewCatalogueService(&fakeCatalogueRepo{language: "en"}, &eventRecorder{}).Starter(context.Background(), "est-1")
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -20,7 +20,7 @@ func storedSubscription(status domain.SubscriptionStatus, subscriptionID string,
 		EstablishmentID:  billedEstablishment,
 		Plan:             domain.PlanPro,
 		Status:           status,
-		StripeCustomerID: billingText("cus_1"),
+		StripeCustomerID: new("cus_1"),
 		CurrentPeriodEnd: periodEnd,
 		Seats:            1,
 		CreatedAt:        billingNow,
@@ -46,7 +46,7 @@ func liveStripeSubscription(id string) domain.StripeSubscription {
 
 func TestCreateCheckoutSession(t *testing.T) {
 	test := newSubscriptionTest(newFakeSubscriptions(domain.EstablishmentSubscription{
-		EstablishmentID: billedEstablishment, StripeCustomerID: billingText("cus_existing"), Status: domain.SubscriptionInactive,
+		EstablishmentID: billedEstablishment, StripeCustomerID: new("cus_existing"), Status: domain.SubscriptionInactive,
 	}), newFakePayments())
 	test.repo.members[billedEstablishment] = 12
 
@@ -205,7 +205,7 @@ func TestCreateCheckoutSessionRefusals(t *testing.T) {
 
 func TestCreateCustomerPortalSession(t *testing.T) {
 	stale := storedSubscription(domain.SubscriptionActive, "sub_1", nil)
-	stale.StripeCustomerID = billingText("cus_stale")
+	stale.StripeCustomerID = new("cus_stale")
 	remote := liveStripeSubscription("sub_1")
 	remote.CustomerID = "cus_remote"
 	lookupFailed := domain.Internal(domain.CodeStripeBillingPortalFailed)
@@ -433,11 +433,11 @@ func TestSubscriptionChangesForgetTheCacheAndReachRealtime(t *testing.T) {
 		t.Errorf("forgotten = %v, want %v", test.cache.forgotten, wantForgotten)
 	}
 
-	wantPublished := []string{"establishment-1:subscriptionUpdated", "establishment-2:subscriptionUpdated"}
-	if !slices.Equal(test.realtime.published, wantPublished) {
-		t.Errorf("published = %v, want %v", test.realtime.published, wantPublished)
+	want := []realtimeMessage{
+		{establishmentID: "establishment-1", event: domain.RealtimeSubscriptionUpdated, payload: map[string]string{"establishmentId": "establishment-1"}},
+		{establishmentID: "establishment-2", event: domain.RealtimeSubscriptionUpdated, payload: map[string]string{"establishmentId": "establishment-2"}},
 	}
-	if payload := test.realtime.payloads[0].(map[string]string); payload["establishmentId"] != "establishment-1" || len(payload) != 1 {
-		t.Errorf("payload = %v", payload)
+	if !reflect.DeepEqual(test.realtime.messages, want) {
+		t.Errorf("messages = %+v, want %+v", test.realtime.messages, want)
 	}
 }

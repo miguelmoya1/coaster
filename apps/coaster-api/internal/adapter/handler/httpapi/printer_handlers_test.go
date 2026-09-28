@@ -9,24 +9,9 @@ import (
 	"testing/fstest"
 	"time"
 
-	"coaster-api/internal/adapter/handler/middleware"
 	"coaster-api/internal/core/domain"
 	"coaster-api/internal/service"
 )
-
-type printerAccess struct {
-	fakeAccess
-	role    domain.EstablishmentRole
-	modules []domain.EstablishmentModule
-}
-
-func (a printerAccess) Membership(context.Context, string, string) (*domain.Membership, error) {
-	return &domain.Membership{Role: string(a.role), Active: true}, nil
-}
-
-func (a printerAccess) EnabledModules(context.Context, string) ([]domain.EstablishmentModule, error) {
-	return a.modules, nil
-}
 
 type printerConfigsStub struct {
 	ipAddress *string
@@ -106,8 +91,8 @@ func newPrinterServer(options printerServerOptions) http.Handler {
 	downloads := fstest.MapFS{"printer-service-linux": {Data: []byte("the linux bridge")}}
 	releases := service.NewPrinterReleaseService(downloads, "https://api.example.com")
 
-	access := printerAccess{role: options.role, modules: options.modules}
-	guard := middleware.NewGuard(fakeTokens{}, access, &countingLimiter{hits: map[string]int{}}, 1)
+	access := fakeAccess{role: options.role, modules: options.modules}
+	guard := testGuard(access)
 	mux := http.NewServeMux()
 	NewPrinterHandler(printers, releases).RegisterRoutes(mux, guard)
 	NewPrinterConnectionHandler(printers).RegisterRoutes(mux, guard)

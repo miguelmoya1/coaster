@@ -7,13 +7,13 @@ import (
 	"coaster-api/internal/core/domain"
 )
 
-func newTableFixture() (*TableService, *fakeTableRepo, *orderEventRecorder) {
+func newTableFixture() (*TableService, *fakeTableRepo, *eventRecorder) {
 	tables := newFakeTableRepo(
 		domain.Table{ID: "t1", EstablishmentID: "e1", Name: "Terraza", Status: domain.TableOccupied},
 		domain.Table{ID: "t2", EstablishmentID: "e1", Name: "Barra", Status: domain.TableFree},
 		domain.Table{ID: "t3", EstablishmentID: "e2", Name: "Salón", Status: domain.TableFree},
 	)
-	events := &orderEventRecorder{}
+	events := &eventRecorder{}
 	return NewTableService(tables, events), tables, events
 }
 

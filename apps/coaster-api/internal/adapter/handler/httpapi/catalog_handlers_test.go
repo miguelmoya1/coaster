@@ -8,27 +8,11 @@ import (
 	"testing"
 	"time"
 
-	"coaster-api/internal/adapter/handler/middleware"
 	"coaster-api/internal/adapter/handler/respond"
 	"coaster-api/internal/core/domain"
 	"coaster-api/internal/core/ports"
 	"coaster-api/internal/service"
 )
-
-type catalogAccess struct {
-	modules []domain.EstablishmentModule
-}
-
-func (catalogAccess) UserRole(context.Context, string) (domain.Role, error) {
-	return domain.RoleAdmin, nil
-}
-func (catalogAccess) Membership(context.Context, string, string) (*domain.Membership, error) {
-	return nil, nil
-}
-func (a catalogAccess) EnabledModules(context.Context, string) ([]domain.EstablishmentModule, error) {
-	return a.modules, nil
-}
-func (catalogAccess) SubscriptionActive(context.Context, string) (bool, error) { return true, nil }
 
 type catalogStorage struct {
 	contentType string
@@ -52,7 +36,7 @@ func (catalogMenus) FindPublishedBySlug(context.Context, string) (*domain.Publis
 }
 
 func newCatalogServer(modules []domain.EstablishmentModule, storage *catalogStorage) http.Handler {
-	guard := middleware.NewGuard(fakeTokens{}, catalogAccess{modules: modules}, &countingLimiter{hits: map[string]int{}}, 1)
+	guard := testGuard(fakeAccess{platformRole: domain.RoleAdmin, modules: modules})
 	mux := http.NewServeMux()
 	NewCategoryHandler(service.NewCategoryService(nil, nil)).RegisterRoutes(mux, guard)
 	NewProductHandler(service.NewProductService(nil, nil)).RegisterRoutes(mux, guard)

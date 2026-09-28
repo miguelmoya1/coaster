@@ -13,7 +13,7 @@ type timeEntryFixture struct {
 	service *TimeEntryService
 	repo    *fakeTimeEntryRepository
 	shifts  *fakeShiftRepository
-	events  *shiftEventRecorder
+	events  *eventRecorder
 	now     time.Time
 }
 
@@ -21,14 +21,14 @@ func newTimeEntryFixture() *timeEntryFixture {
 	f := &timeEntryFixture{
 		repo:   newFakeTimeEntryRepository(),
 		shifts: &fakeShiftRepository{},
-		events: &shiftEventRecorder{},
+		events: &eventRecorder{},
 		now:    time.Date(2026, 8, 8, 10, 0, 0, 0, time.UTC),
 	}
 	f.repo.addMember("worker", "Luis", domain.EstablishmentRoleStaff)
 	f.repo.addMember("manager", "Marta", domain.EstablishmentRoleManager)
 
 	securityService, _ := newTestSecurity(&fakeSecurity{}, nil)
-	shiftService := NewShiftService(f.shifts, securityService, f.events, &shiftRealtimeRecorder{})
+	shiftService := NewShiftService(f.shifts, securityService, f.events, &realtimeRecorder{})
 
 	f.service = NewTimeEntryService(f.repo, shiftService, f.events)
 	f.service.now = func() time.Time { return f.now }

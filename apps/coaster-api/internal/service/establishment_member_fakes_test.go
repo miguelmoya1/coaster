@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"errors"
-	"sync"
 
 	"coaster-api/internal/core/domain"
 )
@@ -122,36 +121,6 @@ func (f *fakeMemberRepository) EstablishmentName(_ context.Context, establishmen
 		return nil, nil
 	}
 	return &name, nil
-}
-
-type memberEventRecorder struct {
-	mu     sync.Mutex
-	events []any
-}
-
-func (r *memberEventRecorder) Publish(_ context.Context, event any) {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-	r.events = append(r.events, event)
-}
-
-type memberRealtimeMessage struct {
-	establishmentID string
-	event           string
-	payload         any
-	revokedUserID   string
-}
-
-type memberRealtimeRecorder struct {
-	messages []memberRealtimeMessage
-}
-
-func (r *memberRealtimeRecorder) Publish(establishmentID string, event string, payload any) {
-	r.messages = append(r.messages, memberRealtimeMessage{establishmentID: establishmentID, event: event, payload: payload})
-}
-
-func (r *memberRealtimeRecorder) Revoke(establishmentID string, userID string) {
-	r.messages = append(r.messages, memberRealtimeMessage{establishmentID: establishmentID, revokedUserID: userID})
 }
 
 type memberInviteEmail struct {

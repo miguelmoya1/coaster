@@ -8,7 +8,6 @@ import (
 	"testing"
 	"time"
 
-	"coaster-api/internal/adapter/handler/middleware"
 	"coaster-api/internal/core/domain"
 	"coaster-api/internal/core/ports"
 	"coaster-api/internal/service"
@@ -78,12 +77,12 @@ func newAIServer(member bool) *aiServer {
 	ai := service.NewAIService(service.AIDependencies{
 		Model:    server.model,
 		Usage:    server.usage,
-		Security: service.NewSecurityService(aiSecurity{member: member}, adminNoCache{}, nil),
+		Security: service.NewSecurityService(aiSecurity{member: member}, noCache{}, nil),
 		Config:   service.AIConfig{MonthlyMessages: 500, TrialMonthlyMessages: 100},
 	})
 
-	access := tillAccess{role: domain.EstablishmentRoleStaff, modules: []domain.EstablishmentModule{domain.ModuleTimeTracking}}
-	guard := middleware.NewGuard(fakeTokens{}, access, &countingLimiter{hits: map[string]int{}}, 1)
+	access := fakeAccess{role: domain.EstablishmentRoleStaff, modules: []domain.EstablishmentModule{domain.ModuleTimeTracking}}
+	guard := testGuard(access)
 	mux := http.NewServeMux()
 	NewAIHandler(ai).RegisterRoutes(mux, guard)
 	server.Handler = mux
@@ -108,7 +107,7 @@ func TestAIRoutesNeedAMember(t *testing.T) {
 		}
 	}
 
-	guard := middleware.NewGuard(fakeTokens{}, fakeAccess{}, &countingLimiter{hits: map[string]int{}}, 1)
+	guard := testGuard(fakeAccess{})
 	mux := http.NewServeMux()
 	NewAIHandler(nil).RegisterRoutes(mux, guard)
 	for _, route := range routes {

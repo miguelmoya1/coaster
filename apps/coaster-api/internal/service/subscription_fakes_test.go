@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"strconv"
-	"sync"
 	"time"
 
 	"coaster-api/internal/core/domain"
@@ -164,43 +163,12 @@ func (f *fakePayments) ParseWebhook([]byte, string) (*domain.StripeEvent, error)
 	return f.event, f.parseErr
 }
 
-type recordedEvents struct {
-	mu     sync.Mutex
-	events []any
-}
-
-func (r *recordedEvents) Publish(_ context.Context, event any) {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-	r.events = append(r.events, event)
-}
-
-func (r *recordedEvents) names() []string {
-	var names []string
-	for _, event := range r.events {
-		names = append(names, eventName(event))
-	}
-	return names
-}
-
-type recordedRealtime struct {
-	published []string
-	payloads  []any
-}
-
-func (r *recordedRealtime) Publish(establishmentID, event string, payload any) {
-	r.published = append(r.published, establishmentID+":"+event)
-	r.payloads = append(r.payloads, payload)
-}
-
-func (r *recordedRealtime) Revoke(string, string) {}
-
 type subscriptionTest struct {
 	service  *SubscriptionService
 	repo     *fakeSubscriptions
 	payments *fakePayments
-	events   *recordedEvents
-	realtime *recordedRealtime
+	events   *eventRecorder
+	realtime *realtimeRecorder
 	cache    *fakeCache
 }
 
@@ -218,8 +186,8 @@ func newSubscriptionTest(repo *fakeSubscriptions, payments *fakePayments) *subsc
 	test := &subscriptionTest{
 		repo:     repo,
 		payments: payments,
-		events:   &recordedEvents{},
-		realtime: &recordedRealtime{},
+		events:   &eventRecorder{},
+		realtime: &realtimeRecorder{},
 		cache:    newFakeCache(),
 	}
 	test.service = NewSubscriptionService(SubscriptionDependencies{
@@ -241,5 +209,3 @@ func billingDate(value string) *time.Time {
 	}
 	return &t
 }
-
-func billingText(value string) *string { return &value }

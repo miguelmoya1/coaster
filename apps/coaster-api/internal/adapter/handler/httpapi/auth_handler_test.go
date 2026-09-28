@@ -8,40 +8,9 @@ import (
 	"testing"
 	"time"
 
-	"coaster-api/internal/adapter/handler/middleware"
 	"coaster-api/internal/core/domain"
 	"coaster-api/internal/core/ports"
 )
-
-var testUser = domain.User{ID: "u1", Email: "ana@example.com", Name: "Ana", Active: true, Role: domain.RoleUser, Language: "es"}
-
-type fakeTokens struct{}
-
-func (fakeTokens) Resolve(_ context.Context, authorization string) (*domain.Caller, error) {
-	if authorization != "Bearer good" {
-		return nil, nil
-	}
-	user := testUser
-	return &domain.Caller{Claims: domain.SessionClaims{Sub: user.ID, Sid: "s1"}, User: &user}, nil
-}
-
-type fakeAccess struct{}
-
-func (fakeAccess) UserRole(context.Context, string) (domain.Role, error) { return domain.RoleUser, nil }
-func (fakeAccess) Membership(context.Context, string, string) (*domain.Membership, error) {
-	return nil, nil
-}
-func (fakeAccess) EnabledModules(context.Context, string) ([]domain.EstablishmentModule, error) {
-	return nil, nil
-}
-func (fakeAccess) SubscriptionActive(context.Context, string) (bool, error) { return true, nil }
-
-type countingLimiter struct{ hits map[string]int }
-
-func (l *countingLimiter) Hit(_ context.Context, key string, ttl time.Duration, limit int, _ time.Duration) ports.RateLimit {
-	l.hits[key]++
-	return ports.RateLimit{TotalHits: l.hits[key], TimeToExpire: int(ttl.Seconds()), Blocked: l.hits[key] > limit, TimeToBlockExpire: int(ttl.Seconds())}
-}
 
 type fakeAuth struct {
 	ports.AuthService
@@ -85,7 +54,7 @@ func (f *fakeAuth) PasswordReset(_ context.Context, token string) (domain.Passwo
 }
 
 func newAuthServer(auth *fakeAuth, account ports.AccountService) http.Handler {
-	guard := middleware.NewGuard(fakeTokens{}, fakeAccess{}, &countingLimiter{hits: map[string]int{}}, 1)
+	guard := testGuard(fakeAccess{})
 	mux := http.NewServeMux()
 	NewAuthHandler(auth, true).RegisterRoutes(mux, guard)
 	NewAccountHandler(account).RegisterRoutes(mux, guard)

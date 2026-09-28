@@ -37,16 +37,16 @@ func TestCatalogRealtimeForward(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(eventName(tt.event), func(t *testing.T) {
-			realtime := &catalogRealtimeFake{}
+			realtime := &realtimeRecorder{}
 
 			deliver(NewCatalogRealtime(realtime).EventHandlers(), tt.event)
 
-			if len(realtime.sent) != 1 || realtime.sent[0].establishmentID != "est-1" || realtime.sent[0].event != tt.wantEvent {
-				t.Fatalf("sent = %+v", realtime.sent)
+			if len(realtime.messages) != 1 || realtime.messages[0].establishmentID != "est-1" || realtime.messages[0].event != tt.wantEvent {
+				t.Fatalf("sent = %+v", realtime.messages)
 			}
 
 			if tt.wantPayload != "" {
-				payload, _ := json.Marshal(realtime.sent[0].payload)
+				payload, _ := json.Marshal(realtime.messages[0].payload)
 				if string(payload) != tt.wantPayload {
 					t.Errorf("payload = %s, want %s", payload, tt.wantPayload)
 				}

@@ -15,7 +15,7 @@ func TestBetaTesterServiceList(t *testing.T) {
 		accounts: []domain.BetaSignUp{{UserID: "ana", Email: "ana@bar.com", CreatedAt: signedUpAt}},
 	}
 
-	page, err := NewBetaTesterService(testers, &recordedEvents{}, true).List(context.Background(), "", domain.PageRequest{Page: 1, PageSize: 20})
+	page, err := NewBetaTesterService(testers, &eventRecorder{}, true).List(context.Background(), "", domain.PageRequest{Page: 1, PageSize: 20})
 	if err != nil || page.Total != 2 || !page.Enforcing || len(page.Items) != 2 {
 		t.Fatalf("List = %+v, %v", page, err)
 	}
@@ -28,7 +28,7 @@ func TestBetaTesterServiceList(t *testing.T) {
 		t.Errorf("luna = %+v", luna)
 	}
 
-	empty, err := NewBetaTesterService(&betaTesterFake{}, &recordedEvents{}, false).List(context.Background(), "", domain.PageRequest{Page: 1, PageSize: 20})
+	empty, err := NewBetaTesterService(&betaTesterFake{}, &eventRecorder{}, false).List(context.Background(), "", domain.PageRequest{Page: 1, PageSize: 20})
 	if err != nil || empty.Items == nil || empty.Enforcing {
 		t.Fatalf("empty List = %+v, %v", empty, err)
 	}
@@ -36,7 +36,7 @@ func TestBetaTesterServiceList(t *testing.T) {
 
 func TestBetaTesterServiceAdd(t *testing.T) {
 	testers := &betaTesterFake{}
-	events := &recordedEvents{}
+	events := &eventRecorder{}
 	service := NewBetaTesterService(testers, events, false)
 
 	note := "  Bar Pepe  "
@@ -74,7 +74,7 @@ func TestBetaTesterServiceAdd(t *testing.T) {
 
 func TestBetaTesterServiceRemove(t *testing.T) {
 	testers := &betaTesterFake{testers: []domain.BetaTester{{ID: "b1", Email: "ana@bar.com"}}}
-	events := &recordedEvents{}
+	events := &eventRecorder{}
 	service := NewBetaTesterService(testers, events, false)
 
 	if err := service.Remove(context.Background(), "admin", "missing"); !isAdminError(err, domain.KindNotFound, domain.CodeBetaTesterNotFound) {

@@ -14,7 +14,7 @@ type authFixture struct {
 	sessions   *fakeSessions
 	tokens     *fakeTokens
 	identities *fakeIdentities
-	events     *fakePublisher
+	events     *eventRecorder
 	mailer     *fakeMailer
 	google     *fakeGoogle
 	pwned      *fakePwned
@@ -26,7 +26,7 @@ func newAuthFixture(users ...domain.AuthUser) *authFixture {
 	f := &authFixture{
 		users:    newFakeUsers(users...),
 		sessions: &fakeSessions{},
-		events:   &fakePublisher{},
+		events:   &eventRecorder{},
 		mailer:   &fakeMailer{},
 		google:   &fakeGoogle{clientID: "client-id"},
 		pwned:    &fakePwned{leaked: []string{"password123"}},
@@ -95,7 +95,7 @@ func TestRegister(t *testing.T) {
 		if issued.User.Email != "nueva@coaster.test" || issued.AccessToken == "" {
 			t.Errorf("issued = %+v", issued)
 		}
-		registered := f.events.ofType(domain.AuthEventRegistered)
+		registered := f.events.authEvents(domain.AuthEventRegistered)
 		if len(registered) != 1 || registered[0].SessionID != issued.SessionID || registered[0].Origin.IP != "10.0.0.1" {
 			t.Errorf("REGISTERED = %+v", registered)
 		}
@@ -147,7 +147,7 @@ func TestLoginWithPassword(t *testing.T) {
 		if f.attempts.failures["nueva@coaster.test"] != 0 {
 			t.Error("the failures were not forgotten")
 		}
-		succeeded := f.events.ofType(domain.AuthEventLoginSucceeded)
+		succeeded := f.events.authEvents(domain.AuthEventLoginSucceeded)
 		if len(succeeded) != 1 || succeeded[0].Metadata["method"] != "password" || succeeded[0].SessionID == "" {
 			t.Errorf("LOGIN_SUCCEEDED = %+v", succeeded)
 		}
@@ -180,7 +180,7 @@ func TestLoginWithPassword(t *testing.T) {
 			if f.attempts.failures[tt.email] != 1 {
 				t.Error("the failure was not counted")
 			}
-			failed := f.events.ofType(domain.AuthEventLoginFailed)
+			failed := f.events.authEvents(domain.AuthEventLoginFailed)
 			if len(failed) != 1 || failed[0].Metadata["reason"] != tt.wantReason || failed[0].UserID != tt.wantUserID {
 				t.Errorf("LOGIN_FAILED = %+v", failed)
 			}
@@ -194,7 +194,7 @@ func TestLoginWithPassword(t *testing.T) {
 		_, err := f.service.LoginWithPassword(ctx, "nueva@coaster.test", password, origin)
 		assertCode(t, err, domain.CodeTooManyAttempts)
 
-		blocked := f.events.ofType(domain.AuthEventLoginBlocked)
+		blocked := f.events.authEvents(domain.AuthEventLoginBlocked)
 		if len(blocked) != 1 || blocked[0].Metadata["retryAfterSeconds"] != 90 {
 			t.Errorf("LOGIN_BLOCKED = %+v", blocked)
 		}
@@ -220,7 +220,7 @@ func TestLoginWithGoogle(t *testing.T) {
 		_, err := f.service.LoginWithGoogle(ctx, "credential", origin)
 		assertCode(t, err, domain.CodeInvalidCredentials)
 
-		failed := f.events.ofType(domain.AuthEventLoginFailed)
+		failed := f.events.authEvents(domain.AuthEventLoginFailed)
 		if len(failed) != 1 || failed[0].Metadata["reason"] != "google_token_rejected" {
 			t.Errorf("LOGIN_FAILED = %+v", failed)
 		}
@@ -270,7 +270,7 @@ func TestLoginWithGoogle(t *testing.T) {
 		if len(f.identities.rows["u1"]) != 1 || !issued.User.EmailVerified {
 			t.Error("Google was not linked")
 		}
-		if len(f.events.ofType(domain.AuthEventIdentityLinked)) != 1 {
+		if len(f.events.authEvents(domain.AuthEventIdentityLinked)) != 1 {
 			t.Error("IDENTITY_LINKED was not published")
 		}
 	})
@@ -299,7 +299,7 @@ func TestLoginWithGoogle(t *testing.T) {
 			t.Errorf("user = %+v", issued.User)
 		}
 		for _, eventType := range []domain.AuthEventType{domain.AuthEventRegistered, domain.AuthEventIdentityLinked, domain.AuthEventLoginSucceeded} {
-			if len(f.events.ofType(eventType)) != 1 {
+			if len(f.events.authEvents(eventType)) != 1 {
 				t.Errorf("%s was not published once", eventType)
 			}
 		}
@@ -313,7 +313,7 @@ func TestLoginWithGoogle(t *testing.T) {
 		_, err := f.service.LoginWithGoogle(ctx, "credential", origin)
 		assertCode(t, err, domain.CodeBetaAccessRequired)
 
-		failed := f.events.ofType(domain.AuthEventLoginFailed)
+		failed := f.events.authEvents(domain.AuthEventLoginFailed)
 		if len(failed) != 1 || failed[0].Metadata["reason"] != "outside_beta" {
 			t.Errorf("LOGIN_FAILED = %+v", failed)
 		}
@@ -366,7 +366,7 @@ func TestRefresh(t *testing.T) {
 			if dropped := len(f.sessions.revokedFamily) > 0; dropped != tt.wantFamilyDrop {
 				t.Errorf("family dropped = %v, want %v", dropped, tt.wantFamilyDrop)
 			}
-			if reused := len(f.events.ofType(domain.AuthEventRefreshReuseDetected)) > 0; reused != tt.wantReuseEvent {
+			if reused := len(f.events.authEvents(domain.AuthEventRefreshReuseDetected)) > 0; reused != tt.wantReuseEvent {
 				t.Errorf("reuse event = %v, want %v", reused, tt.wantReuseEvent)
 			}
 			if !tt.wantErr && f.sessions.rows[len(f.sessions.rows)-1].FamilyID != "family-1" {
@@ -406,7 +406,7 @@ func TestRequestPasswordReset(t *testing.T) {
 				if sent.token != f.tokens.issued[0] {
 					t.Error("the email does not carry the issued token")
 				}
-				if len(f.events.ofType(domain.AuthEventPasswordResetRequested)) != 1 {
+				if len(f.events.authEvents(domain.AuthEventPasswordResetRequested)) != 1 {
 					t.Error("PASSWORD_RESET_REQUESTED was not published")
 				}
 			}
@@ -437,7 +437,7 @@ func TestResetPassword(t *testing.T) {
 		if f.mailer.lastOf("passwordChanged") == nil {
 			t.Error("nobody was warned")
 		}
-		if issued.AccessToken == "" || len(f.events.ofType(domain.AuthEventPasswordResetCompleted)) != 1 {
+		if issued.AccessToken == "" || len(f.events.authEvents(domain.AuthEventPasswordResetCompleted)) != 1 {
 			t.Error("did not sign in or publish")
 		}
 		if len(f.cache.forgotten) == 0 {
@@ -517,7 +517,7 @@ func TestVerifyEmail(t *testing.T) {
 	if f.users.byID["u1"].EmailVerifiedAt == nil {
 		t.Error("the address was not confirmed")
 	}
-	if verified := f.events.ofType(domain.AuthEventEmailVerified); len(verified) != 1 || verified[0].Email != "ana@coaster.test" {
+	if verified := f.events.authEvents(domain.AuthEventEmailVerified); len(verified) != 1 || verified[0].Email != "ana@coaster.test" {
 		t.Errorf("EMAIL_VERIFIED = %+v", verified)
 	}
 
@@ -573,7 +573,7 @@ func TestAcceptInvite(t *testing.T) {
 		if !issued.User.EmailVerified || f.users.byID["u1"].PasswordHash == nil {
 			t.Errorf("user = %+v", issued.User)
 		}
-		if len(f.events.ofType(domain.AuthEventInviteAccepted)) != 1 {
+		if len(f.events.authEvents(domain.AuthEventInviteAccepted)) != 1 {
 			t.Error("INVITE_ACCEPTED was not published")
 		}
 	})

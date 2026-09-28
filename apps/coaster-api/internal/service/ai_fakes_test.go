@@ -126,7 +126,7 @@ type aiFixture struct {
 	tables    *fakeTableRepo
 	products  *fakeProductRepo
 	orders    *aiOrderRepo
-	orderLog  *orderEventRecorder
+	orderLog  *eventRecorder
 	shifts    *fakeShiftRepository
 	exchanges *fakeShiftExchangeRepository
 	members   *fakeMemberRepository
@@ -146,7 +146,7 @@ func newAIFixture() *aiFixture {
 			modules:      map[string][]domain.EstablishmentModule{"e1": domain.DefaultEstablishmentModules},
 			subscription: map[string]*domain.SubscriptionState{"e1": {Status: domain.SubscriptionActive}},
 		},
-		orderLog: &orderEventRecorder{},
+		orderLog: &eventRecorder{},
 		mailer:   &memberMailer{},
 	}
 	security, cache := newTestSecurity(f.security, nil)
@@ -218,12 +218,12 @@ func newAIFixture() *aiFixture {
 		Security: security,
 		Config:   AIConfig{MonthlyMessages: 500, TrialMonthlyMessages: 100},
 
-		Categories: NewCategoryService(categories, &catalogEvents{}),
-		Products:   NewProductService(aiProductRepo{f.products}, &catalogEvents{}),
+		Categories: NewCategoryService(categories, &eventRecorder{}),
+		Products:   NewProductService(aiProductRepo{f.products}, &eventRecorder{}),
 		Orders:     NewOrderService(f.orders, f.tables, f.orderLog),
 		Tables:     NewTableService(f.tables, f.orderLog),
 		Stats:      stats,
-		Shifts:     NewShiftService(f.shifts, security, &shiftEventRecorder{}, &shiftRealtimeRecorder{}),
+		Shifts:     NewShiftService(f.shifts, security, &eventRecorder{}, &realtimeRecorder{}),
 		Exchanges:  exchanges,
 		Members: NewEstablishmentMemberService(EstablishmentMemberDependencies{
 			Members:  f.members,
@@ -231,8 +231,8 @@ func newAIFixture() *aiFixture {
 			Tokens:   &memberTokens{},
 			Mailer:   f.mailer,
 			Cache:    cache,
-			Events:   &memberEventRecorder{},
-			Realtime: &memberRealtimeRecorder{},
+			Events:   &eventRecorder{},
+			Realtime: &realtimeRecorder{},
 		}),
 	})
 	f.service.now = func() time.Time { return aiNow }

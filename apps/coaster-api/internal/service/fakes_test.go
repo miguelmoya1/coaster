@@ -57,28 +57,52 @@ func (c *fakeCache) Forget(_ context.Context, keys ...string) {
 	}
 }
 
-type fakePublisher struct {
+type eventRecorder struct {
 	mu     sync.Mutex
-	events []domain.AuthEvent
+	events []any
 }
 
-func (p *fakePublisher) Publish(_ context.Context, event any) {
-	p.mu.Lock()
-	defer p.mu.Unlock()
+func (r *eventRecorder) Publish(_ context.Context, event any) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	r.events = append(r.events, event)
+}
 
-	if occurred, ok := event.(domain.AuthEvent); ok {
-		p.events = append(p.events, occurred)
+func (r *eventRecorder) names() []string {
+	names := make([]string, 0, len(r.events))
+	for _, event := range r.events {
+		names = append(names, eventName(event))
 	}
+	return names
 }
 
-func (p *fakePublisher) ofType(eventType domain.AuthEventType) []domain.AuthEvent {
+func (r *eventRecorder) authEvents(eventType domain.AuthEventType) []domain.AuthEvent {
 	var found []domain.AuthEvent
-	for _, event := range p.events {
-		if event.Type == eventType {
-			found = append(found, event)
+	for _, event := range r.events {
+		if authEvent, ok := event.(domain.AuthEvent); ok && authEvent.Type == eventType {
+			found = append(found, authEvent)
 		}
 	}
 	return found
+}
+
+type realtimeMessage struct {
+	establishmentID string
+	event           string
+	payload         any
+	revokedUserID   string
+}
+
+type realtimeRecorder struct {
+	messages []realtimeMessage
+}
+
+func (r *realtimeRecorder) Publish(establishmentID string, event string, payload any) {
+	r.messages = append(r.messages, realtimeMessage{establishmentID: establishmentID, event: event, payload: payload})
+}
+
+func (r *realtimeRecorder) Revoke(establishmentID string, userID string) {
+	r.messages = append(r.messages, realtimeMessage{establishmentID: establishmentID, revokedUserID: userID})
 }
 
 type fakeUsers struct {

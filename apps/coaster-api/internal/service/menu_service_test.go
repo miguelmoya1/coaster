@@ -183,7 +183,7 @@ func TestMenuServicePublished(t *testing.T) {
 			name:        "with what has run out",
 			page:        &domain.PublishedMenuPage{Snapshot: snapshot(), DefaultLanguage: "es", MarkSoldOut: true},
 			wantSection: "Cafetería",
-			wantSoldOut: []*bool{catalogBool(true), catalogBool(false)},
+			wantSoldOut: []*bool{new(true), new(false)},
 		},
 	}
 
@@ -219,5 +219,3 @@ func TestMenuServicePublished(t *testing.T) {
 		})
 	}
 }
-
-func catalogBool(value bool) *bool { return &value }

@@ -142,12 +142,12 @@ func TestOrderRepositoryCreateAndRead(t *testing.T) {
 		EstablishmentID: "e1",
 		CreatedByID:     &createdBy,
 		TableID:         &table,
-		TableName:       orderStringPtr("Mesa 1"),
+		TableName:       new("Mesa 1"),
 		TotalAmount:     1300,
 		Items:           []domain.NewOrderItem{beerLine(2), {ProductID: "coke", ProductName: "Coke", Quantity: 1, Price: 300, TaxRate: 2100, Notes: &userNote}},
 		Adjustments:     []domain.NewOrderAdjustment{{Target: domain.AdjustmentOrder, Type: domain.AdjustmentPercentage, Value: 10, Reason: &reason}},
 		TipAmount:       50,
-		Notes:           orderStringPtr("para llevar"),
+		Notes:           new("para llevar"),
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -254,8 +254,8 @@ func TestOrderRepositoryBulkUpdate(t *testing.T) {
 	card := domain.PaymentCard
 
 	updated, err := orders.BulkUpdate(ctx, order.ID, []domain.OrderItemUpdate{
-		{ItemID: itemID, PaidQuantity: orderIntPtr(1), PaymentMethod: &card, ServedQuantity: orderIntPtr(2)},
-		{ItemID: other.Items[0].ID, ServedQuantity: orderIntPtr(1)},
+		{ItemID: itemID, PaidQuantity: new(1), PaymentMethod: &card, ServedQuantity: new(2)},
+		{ItemID: other.Items[0].ID, ServedQuantity: new(1)},
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -276,8 +276,8 @@ func TestOrderRepositoryBulkUpdate(t *testing.T) {
 	}
 
 	updated, err = orders.BulkUpdate(ctx, order.ID, []domain.OrderItemUpdate{
-		{ItemID: itemID, PaidQuantity: orderIntPtr(2)},
-		{ItemID: itemID, PaidQuantity: orderIntPtr(0)},
+		{ItemID: itemID, PaidQuantity: new(2)},
+		{ItemID: itemID, PaidQuantity: new(0)},
 	})
 	if err != nil || updated.Items[0].PaidQuantity != 0 || updated.Items[0].PaymentStatus != domain.PaymentPending ||
 		updated.AmountPaidCash != 0 || updated.AmountPaidCard != 0 || updated.PaymentMethod != domain.PaymentNone {
@@ -287,7 +287,7 @@ func TestOrderRepositoryBulkUpdate(t *testing.T) {
 	if _, err := testPool.Exec(ctx, `UPDATE "Order" SET status = 'CLOSED' WHERE id = $1`, order.ID); err != nil {
 		t.Fatal(err)
 	}
-	_, err = orders.BulkUpdate(ctx, order.ID, []domain.OrderItemUpdate{{ItemID: itemID, ServedQuantity: orderIntPtr(1)}})
+	_, err = orders.BulkUpdate(ctx, order.ID, []domain.OrderItemUpdate{{ItemID: itemID, ServedQuantity: new(1)}})
 	if !domain.HasCode(err, domain.CodeOrderNotOpen) {
 		t.Fatalf("a closed order = %v", err)
 	}
@@ -303,7 +303,7 @@ func TestOrderRepositoryCheckout(t *testing.T) {
 
 	order := openTestOrder(t, orders, &table, beerLine(2), cokeLine(1))
 	beer := orderLineOf(t, order, "beer")
-	if _, err := orders.BulkUpdate(ctx, order.ID, []domain.OrderItemUpdate{{ItemID: beer.ID, PaidQuantity: orderIntPtr(1), PaymentMethod: &card}}); err != nil {
+	if _, err := orders.BulkUpdate(ctx, order.ID, []domain.OrderItemUpdate{{ItemID: beer.ID, PaidQuantity: new(1), PaymentMethod: &card}}); err != nil {
 		t.Fatal(err)
 	}
 
@@ -399,7 +399,7 @@ func TestOrderRepositoryMerge(t *testing.T) {
 	merged, err := orders.Merge(ctx, domain.OrderMerge{
 		PrimaryID:        first.ID,
 		PrimaryTableID:   &t1,
-		PrimaryTableName: orderStringPtr("Mesa 1"),
+		PrimaryTableName: new("Mesa 1"),
 		Sources:          []domain.MergedOrder{{ID: second.ID, TableID: &t2}},
 		TargetTableID:    &t2,
 	})
@@ -537,7 +537,7 @@ func TestOrderRepositoryNotesTipDiscountsAndDelete(t *testing.T) {
 
 	order := openTestOrder(t, orders, nil, beerLine(1))
 
-	updated, err := orders.UpdateNotes(ctx, order.ID, domain.OrderNotesChanges{ChangeNotes: true, Notes: orderStringPtr("sin sal"), ChangeTicketNotes: true, TicketNotes: orderStringPtr("gracias")})
+	updated, err := orders.UpdateNotes(ctx, order.ID, domain.OrderNotesChanges{ChangeNotes: true, Notes: new("sin sal"), ChangeTicketNotes: true, TicketNotes: new("gracias")})
 	if err != nil || *updated.Notes != "sin sal" || *updated.TicketNotes != "gracias" {
 		t.Fatalf("UpdateNotes = %+v, %v", updated, err)
 	}
@@ -553,7 +553,7 @@ func TestOrderRepositoryNotesTipDiscountsAndDelete(t *testing.T) {
 	}
 
 	itemID := order.Items[0].ID
-	updated, err = orders.UpdateItemNotes(ctx, order.ID, itemID, orderStringPtr("bien fría"))
+	updated, err = orders.UpdateItemNotes(ctx, order.ID, itemID, new("bien fría"))
 	if err != nil || *updated.Items[0].Notes != "bien fría" {
 		t.Fatalf("UpdateItemNotes = %+v, %v", updated, err)
 	}
@@ -565,7 +565,7 @@ func TestOrderRepositoryNotesTipDiscountsAndDelete(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	withDiscount, err := orders.AddAdjustment(ctx, order.ID, domain.NewOrderAdjustment{Target: domain.AdjustmentOrder, Type: domain.AdjustmentFixedAmount, Value: 20, Reason: orderStringPtr("amigo")})
+	withDiscount, err := orders.AddAdjustment(ctx, order.ID, domain.NewOrderAdjustment{Target: domain.AdjustmentOrder, Type: domain.AdjustmentFixedAmount, Value: 20, Reason: new("amigo")})
 	if err != nil || withDiscount.TipAmount != 120 || len(withDiscount.Adjustments) != 1 || withDiscount.Adjustments[0].Value != 20 {
 		t.Fatalf("AddAdjustment = %+v, %v", withDiscount, err)
 	}
@@ -595,12 +595,4 @@ func orderLineOf(t *testing.T, order domain.OrderRow, productID string) domain.O
 	}
 	t.Fatalf("the order has no line of %s", productID)
 	return domain.OrderItemRow{}
-}
-
-func orderStringPtr(value string) *string {
-	return &value
-}
-
-func orderIntPtr(value int) *int {
-	return &value
 }

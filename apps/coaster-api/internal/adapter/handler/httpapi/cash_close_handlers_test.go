@@ -7,24 +7,9 @@ import (
 	"testing"
 	"time"
 
-	"coaster-api/internal/adapter/handler/middleware"
 	"coaster-api/internal/core/domain"
 	"coaster-api/internal/service"
 )
-
-type tillAccess struct {
-	role    domain.EstablishmentRole
-	modules []domain.EstablishmentModule
-}
-
-func (tillAccess) UserRole(context.Context, string) (domain.Role, error) { return domain.RoleUser, nil }
-func (a tillAccess) Membership(context.Context, string, string) (*domain.Membership, error) {
-	return &domain.Membership{Role: string(a.role), Active: true}, nil
-}
-func (a tillAccess) EnabledModules(context.Context, string) ([]domain.EstablishmentModule, error) {
-	return a.modules, nil
-}
-func (tillAccess) SubscriptionActive(context.Context, string) (bool, error) { return true, nil }
 
 type tillCloses struct {
 	closed *domain.NewCashClose
@@ -61,8 +46,8 @@ func (s *tillStats) FindClosedOrders(_ context.Context, _ string, since time.Tim
 	return nil, nil
 }
 
-func newTillServer(access tillAccess, closes *tillCloses, stats *tillStats) http.Handler {
-	guard := middleware.NewGuard(fakeTokens{}, access, &countingLimiter{hits: map[string]int{}}, 1)
+func newTillServer(access fakeAccess, closes *tillCloses, stats *tillStats) http.Handler {
+	guard := testGuard(access)
 	mux := http.NewServeMux()
 	NewCashCloseHandler(service.NewCashCloseService(closes)).RegisterRoutes(mux, guard)
 	NewStatsHandler(service.NewStatsService(stats)).RegisterRoutes(mux, guard)
@@ -72,7 +57,7 @@ func newTillServer(access tillAccess, closes *tillCloses, stats *tillStats) http
 var tillSignedIn = map[string]string{"Authorization": "Bearer good"}
 
 func TestCashCloseRoutesNeedTheOrdersModule(t *testing.T) {
-	server := newTillServer(tillAccess{role: domain.EstablishmentRoleOwner, modules: []domain.EstablishmentModule{domain.ModuleTimeTracking}}, &tillCloses{}, &tillStats{})
+	server := newTillServer(fakeAccess{role: domain.EstablishmentRoleOwner, modules: []domain.EstablishmentModule{domain.ModuleTimeTracking}}, &tillCloses{}, &tillStats{})
 
 	for _, route := range []string{
 		"GET /api/v1/establishments/e1/cash-closes",
@@ -98,7 +83,7 @@ func TestCashCloseRoutesNeedTheOrdersModule(t *testing.T) {
 }
 
 func TestCashCloseRoutesKeepStaffOut(t *testing.T) {
-	server := newTillServer(tillAccess{role: domain.EstablishmentRoleStaff, modules: domain.AllEstablishmentModules}, &tillCloses{}, &tillStats{})
+	server := newTillServer(fakeAccess{role: domain.EstablishmentRoleStaff, modules: domain.AllEstablishmentModules}, &tillCloses{}, &tillStats{})
 
 	for _, route := range []string{
 		"GET /api/v1/establishments/e1/cash-closes",
@@ -118,7 +103,7 @@ func TestCashCloseRoutesKeepStaffOut(t *testing.T) {
 
 func TestCashCloseRoutesAnswerLikeNest(t *testing.T) {
 	closes := &tillCloses{}
-	server := newTillServer(tillAccess{role: domain.EstablishmentRoleManager, modules: domain.AllEstablishmentModules}, closes, &tillStats{})
+	server := newTillServer(fakeAccess{role: domain.EstablishmentRoleManager, modules: domain.AllEstablishmentModules}, closes, &tillStats{})
 
 	response := send(server, "GET", "/api/v1/establishments/e1/cash-closes", "", tillSignedIn)
 	want := `[{"id":"close-1","establishmentId":"e1","closedById":"u1","closedByName":"Ana","since":null,"closedAt":"2026-09-23T23:40:00.000Z",` +
@@ -148,7 +133,7 @@ func TestCashCloseRoutesAnswerLikeNest(t *testing.T) {
 }
 
 func TestCashCloseValidation(t *testing.T) {
-	server := newTillServer(tillAccess{role: domain.EstablishmentRoleManager, modules: domain.AllEstablishmentModules}, &tillCloses{}, &tillStats{})
+	server := newTillServer(fakeAccess{role: domain.EstablishmentRoleManager, modules: domain.AllEstablishmentModules}, &tillCloses{}, &tillStats{})
 
 	tests := []struct {
 		name string
@@ -196,7 +181,7 @@ func TestStatsHistoryFollowsThePermission(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(string(tt.role), func(t *testing.T) {
 			stats := &tillStats{}
-			server := newTillServer(tillAccess{role: tt.role, modules: domain.AllEstablishmentModules}, &tillCloses{}, stats)
+			server := newTillServer(fakeAccess{role: tt.role, modules: domain.AllEstablishmentModules}, &tillCloses{}, stats)
 
 			response := send(server, "GET", "/api/v1/establishments/e1/stats", "", tillSignedIn)
 			if response.Code != http.StatusOK {

@@ -58,8 +58,8 @@ func (r *fakeEstablishmentRepo) SaveSettings(_ context.Context, establishmentID 
 
 var establishmentNow = time.Date(2026, 9, 27, 10, 0, 0, 0, time.UTC)
 
-func newTestEstablishmentService(repo *fakeEstablishmentRepo) (*EstablishmentService, *recordedEvents, *fakeCache) {
-	events := &recordedEvents{}
+func newTestEstablishmentService(repo *fakeEstablishmentRepo) (*EstablishmentService, *eventRecorder, *fakeCache) {
+	events := &eventRecorder{}
 	cache := newFakeCache()
 	establishments := NewEstablishmentService(repo, events, cache)
 	establishments.now = func() time.Time { return establishmentNow }

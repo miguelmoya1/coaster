@@ -12,7 +12,6 @@ import (
 	"testing"
 	"time"
 
-	"coaster-api/internal/adapter/handler/middleware"
 	"coaster-api/internal/adapter/handler/respond"
 	"coaster-api/internal/core/domain"
 	"coaster-api/internal/core/ports"
@@ -137,23 +136,13 @@ func (adminEstablishments) GrantPlan(context.Context, string, domain.ManualPlanG
 	return nil
 }
 
-type adminPublisher struct{}
-
-func (adminPublisher) Publish(context.Context, any) {}
-
-type adminNoCache struct{}
-
-func (adminNoCache) Get(context.Context, string, any) bool { return false }
-func (adminNoCache) Set(context.Context, string, any)      {}
-func (adminNoCache) Forget(context.Context, ...string)     {}
-
 func newAdminServer(access ports.SecurityService) http.Handler {
-	guard := middleware.NewGuard(fakeTokens{}, access, &countingLimiter{hits: map[string]int{}}, 1)
+	guard := testGuard(access)
 	mux := http.NewServeMux()
 	NewAdminOverviewHandler(service.NewAdminMetricsService(nil), service.NewAdminAuditService(nil)).RegisterRoutes(mux, guard)
-	NewAdminUserHandler(service.NewAdminUserService(nil, nil, adminPublisher{})).RegisterRoutes(mux, guard)
-	NewAdminBetaTesterHandler(service.NewBetaTesterService(&adminTesters{}, adminPublisher{}, true)).RegisterRoutes(mux, guard)
-	NewAdminEstablishmentHandler(service.NewAdminEstablishmentService(adminEstablishments{}, nil, adminPublisher{}, adminNoCache{})).RegisterRoutes(mux, guard)
+	NewAdminUserHandler(service.NewAdminUserService(nil, nil, discardEvents{})).RegisterRoutes(mux, guard)
+	NewAdminBetaTesterHandler(service.NewBetaTesterService(&adminTesters{}, discardEvents{}, true)).RegisterRoutes(mux, guard)
+	NewAdminEstablishmentHandler(service.NewAdminEstablishmentService(adminEstablishments{}, nil, discardEvents{}, noCache{})).RegisterRoutes(mux, guard)
 	return mux
 }
 
@@ -194,7 +183,7 @@ func TestAdminRoutesAreForPlatformAdmins(t *testing.T) {
 }
 
 func TestAdminValidation(t *testing.T) {
-	server := newAdminServer(catalogAccess{})
+	server := newAdminServer(fakeAccess{platformRole: domain.RoleAdmin})
 	signedIn := map[string]string{"Authorization": "Bearer good"}
 
 	tests := []struct {
@@ -283,7 +272,7 @@ func TestAdminAuditMetadataIsWrittenAsStored(t *testing.T) {
 }
 
 func TestAdminResponses(t *testing.T) {
-	server := newAdminServer(catalogAccess{})
+	server := newAdminServer(fakeAccess{platformRole: domain.RoleAdmin})
 	signedIn := map[string]string{"Authorization": "Bearer good"}
 
 	tests := []struct {

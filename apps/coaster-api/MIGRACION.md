@@ -485,8 +485,11 @@ Cómo se manda algo por tiempo real desde otro paquete.
   `"updatedAt" = now()` (la carta usa el `updatedAt` del producto para saber si hay cambios sin publicar).
 - Las columnas de arrays de enums (`"Allergen"[]`) se escriben con `$n::text[]::"Allergen"[]` y se
   leen con `COALESCE(columna, '{}')::text[]`.
-- Los fakes de los tests de `service` y `handler/httpapi` comparten paquete con los de los demás
-  paquetes P2: llevan el nombre de la entidad (`fakeProductRepo`, `catalogRealtimeFake`) para no chocar.
+- Los fakes que usan varios tests de un paquete están en su `fakes_test.go`: en `service`,
+  `eventRecorder`, `realtimeRecorder`, `fakeCache`, `fakeSecurity`… y `deliver(handlers, event)`; en
+  `httpapi`, `fakeAccess` (rol de plataforma, rol en el local y módulos), `discardEvents`, `noCache` y
+  `testGuard(access)`. Un fake nuevo de un puerto que ya tiene uno amplía ese en lugar de copiarlo.
+  Para un puntero a un literal, `new("texto")`.
 
 ## Convenciones de la ola 3b
 

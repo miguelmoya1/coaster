@@ -16,7 +16,7 @@ var adminServiceNow = time.Date(2026, 9, 27, 10, 0, 0, 0, time.UTC)
 type adminEstablishmentFixture struct {
 	repo    *adminEstablishmentFake
 	audit   *adminAuditFake
-	events  *recordedEvents
+	events  *eventRecorder
 	cache   *fakeCache
 	service *AdminEstablishmentService
 }
@@ -25,7 +25,7 @@ func newAdminEstablishmentFixture(rows ...domain.AdminEstablishmentRow) *adminEs
 	f := &adminEstablishmentFixture{
 		repo:   newAdminEstablishmentFake(rows...),
 		audit:  &adminAuditFake{},
-		events: &recordedEvents{},
+		events: &eventRecorder{},
 		cache:  newFakeCache(),
 	}
 	f.service = NewAdminEstablishmentService(f.repo, f.audit, f.events, f.cache)

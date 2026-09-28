@@ -53,7 +53,7 @@ func TestAdminUserServiceUpdate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			users := newAdminUserFake(tt.admins)
-			events := &recordedEvents{}
+			events := &eventRecorder{}
 
 			err := NewAdminUserService(users, &adminAuditFake{}, events).Update(context.Background(), "admin", tt.userID, tt.changes)
 
@@ -101,7 +101,7 @@ func TestAdminUserServiceUpdate(t *testing.T) {
 
 func TestAdminUserServiceUpdateMetadata(t *testing.T) {
 	users := newAdminUserFake(2)
-	events := &recordedEvents{}
+	events := &eventRecorder{}
 	admin, off := domain.RoleAdmin, false
 
 	if err := NewAdminUserService(users, &adminAuditFake{}, events).Update(context.Background(), "admin", "ana",
@@ -119,7 +119,7 @@ func TestAdminUserServiceUpdateMetadata(t *testing.T) {
 
 func TestAdminUserServiceDetail(t *testing.T) {
 	audit := &adminAuditFake{recent: make([]domain.AdminAuditLogEntry, 12)}
-	service := NewAdminUserService(newAdminUserFake(2), audit, &recordedEvents{})
+	service := NewAdminUserService(newAdminUserFake(2), audit, &eventRecorder{})
 
 	detail, err := service.Detail(context.Background(), "ana")
 	if err != nil || detail.User.ID != "ana" || len(detail.Establishments) != 1 || len(detail.RecentActivity) != 10 {

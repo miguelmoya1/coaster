@@ -8,8 +8,6 @@ import (
 	"time"
 )
 
-func menuPtr[T any](value T) *T { return &value }
-
 func testMenu() Menu {
 	return Menu{
 		Name:            "Carta",
@@ -18,7 +16,7 @@ func testMenu() Menu {
 		Sections: []MenuSection{{
 			Translations: MenuTranslations{"es": {Name: "Cafetería"}, "en": {Name: "Coffee"}},
 			Items: []MenuItem{{
-				ProductID: menuPtr("prod-1"),
+				ProductID: new("prod-1"),
 				IsVisible: true,
 				Translations: MenuTranslations{
 					"es": {Name: "Café Solo", Description: "Recién molido"},
@@ -51,7 +49,7 @@ func TestMenuRender(t *testing.T) {
 			change: func(m *Menu) {
 				m.Sections = []MenuSection{{
 					Translations: MenuTranslations{"es": {Name: "Postres"}},
-					Items:        []MenuItem{{Price: menuPtr(400), IsVisible: true, Translations: MenuTranslations{"es": {Name: "Flan"}}}},
+					Items:        []MenuItem{{Price: new(400), IsVisible: true, Translations: MenuTranslations{"es": {Name: "Flan"}}}},
 				}}
 			},
 			language: "en",
@@ -63,7 +61,7 @@ func TestMenuRender(t *testing.T) {
 		},
 		{
 			name:     "the line's price over the product's",
-			change:   func(m *Menu) { m.Sections[0].Items[0].Price = menuPtr(180) },
+			change:   func(m *Menu) { m.Sections[0].Items[0].Price = new(180) },
 			language: "es",
 			check: func(t *testing.T, rendered PublishedMenu) {
 				if rendered.Sections[0].Items[0].Price != 180 {
@@ -83,8 +81,8 @@ func TestMenuRender(t *testing.T) {
 		{
 			name: "a line whose product was deleted keeps its wording and price",
 			change: func(m *Menu) {
-				m.Sections[0].Items[0].Product.DeletedAt = menuPtr(NewTime(time.Now()))
-				m.Sections[0].Items[0].Price = menuPtr(150)
+				m.Sections[0].Items[0].Product.DeletedAt = new(NewTime(time.Now()))
+				m.Sections[0].Items[0].Price = new(150)
 			},
 			language: "es",
 			check: func(t *testing.T, rendered PublishedMenu) {
@@ -121,7 +119,7 @@ func TestMenuRender(t *testing.T) {
 			name: "allergens and image come from the product",
 			change: func(m *Menu) {
 				m.Sections[0].Items[0].Product = &MenuProduct{
-					Name: "Croquetas", Price: 600, ImageURL: menuPtr("https://example.test/c.jpg"), Allergens: []string{"GLUTEN", "MILK"},
+					Name: "Croquetas", Price: 600, ImageURL: new("https://example.test/c.jpg"), Allergens: []string{"GLUTEN", "MILK"},
 				}
 			},
 			language: "es",
@@ -206,9 +204,9 @@ func TestMenuHasUnpublishedChanges(t *testing.T) {
 		want        bool
 	}{
 		{name: "never published", updatedAt: before, productAt: before, want: true},
-		{name: "nothing changed", publishedAt: menuPtr(NewTime(published)), updatedAt: NewTime(published), productAt: before, want: false},
-		{name: "the draft changed", publishedAt: menuPtr(NewTime(published)), updatedAt: after, productAt: before, want: true},
-		{name: "a product changed", publishedAt: menuPtr(NewTime(published)), updatedAt: before, productAt: after, want: true},
+		{name: "nothing changed", publishedAt: new(NewTime(published)), updatedAt: NewTime(published), productAt: before, want: false},
+		{name: "the draft changed", publishedAt: new(NewTime(published)), updatedAt: after, productAt: before, want: true},
+		{name: "a product changed", publishedAt: new(NewTime(published)), updatedAt: before, productAt: after, want: true},
 	}
 
 	for _, tt := range tests {
@@ -228,7 +226,7 @@ func TestMenuHasUnpublishedChanges(t *testing.T) {
 func TestMenuDraftJSON(t *testing.T) {
 	menu := Menu{
 		ID: "m1", Slug: "bar-pepe", Name: "Bar Pepe", DefaultLanguage: "es", Languages: []string{"es"},
-		Sections: []MenuSection{{Items: []MenuItem{{Price: menuPtr(100), IsVisible: false}}}},
+		Sections: []MenuSection{{Items: []MenuItem{{Price: new(100), IsVisible: false}}}},
 	}
 
 	got, err := json.Marshal(menu.Draft())

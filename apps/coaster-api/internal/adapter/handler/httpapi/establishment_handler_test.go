@@ -7,25 +7,10 @@ import (
 	"testing"
 	"time"
 
-	"coaster-api/internal/adapter/handler/middleware"
 	"coaster-api/internal/core/domain"
 	"coaster-api/internal/core/ports"
 	"coaster-api/internal/service"
 )
-
-type establishmentAccess struct {
-	fakeAccess
-	role       domain.Role
-	membership *domain.Membership
-}
-
-func (a establishmentAccess) UserRole(context.Context, string) (domain.Role, error) {
-	return a.role, nil
-}
-
-func (a establishmentAccess) Membership(context.Context, string, string) (*domain.Membership, error) {
-	return a.membership, nil
-}
 
 type establishmentRows struct {
 	created []domain.NewEstablishment
@@ -64,27 +49,23 @@ func (r *establishmentRows) SaveSettings(_ context.Context, establishmentID stri
 	return saved, nil
 }
 
-type establishmentEvents struct{}
-
-func (establishmentEvents) Publish(context.Context, any) {}
-
 func newEstablishmentServer(access ports.SecurityService, rows *establishmentRows) http.Handler {
-	guard := middleware.NewGuard(fakeTokens{}, access, &countingLimiter{hits: map[string]int{}}, 1)
+	guard := testGuard(access)
 	mux := http.NewServeMux()
-	NewEstablishmentHandler(service.NewEstablishmentService(rows, establishmentEvents{}, nil)).RegisterRoutes(mux, guard)
+	NewEstablishmentHandler(service.NewEstablishmentService(rows, discardEvents{}, nil)).RegisterRoutes(mux, guard)
 	return mux
 }
 
 func TestEstablishmentRoutes(t *testing.T) {
 	signedIn := map[string]string{"Authorization": "Bearer good"}
-	owner := establishmentAccess{role: domain.RoleUser, membership: &domain.Membership{Role: "OWNER", Active: true}}
-	staff := establishmentAccess{role: domain.RoleUser, membership: &domain.Membership{Role: "STAFF", Active: true}}
-	stranger := establishmentAccess{role: domain.RoleUser}
-	admin := establishmentAccess{role: domain.RoleAdmin}
+	owner := fakeAccess{platformRole: domain.RoleUser, role: domain.EstablishmentRoleOwner}
+	staff := fakeAccess{platformRole: domain.RoleUser, role: domain.EstablishmentRoleStaff}
+	stranger := fakeAccess{platformRole: domain.RoleUser}
+	admin := fakeAccess{platformRole: domain.RoleAdmin}
 
 	tests := []struct {
 		name    string
-		access  establishmentAccess
+		access  fakeAccess
 		route   string
 		body    string
 		headers map[string]string
@@ -136,7 +117,7 @@ func TestEstablishmentRoutes(t *testing.T) {
 
 func TestEstablishmentCreateTakesTheUser(t *testing.T) {
 	rows := &establishmentRows{}
-	server := newEstablishmentServer(establishmentAccess{role: domain.RoleUser}, rows)
+	server := newEstablishmentServer(fakeAccess{platformRole: domain.RoleUser}, rows)
 
 	response := send(server, "POST", "/api/v1/establishments", `{"name":"Bar Pepe"}`, map[string]string{"Authorization": "Bearer good"})
 
@@ -150,7 +131,7 @@ func TestEstablishmentCreateTakesTheUser(t *testing.T) {
 
 func TestEstablishmentValidation(t *testing.T) {
 	signedIn := map[string]string{"Authorization": "Bearer good"}
-	server := newEstablishmentServer(establishmentAccess{role: domain.RoleAdmin}, &establishmentRows{})
+	server := newEstablishmentServer(fakeAccess{platformRole: domain.RoleAdmin}, &establishmentRows{})
 
 	tests := []struct {
 		name  string

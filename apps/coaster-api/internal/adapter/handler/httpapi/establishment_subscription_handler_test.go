@@ -8,20 +8,10 @@ import (
 
 	"github.com/stripe/stripe-go/v86/webhook"
 
-	"coaster-api/internal/adapter/handler/middleware"
 	"coaster-api/internal/adapter/payment"
 	"coaster-api/internal/core/domain"
 	"coaster-api/internal/service"
 )
-
-type billingAccess struct {
-	fakeAccess
-	role domain.EstablishmentRole
-}
-
-func (a billingAccess) Membership(context.Context, string, string) (*domain.Membership, error) {
-	return &domain.Membership{Role: string(a.role), Active: true}, nil
-}
 
 type emptyBilling struct{}
 
@@ -56,7 +46,7 @@ func newBillingServer(role domain.EstablishmentRole) http.Handler {
 		Billing:  service.BillingConfig{PricePro: "price_pro", BasePriceCents: 1999, IncludedSeats: 10, ExtraSeatPriceCents: 200},
 	})
 
-	guard := middleware.NewGuard(fakeTokens{}, billingAccess{role: role}, &countingLimiter{hits: map[string]int{}}, 1)
+	guard := testGuard(fakeAccess{role: role})
 	mux := http.NewServeMux()
 	NewEstablishmentSubscriptionHandler(subscriptions).RegisterRoutes(mux, guard)
 	NewStripeWebhookHandler(subscriptions).RegisterRoutes(mux, guard)

@@ -14,7 +14,7 @@ type accountFixture struct {
 	sessions   *fakeSessions
 	identities *fakeIdentities
 	tokens     *fakeTokens
-	events     *fakePublisher
+	events     *eventRecorder
 	mailer     *fakeMailer
 	cache      *fakeCache
 }
@@ -23,7 +23,7 @@ func newAccountFixture(users ...domain.AuthUser) *accountFixture {
 	f := &accountFixture{
 		users:    newFakeUsers(users...),
 		sessions: &fakeSessions{},
-		events:   &fakePublisher{},
+		events:   &eventRecorder{},
 		mailer:   &fakeMailer{},
 		cache:    newFakeCache(),
 	}
@@ -132,7 +132,7 @@ func TestSetPassword(t *testing.T) {
 			if f.mailer.lastOf("passwordChanged") == nil {
 				t.Error("nobody was warned")
 			}
-			changed := f.events.ofType(domain.AuthEventPasswordChanged)
+			changed := f.events.authEvents(domain.AuthEventPasswordChanged)
 			if len(changed) != 1 || changed[0].Metadata["first"] != !tt.hasPassword {
 				t.Errorf("PASSWORD_CHANGED = %+v", changed)
 			}
@@ -294,7 +294,7 @@ func TestUnlinkIdentity(t *testing.T) {
 			if len(f.identities.rows["u1"]) != 0 {
 				t.Error("Google is still linked")
 			}
-			if len(f.events.ofType(domain.AuthEventIdentityUnlinked)) != 1 {
+			if len(f.events.authEvents(domain.AuthEventIdentityUnlinked)) != 1 {
 				t.Error("IDENTITY_UNLINKED was not published")
 			}
 		})

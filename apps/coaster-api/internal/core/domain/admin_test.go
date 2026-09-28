@@ -8,16 +8,6 @@ import (
 
 var adminNow = time.Date(2026, 3, 1, 0, 0, 0, 0, time.UTC)
 
-func adminDate(value string) *time.Time {
-	parsed, err := time.Parse(time.RFC3339, value)
-	if err != nil {
-		panic(err)
-	}
-	return &parsed
-}
-
-func adminText(value string) *string { return &value }
-
 func adminBilling(change func(*AdminBilling)) *AdminBilling {
 	billing := &AdminBilling{EstablishmentSubscription: EstablishmentSubscription{
 		ID:              "sub-1",
@@ -36,10 +26,10 @@ func TestAdminEstablishmentRowSummary(t *testing.T) {
 	row := AdminEstablishmentRow{
 		ID:          "establishment-1",
 		Name:        "El Establishment",
-		CreatedAt:   *adminDate("2026-01-01T00:00:00Z"),
+		CreatedAt:   *testTime("2026-01-01T00:00:00Z"),
 		MemberCount: 4,
-		OwnerName:   adminText("Ana"),
-		OwnerEmail:  adminText("ana@establishment.com"),
+		OwnerName:   new("Ana"),
+		OwnerEmail:  new("ana@establishment.com"),
 	}
 
 	tests := []struct {
@@ -61,8 +51,8 @@ func TestAdminEstablishmentRowSummary(t *testing.T) {
 			name: "a live Stripe subscription",
 			billing: adminBilling(func(b *AdminBilling) {
 				b.Plan, b.Status = PlanPro, SubscriptionActive
-				b.StripeSubscriptionID = adminText("sub_123")
-				b.CurrentPeriodEnd = adminDate("2026-04-01T00:00:00Z")
+				b.StripeSubscriptionID = new("sub_123")
+				b.CurrentPeriodEnd = testTime("2026-04-01T00:00:00Z")
 			}),
 			plan:         PlanPro,
 			status:       SubscriptionActive,
@@ -74,10 +64,10 @@ func TestAdminEstablishmentRowSummary(t *testing.T) {
 			name: "a live grant wins over Stripe",
 			billing: adminBilling(func(b *AdminBilling) {
 				b.Plan, b.Status = PlanPro, SubscriptionActive
-				b.StripeSubscriptionID = adminText("sub_123")
-				b.CurrentPeriodEnd = adminDate("2026-04-01T00:00:00Z")
+				b.StripeSubscriptionID = new("sub_123")
+				b.CurrentPeriodEnd = testTime("2026-04-01T00:00:00Z")
 				b.ManualPlan = &pro
-				b.ManualGrantExpiresAt = adminDate("2026-03-15T00:00:00Z")
+				b.ManualGrantExpiresAt = testTime("2026-03-15T00:00:00Z")
 			}),
 			plan:         PlanPro,
 			status:       SubscriptionActive,
@@ -99,10 +89,10 @@ func TestAdminEstablishmentRowSummary(t *testing.T) {
 			name: "both the grant and the Stripe period have lapsed",
 			billing: adminBilling(func(b *AdminBilling) {
 				b.Plan, b.Status = PlanPro, SubscriptionActive
-				b.StripeSubscriptionID = adminText("sub_123")
-				b.CurrentPeriodEnd = adminDate("2026-02-01T00:00:00Z")
+				b.StripeSubscriptionID = new("sub_123")
+				b.CurrentPeriodEnd = testTime("2026-02-01T00:00:00Z")
 				b.ManualPlan = &pro
-				b.ManualGrantExpiresAt = adminDate("2026-02-15T00:00:00Z")
+				b.ManualGrantExpiresAt = testTime("2026-02-15T00:00:00Z")
 			}),
 			plan:         PlanPro,
 			status:       SubscriptionExpired,
@@ -113,7 +103,7 @@ func TestAdminEstablishmentRowSummary(t *testing.T) {
 			name: "a running trial",
 			billing: adminBilling(func(b *AdminBilling) {
 				b.Status = SubscriptionTrialing
-				b.TrialEndsAt = adminDate("2026-03-10T00:00:00Z")
+				b.TrialEndsAt = testTime("2026-03-10T00:00:00Z")
 			}),
 			plan:         PlanFree,
 			status:       SubscriptionTrialing,
@@ -125,8 +115,8 @@ func TestAdminEstablishmentRowSummary(t *testing.T) {
 			name: "past due is access while Stripe retries, as in the route check",
 			billing: adminBilling(func(b *AdminBilling) {
 				b.Plan, b.Status = PlanPro, SubscriptionPastDue
-				b.StripeSubscriptionID = adminText("sub_123")
-				b.CurrentPeriodEnd = adminDate("2026-04-01T00:00:00Z")
+				b.StripeSubscriptionID = new("sub_123")
+				b.CurrentPeriodEnd = testTime("2026-04-01T00:00:00Z")
 			}),
 			plan:         PlanPro,
 			status:       SubscriptionPastDue,
@@ -161,16 +151,16 @@ func TestAdminEstablishmentRowSummary(t *testing.T) {
 
 func TestAdminBillingAdminView(t *testing.T) {
 	pro := PlanPro
-	grantedAt := adminDate("2026-02-20T00:00:00Z")
+	grantedAt := testTime("2026-02-20T00:00:00Z")
 	billing := adminBilling(func(b *AdminBilling) {
 		b.ManualPlan = &pro
-		b.ManualGrantExpiresAt = adminDate("2026-03-15T00:00:00Z")
-		b.ManualGrantReason = adminText("Partner venue")
-		b.ManualGrantedByID = adminText("admin-1")
+		b.ManualGrantExpiresAt = testTime("2026-03-15T00:00:00Z")
+		b.ManualGrantReason = new("Partner venue")
+		b.ManualGrantedByID = new("admin-1")
 		b.ManualGrantedAt = grantedAt
 	})
 
-	view := billing.AdminView(adminText("Miguel"), adminNow)
+	view := billing.AdminView(new("Miguel"), adminNow)
 
 	raw, err := json.Marshal(view)
 	if err != nil {
@@ -190,7 +180,7 @@ func TestAdminBillingAdminView(t *testing.T) {
 		t.Errorf("grantedAt without manualGrantedAt = %v, want the row's updatedAt", got)
 	}
 
-	billing.ManualGrantExpiresAt = adminDate("2026-02-01T00:00:00Z")
+	billing.ManualGrantExpiresAt = testTime("2026-02-01T00:00:00Z")
 	if lapsed := billing.AdminView(nil, adminNow); lapsed.ManualGrant != nil || lapsed.Plan != PlanFree {
 		t.Errorf("lapsed grant = %+v", lapsed)
 	}

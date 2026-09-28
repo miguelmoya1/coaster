@@ -200,7 +200,7 @@ func TestCheckoutCompletedDuplicates(t *testing.T) {
 func TestSubscriptionChanged(t *testing.T) {
 	tracked := func(subscriptionID string) domain.EstablishmentSubscription {
 		return domain.EstablishmentSubscription{
-			EstablishmentID: "establishment-1", StripeCustomerID: billingText("cus_1"),
+			EstablishmentID: "establishment-1", StripeCustomerID: new("cus_1"),
 			StripeSubscriptionID: &subscriptionID, Status: domain.SubscriptionActive,
 		}
 	}
@@ -300,8 +300,8 @@ func TestSubscriptionChanged(t *testing.T) {
 func TestInvoiceEvents(t *testing.T) {
 	stored := func(status domain.SubscriptionStatus) domain.EstablishmentSubscription {
 		return domain.EstablishmentSubscription{
-			EstablishmentID: "establishment-1", StripeCustomerID: billingText("cus_1"),
-			StripeSubscriptionID: billingText("sub_1"), Status: status,
+			EstablishmentID: "establishment-1", StripeCustomerID: new("cus_1"),
+			StripeSubscriptionID: new("sub_1"), Status: status,
 		}
 	}
 

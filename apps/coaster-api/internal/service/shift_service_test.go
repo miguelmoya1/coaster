@@ -12,8 +12,8 @@ type shiftFixture struct {
 	service  *ShiftService
 	repo     *fakeShiftRepository
 	security *fakeSecurity
-	events   *shiftEventRecorder
-	realtime *shiftRealtimeRecorder
+	events   *eventRecorder
+	realtime *realtimeRecorder
 }
 
 func newShiftFixture() *shiftFixture {
@@ -23,8 +23,8 @@ func newShiftFixture() *shiftFixture {
 		"e1/inactive": {Role: "STAFF", Active: false},
 	}}
 	securityService, _ := newTestSecurity(security, nil)
-	events := &shiftEventRecorder{}
-	realtime := &shiftRealtimeRecorder{}
+	events := &eventRecorder{}
+	realtime := &realtimeRecorder{}
 
 	return &shiftFixture{
 		service:  NewShiftService(repo, securityService, events, realtime),
@@ -138,9 +138,9 @@ func TestShiftServicePublishRealtime(t *testing.T) {
 	deliver(f.service.EventHandlers(), domain.ShiftCreatedEvent{EstablishmentID: "e1", Shift: shift})
 	deliver(f.service.EventHandlers(), domain.ShiftDeletedEvent{EstablishmentID: "e1", ShiftID: "s1"})
 
-	want := []shiftRealtimeMessage{
-		{"e1", domain.RealtimeShiftCreated, shift},
-		{"e1", domain.RealtimeShiftDeleted, shiftDeletedPayload{ID: "s1"}},
+	want := []realtimeMessage{
+		{establishmentID: "e1", event: domain.RealtimeShiftCreated, payload: shift},
+		{establishmentID: "e1", event: domain.RealtimeShiftDeleted, payload: shiftDeletedPayload{ID: "s1"}},
 	}
 	if len(f.realtime.messages) != len(want) {
 		t.Fatalf("messages = %+v", f.realtime.messages)

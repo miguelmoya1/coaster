@@ -7,11 +7,11 @@ import (
 )
 
 func TestOrderStockAdjust(t *testing.T) {
-	newStock := func() (*OrderStock, *fakeProductRepo, *catalogEvents) {
+	newStock := func() (*OrderStock, *fakeProductRepo, *eventRecorder) {
 		products := newFakeProductRepo()
 		products.products["beer"] = domain.ProductRow{ID: "beer", CategoryID: "cat-1", CurrentStock: 10}
 		products.products["coke"] = domain.ProductRow{ID: "coke", CategoryID: "cat-1", CurrentStock: 10}
-		events := &catalogEvents{}
+		events := &eventRecorder{}
 		return NewOrderStock(NewProductService(products, events)), products, events
 	}
 
@@ -47,7 +47,7 @@ func TestOrderStockAdjust(t *testing.T) {
 func TestOrderStockGoesOnWhenAProductIsGone(t *testing.T) {
 	products := newFakeProductRepo()
 	products.products["coke"] = domain.ProductRow{ID: "coke", CategoryID: "cat-1", CurrentStock: 10}
-	events := &catalogEvents{}
+	events := &eventRecorder{}
 	stock := NewOrderStock(NewProductService(products, events))
 
 	deliver(stock.EventHandlers(), domain.OrderCancelledEvent{EstablishmentID: "est-1", Order: domain.Order{

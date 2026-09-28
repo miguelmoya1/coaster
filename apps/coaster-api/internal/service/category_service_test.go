@@ -10,7 +10,7 @@ import (
 
 func TestCategoryServiceCreate(t *testing.T) {
 	repo := &fakeCategoryRepo{}
-	events := &catalogEvents{}
+	events := &eventRecorder{}
 	categories := NewCategoryService(repo, events)
 
 	icon := "beer"
@@ -71,7 +71,7 @@ func TestCategoryServiceUpdateAndDelete(t *testing.T) {
 				{ID: "cat-1", EstablishmentID: "est-1", Name: "Drinks", TaxRate: 1000},
 				{ID: "cat-other", EstablishmentID: "est-2", Name: "Other", TaxRate: 1000},
 			}}
-			events := &catalogEvents{}
+			events := &eventRecorder{}
 
 			err := tt.run(NewCategoryService(repo, events), tt.categoryID)
 
@@ -101,7 +101,7 @@ func TestCategoryServiceList(t *testing.T) {
 		deleted:    map[string]bool{"b": true},
 	}
 
-	categories, err := NewCategoryService(repo, &catalogEvents{}).List(context.Background(), "est-1")
+	categories, err := NewCategoryService(repo, &eventRecorder{}).List(context.Background(), "est-1")
 	if err != nil || len(categories) != 1 || categories[0].ID != "a" {
 		t.Fatalf("List = %+v, %v", categories, err)
 	}

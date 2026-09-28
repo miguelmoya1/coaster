@@ -52,7 +52,7 @@ func TestOrderRealtimeForward(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			realtime := &orderRealtimeFake{}
+			realtime := &realtimeRecorder{}
 			deliver(NewOrderRealtime(realtime).EventHandlers(), tt.event)
 
 			var got []string

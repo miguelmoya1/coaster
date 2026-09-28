@@ -6,7 +6,6 @@ import (
 	"reflect"
 	"testing"
 
-	"coaster-api/internal/adapter/handler/middleware"
 	"coaster-api/internal/core/domain"
 	"coaster-api/internal/service"
 )
@@ -31,9 +30,9 @@ func (r *userRows) UpdateProfile(_ context.Context, _ string, changes domain.Use
 }
 
 func newUserServer(rows *userRows) http.Handler {
-	guard := middleware.NewGuard(fakeTokens{}, fakeAccess{}, &countingLimiter{hits: map[string]int{}}, 1)
+	guard := testGuard(fakeAccess{})
 	mux := http.NewServeMux()
-	NewUserHandler(service.NewUserService(rows, establishmentEvents{}, nil)).RegisterRoutes(mux, guard)
+	NewUserHandler(service.NewUserService(rows, discardEvents{}, nil)).RegisterRoutes(mux, guard)
 	return mux
 }
 

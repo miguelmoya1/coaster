@@ -4,22 +4,10 @@ import (
 	"context"
 	"errors"
 	"slices"
-	"sync"
 	"time"
 
 	"coaster-api/internal/core/domain"
 )
-
-type catalogEvents struct {
-	mu     sync.Mutex
-	events []any
-}
-
-func (p *catalogEvents) Publish(_ context.Context, event any) {
-	p.mu.Lock()
-	defer p.mu.Unlock()
-	p.events = append(p.events, event)
-}
 
 type fakeCategoryRepo struct {
 	categories []domain.Category
@@ -307,22 +295,6 @@ func (s *fakeFileStorage) SignUploadURL(_ context.Context, objectPath, contentTy
 func (s *fakeFileStorage) PublicURL(objectPath string) string {
 	return "https://storage.googleapis.com/imagenes-clientes-app/" + objectPath
 }
-
-type catalogRealtimeFake struct {
-	sent []catalogRealtimeMessage
-}
-
-type catalogRealtimeMessage struct {
-	establishmentID string
-	event           string
-	payload         any
-}
-
-func (r *catalogRealtimeFake) Publish(establishmentID string, event string, payload any) {
-	r.sent = append(r.sent, catalogRealtimeMessage{establishmentID: establishmentID, event: event, payload: payload})
-}
-
-func (r *catalogRealtimeFake) Revoke(string, string) {}
 
 func catalogIntOr(value *int, fallback int) int {
 	if value == nil {

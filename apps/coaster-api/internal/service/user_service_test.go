@@ -85,7 +85,7 @@ func TestUserServiceUpdateProfile(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			repo := &fakeUserRepo{ids: []string{"u1"}}
-			events := &recordedEvents{}
+			events := &eventRecorder{}
 			users := NewUserService(repo, events, newFakeCache())
 
 			err := users.UpdateProfile(context.Background(), tt.userID, tt.changes)
@@ -115,7 +115,7 @@ func TestUserServiceUpdateProfile(t *testing.T) {
 
 func TestUserServiceForgetCache(t *testing.T) {
 	cache := newFakeCache()
-	users := NewUserService(&fakeUserRepo{}, &recordedEvents{}, cache)
+	users := NewUserService(&fakeUserRepo{}, &eventRecorder{}, cache)
 
 	deliver(users.EventHandlers(), domain.UserUpdatedEvent{UserID: "u1"})
 

@@ -5,46 +5,10 @@ import (
 	"slices"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 
 	"coaster-api/internal/core/domain"
 )
-
-type orderEventRecorder struct {
-	mu     sync.Mutex
-	events []any
-}
-
-func (r *orderEventRecorder) Publish(_ context.Context, event any) {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-	r.events = append(r.events, event)
-}
-
-func (r *orderEventRecorder) names() []string {
-	names := make([]string, 0, len(r.events))
-	for _, event := range r.events {
-		names = append(names, eventName(event))
-	}
-	return names
-}
-
-type orderRealtimeMessage struct {
-	establishmentID string
-	event           string
-	payload         any
-}
-
-type orderRealtimeFake struct {
-	messages []orderRealtimeMessage
-}
-
-func (r *orderRealtimeFake) Publish(establishmentID string, event string, payload any) {
-	r.messages = append(r.messages, orderRealtimeMessage{establishmentID, event, payload})
-}
-
-func (r *orderRealtimeFake) Revoke(string, string) {}
 
 type fakeTableRepo struct {
 	tables  map[string]domain.Table

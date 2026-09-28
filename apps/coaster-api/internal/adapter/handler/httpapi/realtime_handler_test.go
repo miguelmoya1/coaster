@@ -10,7 +10,6 @@ import (
 	"testing"
 	"time"
 
-	"coaster-api/internal/adapter/handler/middleware"
 	"coaster-api/internal/core/domain"
 	"coaster-api/internal/service"
 )
@@ -41,7 +40,7 @@ func newRealtimeServer(t *testing.T, bus *replayBus) (*httptest.Server, *service
 	t.Helper()
 
 	realtime := service.NewRealtimeService(bus)
-	guard := middleware.NewGuard(fakeTokens{}, memberAccess{}, &countingLimiter{hits: map[string]int{}}, 1)
+	guard := testGuard(memberAccess{})
 	mux := http.NewServeMux()
 	NewRealtimeHandler(realtime).RegisterRoutes(mux, guard)
 

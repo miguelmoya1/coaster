@@ -4,38 +4,10 @@ import (
 	"context"
 	"slices"
 	"strconv"
-	"sync"
 	"time"
 
 	"coaster-api/internal/core/domain"
 )
-
-type shiftEventRecorder struct {
-	mu     sync.Mutex
-	events []any
-}
-
-func (r *shiftEventRecorder) Publish(_ context.Context, event any) {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-	r.events = append(r.events, event)
-}
-
-type shiftRealtimeMessage struct {
-	establishmentID string
-	event           string
-	payload         any
-}
-
-type shiftRealtimeRecorder struct {
-	messages []shiftRealtimeMessage
-}
-
-func (r *shiftRealtimeRecorder) Publish(establishmentID string, event string, payload any) {
-	r.messages = append(r.messages, shiftRealtimeMessage{establishmentID, event, payload})
-}
-
-func (r *shiftRealtimeRecorder) Revoke(string, string) {}
 
 type fakeShiftRepository struct {
 	shifts   []domain.Shift

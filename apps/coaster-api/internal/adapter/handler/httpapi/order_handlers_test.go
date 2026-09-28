@@ -7,7 +7,6 @@ import (
 	"testing"
 	"time"
 
-	"coaster-api/internal/adapter/handler/middleware"
 	"coaster-api/internal/core/domain"
 	"coaster-api/internal/core/ports"
 	"coaster-api/internal/service"
@@ -112,18 +111,14 @@ func (r *tableHandlerRepo) Delete(context.Context, string) error {
 	return nil
 }
 
-type orderHandlerEvents struct{}
-
-func (orderHandlerEvents) Publish(context.Context, any) {}
-
 func newOrderServer(modules []domain.EstablishmentModule) (http.Handler, *orderHandlerRepo, *tableHandlerRepo) {
 	orders := &orderHandlerRepo{}
 	tables := &tableHandlerRepo{}
 
-	guard := middleware.NewGuard(fakeTokens{}, catalogAccess{modules: modules}, &countingLimiter{hits: map[string]int{}}, 1)
+	guard := testGuard(fakeAccess{platformRole: domain.RoleAdmin, modules: modules})
 	mux := http.NewServeMux()
-	NewOrderHandler(service.NewOrderService(orders, tables, orderHandlerEvents{})).RegisterRoutes(mux, guard)
-	NewTableHandler(service.NewTableService(tables, orderHandlerEvents{})).RegisterRoutes(mux, guard)
+	NewOrderHandler(service.NewOrderService(orders, tables, discardEvents{})).RegisterRoutes(mux, guard)
+	NewTableHandler(service.NewTableService(tables, discardEvents{})).RegisterRoutes(mux, guard)
 
 	return mux, orders, tables
 }
