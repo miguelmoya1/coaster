@@ -64,6 +64,10 @@ func TestUserRoutes(t *testing.T) {
 			status: 404, want: `{"message":"USER_NOT_FOUND","error":"Not Found","statusCode":404}`},
 		{name: "a name that is not text", known: []string{"u1"}, method: "PATCH", body: `{"name":5}`, headers: signedIn,
 			status: 400, want: `{"message":["INVALID_TYPE"],"error":"Bad Request","statusCode":400}`},
+		{name: "an empty name", known: []string{"u1"}, method: "PATCH", body: `{"name":""}`, headers: signedIn,
+			status: 400, want: `{"message":"REQUIRED","error":"Bad Request","statusCode":400}`},
+		{name: "a language the app does not speak", known: []string{"u1"}, method: "PATCH", body: `{"language":"fr"}`, headers: signedIn,
+			status: 400, want: `{"message":"INVALID_TYPE","error":"Bad Request","statusCode":400}`},
 		{name: "a field it does not know", known: []string{"u1"}, method: "PATCH", body: `{"role":"ADMIN"}`, headers: signedIn,
 			status: 400, want: `{"message":["property role should not exist"],"error":"Bad Request","statusCode":400}`},
 	}

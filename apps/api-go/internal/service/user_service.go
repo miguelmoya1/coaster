@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"strings"
 
 	"api-go/internal/core/domain"
 	"api-go/internal/core/ports"
@@ -18,7 +19,7 @@ func NewUserService(users ports.UserRepository, events ports.EventPublisher, cac
 	return &UserService{users: users, events: events, cache: cache}
 }
 
-// UpdateProfile is UpdateUserCommand. An empty language leaves the preferences alone, as in Nest.
+// UpdateProfile is UpdateUserCommand.
 func (s *UserService) UpdateProfile(ctx context.Context, userID string, changes domain.UserProfileChanges) error {
 	exists, err := s.users.Exists(ctx, userID)
 	if err != nil {
@@ -28,8 +29,15 @@ func (s *UserService) UpdateProfile(ctx context.Context, userID string, changes 
 		return domain.NotFound(domain.CodeUserNotFound)
 	}
 
-	if changes.Language != nil && *changes.Language == "" {
-		changes.Language = nil
+	if changes.Name != nil {
+		name := strings.TrimSpace(*changes.Name)
+		if name == "" {
+			return domain.BadRequest(domain.CodeRequired)
+		}
+		changes.Name = &name
+	}
+	if changes.Language != nil && !domain.IsLanguage(*changes.Language) {
+		return domain.BadRequest(domain.CodeInvalidType)
 	}
 
 	if err := s.users.UpdateProfile(ctx, userID, changes); err != nil {

@@ -28,13 +28,16 @@ func TestUserServiceUpdateProfile(t *testing.T) {
 	name := "Ana María"
 	english := "en"
 	empty := ""
+	french := "fr"
+	padded := "  Ana María  "
+	blank := "   "
 
 	tests := []struct {
 		name    string
 		userID  string
 		changes domain.UserProfileChanges
 		want    domain.UserProfileChanges
-		wantErr bool
+		wantErr string
 	}{
 		{
 			name:    "name and language",
@@ -43,16 +46,40 @@ func TestUserServiceUpdateProfile(t *testing.T) {
 			want:    domain.UserProfileChanges{Name: &name, Language: &english},
 		},
 		{
-			name:    "an empty language leaves the preferences alone",
+			name:    "the name is saved trimmed",
 			userID:  "u1",
-			changes: domain.UserProfileChanges{ClearPhotoURL: true, Language: &empty},
-			want:    domain.UserProfileChanges{ClearPhotoURL: true},
+			changes: domain.UserProfileChanges{Name: &padded, ClearPhotoURL: true},
+			want:    domain.UserProfileChanges{Name: &name, ClearPhotoURL: true},
+		},
+		{
+			name:    "an empty name",
+			userID:  "u1",
+			changes: domain.UserProfileChanges{Name: &empty},
+			wantErr: domain.CodeRequired,
+		},
+		{
+			name:    "a name with only spaces",
+			userID:  "u1",
+			changes: domain.UserProfileChanges{Name: &blank},
+			wantErr: domain.CodeRequired,
+		},
+		{
+			name:    "a language the app does not speak",
+			userID:  "u1",
+			changes: domain.UserProfileChanges{Language: &french},
+			wantErr: domain.CodeInvalidType,
+		},
+		{
+			name:    "an empty language",
+			userID:  "u1",
+			changes: domain.UserProfileChanges{Language: &empty},
+			wantErr: domain.CodeInvalidType,
 		},
 		{
 			name:    "a user that does not exist",
 			userID:  "nobody",
 			changes: domain.UserProfileChanges{Name: &name},
-			wantErr: true,
+			wantErr: domain.CodeUserNotFound,
 		},
 	}
 
@@ -64,9 +91,9 @@ func TestUserServiceUpdateProfile(t *testing.T) {
 
 			err := users.UpdateProfile(context.Background(), tt.userID, tt.changes)
 
-			if tt.wantErr {
-				if !domain.HasCode(err, domain.CodeUserNotFound) {
-					t.Fatalf("err = %v, want USER_NOT_FOUND", err)
+			if tt.wantErr != "" {
+				if !domain.HasCode(err, tt.wantErr) {
+					t.Fatalf("err = %v, want %s", err, tt.wantErr)
 				}
 				if len(repo.updates) != 0 || len(events.events) != 0 {
 					t.Errorf("updates = %+v, events = %v", repo.updates, events.names())

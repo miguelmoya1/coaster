@@ -720,6 +720,7 @@ Lo que Go hace distinto de Nest a propósito o porque no se ha podido copiar.
 | P2b-3 | En `PATCH /admin/users/{id}`, un `active: null` junto a un cambio de rol se ignora; Nest pasa el `null` a Prisma y responde 500 | Como en P2a: un campo que no admite nulos no distingue `null` de ausente |
 | P2b-3 | `page` y `pageSize` de la query se leen con `strconv.ParseFloat`: `0x10`, `0b1` u `0o7` son `INVALID_TYPE` (`Number()` los acepta) y una página por encima de 2^53 se queda en 2^53 | Nadie los manda así; los enteros, decimales y el vacío se leen como `Number()` |
 | P2b-3 | Las longitudes máximas (`q`, `targetId`, `email`, `note`, `name`, `reason`) cuentan caracteres (runas), no unidades UTF-16 | Como en P2c; solo cambia con emojis y otros caracteres fuera del plano básico |
+| P2b-1 | `PATCH /users/me` guarda el `name` sin espacios alrededor y responde 400 `REQUIRED` si queda vacío, y 400 `INVALID_TYPE` si `language` no es `es` ni `en` (también `""`, que Nest ignoraba). Nest acepta cualquier texto en los dos | Arreglado en Go; Nest sigue con el bug. `apps/web` solo manda `language` con `es` o `en` |
 | P2d-1 | `GET /orders?date=` solo lee `YYYY-MM-DD`; cualquier otra cosa responde 500, como una fecha que `Temporal.PlainDate.from` no entiende | `PlainDate.from` acepta además fecha y hora y otras formas ISO; `apps/web` y la IA mandan `YYYY-MM-DD` |
 | P2d-1 | `null` en `notes`/`ticketNotes` de `PATCH /orders/{id}/notes` o en `name` de `PATCH /tables/{id}` se ignora como si no viniera; Nest responde 500 (`.trim()` de `null`, o Prisma con `null` en una columna que no lo admite) | El mismo criterio que P2a; `apps/web` manda texto. En `POST /orders/{id}/items`, `notes: null` sí vacía las notas, como en Nest |
 | P2d-1 | Las notas del pedido y de las líneas y el motivo de un ajuste se cortan a 500 caracteres (runas), y `@MaxLength(500)` también cuenta runas, no unidades UTF-16. `trim` no quita el BOM (U+FEFF) | Solo cambia con emojis y otros caracteres fuera del plano básico |
@@ -743,7 +744,6 @@ Lo que Go sí hace distinto está en «Diferencias conocidas».
 
 | Paquete | Qué pasa |
 |---|---|
-| P2b-1 | `PATCH /users/me` acepta cualquier texto en `language` (`"fr"`) y `name: ""` |
 | P2b-1 | Un admin de la plataforma sobre un local que no existe: `GET /establishments/{id}` da 200 `null`, `GET …/settings` los ajustes por defecto y `PATCH …/settings` un 500 (clave foránea) |
 | P2b-2 | Invitar a un usuario que ya existe le cambia el `name` por lo que va antes de la `@`, sin publicar `UserUpdated` (la caché se queda con el nombre viejo) |
 | P2b-2 | El email de la invitación dice que invita el propio invitado: `MemberInvitedEvent.inviterName` lleva su nombre (al reenviar sí va el de quien invita) |
