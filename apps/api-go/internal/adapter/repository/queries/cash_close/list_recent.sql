@@ -4,5 +4,5 @@ SELECT c.id, c."establishmentId", c."closedById", u.name, c.since, c."closedAt",
 FROM "CashClose" c
 JOIN "User" u ON u.id = c."closedById"
 WHERE c."establishmentId" = $1
-ORDER BY c."closedAt" DESC
+ORDER BY c."closedAt" DESC, c.id DESC
 LIMIT 60

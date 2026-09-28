@@ -40,32 +40,22 @@ func (s *CashCloseService) List(ctx context.Context, establishmentID string) ([]
 // Preview is what closing now would count, what the open orders already charged and the
 // float of the last close.
 func (s *CashCloseService) Preview(ctx context.Context, establishmentID string) (domain.CashClosePreview, error) {
-	last, err := s.closes.FindLast(ctx, establishmentID)
-	if err != nil {
-		return domain.CashClosePreview{}, err
-	}
-
-	orders, err := s.closes.FindUnclosedOrders(ctx, establishmentID)
-	if err != nil {
-		return domain.CashClosePreview{}, err
-	}
-
-	charges, err := s.closes.FindOpenOrdersCharges(ctx, establishmentID)
+	till, err := s.closes.FindTill(ctx, establishmentID)
 	if err != nil {
 		return domain.CashClosePreview{}, err
 	}
 
 	preview := domain.CashClosePreview{
-		CashCloseTotals: domain.CashCloseTotalsOf(orders),
-		OpenOrders:      len(charges),
+		CashCloseTotals: domain.CashCloseTotalsOf(till.UnclosedOrders),
+		OpenOrders:      len(till.OpenOrdersCharges),
 	}
-	for _, charge := range charges {
+	for _, charge := range till.OpenOrdersCharges {
 		preview.OpenOrdersCharged += charge.AmountPaidCash + charge.AmountPaidCard
 	}
-	if last != nil {
-		since := domain.NewTime(last.ClosedAt)
+	if till.Last != nil {
+		since := domain.NewTime(till.Last.ClosedAt)
 		preview.Since = &since
-		preview.OpeningFloat = last.OpeningFloat
+		preview.OpeningFloat = till.Last.OpeningFloat
 	}
 
 	return preview, nil

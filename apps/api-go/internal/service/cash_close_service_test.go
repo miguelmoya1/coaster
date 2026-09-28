@@ -24,7 +24,7 @@ func TestCashClosePreviewWhenTheTillWasNeverClosed(t *testing.T) {
 	if preview.Since != nil || preview.OpeningFloat != 0 || preview.OpenOrders != 0 || preview.OpenOrdersCharged != 0 {
 		t.Errorf("preview = %+v, want it to start from the beginning with no float", preview)
 	}
-	if !slices.Equal(repo.establishmentIDs, []string{"e1", "e1", "e1"}) {
+	if !slices.Equal(repo.establishmentIDs, []string{"e1"}) {
 		t.Errorf("read establishments %v", repo.establishmentIDs)
 	}
 }

@@ -57,6 +57,12 @@ type LastCashClose struct {
 	OpeningFloat int
 }
 
+type CashCloseTill struct {
+	Last              *LastCashClose
+	UnclosedOrders    []CashCloseOrder
+	OpenOrdersCharges []OpenOrderCharge
+}
+
 // OpenOrderCharge is what was already charged on an order that is still open.
 type OpenOrderCharge struct {
 	AmountPaidCash int

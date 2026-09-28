@@ -61,10 +61,33 @@ func (r *CashCloseRepository) ListRecent(ctx context.Context, establishmentID st
 	})
 }
 
-func (r *CashCloseRepository) FindLast(ctx context.Context, establishmentID string) (*domain.LastCashClose, error) {
+func (r *CashCloseRepository) FindTill(ctx context.Context, establishmentID string) (domain.CashCloseTill, error) {
+	var till domain.CashCloseTill
+	options := pgx.TxOptions{IsoLevel: pgx.RepeatableRead, AccessMode: pgx.ReadOnly}
+
+	err := pgx.BeginTxFunc(ctx, r.pool, options, func(tx pgx.Tx) error {
+		var err error
+		till.Last, err = findLastCashClose(ctx, tx, establishmentID)
+		if err != nil {
+			return err
+		}
+
+		till.UnclosedOrders, err = findCashCloseOrders(ctx, tx, findUnclosedOrdersQuery, establishmentID)
+		if err != nil {
+			return err
+		}
+
+		till.OpenOrdersCharges, err = findOpenOrdersCharges(ctx, tx, establishmentID)
+		return err
+	})
+
+	return till, err
+}
+
+func findLastCashClose(ctx context.Context, tx pgx.Tx, establishmentID string) (*domain.LastCashClose, error) {
 	var last domain.LastCashClose
 
-	err := r.pool.QueryRow(ctx, findLastCashCloseQuery, establishmentID).Scan(&last.ClosedAt, &last.OpeningFloat)
+	err := tx.QueryRow(ctx, findLastCashCloseQuery, establishmentID).Scan(&last.ClosedAt, &last.OpeningFloat)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, nil
 	}
@@ -75,12 +98,8 @@ func (r *CashCloseRepository) FindLast(ctx context.Context, establishmentID stri
 	return &last, nil
 }
 
-func (r *CashCloseRepository) FindUnclosedOrders(ctx context.Context, establishmentID string) ([]domain.CashCloseOrder, error) {
-	return findCashCloseOrders(ctx, r.pool, findUnclosedOrdersQuery, establishmentID)
-}
-
-func (r *CashCloseRepository) FindOpenOrdersCharges(ctx context.Context, establishmentID string) ([]domain.OpenOrderCharge, error) {
-	rows, err := r.pool.Query(ctx, findOpenOrdersChargesQuery, establishmentID)
+func findOpenOrdersCharges(ctx context.Context, tx pgx.Tx, establishmentID string) ([]domain.OpenOrderCharge, error) {
+	rows, err := tx.Query(ctx, findOpenOrdersChargesQuery, establishmentID)
 	if err != nil {
 		return nil, err
 	}
@@ -99,7 +118,12 @@ func (r *CashCloseRepository) Close(ctx context.Context, input domain.NewCashClo
 	}
 	defer tx.Rollback(ctx)
 
-	if _, err := tx.Exec(ctx, lockCashCloseEstablishmentQuery, input.EstablishmentID); err != nil {
+	var lockedID string
+	err = tx.QueryRow(ctx, lockCashCloseEstablishmentQuery, input.EstablishmentID).Scan(&lockedID)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return domain.CashClose{}, domain.NotFound(domain.CodeEstablishmentNotFound)
+	}
+	if err != nil {
 		return domain.CashClose{}, err
 	}
 

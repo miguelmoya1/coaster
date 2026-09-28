@@ -12,14 +12,9 @@ import (
 type CashCloseRepository interface {
 	// ListRecent lists the establishment's last 60 closes, the latest first.
 	ListRecent(ctx context.Context, establishmentID string) ([]domain.CashClose, error)
-	// FindLast is the establishment's latest close.
-	FindLast(ctx context.Context, establishmentID string) (*domain.LastCashClose, error)
-	// FindUnclosedOrders lists the closed and cancelled orders no close has counted yet.
-	FindUnclosedOrders(ctx context.Context, establishmentID string) ([]domain.CashCloseOrder, error)
-	// FindOpenOrdersCharges lists what was already charged on each open order.
-	FindOpenOrdersCharges(ctx context.Context, establishmentID string) ([]domain.OpenOrderCharge, error)
+	FindTill(ctx context.Context, establishmentID string) (domain.CashCloseTill, error)
 	// Close closes the till in one transaction, with the establishment locked: the close
 	// starts where the previous one ended and counts every closed and cancelled order no
-	// close has counted yet.
+	// close has counted yet. An establishment that does not exist is ESTABLISHMENT_NOT_FOUND.
 	Close(ctx context.Context, input domain.NewCashClose) (domain.CashClose, error)
 }

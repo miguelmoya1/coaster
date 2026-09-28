@@ -28,19 +28,9 @@ func (f *fakeCashCloseRepository) ListRecent(_ context.Context, establishmentID 
 	return f.recent, f.err
 }
 
-func (f *fakeCashCloseRepository) FindLast(_ context.Context, establishmentID string) (*domain.LastCashClose, error) {
+func (f *fakeCashCloseRepository) FindTill(_ context.Context, establishmentID string) (domain.CashCloseTill, error) {
 	f.establishmentIDs = append(f.establishmentIDs, establishmentID)
-	return f.last, f.err
-}
-
-func (f *fakeCashCloseRepository) FindUnclosedOrders(_ context.Context, establishmentID string) ([]domain.CashCloseOrder, error) {
-	f.establishmentIDs = append(f.establishmentIDs, establishmentID)
-	return f.unclosed, f.err
-}
-
-func (f *fakeCashCloseRepository) FindOpenOrdersCharges(_ context.Context, establishmentID string) ([]domain.OpenOrderCharge, error) {
-	f.establishmentIDs = append(f.establishmentIDs, establishmentID)
-	return f.charges, f.err
+	return domain.CashCloseTill{Last: f.last, UnclosedOrders: f.unclosed, OpenOrdersCharges: f.charges}, f.err
 }
 
 func (f *fakeCashCloseRepository) Close(_ context.Context, input domain.NewCashClose) (domain.CashClose, error) {

@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"encoding/json"
+	"slices"
 	"sync"
 	"testing"
 	"time"
@@ -148,18 +149,15 @@ func TestCashCloseRepositoryReadsWhatTheCloseWouldCount(t *testing.T) {
 	ctx := context.Background()
 	closes := NewCashCloseRepository(testPool)
 
-	last, err := closes.FindLast(ctx, "e1")
+	till, err := closes.FindTill(ctx, "e1")
 	if err != nil {
 		t.Fatal(err)
 	}
+	last, orders, charges := till.Last, till.UnclosedOrders, till.OpenOrdersCharges
 	if last == nil || !last.ClosedAt.Equal(time.Date(2026, 9, 20, 23, 0, 0, 0, time.UTC)) || last.OpeningFloat != 15000 {
 		t.Fatalf("FindLast = %+v, want old-close", last)
 	}
 
-	orders, err := closes.FindUnclosedOrders(ctx, "e1")
-	if err != nil {
-		t.Fatal(err)
-	}
 	if len(orders) != 4 {
 		t.Fatalf("FindUnclosedOrders = %d orders, want A, B, C and E", len(orders))
 	}
@@ -181,10 +179,6 @@ func TestCashCloseRepositoryReadsWhatTheCloseWouldCount(t *testing.T) {
 		}
 	}
 
-	charges, err := closes.FindOpenOrdersCharges(ctx, "e1")
-	if err != nil {
-		t.Fatal(err)
-	}
 	charged := 0
 	for _, charge := range charges {
 		charged += charge.AmountPaidCash + charge.AmountPaidCard
@@ -199,14 +193,11 @@ func TestCashCloseRepositoryWithNothingToCount(t *testing.T) {
 	ctx := context.Background()
 	closes := NewCashCloseRepository(testPool)
 
-	if last, err := closes.FindLast(ctx, "e1"); err != nil || last != nil {
-		t.Fatalf("FindLast = %+v, %v; want nil", last, err)
+	if till, err := closes.FindTill(ctx, "e1"); err != nil || till.Last != nil || len(till.UnclosedOrders) != 0 || len(till.OpenOrdersCharges) != 0 {
+		t.Fatalf("FindTill = %+v, %v; want nothing", till, err)
 	}
-	if orders, err := closes.FindUnclosedOrders(ctx, "e1"); err != nil || len(orders) != 0 {
-		t.Fatalf("FindUnclosedOrders = %+v, %v; want none", orders, err)
-	}
-	if charges, err := closes.FindOpenOrdersCharges(ctx, "e1"); err != nil || len(charges) != 0 {
-		t.Fatalf("FindOpenOrdersCharges = %+v, %v; want none", charges, err)
+	if _, err := closes.Close(ctx, domain.NewCashClose{EstablishmentID: "missing", ClosedByID: "ana"}); !domain.HasCode(err, domain.CodeEstablishmentNotFound) {
+		t.Fatalf("closing the till of an establishment that does not exist = %v", err)
 	}
 	if recent, err := closes.ListRecent(ctx, "e1"); err != nil || len(recent) != 0 {
 		t.Fatalf("ListRecent = %+v, %v; want none", recent, err)
@@ -273,12 +264,13 @@ func TestCashCloseRepositoryClose(t *testing.T) {
 		t.Errorf("order A updatedAt = %s, want it touched by the close", updatedAt)
 	}
 
-	if orders, err := closes.FindUnclosedOrders(ctx, "e1"); err != nil || len(orders) != 0 {
-		t.Errorf("after the close FindUnclosedOrders = %d, %v; want none", len(orders), err)
+	till, err := closes.FindTill(ctx, "e1")
+	if err != nil || len(till.UnclosedOrders) != 0 {
+		t.Errorf("after the close FindTill = %d orders, %v; want none", len(till.UnclosedOrders), err)
 	}
-	last, err := closes.FindLast(ctx, "e1")
-	if err != nil || last == nil || !last.ClosedAt.Equal(closed.ClosedAt.Time) || last.OpeningFloat != 20000 {
-		t.Errorf("after the close FindLast = %+v, %v", last, err)
+	last := till.Last
+	if last == nil || !last.ClosedAt.Equal(closed.ClosedAt.Time) || last.OpeningFloat != 20000 {
+		t.Errorf("after the close the last close = %+v", last)
 	}
 
 	next, err := closes.Close(ctx, domain.NewCashClose{EstablishmentID: "e1", ClosedByID: "luis", CountedCash: 100})
@@ -362,5 +354,26 @@ func TestCashCloseRepositoryClosesOneAtATime(t *testing.T) {
 	}
 	if second.Since == nil || !second.Since.Equal(first.ClosedAt.Time) {
 		t.Errorf("the second close starts at %v, want %s", second.Since, first.ClosedAt)
+	}
+}
+
+func TestCashCloseRepositoryListsClosesOfTheSameInstantByID(t *testing.T) {
+	seedTill(t)
+	at := time.Date(2026, 9, 20, 23, 0, 0, 0, time.UTC)
+	insertTillClose(t, "close-a", "e1", "ana", at, 0)
+	insertTillClose(t, "close-c", "e1", "ana", at, 0)
+	insertTillClose(t, "close-b", "e1", "ana", at, 0)
+
+	recent, err := NewCashCloseRepository(testPool).ListRecent(context.Background(), "e1")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var ids []string
+	for _, c := range recent {
+		ids = append(ids, c.ID)
+	}
+	if want := []string{"close-c", "close-b", "close-a"}; !slices.Equal(ids, want) {
+		t.Errorf("ListRecent = %v, want %v", ids, want)
 	}
 }

@@ -42,12 +42,8 @@ func (tillCloses) ListRecent(context.Context, string) ([]domain.CashClose, error
 		OpeningFloat:    15000, CountedCash: 17100,
 	}}, nil
 }
-func (tillCloses) FindLast(context.Context, string) (*domain.LastCashClose, error) { return nil, nil }
-func (tillCloses) FindUnclosedOrders(context.Context, string) ([]domain.CashCloseOrder, error) {
-	return nil, nil
-}
-func (tillCloses) FindOpenOrdersCharges(context.Context, string) ([]domain.OpenOrderCharge, error) {
-	return nil, nil
+func (tillCloses) FindTill(context.Context, string) (domain.CashCloseTill, error) {
+	return domain.CashCloseTill{}, nil
 }
 func (c *tillCloses) Close(_ context.Context, input domain.NewCashClose) (domain.CashClose, error) {
 	c.closed = &input
