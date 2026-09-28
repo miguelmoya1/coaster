@@ -86,10 +86,11 @@ librería externa.
   - Una interfaz por cada servicio externo (`PaymentGateway`, `Mailer`, `FileStorage`…).
   - `EventPublisher`: para avisar de que algo ha pasado (ver más abajo).
 
-  Los servicios **no** tienen interfaz: el handler recibe el struct concreto
-  (`*service.OrderService`). Solo habría una implementación, y en Go la interfaz la declara
-  quien la consume, cuando la necesita. Para ver de un vistazo lo que ofrece un servicio:
-  `go doc ./internal/service OrderService`.
+  Los servicios no tienen interfaz en `ports/`: en Go la interfaz la declara quien la
+  consume. Cada handler declara en su archivo una interfaz pequeña con solo los métodos del
+  servicio que usa (`OrderService` en `order_handler.go`) y la recibe en su constructor;
+  `main.go` le pasa el `*service.OrderService`. Así los tests del handler pueden usar un fake.
+  Para ver de un vistazo lo que ofrece un servicio: `go doc ./internal/service OrderService`.
 
 #### `internal/service/`
 

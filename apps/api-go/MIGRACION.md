@@ -20,8 +20,9 @@ El rendimiento **no** es el motivo. Casi toda la latencia de la API viene de Pos
   invalidación de caché. Hay una interfaz `EventPublisher` en `ports/` y cada suscriptor se
   ejecuta en su goroutine. Solo se publica después de guardar en la base de datos.
 - **Interfaces solo para lo que el servicio necesita de fuera**: repositorios, servicios
-  externos y `EventPublisher`. Los servicios no tienen interfaz; los handlers reciben el
-  struct concreto.
+  externos y `EventPublisher`. Los handlers reciben una interfaz pequeña, declarada en el
+  propio handler, con solo los métodos del servicio que usan (`OrderService` en
+  `order_handler.go`); `main.go` les pasa el `*service.XService` de siempre.
 - **Las transacciones viven dentro del repositorio**, igual que en `apps/api`, donde los 14
   archivos que usan `$transaction` son repositorios. No hay `TxManager` ni `UnitOfWork`.
 - **SQL a mano, un archivo `.sql` por consulta**, incrustado con `go:embed` (ver
@@ -159,6 +160,7 @@ Actualizar esta tabla al terminar cada paquete.
 | P2f Realtime | ✅ Hecho | `GET /establishments/{establishmentId}/events` (SSE con `: open`, heartbeat de 25 s, cierre a los 30 min y `Last-Event-ID`), `service.RealtimeService` (implementa `ports.Realtime`: registro de streams por local, `Publish`, `Revoke`), bus en Redis compatible con Nest (canal `coaster:realtime`, replay de 2 min en `realtime:<id>:replay`), sin Redis solo en este proceso, cierre de streams al apagar. `test/realtime` pasa contra Go (publicar y revocar, en los tests de Go). Los suscriptores de `realtime/events/handlers/` los escribe cada paquete |
 | P3 IA | ✅ Hecho | Ola 4. `/establishments/{establishmentId}/ai`: `GET usage`, `POST` (201) y `POST stream` (SSE con `delta` y `done`), con solo auth, ser miembro y 20 por minuto. `AIService.Execute` es `ExecuteAiCommand`: membresía, cuota por local y mes en `AiUsage` (500, o 100 en prueba; cuenta solo tras una respuesta), módulos, instantánea y el mismo prompt de sistema, los 10 últimos mensajes y `zai/glm-4.7` a 0.1 con 8 pasos y sus cuatro modelos de respaldo. `adapter/ai.Gateway` habla con la API compatible con OpenAI del AI Gateway con openai-go y hace lo del AI SDK: el bucle de herramientas, la comprobación de su entrada como zod y el streaming. Las 40 herramientas (`service/ai_tools_*.go`) llaman a los servicios de P2 con los permisos, `confirmed`, textos y euros/céntimos de Nest; sus respuestas, esquemas y el prompt se comparan byte a byte con lo que da Nest (`service/testdata`). `test/ai` pasa contra Go. **Pendiente de Miguel**: confirmar los modelos de respaldo con la clave de verdad. Posibles bugs de Nest copiados tal cual: en el stream cualquier error (también `AI_QUOTA_EXCEEDED` y `MEMBER_NOT_FOUND`) llega como `ai_gateway_failed` y `apps/web` no lo distingue; la cuota se mira antes y se cuenta después, así que varios mensajes a la vez pueden pasarla; si falla contar el mensaje se responde el error del gateway aunque las herramientas ya se ejecutaron; `createOrder` y `addOrderItems` quitan en silencio los productos que no están en la instantánea y responden éxito; las mesas y productos de los pedidos se nombran con la instantánea del turno (`deleteOrder` de un pedido cerrado siempre confirma la mesa «No table»); `getOrdersByDate` suma `totalAmount` (sin IVA ni descuentos) mientras cada pedido enseña `orderTotal`; `updateProduct` acepta precios negativos |
 | P4 Arnés e2e | ✅ Hecho | `E2E_TARGET=go` lanza los e2e de `apps/api` contra Go: el `globalSetup` compila el binario, cada archivo arranca su servidor detrás de un proxy que pone `/api/v1` y un JWT de verdad, buzón de test y claves de Google por HTTP, `e2e-paquetes.txt`, `scripts/e2e-go.sh` y job de CI `api-go-e2e`. Lo que falta en Go está en «Convenciones de P4» |
+| Interfaces en los handlers | ✅ Hecho | Los 25 handlers de P2 y P3 reciben una interfaz declarada en su archivo con los métodos que usan. Se llama como el servicio salvo choque: `PrinterConnectionService` (`printer_connection_handler.go`), `EstablishmentSubscriptionService` y `StripeWebhookService` (los dos sobre `SubscriptionService`). Sin cambios en `main.go` ni en los tests |
 | P5 Salida | ⬜ Pendiente | |
 
 ## Siguiente paso
@@ -263,11 +265,6 @@ Lo que P0 deja hecho y cómo se usa desde P1 en adelante.
   userID)`) es `RealtimeService` de Nest. Los nombres de evento están en
   `domain/realtime_events.go`. En `main.go` la variable `realtime` es `event.NopRealtime{}`
   hasta que P2f cambie esa línea por la implementación de verdad.
-
-**Servicios y handlers**
-- La decisión de «Decisiones tomadas» se mantiene: los handlers reciben el servicio concreto
-  (`*service.OrderService`). P1 usa interfaces pequeñas en los handlers de auth para sus
-  tests; está pendiente de revisar con Miguel y no se copia en P2.
 
 ## Convenciones de P1
 
