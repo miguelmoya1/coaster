@@ -77,7 +77,7 @@ func (s *EstablishmentMemberService) List(ctx context.Context, establishmentID s
 
 // Invite adds somebody to the establishment by email. Their user is created if there is none,
 // and a member who was removed comes back. Only an owner of the establishment, or a platform
-// admin, may make somebody an owner. role is nil to keep the role (STAFF for a new member).
+// admin, may make somebody an owner. role is nil to keep the role (STAFF for a new or removed member).
 func (s *EstablishmentMemberService) Invite(ctx context.Context, establishmentID string, inviter domain.User, email string, role *domain.EstablishmentRole) error {
 	email = strings.ToLower(strings.TrimSpace(email))
 

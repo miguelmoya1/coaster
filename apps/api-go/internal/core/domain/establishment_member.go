@@ -60,7 +60,7 @@ func InvitedUserName(email string) string {
 }
 
 // MemberInvitation is an invitation to save: the user by email and their membership.
-// Role is nil to leave the role as it is (STAFF for a new member).
+// Role is nil to leave the role as it is (STAFF for a new or removed member).
 type MemberInvitation struct {
 	EstablishmentID string
 	Email           string

@@ -158,6 +158,24 @@ func TestEstablishmentMemberRepositoryInvite(t *testing.T) {
 		t.Fatalf("rita back: name %q, preferences %d, role %q, deletedAt %v, %v", name, preferences, role, deletedAt, err)
 	}
 
+	insertRotaUser(t, "oscar", "Oscar")
+	insertRotaMember(t, "e1", "oscar", "OWNER", true, true)
+	former, err := members.Invite(ctx, domain.MemberInvitation{EstablishmentID: "e1", Email: "oscar@example.com", UserName: "oscar"})
+	if err != nil || former.ID != "e1/oscar" {
+		t.Fatalf("inviting a removed owner again = %+v, %v", former, err)
+	}
+	if err := testPool.QueryRow(ctx, `SELECT role::text FROM "EstablishmentMember" WHERE id = 'e1/oscar'`).Scan(&role); err != nil || role != "STAFF" {
+		t.Fatalf("a removed owner invited without a role came back as %q, %v", role, err)
+	}
+
+	still, err := members.Invite(ctx, domain.MemberInvitation{EstablishmentID: "e1", Email: "marta@example.com", UserName: "marta"})
+	if err != nil || still.ID != "e1/marta" {
+		t.Fatalf("inviting a member who is still there = %+v, %v", still, err)
+	}
+	if err := testPool.QueryRow(ctx, `SELECT role::text FROM "EstablishmentMember" WHERE id = 'e1/marta'`).Scan(&role); err != nil || role != "MANAGER" {
+		t.Fatalf("a member who is still there changed to %q, %v", role, err)
+	}
+
 	if _, err := members.Invite(ctx, domain.MemberInvitation{EstablishmentID: "e9", Email: "nadie@example.com", UserName: "nadie"}); err == nil {
 		t.Fatal("inviting to an establishment that does not exist worked")
 	}

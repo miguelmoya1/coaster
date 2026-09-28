@@ -725,6 +725,7 @@ Lo que Go hace distinto de Nest a propósito o porque no se ha podido copiar.
 | P2b-2 | Invitar a un usuario que ya existe no le cambia el `name`; Nest lo cambia por lo que va antes de la `@` sin publicar `UserUpdated` | Arreglado en Go; Nest sigue con el bug. Como no cambia nada del usuario, no hace falta olvidar su caché |
 | P2b-2 | El email de la invitación lleva el nombre de quien invita (`MemberInvited.InviterName`), como al reenviarla; en Nest lleva el nombre del invitado | Arreglado en Go; Nest sigue con el bug |
 | P2b-2 | Invitar pasa el email a minúsculas y le quita los espacios, como el login: `Ana@X.com` encuentra al usuario `ana@x.com`. Nest lo guarda tal cual y crea otro usuario que no puede entrar con contraseña | Arreglado en Go; Nest sigue con el bug. Los usuarios con mayúsculas que ya creó Nest no se tocan |
+| P2b-2 | Volver a invitar sin `role` a un miembro quitado lo trae como STAFF; Nest le devuelve su rol antiguo, así que un MANAGER podía devolver a un ex-OWNER como OWNER | Arreglado en Go; Nest sigue con el bug |
 | P2d-1 | `GET /orders?date=` solo lee `YYYY-MM-DD`; cualquier otra cosa responde 500, como una fecha que `Temporal.PlainDate.from` no entiende | `PlainDate.from` acepta además fecha y hora y otras formas ISO; `apps/web` y la IA mandan `YYYY-MM-DD` |
 | P2d-1 | `null` en `notes`/`ticketNotes` de `PATCH /orders/{id}/notes` o en `name` de `PATCH /tables/{id}` se ignora como si no viniera; Nest responde 500 (`.trim()` de `null`, o Prisma con `null` en una columna que no lo admite) | El mismo criterio que P2a; `apps/web` manda texto. En `POST /orders/{id}/items`, `notes: null` sí vacía las notas, como en Nest |
 | P2d-1 | Las notas del pedido y de las líneas y el motivo de un ajuste se cortan a 500 caracteres (runas), y `@MaxLength(500)` también cuenta runas, no unidades UTF-16. `trim` no quita el BOM (U+FEFF) | Solo cambia con emojis y otros caracteres fuera del plano básico |
@@ -748,7 +749,6 @@ Lo que Go sí hace distinto está en «Diferencias conocidas».
 
 | Paquete | Qué pasa |
 |---|---|
-| P2b-2 | Volver a invitar a un miembro quitado sin `role` le devuelve su rol antiguo: un MANAGER puede devolver a un ex-OWNER como OWNER |
 | P2b-2 | Reenviar la invitación mira si el usuario está activo, no el miembro |
 | P2b-3 | `memberCount` y `establishmentCount` cuentan membresías eliminadas e inactivas, y la búsqueda de locales por email encuentra miembros eliminados |
 | P2b-3 | `billingSource` STRIPE en el filtro es tener `stripeSubscriptionId` aunque haya caducado; en la fila exige periodo vigente |
