@@ -15,74 +15,17 @@ type RouterConfig struct {
 	PublicDir   string
 }
 
-type Handlers struct {
-	Guard    *middleware.Guard
-	Auth     *AuthHandler
-	Account  *AccountHandler
-	Realtime *RealtimeHandler
-
-	EstablishmentSubscription *EstablishmentSubscriptionHandler
-	StripeWebhook             *StripeWebhookHandler
-
-	Category  *CategoryHandler
-	Product   *ProductHandler
-	Catalogue *CatalogueHandler
-	Menu      *MenuHandler
-	Media     *MediaHandler
-
-	Shift         *ShiftHandler
-	ShiftExchange *ShiftExchangeHandler
-	TimeEntry     *TimeEntryHandler
-
-	Establishment       *EstablishmentHandler
-	User                *UserHandler
-	EstablishmentMember *EstablishmentMemberHandler
-	CashClose           *CashCloseHandler
-	Stats               *StatsHandler
-	Printer             *PrinterHandler
-	PrinterConnection   *PrinterConnectionHandler
-	AdminOverview       *AdminOverviewHandler
-	AdminUser           *AdminUserHandler
-	AdminBetaTester     *AdminBetaTesterHandler
-	AdminEstablishment  *AdminEstablishmentHandler
-	Order               *OrderHandler
-	Table               *TableHandler
-	AI                  *AIHandler
+type RouteRegistrar interface {
+	RegisterRoutes(mux *http.ServeMux, guard *middleware.Guard)
 }
 
-func NewRouter(cfg RouterConfig, handlers Handlers) (http.Handler, error) {
+func NewRouter(cfg RouterConfig, guard *middleware.Guard, handlers ...RouteRegistrar) (http.Handler, error) {
 	mux := http.NewServeMux()
 
 	mux.Handle("GET /public/", staticFiles(cfg.PublicDir))
 
-	if handlers.Guard != nil {
-		handlers.Auth.RegisterRoutes(mux, handlers.Guard)
-		handlers.Account.RegisterRoutes(mux, handlers.Guard)
-		handlers.Realtime.RegisterRoutes(mux, handlers.Guard)
-		handlers.EstablishmentSubscription.RegisterRoutes(mux, handlers.Guard)
-		handlers.StripeWebhook.RegisterRoutes(mux, handlers.Guard)
-		handlers.Category.RegisterRoutes(mux, handlers.Guard)
-		handlers.Product.RegisterRoutes(mux, handlers.Guard)
-		handlers.Catalogue.RegisterRoutes(mux, handlers.Guard)
-		handlers.Menu.RegisterRoutes(mux, handlers.Guard)
-		handlers.Media.RegisterRoutes(mux, handlers.Guard)
-		handlers.Shift.RegisterRoutes(mux, handlers.Guard)
-		handlers.ShiftExchange.RegisterRoutes(mux, handlers.Guard)
-		handlers.TimeEntry.RegisterRoutes(mux, handlers.Guard)
-		handlers.Establishment.RegisterRoutes(mux, handlers.Guard)
-		handlers.User.RegisterRoutes(mux, handlers.Guard)
-		handlers.EstablishmentMember.RegisterRoutes(mux, handlers.Guard)
-		handlers.CashClose.RegisterRoutes(mux, handlers.Guard)
-		handlers.Stats.RegisterRoutes(mux, handlers.Guard)
-		handlers.Printer.RegisterRoutes(mux, handlers.Guard)
-		handlers.PrinterConnection.RegisterRoutes(mux, handlers.Guard)
-		handlers.AdminOverview.RegisterRoutes(mux, handlers.Guard)
-		handlers.AdminUser.RegisterRoutes(mux, handlers.Guard)
-		handlers.AdminBetaTester.RegisterRoutes(mux, handlers.Guard)
-		handlers.AdminEstablishment.RegisterRoutes(mux, handlers.Guard)
-		handlers.Order.RegisterRoutes(mux, handlers.Guard)
-		handlers.Table.RegisterRoutes(mux, handlers.Guard)
-		handlers.AI.RegisterRoutes(mux, handlers.Guard)
+	for _, handler := range handlers {
+		handler.RegisterRoutes(mux, guard)
 	}
 
 	return withGlobalMiddlewares(cfg, withNestNotFound(mux))

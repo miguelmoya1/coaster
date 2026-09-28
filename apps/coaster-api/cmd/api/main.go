@@ -58,14 +58,10 @@ func run() error {
 	}
 	defer pool.Close()
 
-	bus := event.NewBus()
-	defer bus.Wait()
-
 	realtimeBus := cache.NewRealtimeBus(cfg.RedisURL)
 	defer realtimeBus.Close()
 	realtimeService := service.NewRealtimeService(realtimeBus)
 	go realtimeBus.Listen(ctx, realtimeService)
-	var realtime ports.Realtime = realtimeService
 
 	redisClient := cache.NewClient(cfg.RedisURL)
 	if redisClient != nil {
@@ -73,10 +69,11 @@ func run() error {
 	}
 	valueCache := cache.NewCache(redisClient)
 
-	authUsers := repository.NewAuthUserRepository(pool)
-	authSessions := repository.NewAuthSessionRepository(pool)
-	authTokens := repository.NewAuthTokenRepository(pool)
-	authIdentities := repository.NewAuthIdentityRepository(pool)
+	mediaStorage := storage.NewGCS(cfg.MediaBucket)
+	defer mediaStorage.Close()
+
+	bus := event.NewBus()
+	defer bus.Wait()
 
 	googleVerifier, err := google.NewVerifier(ctx, cfg.GoogleClientID, cfg.GoogleCertsURL)
 	if err != nil {
@@ -93,13 +90,20 @@ func run() error {
 
 	pwnedPasswords := pwned.NewPasswords(cfg.PwnedPasswordsEnabled)
 
-	accessTokens := service.NewAccessTokenService(cfg.AuthJWTSecret, authUsers, valueCache)
-	subscriptions := service.NewSubscriptionService(service.SubscriptionDependencies{
+	authUsers := repository.NewAuthUserRepository(pool)
+	authSessions := repository.NewAuthSessionRepository(pool)
+	authTokens := repository.NewAuthTokenRepository(pool)
+	authIdentities := repository.NewAuthIdentityRepository(pool)
+	adminAudit := repository.NewAdminAuditRepository(pool)
+	shiftRepository := repository.NewShiftRepository(pool)
+	tableRepository := repository.NewTableRepository(pool)
+
+	subscriptionService := service.NewSubscriptionService(service.SubscriptionDependencies{
 		Repo:     repository.NewEstablishmentSubscriptionRepository(pool),
 		Payments: payment.NewStripeGateway(cfg.StripeSecretKey, cfg.StripeWebhookSecret),
 		Cache:    valueCache,
 		Events:   bus,
-		Realtime: realtime,
+		Realtime: realtimeService,
 		Billing: service.BillingConfig{
 			PricePro:            cfg.StripePricePro,
 			PriceProLegacy:      cfg.StripePriceProLegacy,
@@ -109,9 +113,8 @@ func run() error {
 			FrontendURL:         cfg.FrontendURL,
 		},
 	})
-
-	security := service.NewSecurityService(repository.NewSecurityRepository(pool), valueCache, subscriptions)
-	authEvents := service.NewAuthEventService(repository.NewAuthEventRepository(pool))
+	securityService := service.NewSecurityService(repository.NewSecurityRepository(pool), valueCache, subscriptionService)
+	accessTokens := service.NewAccessTokenService(cfg.AuthJWTSecret, authUsers, valueCache)
 
 	authService := service.NewAuthService(service.AuthDependencies{
 		Users:           authUsers,
@@ -137,61 +140,37 @@ func run() error {
 		Events:     bus,
 		Cache:      valueCache,
 	})
+	authEventService := service.NewAuthEventService(repository.NewAuthEventRepository(pool))
 
-	catalogRealtime := service.NewCatalogRealtime(realtime)
-
-	mediaStorage := storage.NewGCS(cfg.MediaBucket)
-	defer mediaStorage.Close()
+	establishmentService := service.NewEstablishmentService(repository.NewEstablishmentRepository(pool), bus, valueCache)
+	userService := service.NewUserService(repository.NewUserRepository(pool), bus, valueCache)
+	establishmentMemberService := service.NewEstablishmentMemberService(service.EstablishmentMemberDependencies{
+		Members:  repository.NewEstablishmentMemberRepository(pool),
+		Security: securityService,
+		Tokens:   authTokens,
+		Mailer:   mailer,
+		Cache:    valueCache,
+		Events:   bus,
+		Realtime: realtimeService,
+	})
 
 	categoryService := service.NewCategoryService(repository.NewCategoryRepository(pool), bus)
 	productService := service.NewProductService(repository.NewProductRepository(pool), bus)
 	catalogueService := service.NewCatalogueService(repository.NewCatalogueRepository(pool), bus)
 	menuService := service.NewMenuService(repository.NewMenuRepository(pool))
 	mediaService := service.NewMediaService(mediaStorage)
+	catalogRealtime := service.NewCatalogRealtime(realtimeService)
 
-	handlers := httpapi.Handlers{
-		Guard:    middleware.NewGuard(accessTokens, security, cache.NewRateLimiter(redisClient), cfg.TrustProxyHops),
-		Auth:     httpapi.NewAuthHandler(authService, cfg.IsProduction),
-		Account:  httpapi.NewAccountHandler(accountService),
-		Realtime: httpapi.NewRealtimeHandler(realtimeService),
-
-		EstablishmentSubscription: httpapi.NewEstablishmentSubscriptionHandler(subscriptions),
-		StripeWebhook:             httpapi.NewStripeWebhookHandler(subscriptions),
-
-		Category:  httpapi.NewCategoryHandler(categoryService),
-		Product:   httpapi.NewProductHandler(productService),
-		Catalogue: httpapi.NewCatalogueHandler(catalogueService),
-		Menu:      httpapi.NewMenuHandler(menuService),
-		Media:     httpapi.NewMediaHandler(mediaService),
-	}
-
-	shiftRepository := repository.NewShiftRepository(pool)
-	shiftService := service.NewShiftService(shiftRepository, security, bus, realtime)
-	shiftExchangeService := service.NewShiftExchangeService(shiftRepository, repository.NewShiftExchangeRepository(pool), security)
+	shiftService := service.NewShiftService(shiftRepository, securityService, bus, realtimeService)
+	shiftExchangeService := service.NewShiftExchangeService(shiftRepository, repository.NewShiftExchangeRepository(pool), securityService)
 	timeEntryService := service.NewTimeEntryService(repository.NewTimeEntryRepository(pool), shiftService, bus)
-	handlers.Shift = httpapi.NewShiftHandler(shiftService)
-	handlers.ShiftExchange = httpapi.NewShiftExchangeHandler(shiftExchangeService)
-	handlers.TimeEntry = httpapi.NewTimeEntryHandler(timeEntryService)
 
-	establishmentService := service.NewEstablishmentService(repository.NewEstablishmentRepository(pool), bus, valueCache)
-	userService := service.NewUserService(repository.NewUserRepository(pool), bus, valueCache)
-	handlers.Establishment = httpapi.NewEstablishmentHandler(establishmentService)
-	handlers.User = httpapi.NewUserHandler(userService)
-
-	establishmentMemberService := service.NewEstablishmentMemberService(service.EstablishmentMemberDependencies{
-		Members:  repository.NewEstablishmentMemberRepository(pool),
-		Security: security,
-		Tokens:   authTokens,
-		Mailer:   mailer,
-		Cache:    valueCache,
-		Events:   bus,
-		Realtime: realtime,
-	})
-	handlers.EstablishmentMember = httpapi.NewEstablishmentMemberHandler(establishmentMemberService)
-
+	tableService := service.NewTableService(tableRepository, bus)
+	orderService := service.NewOrderService(repository.NewOrderRepository(pool), tableRepository, bus)
+	orderStock := service.NewOrderStock(productService)
+	orderRealtime := service.NewOrderRealtime(realtimeService)
+	cashCloseService := service.NewCashCloseService(repository.NewCashCloseRepository(pool))
 	statsService := service.NewStatsService(repository.NewStatsRepository(pool))
-	handlers.CashClose = httpapi.NewCashCloseHandler(service.NewCashCloseService(repository.NewCashCloseRepository(pool)))
-	handlers.Stats = httpapi.NewStatsHandler(statsService)
 
 	printerService := service.NewPrinterService(
 		repository.NewPrinterConfigRepository(pool),
@@ -200,32 +179,17 @@ func run() error {
 		cfg.PrinterJWTSecret,
 	)
 	printerReleases := service.NewPrinterReleaseService(os.DirFS(filepath.Join(cfg.PublicDir, "downloads")), cfg.PublicURL)
-	handlers.Printer = httpapi.NewPrinterHandler(printerService, printerReleases)
-	handlers.PrinterConnection = httpapi.NewPrinterConnectionHandler(printerService)
 
-	adminAudit := repository.NewAdminAuditRepository(pool)
 	adminAuditService := service.NewAdminAuditService(adminAudit)
-	handlers.AdminOverview = httpapi.NewAdminOverviewHandler(
-		service.NewAdminMetricsService(repository.NewAdminMetricsRepository(pool)), adminAuditService)
-	handlers.AdminUser = httpapi.NewAdminUserHandler(
-		service.NewAdminUserService(repository.NewAdminUserRepository(pool), adminAudit, bus))
-	handlers.AdminBetaTester = httpapi.NewAdminBetaTesterHandler(
-		service.NewBetaTesterService(repository.NewBetaTesterRepository(pool), bus, cfg.BetaAllowlistEnabled))
-	handlers.AdminEstablishment = httpapi.NewAdminEstablishmentHandler(
-		service.NewAdminEstablishmentService(repository.NewAdminEstablishmentRepository(pool), adminAudit, bus, valueCache))
-
-	tableRepository := repository.NewTableRepository(pool)
-	tableService := service.NewTableService(tableRepository, bus)
-	orderService := service.NewOrderService(repository.NewOrderRepository(pool), tableRepository, bus)
-	orderStock := service.NewOrderStock(productService)
-	orderRealtime := service.NewOrderRealtime(realtime)
-	handlers.Order = httpapi.NewOrderHandler(orderService)
-	handlers.Table = httpapi.NewTableHandler(tableService)
+	adminMetricsService := service.NewAdminMetricsService(repository.NewAdminMetricsRepository(pool))
+	adminUserService := service.NewAdminUserService(repository.NewAdminUserRepository(pool), adminAudit, bus)
+	betaTesterService := service.NewBetaTesterService(repository.NewBetaTesterRepository(pool), bus, cfg.BetaAllowlistEnabled)
+	adminEstablishmentService := service.NewAdminEstablishmentService(repository.NewAdminEstablishmentRepository(pool), adminAudit, bus, valueCache)
 
 	aiService := service.NewAIService(service.AIDependencies{
 		Model:    ai.NewGateway(cfg.AIGatewayAPIKey),
 		Usage:    repository.NewAIUsageRepository(pool),
-		Security: security,
+		Security: securityService,
 		Config:   service.AIConfig{MonthlyMessages: cfg.AIMonthlyMessages, TrialMonthlyMessages: cfg.AITrialMonthlyMessages},
 
 		Categories: categoryService,
@@ -237,18 +201,44 @@ func run() error {
 		Exchanges:  shiftExchangeService,
 		Members:    establishmentMemberService,
 	})
-	handlers.AI = httpapi.NewAIHandler(aiService)
 
 	for _, subscriber := range []ports.EventSubscriber{
-		subscriptions, authEvents, catalogRealtime, shiftService, timeEntryService, establishmentService, userService,
-		establishmentMemberService, adminAuditService, orderStock, orderRealtime,
+		subscriptionService, authEventService, establishmentService, userService, establishmentMemberService,
+		catalogRealtime, shiftService, timeEntryService, orderStock, orderRealtime, adminAuditService,
 	} {
 		bus.Subscribe(subscriber.EventHandlers()...)
 	}
 
 	router, err := httpapi.NewRouter(
 		httpapi.RouterConfig{CORSOrigins: cfg.CORSOrigins, PublicDir: cfg.PublicDir},
-		handlers,
+		middleware.NewGuard(accessTokens, securityService, cache.NewRateLimiter(redisClient), cfg.TrustProxyHops),
+		httpapi.NewAuthHandler(authService, cfg.IsProduction),
+		httpapi.NewAccountHandler(accountService),
+		httpapi.NewRealtimeHandler(realtimeService),
+		httpapi.NewEstablishmentSubscriptionHandler(subscriptionService),
+		httpapi.NewStripeWebhookHandler(subscriptionService),
+		httpapi.NewEstablishmentHandler(establishmentService),
+		httpapi.NewUserHandler(userService),
+		httpapi.NewEstablishmentMemberHandler(establishmentMemberService),
+		httpapi.NewCategoryHandler(categoryService),
+		httpapi.NewProductHandler(productService),
+		httpapi.NewCatalogueHandler(catalogueService),
+		httpapi.NewMenuHandler(menuService),
+		httpapi.NewMediaHandler(mediaService),
+		httpapi.NewShiftHandler(shiftService),
+		httpapi.NewShiftExchangeHandler(shiftExchangeService),
+		httpapi.NewTimeEntryHandler(timeEntryService),
+		httpapi.NewTableHandler(tableService),
+		httpapi.NewOrderHandler(orderService),
+		httpapi.NewCashCloseHandler(cashCloseService),
+		httpapi.NewStatsHandler(statsService),
+		httpapi.NewPrinterHandler(printerService, printerReleases),
+		httpapi.NewPrinterConnectionHandler(printerService),
+		httpapi.NewAdminOverviewHandler(adminMetricsService, adminAuditService),
+		httpapi.NewAdminUserHandler(adminUserService),
+		httpapi.NewAdminBetaTesterHandler(betaTesterService),
+		httpapi.NewAdminEstablishmentHandler(adminEstablishmentService),
+		httpapi.NewAIHandler(aiService),
 	)
 	if err != nil {
 		return err

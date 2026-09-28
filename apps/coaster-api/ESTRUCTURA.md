@@ -111,7 +111,7 @@ Las **implementaciones concretas** que conectan el núcleo con el mundo exterior
 
 - **`handler/httpapi/`**: la capa de transporte. No se llama `http` para no tapar a
   `net/http` en quien lo importa.
-  - `router.go` registra las rutas y aplica los middlewares.
+  - `router.go` aplica los middlewares y pide a cada handler que registre sus rutas.
   - `xxx_handler.go` hay uno por entidad. Lee la petición, llama al servicio y traduce los
     errores de dominio a códigos HTTP.
   - `request.go` lee y valida el cuerpo JSON; `response.go` escribe los errores de la petición.
@@ -222,5 +222,5 @@ HTTP → middleware → handler → service → repository → base de datos
 | 3. Lógica de negocio | `internal/service/xxx_service.go` |
 | 4. Consultas SQL | `internal/adapter/repository/queries/xxx/*.sql` |
 | 5. Persistencia | `internal/adapter/repository/xxx_repository.go` + migración en `scripts/` |
-| 6. Endpoints HTTP | `internal/adapter/handler/httpapi/xxx_handler.go` + registro en `router.go` |
+| 6. Endpoints HTTP | `internal/adapter/handler/httpapi/xxx_handler.go` con su `RegisterRoutes` |
 | 7. Conexión de todo | `cmd/api/main.go` |

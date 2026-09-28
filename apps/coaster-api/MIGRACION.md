@@ -212,7 +212,7 @@ Lo que P0 deja hecho y cómo se usa desde P1 en adelante.
 **Handlers y rutas**
 - Cada entidad tiene su `xxx_handler.go` con un método que registra sus rutas en el
   `*http.ServeMux`, con el prefijo `apiPrefix` (`"GET " + apiPrefix + "/orders/{id}"`).
-  En `router.go` se añade el campo al struct `Handlers` y una línea en `NewRouter`.
+  `main.go` pasa el handler a `httpapi.NewRouter`, que llama a su `RegisterRoutes`.
 - Una ruta que no existe, o con otro método, responde el 404 de Nest sin hacer nada.
 - Respuestas con `respond.JSON(w, status, v)`: sin escapar `<>&` y sin salto de línea final,
   como `JSON.stringify` (`nodejson.Marshal`). Nest responde 201 a los `POST` salvo que el controlador diga otra
