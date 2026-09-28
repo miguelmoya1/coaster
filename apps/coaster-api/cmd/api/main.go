@@ -17,7 +17,7 @@ import (
 	"coaster-api/internal/adapter/email"
 	"coaster-api/internal/adapter/event"
 	"coaster-api/internal/adapter/google"
-	httphandler "coaster-api/internal/adapter/handler/http"
+	"coaster-api/internal/adapter/handler/httpapi"
 	"coaster-api/internal/adapter/handler/middleware"
 	"coaster-api/internal/adapter/payment"
 	"coaster-api/internal/adapter/pwned"
@@ -149,34 +149,34 @@ func run() error {
 	menuService := service.NewMenuService(repository.NewMenuRepository(pool))
 	mediaService := service.NewMediaService(mediaStorage)
 
-	handlers := httphandler.Handlers{
+	handlers := httpapi.Handlers{
 		Guard:    middleware.NewGuard(accessTokens, security, cache.NewRateLimiter(redisClient), cfg.TrustProxyHops),
-		Auth:     httphandler.NewAuthHandler(authService, cfg.IsProduction),
-		Account:  httphandler.NewAccountHandler(accountService),
-		Realtime: httphandler.NewRealtimeHandler(realtimeService),
+		Auth:     httpapi.NewAuthHandler(authService, cfg.IsProduction),
+		Account:  httpapi.NewAccountHandler(accountService),
+		Realtime: httpapi.NewRealtimeHandler(realtimeService),
 
-		EstablishmentSubscription: httphandler.NewEstablishmentSubscriptionHandler(subscriptions),
-		StripeWebhook:             httphandler.NewStripeWebhookHandler(subscriptions),
+		EstablishmentSubscription: httpapi.NewEstablishmentSubscriptionHandler(subscriptions),
+		StripeWebhook:             httpapi.NewStripeWebhookHandler(subscriptions),
 
-		Category:  httphandler.NewCategoryHandler(categoryService),
-		Product:   httphandler.NewProductHandler(productService),
-		Catalogue: httphandler.NewCatalogueHandler(catalogueService),
-		Menu:      httphandler.NewMenuHandler(menuService),
-		Media:     httphandler.NewMediaHandler(mediaService),
+		Category:  httpapi.NewCategoryHandler(categoryService),
+		Product:   httpapi.NewProductHandler(productService),
+		Catalogue: httpapi.NewCatalogueHandler(catalogueService),
+		Menu:      httpapi.NewMenuHandler(menuService),
+		Media:     httpapi.NewMediaHandler(mediaService),
 	}
 
 	shiftRepository := repository.NewShiftRepository(pool)
 	shiftService := service.NewShiftService(shiftRepository, security, bus, realtime)
 	shiftExchangeService := service.NewShiftExchangeService(shiftRepository, repository.NewShiftExchangeRepository(pool), security)
 	timeEntryService := service.NewTimeEntryService(repository.NewTimeEntryRepository(pool), shiftService, bus)
-	handlers.Shift = httphandler.NewShiftHandler(shiftService)
-	handlers.ShiftExchange = httphandler.NewShiftExchangeHandler(shiftExchangeService)
-	handlers.TimeEntry = httphandler.NewTimeEntryHandler(timeEntryService)
+	handlers.Shift = httpapi.NewShiftHandler(shiftService)
+	handlers.ShiftExchange = httpapi.NewShiftExchangeHandler(shiftExchangeService)
+	handlers.TimeEntry = httpapi.NewTimeEntryHandler(timeEntryService)
 
 	establishmentService := service.NewEstablishmentService(repository.NewEstablishmentRepository(pool), bus, valueCache)
 	userService := service.NewUserService(repository.NewUserRepository(pool), bus, valueCache)
-	handlers.Establishment = httphandler.NewEstablishmentHandler(establishmentService)
-	handlers.User = httphandler.NewUserHandler(userService)
+	handlers.Establishment = httpapi.NewEstablishmentHandler(establishmentService)
+	handlers.User = httpapi.NewUserHandler(userService)
 
 	establishmentMemberService := service.NewEstablishmentMemberService(service.EstablishmentMemberDependencies{
 		Members:  repository.NewEstablishmentMemberRepository(pool),
@@ -187,11 +187,11 @@ func run() error {
 		Events:   bus,
 		Realtime: realtime,
 	})
-	handlers.EstablishmentMember = httphandler.NewEstablishmentMemberHandler(establishmentMemberService)
+	handlers.EstablishmentMember = httpapi.NewEstablishmentMemberHandler(establishmentMemberService)
 
 	statsService := service.NewStatsService(repository.NewStatsRepository(pool))
-	handlers.CashClose = httphandler.NewCashCloseHandler(service.NewCashCloseService(repository.NewCashCloseRepository(pool)))
-	handlers.Stats = httphandler.NewStatsHandler(statsService)
+	handlers.CashClose = httpapi.NewCashCloseHandler(service.NewCashCloseService(repository.NewCashCloseRepository(pool)))
+	handlers.Stats = httpapi.NewStatsHandler(statsService)
 
 	printerService := service.NewPrinterService(
 		repository.NewPrinterConfigRepository(pool),
@@ -200,18 +200,18 @@ func run() error {
 		cfg.PrinterJWTSecret,
 	)
 	printerReleases := service.NewPrinterReleaseService(os.DirFS(filepath.Join(cfg.PublicDir, "downloads")), cfg.PublicURL)
-	handlers.Printer = httphandler.NewPrinterHandler(printerService, printerReleases)
-	handlers.PrinterConnection = httphandler.NewPrinterConnectionHandler(printerService)
+	handlers.Printer = httpapi.NewPrinterHandler(printerService, printerReleases)
+	handlers.PrinterConnection = httpapi.NewPrinterConnectionHandler(printerService)
 
 	adminAudit := repository.NewAdminAuditRepository(pool)
 	adminAuditService := service.NewAdminAuditService(adminAudit)
-	handlers.AdminOverview = httphandler.NewAdminOverviewHandler(
+	handlers.AdminOverview = httpapi.NewAdminOverviewHandler(
 		service.NewAdminMetricsService(repository.NewAdminMetricsRepository(pool)), adminAuditService)
-	handlers.AdminUser = httphandler.NewAdminUserHandler(
+	handlers.AdminUser = httpapi.NewAdminUserHandler(
 		service.NewAdminUserService(repository.NewAdminUserRepository(pool), adminAudit, bus))
-	handlers.AdminBetaTester = httphandler.NewAdminBetaTesterHandler(
+	handlers.AdminBetaTester = httpapi.NewAdminBetaTesterHandler(
 		service.NewBetaTesterService(repository.NewBetaTesterRepository(pool), bus, cfg.BetaAllowlistEnabled))
-	handlers.AdminEstablishment = httphandler.NewAdminEstablishmentHandler(
+	handlers.AdminEstablishment = httpapi.NewAdminEstablishmentHandler(
 		service.NewAdminEstablishmentService(repository.NewAdminEstablishmentRepository(pool), adminAudit, bus, valueCache))
 
 	tableRepository := repository.NewTableRepository(pool)
@@ -219,8 +219,8 @@ func run() error {
 	orderService := service.NewOrderService(repository.NewOrderRepository(pool), tableRepository, bus)
 	orderStock := service.NewOrderStock(productService)
 	orderRealtime := service.NewOrderRealtime(realtime)
-	handlers.Order = httphandler.NewOrderHandler(orderService)
-	handlers.Table = httphandler.NewTableHandler(tableService)
+	handlers.Order = httpapi.NewOrderHandler(orderService)
+	handlers.Table = httpapi.NewTableHandler(tableService)
 
 	aiService := service.NewAIService(service.AIDependencies{
 		Model:    ai.NewGateway(cfg.AIGatewayAPIKey),
@@ -237,7 +237,7 @@ func run() error {
 		Exchanges:  shiftExchangeService,
 		Members:    establishmentMemberService,
 	})
-	handlers.AI = httphandler.NewAIHandler(aiService)
+	handlers.AI = httpapi.NewAIHandler(aiService)
 
 	for _, subscriber := range []ports.EventSubscriber{
 		subscriptions, authEvents, catalogRealtime, shiftService, timeEntryService, establishmentService, userService,
@@ -246,8 +246,8 @@ func run() error {
 		bus.Subscribe(subscriber.EventHandlers()...)
 	}
 
-	router, err := httphandler.NewRouter(
-		httphandler.RouterConfig{CORSOrigins: cfg.CORSOrigins, PublicDir: cfg.PublicDir},
+	router, err := httpapi.NewRouter(
+		httpapi.RouterConfig{CORSOrigins: cfg.CORSOrigins, PublicDir: cfg.PublicDir},
 		handlers,
 	)
 	if err != nil {

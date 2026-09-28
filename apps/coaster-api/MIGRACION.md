@@ -52,7 +52,8 @@ internal/
 ├── core/ports/         repositorios, servicios externos y events.go
 ├── service/            order_service.go, …
 └── adapter/
-    ├── handler/http/   order_handler.go, … + sse_handler.go
+    ├── handler/httpapi/  order_handler.go, … + realtime_handler.go
+    ├── handler/respond/  respuestas JSON y errores con el formato de Nest
     ├── handler/middleware/  auth, permisos, módulos, suscripción, admin, rate limit, CORS…
     ├── repository/     *_repository.go + queries/<entidad>/*.sql
     ├── cache/          Redis (caché, bus de realtime, replay, rate limit)
@@ -65,7 +66,7 @@ internal/
 
 | En Nest | En Go |
 |---|---|
-| Módulo (`src/orders/`) | Un archivo en cada capa: `domain/order.go`, `ports/order.go`, `service/order_service.go`, `repository/order_repository.go`, `handler/http/order_handler.go` |
+| Módulo (`src/orders/`) | Un archivo en cada capa: `domain/order.go`, `ports/order.go`, `service/order_service.go`, `repository/order_repository.go`, `handler/httpapi/order_handler.go` |
 | Controller | Handler HTTP |
 | Command/Query handler | Método del servicio |
 | Event handler | Suscriptor del `EventPublisher` |
@@ -205,17 +206,16 @@ Lo que P0 deja hecho y cómo se usa desde P1 en adelante.
   estado; cualquier otro error se registra con `slog` y sale como el 500 genérico.
 - `domain.TooManyRequests` sale sin `error`, como el `HttpException` con un string de Nest, y
   `domain.PaymentRequired` sale con `errorCode`, como el 402 de `SubscriptionActiveGuard`.
-- Los middlewares (paquete `middleware`) escriben con `middleware.WriteError`, que es lo que
-  usa `writeError` por dentro. Está en `middleware` porque `http` importa `middleware` y no
-  al revés.
+- Los middlewares escriben con `respond.Error`, que es lo que usa `writeError` por dentro.
+  Las respuestas correctas salen con `respond.JSON`.
 
 **Handlers y rutas**
 - Cada entidad tiene su `xxx_handler.go` con un método que registra sus rutas en el
   `*http.ServeMux`, con el prefijo `apiPrefix` (`"GET " + apiPrefix + "/orders/{id}"`).
   En `router.go` se añade el campo al struct `Handlers` y una línea en `NewRouter`.
 - Una ruta que no existe, o con otro método, responde el 404 de Nest sin hacer nada.
-- Respuestas con `writeJSON(w, status, v)`: sin escapar `<>&` y sin salto de línea final,
-  como `JSON.stringify`. Nest responde 201 a los `POST` salvo que el controlador diga otra
+- Respuestas con `respond.JSON(w, status, v)`: sin escapar `<>&` y sin salto de línea final,
+  como `JSON.stringify` (`nodejson.Marshal`). Nest responde 201 a los `POST` salvo que el controlador diga otra
   cosa con `@HttpCode`.
 - Las fechas del JSON van como `domain.Time`, que escribe `2026-09-27T10:00:00.000Z` como
   `toISOString` y se puede leer y escribir directamente con pgx.
@@ -469,7 +469,7 @@ Cómo se manda algo por tiempo real desde otro paquete.
 - `ProductService.AdjustStock(ctx, establishmentID, productID, delta)` es
   `AdjustProductStockCommand`: los pedidos (P2d, las sagas de `orders.sagas.ts`) y las
   herramientas de IA (P3) lo llaman para restar o devolver stock. Publica `ProductStockChangedEvent`.
-- `writeSuccess(w)` (`handler/http/success.go`) es `commonMapper.getSuccessResponse()`: 200 con
+- `writeSuccess(w)` (`handler/httpapi/response.go`) es `commonMapper.getSuccessResponse()`: 200 con
   `{"success":true}`. Un `POST` que devuelve `void` en Nest responde `w.WriteHeader(http.StatusCreated)`
   sin cuerpo, y un `PATCH`/`PUT` que devuelve `void`, `w.WriteHeader(http.StatusOK)`.
 - En un `PATCH` donde `null` vacía una columna (Nest pasa el `null` a Prisma), el handler usa
@@ -485,7 +485,7 @@ Cómo se manda algo por tiempo real desde otro paquete.
   `"updatedAt" = now()` (la carta usa el `updatedAt` del producto para saber si hay cambios sin publicar).
 - Las columnas de arrays de enums (`"Allergen"[]`) se escriben con `$n::text[]::"Allergen"[]` y se
   leen con `COALESCE(columna, '{}')::text[]`.
-- Los fakes de los tests de `service` y `handler/http` comparten paquete con los de los demás
+- Los fakes de los tests de `service` y `handler/httpapi` comparten paquete con los de los demás
   paquetes P2: llevan el nombre de la entidad (`fakeProductRepo`, `catalogRealtimeFake`) para no chocar.
 
 ## Convenciones de la ola 3b

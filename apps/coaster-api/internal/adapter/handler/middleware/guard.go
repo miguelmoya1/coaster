@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"time"
 
+	"coaster-api/internal/adapter/handler/respond"
 	"coaster-api/internal/core/domain"
 	"coaster-api/internal/core/ports"
 )
@@ -57,7 +58,7 @@ func (g *Guard) Protect(pattern string, handler http.Handler, rules ...Rule) htt
 		for _, step := range steps {
 			next, err := step(ctx, r, route)
 			if err != nil {
-				WriteError(w, err)
+				respond.Error(w, err)
 				return
 			}
 			ctx = next
@@ -73,7 +74,7 @@ func (g *Guard) throttle(ctx context.Context, w http.ResponseWriter, pattern str
 
 	if result.Blocked {
 		w.Header().Set("Retry-After", strconv.Itoa(result.TimeToBlockExpire))
-		WriteError(w, domain.TooManyRequests(throttledMessage))
+		respond.Error(w, domain.TooManyRequests(throttledMessage))
 		return false
 	}
 

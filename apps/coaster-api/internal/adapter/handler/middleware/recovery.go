@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"coaster-api/internal/adapter/handler/respond"
 	"log/slog"
 	"net/http"
 	"runtime/debug"
@@ -25,7 +26,7 @@ func Recover(next http.Handler) http.Handler {
 				"stack", string(debug.Stack()),
 			)
 
-			WriteInternalServerError(w)
+			respond.InternalServerError(w)
 		}()
 
 		next.ServeHTTP(w, r)

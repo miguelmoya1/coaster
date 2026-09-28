@@ -21,8 +21,9 @@ project/
 │   │   ├── service/                 # Lógica de negocio
 │   │   └── adapter/
 │   │       ├── handler/
-│   │       │   ├── http/            # Handlers, router, respuestas y SSE
-│   │       │   └── middleware/      # Middlewares HTTP (auth, permisos, logging…)
+│   │       │   ├── httpapi/         # Handlers, router, lectura de peticiones y SSE
+│   │       │   ├── middleware/      # Middlewares HTTP (auth, permisos, logging…)
+│   │       │   └── respond/         # Escritura de respuestas JSON y errores
 │   │       ├── repository/          # Acceso a base de datos
 │   │       │   └── queries/         # Un archivo .sql por consulta
 │   │       ├── cache/               # Redis: caché, bus de eventos, rate limit
@@ -108,15 +109,17 @@ reglas. Un servicio puede llamar a otro directamente, porque están en el mismo 
 
 Las **implementaciones concretas** que conectan el núcleo con el mundo exterior.
 
-- **`handler/http/`**: la capa de transporte.
+- **`handler/httpapi/`**: la capa de transporte. No se llama `http` para no tapar a
+  `net/http` en quien lo importa.
   - `router.go` registra las rutas y aplica los middlewares.
   - `xxx_handler.go` hay uno por entidad. Lee la petición, llama al servicio y traduce los
     errores de dominio a códigos HTTP.
-  - `response.go` contiene los helpers comunes para leer JSON y escribir respuestas con un
-    formato uniforme.
+  - `request.go` lee y valida el cuerpo JSON; `response.go` escribe los errores de la petición.
   - Los streams en tiempo real (SSE) también son handlers HTTP.
 - **`handler/middleware/`**: el código que envuelve cada petición, como logging,
   recuperación de panics, autenticación, permisos, CORS o rate limiting.
+- **`handler/respond/`**: escribe las respuestas JSON y los errores con un formato uniforme.
+  Lo usan los handlers y los middlewares.
 - **`repository/`**: la persistencia.
   - `client.go` crea el pool de conexiones.
   - `xxx_repository.go` hay uno por entidad. Implementa las interfaces `XxxRepository`.
@@ -219,5 +222,5 @@ HTTP → middleware → handler → service → repository → base de datos
 | 3. Lógica de negocio | `internal/service/xxx_service.go` |
 | 4. Consultas SQL | `internal/adapter/repository/queries/xxx/*.sql` |
 | 5. Persistencia | `internal/adapter/repository/xxx_repository.go` + migración en `scripts/` |
-| 6. Endpoints HTTP | `internal/adapter/handler/http/xxx_handler.go` + registro en `router.go` |
+| 6. Endpoints HTTP | `internal/adapter/handler/httpapi/xxx_handler.go` + registro en `router.go` |
 | 7. Conexión de todo | `cmd/api/main.go` |
