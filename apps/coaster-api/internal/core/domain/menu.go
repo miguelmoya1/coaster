@@ -213,7 +213,6 @@ func renderSection(section MenuSection, language, fallback string) (PublishedMen
 }
 
 func renderItem(item MenuItem, language, fallback string) (PublishedMenuItem, bool) {
-
 	product := item.Product
 	if product != nil && product.DeletedAt != nil {
 		product = nil

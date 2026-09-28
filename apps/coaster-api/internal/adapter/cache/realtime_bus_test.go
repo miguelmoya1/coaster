@@ -227,7 +227,6 @@ func TestRealtimeBusWithoutRedis(t *testing.T) {
 }
 
 func TestRealtimeBusSurvivesARefusingRedis(t *testing.T) {
-
 	bus := NewRealtimeBus("redis://127.0.0.1:1")
 	defer bus.Close()
 

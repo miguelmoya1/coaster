@@ -154,7 +154,6 @@ func (s *AIService) Execute(ctx context.Context, establishmentID string, user do
 }
 
 func (s *AIService) answer(ctx context.Context, establishmentID string, user domain.User, isAdmin bool, role domain.EstablishmentRole, input domain.AIInput) (domain.AIResponse, error) {
-
 	modules, err := s.security.EnabledModules(ctx, establishmentID)
 	if err != nil {
 		return domain.AIResponse{}, err

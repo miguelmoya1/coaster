@@ -34,7 +34,6 @@ func chainOf(rows ...TimeEntryRow) []TimeEntryRow {
 }
 
 func TestHashTimeEntryMatchesNest(t *testing.T) {
-
 	first := ChainPayloadOf(chainRow("entry-1", 1))
 	if got := HashTimeEntry(first, GenesisHash); got != "e74657c444ba2516a7f865e0f9ed186e1560fae057324f24ac51bb3c0f98a4bc" {
 		t.Errorf("first hash = %s", got)

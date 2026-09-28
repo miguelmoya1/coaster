@@ -513,7 +513,6 @@ func TestOrderServiceNotesAndTip(t *testing.T) {
 }
 
 func TestOrderServiceAddAdjustment(t *testing.T) {
-
 	tests := []struct {
 		name  string
 		input domain.OrderAdjustmentInput

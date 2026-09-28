@@ -23,16 +23,15 @@ func newValidator() *validator.Validate {
 		return jsonName(field)
 	})
 
-	if err := v.RegisterValidation("iso8601", isISO8601); err != nil {
-		panic(err)
+	rules := map[string]validator.Func{
+		"iso8601":    isISO8601,
+		"oneofci":    isOneOfIgnoringCase,
+		"percentage": isPercentageWithinRange,
 	}
-
-	if err := v.RegisterValidation("oneofci", isOneOfIgnoringCase); err != nil {
-		panic(err)
-	}
-
-	if err := v.RegisterValidation("percentage", isPercentageWithinRange); err != nil {
-		panic(err)
+	for tag, rule := range rules {
+		if err := v.RegisterValidation(tag, rule); err != nil {
+			panic(err)
+		}
 	}
 
 	return v
@@ -268,7 +267,6 @@ func typeMessage(goType reflect.Type, name string) string {
 }
 
 func ruleMessage(root reflect.Type, fieldError validator.FieldError) string {
-
 	namespace := fieldError.Namespace()
 	if dot := strings.Index(namespace, "."); dot >= 0 {
 		namespace = namespace[dot+1:]
@@ -357,9 +355,7 @@ func defaultRuleMessage(fieldError validator.FieldError, name string, each bool)
 		default:
 			return subject + " must not be greater than " + param
 		}
-	case "oneof":
-		return subject + " must be one of the following values: " + strings.Join(strings.Fields(param), ", ")
-	case "oneofci":
+	case "oneof", "oneofci":
 		return subject + " must be one of the following values: " + strings.Join(strings.Fields(param), ", ")
 	case "email":
 		return subject + " must be an email"

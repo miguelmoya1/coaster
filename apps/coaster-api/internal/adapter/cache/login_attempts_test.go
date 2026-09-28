@@ -66,7 +66,6 @@ func TestLoginAttemptsOnRedis(t *testing.T) {
 }
 
 func TestLoginFailuresKey(t *testing.T) {
-
 	want := "auth:login-failures:8e43ca37701228e74983efdbd0cff5c16b3b1e5d4e29a7c05626d4d25a018e11"
 	if got := loginFailuresKey(" Ana@Example.com "); got != want {
 		t.Fatalf("key = %s, want %s", got, want)
