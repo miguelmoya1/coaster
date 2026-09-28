@@ -76,6 +76,12 @@ type UpdateOrderNotesInput struct {
 // List is GetOrdersByEstablishmentIdQuery: the establishment's orders, newest first. An empty
 // status lists them all.
 func (s *OrderService) List(ctx context.Context, establishmentID string, status domain.OrderStatus) ([]domain.Order, error) {
+	switch status {
+	case "", domain.OrderOpen, domain.OrderClosed, domain.OrderCancelled:
+	default:
+		return nil, domain.BadRequest(domain.CodeInvalidType)
+	}
+
 	rows, err := s.orders.ListOf(ctx, establishmentID, status)
 	if err != nil {
 		return nil, err
@@ -130,6 +136,12 @@ func (s *OrderService) Create(ctx context.Context, establishmentID string, input
 
 	adjustments := make([]domain.NewOrderAdjustment, 0, len(input.Adjustments))
 	for _, adjustment := range input.Adjustments {
+		if adjustment.Target == domain.AdjustmentItem {
+			if adjustment.ItemID == nil || *adjustment.ItemID == "" {
+				return domain.BadRequest(domain.MessageItemIDRequiredForItemTarget)
+			}
+			return domain.NotFound(domain.CodeOrderItemNotFound)
+		}
 		adjustments = append(adjustments, newOrderAdjustment(adjustment))
 	}
 
@@ -213,6 +225,10 @@ func (s *OrderService) BulkUpdate(ctx context.Context, establishmentID, orderID 
 		}
 
 		if update.PaidQuantity != nil {
+			paying := *update.PaidQuantity > item.PaidQuantity
+			if paying && update.PaymentMethod != nil && *update.PaymentMethod != domain.PaymentCash && *update.PaymentMethod != domain.PaymentCard {
+				return domain.BadRequest(domain.CodeInvalidType)
+			}
 			if *update.PaidQuantity > item.Quantity {
 				return domain.BadRequest(domain.MessagePayQuantityExceedsTotal)
 			}
@@ -285,6 +301,9 @@ func (s *OrderService) MoveTable(ctx context.Context, establishmentID, orderID, 
 	if err != nil {
 		return err
 	}
+	if order.TableID != nil && *order.TableID == tableID {
+		return nil
+	}
 	if table.Status == domain.TableOccupied {
 		return domain.BadRequest(domain.CodeTableAlreadyOccupied)
 	}
@@ -304,7 +323,7 @@ func (s *OrderService) MoveTable(ctx context.Context, establishmentID, orderID, 
 }
 
 // Merge is MergeOrdersCommand: the open orders go into the oldest one, which can move to
-// another table on the way. It does not check that the table is free, as in Nest.
+// another table on the way.
 func (s *OrderService) Merge(ctx context.Context, establishmentID string, input MergeOrdersInput) error {
 	orders, err := s.orders.FindByIDs(ctx, input.OrderIDs)
 	if err != nil {
@@ -319,7 +338,7 @@ func (s *OrderService) Merge(ctx context.Context, establishmentID string, input 
 
 	for _, order := range orders {
 		if order.EstablishmentID != establishmentID {
-			return domain.BadRequest(domain.CodeOrderNotFound)
+			return domain.NotFound(domain.CodeOrderNotFound)
 		}
 	}
 	for _, order := range orders {
@@ -330,8 +349,12 @@ func (s *OrderService) Merge(ctx context.Context, establishmentID string, input 
 
 	targetTableID := tableIDOrNil(input.TargetTableID)
 	if targetTableID != nil {
-		if _, err := s.findTable(ctx, establishmentID, *targetTableID); err != nil {
+		table, err := s.findTable(ctx, establishmentID, *targetTableID)
+		if err != nil {
 			return err
+		}
+		if table.Status == domain.TableOccupied && !anyOrderAtTable(orders, table.ID) {
+			return domain.BadRequest(domain.CodeTableAlreadyOccupied)
 		}
 	}
 
@@ -396,8 +419,7 @@ func (s *OrderService) RemoveItem(ctx context.Context, establishmentID, orderID,
 }
 
 // Delete is DeleteOrderCommand: only an order that is no longer open, is not in a cash
-// close and was created today (UTC) can be deleted. An open one answers ORDER_NOT_OPEN,
-// as in Nest.
+// close and was created today (UTC) can be deleted.
 func (s *OrderService) Delete(ctx context.Context, establishmentID, orderID string) error {
 	order, err := s.find(ctx, establishmentID, orderID)
 	if err != nil {
@@ -405,7 +427,7 @@ func (s *OrderService) Delete(ctx context.Context, establishmentID, orderID stri
 	}
 
 	if order.Status == domain.OrderOpen {
-		return domain.BadRequest(domain.CodeOrderNotOpen)
+		return domain.BadRequest(domain.MessageCannotDeleteOpenOrder)
 	}
 	if order.CashCloseID != nil && *order.CashCloseID != "" {
 		return domain.BadRequest(domain.CodeOrderInCashClose)
@@ -523,7 +545,12 @@ func (s *OrderService) AddAdjustment(ctx context.Context, establishmentID, order
 		}
 	}
 
-	if order.Pricing().OrderTotal-discount < 0 {
+	pricing := order.Pricing()
+	left := pricing.NetTotal
+	if input.Target == domain.AdjustmentItem {
+		left = lineFinalTotal(pricing, item.ID)
+	}
+	if discount > left {
 		return domain.BadRequest(domain.MessageNegativeTotalNotAllowed)
 	}
 
@@ -640,16 +667,37 @@ func (s *OrderService) priceLines(ctx context.Context, establishmentID string, l
 	return items, total, nil
 }
 
-// newOrderAdjustment is the discount to store: the reason cut like the notes, and the line as it
-// came (Nest stores it even on an ORDER discount).
+// newOrderAdjustment is the discount to store: the reason cut like the notes, and the line
+// only on a discount of a line.
 func newOrderAdjustment(input OrderAdjustmentInput) domain.NewOrderAdjustment {
-	return domain.NewOrderAdjustment{
+	adjustment := domain.NewOrderAdjustment{
 		Target: input.Target,
 		Type:   input.Type,
 		Value:  input.Value,
 		Reason: cutOrderNote(input.Reason),
-		ItemID: input.ItemID,
 	}
+	if input.Target == domain.AdjustmentItem {
+		adjustment.ItemID = input.ItemID
+	}
+	return adjustment
+}
+
+func lineFinalTotal(pricing domain.Pricing, itemID string) int {
+	for _, line := range pricing.ItemLines {
+		if line.ID == itemID {
+			return line.FinalTotal
+		}
+	}
+	return 0
+}
+
+func anyOrderAtTable(orders []domain.OrderRow, tableID string) bool {
+	for _, order := range orders {
+		if order.TableID != nil && *order.TableID == tableID {
+			return true
+		}
+	}
+	return false
 }
 
 // toOrders maps the rows, never returning nil.

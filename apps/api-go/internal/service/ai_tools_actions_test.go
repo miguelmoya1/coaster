@@ -117,7 +117,7 @@ func TestAIOrderActions(t *testing.T) {
 	t.Run("deleteOrder of an open order", func(t *testing.T) {
 		f := newAIFixture()
 		got := f.run(t, f.toolContext(t, "u1"), "deleteOrder", `{"orderId":"o1","confirmed":true}`)
-		if want := `{"status":"error","message":"The action failed: ORDER_NOT_OPEN","errorKey":"ORDER_NOT_OPEN"}`; got != want {
+		if want := `{"status":"error","message":"The action failed: CANNOT_DELETE_OPEN_ORDER"}`; got != want {
 			t.Errorf("deleteOrder = %s", got)
 		}
 	})

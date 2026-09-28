@@ -112,7 +112,7 @@ type bulkUpdateItemRequest struct {
 	ItemID         string                `json:"itemId" validate:"required,uuid4" msg:"required=REQUIRED,uuid4=INVALID_TYPE,type=INVALID_TYPE"`
 	PaidQuantity   *int                  `json:"paidQuantity" validate:"omitnil,min=0" msg:"min=INVALID_TYPE,type=INVALID_TYPE"`
 	ServedQuantity *int                  `json:"servedQuantity" validate:"omitnil,min=0" msg:"min=INVALID_TYPE,type=INVALID_TYPE"`
-	PaymentMethod  *domain.PaymentMethod `json:"paymentMethod" validate:"omitnil,oneof=CASH CARD MIXED NONE" msg:"oneof=INVALID_TYPE,type=INVALID_TYPE"`
+	PaymentMethod  *domain.PaymentMethod `json:"paymentMethod" validate:"omitnil,oneof=CASH CARD" msg:"oneof=INVALID_TYPE,type=INVALID_TYPE"`
 }
 
 // bulkUpdateRequest is BulkUpdateDto.

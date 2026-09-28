@@ -111,6 +111,14 @@ func TestOrderServiceCreateRefuses(t *testing.T) {
 		{"a table that does not exist", CreateOrderInput{TableID: orderPtr("missing"), Items: []OrderLineInput{{ProductID: "beer", Quantity: 1}}}, domain.CodeTableNotFound},
 		{"a table of another establishment", CreateOrderInput{TableID: orderPtr("t-other"), Items: []OrderLineInput{{ProductID: "beer", Quantity: 1}}}, domain.CodeTableNotFound},
 		{"a table that is taken", CreateOrderInput{TableID: orderPtr("t-busy"), Items: []OrderLineInput{{ProductID: "beer", Quantity: 1}}}, domain.CodeTableAlreadyOccupied},
+		{"a discount of a line of another order", CreateOrderInput{
+			Items:       []OrderLineInput{{ProductID: "beer", Quantity: 1}},
+			Adjustments: []OrderAdjustmentInput{{Target: domain.AdjustmentItem, Type: domain.AdjustmentFixedAmount, Value: 1, ItemID: orderPtr("i1")}},
+		}, domain.CodeOrderItemNotFound},
+		{"a discount of a line without the line", CreateOrderInput{
+			Items:       []OrderLineInput{{ProductID: "beer", Quantity: 1}},
+			Adjustments: []OrderAdjustmentInput{{Target: domain.AdjustmentItem, Type: domain.AdjustmentFixedAmount, Value: 1}},
+		}, domain.MessageItemIDRequiredForItemTarget},
 	}
 
 	for _, tt := range tests {
@@ -200,6 +208,10 @@ func TestOrderServiceGetAndList(t *testing.T) {
 	if err != nil || none == nil || len(none) != 0 {
 		t.Fatalf("List of an establishment without orders = %#v, %v; want []", none, err)
 	}
+
+	if _, err := f.service.List(ctx, "e1", "PAID"); !domain.HasCode(err, domain.CodeInvalidType) {
+		t.Fatalf("List with an unknown status = %v; want INVALID_TYPE", err)
+	}
 }
 
 func TestOrderServiceListByDate(t *testing.T) {
@@ -258,6 +270,9 @@ func TestOrderServiceBulkUpdate(t *testing.T) {
 		{"paying less than nothing", domain.OrderItemUpdate{ItemID: "i1", PaidQuantity: orderPtr(-1)}, domain.MessagePayQuantityCannotBeNegative},
 		{"serving more than there is", domain.OrderItemUpdate{ItemID: "i2", ServedQuantity: orderPtr(2)}, domain.MessageServeQuantityExceedsTotal},
 		{"serving less than nothing", domain.OrderItemUpdate{ItemID: "i2", ServedQuantity: orderPtr(-1)}, domain.MessageServeQuantityCannotBeNegative},
+		{"paying with NONE", domain.OrderItemUpdate{ItemID: "i1", PaidQuantity: orderPtr(1), PaymentMethod: orderPtr(domain.PaymentNone)}, domain.CodeInvalidType},
+		{"paying with MIXED", domain.OrderItemUpdate{ItemID: "i1", PaidQuantity: orderPtr(1), PaymentMethod: orderPtr(domain.PaymentMixed)}, domain.CodeInvalidType},
+		{"serving with NONE", domain.OrderItemUpdate{ItemID: "i1", ServedQuantity: orderPtr(1), PaymentMethod: orderPtr(domain.PaymentNone)}, ""},
 	}
 
 	for _, tt := range tests {
@@ -313,13 +328,20 @@ func TestOrderServiceMoveTable(t *testing.T) {
 		t.Fatalf("writes = %v, events = %+v", f.orders.writes, f.events.events)
 	}
 
+	f = newOrderFixture(sampleOpenOrder())
+	if err := f.service.MoveTable(ctx, "e1", "o1", "t-busy"); err != nil || len(f.orders.writes) != 0 || len(f.events.events) != 0 {
+		t.Fatalf("moving to its own table: err = %v, writes = %v, events = %v", err, f.orders.writes, f.events.names())
+	}
+
+	other := sampleOpenOrder()
+	other.ID, other.TableID = "o2", nil
 	for tableID, code := range map[string]string{
 		"t-busy":  domain.CodeTableAlreadyOccupied,
 		"t-other": domain.CodeTableNotFound,
 		"missing": domain.CodeTableNotFound,
 	} {
-		f := newOrderFixture(sampleOpenOrder())
-		if err := f.service.MoveTable(ctx, "e1", "o1", tableID); !domain.HasCode(err, code) || len(f.orders.writes) != 0 {
+		f := newOrderFixture(other)
+		if err := f.service.MoveTable(ctx, "e1", "o2", tableID); !domain.HasCode(err, code) || len(f.orders.writes) != 0 {
 			t.Errorf("to %s: err = %v, writes = %v; want %s", tableID, err, f.orders.writes, code)
 		}
 	}
@@ -335,8 +357,15 @@ func TestOrderServiceMerge(t *testing.T) {
 	theirs.ID, theirs.EstablishmentID = "theirs", "e2"
 	closed := orderWithStatus(sampleOpenOrder(), domain.OrderClosed)
 	closed.ID = "closed"
+	fourth := sampleOpenOrder()
+	fourth.ID, fourth.TableID, fourth.CreatedAt = "o4", nil, orderToday.Add(3*time.Minute)
 
-	f := newOrderFixture(third, first, second)
+	f := newOrderFixture(first, second)
+	if err := f.service.Merge(context.Background(), "e1", MergeOrdersInput{OrderIDs: []string{"o1", "o2"}, TargetTableID: orderPtr("t-busy")}); err != nil {
+		t.Fatalf("merging into the table of one of the orders = %v", err)
+	}
+
+	f = newOrderFixture(third, first, second)
 	err := f.service.Merge(context.Background(), "e1", MergeOrdersInput{OrderIDs: []string{"o3", "o2", "o1"}, TargetTableID: orderPtr("t-free")})
 	if err != nil {
 		t.Fatal(err)
@@ -359,14 +388,15 @@ func TestOrderServiceMerge(t *testing.T) {
 	}{
 		{"an order that does not exist", MergeOrdersInput{OrderIDs: []string{"o1", "missing"}}, domain.CodeOrderNotFound, domain.KindNotFound},
 		{"the same order twice", MergeOrdersInput{OrderIDs: []string{"o1", "o1"}}, domain.CodeOrderNotFound, domain.KindNotFound},
-		{"an order of another establishment", MergeOrdersInput{OrderIDs: []string{"o1", "theirs"}}, domain.CodeOrderNotFound, domain.KindBadRequest},
+		{"an order of another establishment", MergeOrdersInput{OrderIDs: []string{"o1", "theirs"}}, domain.CodeOrderNotFound, domain.KindNotFound},
+		{"a table another order is using", MergeOrdersInput{OrderIDs: []string{"o2", "o4"}, TargetTableID: orderPtr("t-busy")}, domain.CodeTableAlreadyOccupied, domain.KindBadRequest},
 		{"an order already closed", MergeOrdersInput{OrderIDs: []string{"o1", "closed"}}, domain.CodeOrderNotOpen, domain.KindBadRequest},
 		{"a table of another establishment", MergeOrdersInput{OrderIDs: []string{"o1", "o2"}, TargetTableID: orderPtr("t-other")}, domain.CodeTableNotFound, domain.KindNotFound},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			f := newOrderFixture(first, second, theirs, closed)
+			f := newOrderFixture(first, second, theirs, closed, fourth)
 			err := f.service.Merge(context.Background(), "e1", tt.input)
 
 			var domainErr *domain.Error
@@ -422,7 +452,7 @@ func TestOrderServiceDelete(t *testing.T) {
 		code    string
 	}{
 		{"o1", ""},
-		{"open", domain.CodeOrderNotOpen},
+		{"open", domain.MessageCannotDeleteOpenOrder},
 		{"in-close", domain.CodeOrderInCashClose},
 		{"yesterday", domain.MessageCannotDeletePastOrder},
 		{"missing", domain.CodeOrderNotFound},
@@ -496,7 +526,11 @@ func TestOrderServiceAddAdjustment(t *testing.T) {
 		input OrderAdjustmentInput
 		code  string
 	}{
-		{"a fixed discount on the order", OrderAdjustmentInput{Target: domain.AdjustmentOrder, Type: domain.AdjustmentFixedAmount, Value: 1320}, ""},
+		{"a fixed discount on the order", OrderAdjustmentInput{Target: domain.AdjustmentOrder, Type: domain.AdjustmentFixedAmount, Value: 1200}, ""},
+		{"a fixed discount of a line", OrderAdjustmentInput{Target: domain.AdjustmentItem, Type: domain.AdjustmentFixedAmount, Value: 300, ItemID: orderPtr("i2")}, ""},
+		{"more than the net left, less than with tax", OrderAdjustmentInput{Target: domain.AdjustmentOrder, Type: domain.AdjustmentFixedAmount, Value: 1201}, domain.MessageNegativeTotalNotAllowed},
+		{"an order discount that names a line", OrderAdjustmentInput{Target: domain.AdjustmentOrder, Type: domain.AdjustmentFixedAmount, Value: 100, ItemID: orderPtr("i1")}, ""},
+		{"more than the line is worth", OrderAdjustmentInput{Target: domain.AdjustmentItem, Type: domain.AdjustmentFixedAmount, Value: 301, ItemID: orderPtr("i2")}, domain.MessageNegativeTotalNotAllowed},
 		{"a percentage of a line", OrderAdjustmentInput{Target: domain.AdjustmentItem, Type: domain.AdjustmentPercentage, Value: 100, ItemID: orderPtr("i1")}, ""},
 		{"more than the order is worth", OrderAdjustmentInput{Target: domain.AdjustmentOrder, Type: domain.AdjustmentFixedAmount, Value: 1321}, domain.MessageNegativeTotalNotAllowed},
 		{"a line discount without the line", OrderAdjustmentInput{Target: domain.AdjustmentItem, Type: domain.AdjustmentFixedAmount, Value: 1}, domain.MessageItemIDRequiredForItemTarget},
@@ -518,6 +552,9 @@ func TestOrderServiceAddAdjustment(t *testing.T) {
 			updated, ok := f.events.events[0].(domain.OrderAdjustmentsUpdatedEvent)
 			if err != nil || !ok || updated.OrderID != "o1" || len(updated.Adjustments) != 2 || f.orders.adjustment.Value != tt.input.Value {
 				t.Fatalf("err = %v, events = %+v", err, f.events.events)
+			}
+			if tt.input.Target == domain.AdjustmentOrder && f.orders.adjustment.ItemID != nil {
+				t.Fatalf("an order discount kept the line %s", *f.orders.adjustment.ItemID)
 			}
 		})
 	}

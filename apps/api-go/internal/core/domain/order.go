@@ -65,6 +65,7 @@ const (
 	MessageServeQuantityExceedsTotal     = "SERVE_QUANTITY_EXCEEDS_TOTAL"
 	MessageServeQuantityCannotBeNegative = "SERVE_QUANTITY_CANNOT_BE_NEGATIVE"
 	MessageCannotDeletePastOrder         = "CANNOT_DELETE_PAST_ORDER"
+	MessageCannotDeleteOpenOrder         = "CANNOT_DELETE_OPEN_ORDER"
 	MessageTipCannotBeNegative           = "Tip amount cannot be negative"
 	MessageItemIDRequiredForItemTarget   = "itemId is required for ITEM target"
 	MessageAdjustmentNotFound            = "Adjustment not found"
