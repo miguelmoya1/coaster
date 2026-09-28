@@ -1,6 +1,7 @@
 package http
 
 import (
+	"context"
 	"net/http"
 
 	"api-go/internal/adapter/handler/middleware"
@@ -8,12 +9,18 @@ import (
 	"api-go/internal/service"
 )
 
-// ShiftHandler is shifts.controller.ts: the rota of an establishment.
-type ShiftHandler struct {
-	shifts *service.ShiftService
+type ShiftService interface {
+	List(ctx context.Context, establishmentID, startDate, endDate string) ([]domain.Shift, error)
+	Create(ctx context.Context, establishmentID string, input service.CreateShiftInput) error
+	Delete(ctx context.Context, establishmentID, shiftID string) error
 }
 
-func NewShiftHandler(shifts *service.ShiftService) *ShiftHandler {
+// ShiftHandler is shifts.controller.ts: the rota of an establishment.
+type ShiftHandler struct {
+	shifts ShiftService
+}
+
+func NewShiftHandler(shifts ShiftService) *ShiftHandler {
 	return &ShiftHandler{shifts: shifts}
 }
 

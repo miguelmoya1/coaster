@@ -1,6 +1,7 @@
 package http
 
 import (
+	"context"
 	"net/http"
 
 	"api-go/internal/adapter/handler/middleware"
@@ -8,13 +9,22 @@ import (
 	"api-go/internal/service"
 )
 
+type AdminEstablishmentService interface {
+	List(ctx context.Context, filter domain.AdminEstablishmentFilter, page domain.PageRequest) (domain.Paginated[domain.AdminEstablishmentSummary], error)
+	Detail(ctx context.Context, establishmentID string) (domain.AdminEstablishmentDetail, error)
+	Rename(ctx context.Context, actorID, establishmentID, name string) error
+	UpdateModules(ctx context.Context, actorID, establishmentID string, modules []domain.EstablishmentModule) (domain.AdminEstablishmentSettings, error)
+	GrantPlan(ctx context.Context, actorID, establishmentID string, input service.GrantPlanInput) error
+	RevokePlan(ctx context.Context, actorID, establishmentID string, reason *string) error
+}
+
 // AdminEstablishmentHandler is admin-establishments.controller.ts. Its writes go through even
 // when the establishment's subscription has lapsed.
 type AdminEstablishmentHandler struct {
-	establishments *service.AdminEstablishmentService
+	establishments AdminEstablishmentService
 }
 
-func NewAdminEstablishmentHandler(establishments *service.AdminEstablishmentService) *AdminEstablishmentHandler {
+func NewAdminEstablishmentHandler(establishments AdminEstablishmentService) *AdminEstablishmentHandler {
 	return &AdminEstablishmentHandler{establishments: establishments}
 }
 

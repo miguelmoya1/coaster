@@ -1,19 +1,25 @@
 package http
 
 import (
+	"context"
 	"net/http"
 
 	"api-go/internal/adapter/handler/middleware"
 	"api-go/internal/core/domain"
-	"api-go/internal/service"
 )
+
+type AdminUserService interface {
+	List(ctx context.Context, filter domain.AdminUserFilter, page domain.PageRequest) (domain.Paginated[domain.AdminUserSummary], error)
+	Detail(ctx context.Context, userID string) (domain.AdminUserDetail, error)
+	Update(ctx context.Context, actorID, userID string, changes domain.AdminUserChanges) error
+}
 
 // AdminUserHandler is admin-users.controller.ts.
 type AdminUserHandler struct {
-	users *service.AdminUserService
+	users AdminUserService
 }
 
-func NewAdminUserHandler(users *service.AdminUserService) *AdminUserHandler {
+func NewAdminUserHandler(users AdminUserService) *AdminUserHandler {
 	return &AdminUserHandler{users: users}
 }
 

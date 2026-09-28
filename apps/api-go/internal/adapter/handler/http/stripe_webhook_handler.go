@@ -1,20 +1,24 @@
 package http
 
 import (
+	"context"
 	"errors"
 	"io"
 	"net/http"
 
 	"api-go/internal/adapter/handler/middleware"
-	"api-go/internal/service"
 )
+
+type StripeWebhookService interface {
+	HandleWebhook(ctx context.Context, payload []byte, signature string) error
+}
 
 // StripeWebhookHandler is stripe-webhook.controller.ts: Stripe posts its events here.
 type StripeWebhookHandler struct {
-	subscriptions *service.SubscriptionService
+	subscriptions StripeWebhookService
 }
 
-func NewStripeWebhookHandler(subscriptions *service.SubscriptionService) *StripeWebhookHandler {
+func NewStripeWebhookHandler(subscriptions StripeWebhookService) *StripeWebhookHandler {
 	return &StripeWebhookHandler{subscriptions: subscriptions}
 }
 

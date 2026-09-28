@@ -1,19 +1,26 @@
 package http
 
 import (
+	"context"
 	"net/http"
 
 	"api-go/internal/adapter/handler/middleware"
 	"api-go/internal/core/domain"
-	"api-go/internal/service"
 )
+
+type TableService interface {
+	List(ctx context.Context, establishmentID string) ([]domain.Table, error)
+	Create(ctx context.Context, establishmentID, name string) error
+	Update(ctx context.Context, establishmentID, tableID string, name *string) error
+	Delete(ctx context.Context, establishmentID, tableID string) error
+}
 
 // TableHandler is tables.controller.ts. Every route needs the ORDERS module.
 type TableHandler struct {
-	tables *service.TableService
+	tables TableService
 }
 
-func NewTableHandler(tables *service.TableService) *TableHandler {
+func NewTableHandler(tables TableService) *TableHandler {
 	return &TableHandler{tables: tables}
 }
 

@@ -1,20 +1,26 @@
 package http
 
 import (
+	"context"
 	"log/slog"
 	"net/http"
 
 	"api-go/internal/adapter/handler/middleware"
 	"api-go/internal/core/domain"
-	"api-go/internal/service"
+	"api-go/internal/core/ports"
 )
+
+type RealtimeService interface {
+	Watch(establishmentID string, subscriber ports.RealtimeSubscriber) func()
+	Replay(ctx context.Context, establishmentID string, lastEventID string) []domain.RealtimeFrame
+}
 
 // RealtimeHandler serves an establishment's event stream (RealtimeController in Nest).
 type RealtimeHandler struct {
-	realtime *service.RealtimeService
+	realtime RealtimeService
 }
 
-func NewRealtimeHandler(realtime *service.RealtimeService) *RealtimeHandler {
+func NewRealtimeHandler(realtime RealtimeService) *RealtimeHandler {
 	return &RealtimeHandler{realtime: realtime}
 }
 

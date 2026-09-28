@@ -15,12 +15,17 @@ import (
 	"api-go/internal/service"
 )
 
-// AIHandler is ai.controller.ts: the voice assistant of an establishment.
-type AIHandler struct {
-	ai *service.AIService
+type AIService interface {
+	Usage(ctx context.Context, establishmentID string) (domain.AIUsage, error)
+	Execute(ctx context.Context, establishmentID string, user domain.User, input service.AIInput) (domain.AIResponse, error)
 }
 
-func NewAIHandler(ai *service.AIService) *AIHandler {
+// AIHandler is ai.controller.ts: the voice assistant of an establishment.
+type AIHandler struct {
+	ai AIService
+}
+
+func NewAIHandler(ai AIService) *AIHandler {
 	return &AIHandler{ai: ai}
 }
 

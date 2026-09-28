@@ -1,19 +1,26 @@
 package http
 
 import (
+	"context"
 	"net/http"
 
 	"api-go/internal/adapter/handler/middleware"
 	"api-go/internal/core/domain"
-	"api-go/internal/service"
 )
+
+type ShiftExchangeService interface {
+	ListPending(ctx context.Context, establishmentID string) ([]domain.ShiftExchange, error)
+	Request(ctx context.Context, establishmentID, shiftID, requesterID string, targetID *string) error
+	Accept(ctx context.Context, establishmentID, exchangeID, userID string) error
+	Delete(ctx context.Context, establishmentID, exchangeID, userID string) error
+}
 
 // ShiftExchangeHandler is shift-exchanges.controller.ts: offers to hand a shift over.
 type ShiftExchangeHandler struct {
-	exchanges *service.ShiftExchangeService
+	exchanges ShiftExchangeService
 }
 
-func NewShiftExchangeHandler(exchanges *service.ShiftExchangeService) *ShiftExchangeHandler {
+func NewShiftExchangeHandler(exchanges ShiftExchangeService) *ShiftExchangeHandler {
 	return &ShiftExchangeHandler{exchanges: exchanges}
 }
 

@@ -1,21 +1,30 @@
 package http
 
 import (
+	"context"
 	"net/http"
 
 	"api-go/internal/adapter/handler/middleware"
 	"api-go/internal/core/domain"
-	"api-go/internal/service"
 )
+
+type PrinterConnectionService interface {
+	Enqueue(ctx context.Context, establishmentID string, ticket domain.PrintTicket) (domain.QueuedPrintJob, error)
+	Job(ctx context.Context, establishmentID, jobID string) (*domain.PrintJob, error)
+	Connection(ctx context.Context, establishmentID string) (domain.PrinterConnection, error)
+	Status(ctx context.Context, establishmentID string) (domain.PrinterStatus, error)
+	IssuePairing(ctx context.Context, establishmentID string) (domain.PrinterPairingCode, error)
+	GenerateDeviceKey(ctx context.Context, establishmentID string) (domain.PrinterDeviceKey, error)
+}
 
 // PrinterConnectionHandler is printer-connection.controller.ts: what the staff of an
 // establishment do with its printer, behind the ORDERS module. The web app sends the tickets
 // itself; orders do not print on their own.
 type PrinterConnectionHandler struct {
-	printers *service.PrinterService
+	printers PrinterConnectionService
 }
 
-func NewPrinterConnectionHandler(printers *service.PrinterService) *PrinterConnectionHandler {
+func NewPrinterConnectionHandler(printers PrinterConnectionService) *PrinterConnectionHandler {
 	return &PrinterConnectionHandler{printers: printers}
 }
 

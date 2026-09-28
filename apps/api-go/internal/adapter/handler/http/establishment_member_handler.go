@@ -1,20 +1,29 @@
 package http
 
 import (
+	"context"
 	"net/http"
 
 	"api-go/internal/adapter/handler/middleware"
 	"api-go/internal/core/domain"
-	"api-go/internal/service"
 )
+
+type EstablishmentMemberService interface {
+	Me(ctx context.Context, establishmentID string, caller domain.User) (domain.EstablishmentMember, error)
+	List(ctx context.Context, establishmentID string) ([]domain.EstablishmentMember, error)
+	Invite(ctx context.Context, establishmentID string, inviter domain.User, email string, role *domain.EstablishmentRole) error
+	ResendInvite(ctx context.Context, establishmentID, memberID string, inviter domain.User) error
+	UpdateRole(ctx context.Context, establishmentID, memberID string, role domain.EstablishmentRole, actor domain.User) error
+	Remove(ctx context.Context, establishmentID, memberID string) error
+}
 
 // EstablishmentMemberHandler is establishment-members.controller.ts: who works in an
 // establishment, their invitations and their roles.
 type EstablishmentMemberHandler struct {
-	members *service.EstablishmentMemberService
+	members EstablishmentMemberService
 }
 
-func NewEstablishmentMemberHandler(members *service.EstablishmentMemberService) *EstablishmentMemberHandler {
+func NewEstablishmentMemberHandler(members EstablishmentMemberService) *EstablishmentMemberHandler {
 	return &EstablishmentMemberHandler{members: members}
 }
 

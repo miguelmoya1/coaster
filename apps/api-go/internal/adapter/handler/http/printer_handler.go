@@ -1,24 +1,37 @@
 package http
 
 import (
+	"context"
 	"io"
+	"io/fs"
 	"log/slog"
 	"net/http"
 	"time"
 
 	"api-go/internal/adapter/handler/middleware"
 	"api-go/internal/core/domain"
-	"api-go/internal/service"
 )
+
+type PrinterService interface {
+	RedeemPairing(ctx context.Context, code string) (domain.PrinterPairing, error)
+	RegisterAddress(ctx context.Context, establishmentID, deviceKey, ipAddress string, port *int) error
+	NextJob(ctx context.Context, establishmentID, deviceKey string) (*domain.ClaimedPrintJob, error)
+	ReportResult(ctx context.Context, establishmentID, jobID, deviceKey string, result domain.PrintJobResult) error
+}
+
+type PrinterReleaseService interface {
+	Latest(platform string) (domain.PrinterRelease, error)
+	Download(platform, code string) (fs.File, string, error)
+}
 
 // PrinterHandler is printer.controller.ts: the routes the bridge calls. They have no user; the
 // bridge authenticates with its device key in X-Device-Key.
 type PrinterHandler struct {
-	printers *service.PrinterService
-	releases *service.PrinterReleaseService
+	printers PrinterService
+	releases PrinterReleaseService
 }
 
-func NewPrinterHandler(printers *service.PrinterService, releases *service.PrinterReleaseService) *PrinterHandler {
+func NewPrinterHandler(printers PrinterService, releases PrinterReleaseService) *PrinterHandler {
 	return &PrinterHandler{printers: printers, releases: releases}
 }
 

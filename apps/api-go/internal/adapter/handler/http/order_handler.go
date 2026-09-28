@@ -1,6 +1,7 @@
 package http
 
 import (
+	"context"
 	"net/http"
 
 	"api-go/internal/adapter/handler/middleware"
@@ -8,12 +9,32 @@ import (
 	"api-go/internal/service"
 )
 
-// OrderHandler is orders.controller.ts. Every route needs the ORDERS module.
-type OrderHandler struct {
-	orders *service.OrderService
+type OrderService interface {
+	ListByDate(ctx context.Context, establishmentID, date string) ([]domain.Order, error)
+	List(ctx context.Context, establishmentID string, status domain.OrderStatus) ([]domain.Order, error)
+	Get(ctx context.Context, establishmentID, orderID string) (domain.Order, error)
+	Create(ctx context.Context, establishmentID string, input service.CreateOrderInput) error
+	AddItems(ctx context.Context, establishmentID, orderID string, input service.AddOrderItemsInput) error
+	BulkUpdate(ctx context.Context, establishmentID, orderID string, updates []domain.OrderItemUpdate) error
+	Checkout(ctx context.Context, establishmentID, orderID string, method domain.PaymentMethod) error
+	Cancel(ctx context.Context, establishmentID, orderID string) error
+	MoveTable(ctx context.Context, establishmentID, orderID, tableID string) error
+	Merge(ctx context.Context, establishmentID string, input service.MergeOrdersInput) error
+	RemoveItem(ctx context.Context, establishmentID, orderID, itemID string) error
+	Delete(ctx context.Context, establishmentID, orderID string) error
+	UpdateTip(ctx context.Context, establishmentID, orderID string, tipAmount int) error
+	UpdateNotes(ctx context.Context, establishmentID, orderID string, input service.UpdateOrderNotesInput) error
+	UpdateItemNotes(ctx context.Context, establishmentID, orderID, itemID string, notes *string) error
+	AddAdjustment(ctx context.Context, establishmentID, orderID string, input service.OrderAdjustmentInput) error
+	RemoveAdjustment(ctx context.Context, establishmentID, orderID, adjustmentID string) error
 }
 
-func NewOrderHandler(orders *service.OrderService) *OrderHandler {
+// OrderHandler is orders.controller.ts. Every route needs the ORDERS module.
+type OrderHandler struct {
+	orders OrderService
+}
+
+func NewOrderHandler(orders OrderService) *OrderHandler {
 	return &OrderHandler{orders: orders}
 }
 

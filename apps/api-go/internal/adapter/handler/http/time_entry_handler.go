@@ -1,6 +1,7 @@
 package http
 
 import (
+	"context"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -12,12 +13,22 @@ import (
 	"api-go/internal/service"
 )
 
-// TimeEntryHandler is time-entries.controller.ts: punches, corrections and the time sheet.
-type TimeEntryHandler struct {
-	entries *service.TimeEntryService
+type TimeEntryService interface {
+	Clock(ctx context.Context, establishmentID string, actor *domain.User, input service.ClockInput) (domain.TimeEntry, error)
+	CurrentWorkday(ctx context.Context, establishmentID, userID string) (*domain.Workday, error)
+	TimeSheet(ctx context.Context, establishmentID string, from, to *string, userID string) ([]domain.Workday, error)
+	Integrity(ctx context.Context, establishmentID string) (domain.TimeSheetIntegrity, error)
+	CreateManual(ctx context.Context, establishmentID string, actor *domain.User, input service.ManualTimeEntryInput) (domain.TimeEntry, error)
+	Amend(ctx context.Context, establishmentID, entryID string, actor *domain.User, input service.AmendTimeEntryInput) (domain.TimeEntry, error)
+	Void(ctx context.Context, establishmentID, entryID string, actor *domain.User, reason string) (domain.TimeEntry, error)
 }
 
-func NewTimeEntryHandler(entries *service.TimeEntryService) *TimeEntryHandler {
+// TimeEntryHandler is time-entries.controller.ts: punches, corrections and the time sheet.
+type TimeEntryHandler struct {
+	entries TimeEntryService
+}
+
+func NewTimeEntryHandler(entries TimeEntryService) *TimeEntryHandler {
 	return &TimeEntryHandler{entries: entries}
 }
 

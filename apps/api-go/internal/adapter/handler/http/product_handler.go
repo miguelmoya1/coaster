@@ -1,6 +1,7 @@
 package http
 
 import (
+	"context"
 	"net/http"
 
 	"api-go/internal/adapter/handler/middleware"
@@ -8,12 +9,20 @@ import (
 	"api-go/internal/service"
 )
 
-// ProductHandler is products.controller.ts.
-type ProductHandler struct {
-	products *service.ProductService
+type ProductService interface {
+	List(ctx context.Context, establishmentID string) ([]domain.Product, error)
+	Create(ctx context.Context, establishmentID string, input service.CreateProductInput) error
+	Update(ctx context.Context, establishmentID, productID string, changes domain.ProductChanges) error
+	SetStock(ctx context.Context, establishmentID, productID string, stock int) error
+	Delete(ctx context.Context, establishmentID, productID string) error
 }
 
-func NewProductHandler(products *service.ProductService) *ProductHandler {
+// ProductHandler is products.controller.ts.
+type ProductHandler struct {
+	products ProductService
+}
+
+func NewProductHandler(products ProductService) *ProductHandler {
 	return &ProductHandler{products: products}
 }
 

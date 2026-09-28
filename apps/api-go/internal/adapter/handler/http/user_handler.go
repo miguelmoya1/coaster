@@ -1,19 +1,23 @@
 package http
 
 import (
+	"context"
 	"net/http"
 
 	"api-go/internal/adapter/handler/middleware"
 	"api-go/internal/core/domain"
-	"api-go/internal/service"
 )
+
+type UserService interface {
+	UpdateProfile(ctx context.Context, userID string, changes domain.UserProfileChanges) error
+}
 
 // UserHandler is users.controller.ts.
 type UserHandler struct {
-	users *service.UserService
+	users UserService
 }
 
-func NewUserHandler(users *service.UserService) *UserHandler {
+func NewUserHandler(users UserService) *UserHandler {
 	return &UserHandler{users: users}
 }
 

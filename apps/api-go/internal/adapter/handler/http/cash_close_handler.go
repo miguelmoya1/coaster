@@ -1,6 +1,7 @@
 package http
 
 import (
+	"context"
 	"net/http"
 
 	"api-go/internal/adapter/handler/middleware"
@@ -8,12 +9,18 @@ import (
 	"api-go/internal/service"
 )
 
-// CashCloseHandler is cash-closes.controller.ts: closing the till of an establishment.
-type CashCloseHandler struct {
-	closes *service.CashCloseService
+type CashCloseService interface {
+	List(ctx context.Context, establishmentID string) ([]domain.CashClose, error)
+	Preview(ctx context.Context, establishmentID string) (domain.CashClosePreview, error)
+	Close(ctx context.Context, establishmentID, closedByID string, input service.CloseCashInput) (domain.CashClose, error)
 }
 
-func NewCashCloseHandler(closes *service.CashCloseService) *CashCloseHandler {
+// CashCloseHandler is cash-closes.controller.ts: closing the till of an establishment.
+type CashCloseHandler struct {
+	closes CashCloseService
+}
+
+func NewCashCloseHandler(closes CashCloseService) *CashCloseHandler {
 	return &CashCloseHandler{closes: closes}
 }
 

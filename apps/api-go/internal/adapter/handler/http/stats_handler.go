@@ -1,20 +1,24 @@
 package http
 
 import (
+	"context"
 	"net/http"
 	"slices"
 
 	"api-go/internal/adapter/handler/middleware"
 	"api-go/internal/core/domain"
-	"api-go/internal/service"
 )
+
+type StatsService interface {
+	EstablishmentStats(ctx context.Context, establishmentID string, includeHistory bool) (domain.EstablishmentStats, error)
+}
 
 // StatsHandler is stats.controller.ts: the revenue on the dashboard of an establishment.
 type StatsHandler struct {
-	stats *service.StatsService
+	stats StatsService
 }
 
-func NewStatsHandler(stats *service.StatsService) *StatsHandler {
+func NewStatsHandler(stats StatsService) *StatsHandler {
 	return &StatsHandler{stats: stats}
 }
 

@@ -1,6 +1,7 @@
 package http
 
 import (
+	"context"
 	"net/http"
 	"time"
 
@@ -9,12 +10,20 @@ import (
 	"api-go/internal/service"
 )
 
-// MenuHandler is menu.controller.ts and public-menu.controller.ts.
-type MenuHandler struct {
-	menus *service.MenuService
+type MenuService interface {
+	Draft(ctx context.Context, establishmentID string) (domain.MenuDraft, error)
+	SaveDraft(ctx context.Context, establishmentID string, input service.SaveMenuDraftInput) (domain.MenuDraft, error)
+	Publish(ctx context.Context, establishmentID string) error
+	Unpublish(ctx context.Context, establishmentID string) error
+	Published(ctx context.Context, slug, language string) (domain.PublishedMenu, error)
 }
 
-func NewMenuHandler(menus *service.MenuService) *MenuHandler {
+// MenuHandler is menu.controller.ts and public-menu.controller.ts.
+type MenuHandler struct {
+	menus MenuService
+}
+
+func NewMenuHandler(menus MenuService) *MenuHandler {
 	return &MenuHandler{menus: menus}
 }
 

@@ -1,18 +1,25 @@
 package http
 
 import (
+	"context"
 	"net/http"
 
 	"api-go/internal/adapter/handler/middleware"
-	"api-go/internal/service"
+	"api-go/internal/core/domain"
 )
+
+type BetaTesterService interface {
+	List(ctx context.Context, search string, page domain.PageRequest) (domain.AdminBetaTesters, error)
+	Add(ctx context.Context, actorID, email string, note *string) error
+	Remove(ctx context.Context, actorID, betaTesterID string) error
+}
 
 // AdminBetaTesterHandler is admin-beta-testers.controller.ts.
 type AdminBetaTesterHandler struct {
-	testers *service.BetaTesterService
+	testers BetaTesterService
 }
 
-func NewAdminBetaTesterHandler(testers *service.BetaTesterService) *AdminBetaTesterHandler {
+func NewAdminBetaTesterHandler(testers BetaTesterService) *AdminBetaTesterHandler {
 	return &AdminBetaTesterHandler{testers: testers}
 }
 

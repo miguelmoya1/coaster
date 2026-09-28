@@ -1,19 +1,26 @@
 package http
 
 import (
+	"context"
 	"net/http"
 
 	"api-go/internal/adapter/handler/middleware"
 	"api-go/internal/core/domain"
-	"api-go/internal/service"
 )
+
+type CategoryService interface {
+	List(ctx context.Context, establishmentID string) ([]domain.Category, error)
+	Create(ctx context.Context, establishmentID string, category domain.NewCategory) error
+	Update(ctx context.Context, establishmentID, categoryID string, changes domain.CategoryChanges) error
+	Delete(ctx context.Context, establishmentID, categoryID string) error
+}
 
 // CategoryHandler is categories.controller.ts.
 type CategoryHandler struct {
-	categories *service.CategoryService
+	categories CategoryService
 }
 
-func NewCategoryHandler(categories *service.CategoryService) *CategoryHandler {
+func NewCategoryHandler(categories CategoryService) *CategoryHandler {
 	return &CategoryHandler{categories: categories}
 }
 
