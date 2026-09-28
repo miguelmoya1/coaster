@@ -115,6 +115,37 @@ func TestAdminAuditRepository(t *testing.T) {
 	}
 }
 
+func TestAdminAuditRepositoryPagesEntriesOfTheSameInstant(t *testing.T) {
+	resetDB(t)
+	ctx := context.Background()
+	audit := NewAdminAuditRepository(testPool)
+
+	insertAdminUser(t, "admin", "Miguel", "miguel@example.com", "ADMIN", true, adminTestNow)
+	for _, id := range []string{"a3", "a1", "a5", "a2", "a4"} {
+		adminExec(t, `INSERT INTO "AdminAuditLog" (id, "actorId", action, "targetType", "targetId", "createdAt")
+			VALUES ($1, 'admin', 'BETA_TESTER_ADDED', 'BETA_TESTER', 'b1', $2)`, id, adminTestNow)
+	}
+
+	var ids []string
+	for page := 1; page <= 3; page++ {
+		entries, total, err := audit.List(ctx, domain.AdminAuditFilter{}, domain.PageRequest{Page: page, PageSize: 2})
+		if err != nil || total != 5 {
+			t.Fatalf("List page %d = %d, %v", page, total, err)
+		}
+		for _, entry := range entries {
+			ids = append(ids, entry.ID)
+		}
+	}
+	if !slices.Equal(ids, []string{"a5", "a4", "a3", "a2", "a1"}) {
+		t.Errorf("pages = %v", ids)
+	}
+
+	recent, err := audit.RecentFor(ctx, domain.AuditTargetBetaTester, "b1", 2)
+	if err != nil || len(recent) != 2 || recent[0].ID != "a5" || recent[1].ID != "a4" {
+		t.Errorf("RecentFor = %+v, %v", recent, err)
+	}
+}
+
 func TestBetaTesterRepository(t *testing.T) {
 	resetDB(t)
 	ctx := context.Background()
