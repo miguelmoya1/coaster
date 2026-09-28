@@ -364,6 +364,12 @@ func TestAdminEstablishmentRepositoryBillingSource(t *testing.T) {
 	insertAdminSubscription(t, "free-grant", "INACTIVE", `"manualPlan" = 'FREE'`)
 	insertAdminEstablishment(t, "pro-grant", "Pro grant", daysBefore(2))
 	insertAdminSubscription(t, "pro-grant", "INACTIVE", `"manualPlan" = 'PRO', "manualGrantExpiresAt" = $2`, future)
+	insertAdminEstablishment(t, "stripe-ended", "Stripe ended", daysBefore(3))
+	insertAdminSubscription(t, "stripe-ended", "ACTIVE", `"stripeSubscriptionId" = 'sub_1', "currentPeriodEnd" = $2`, daysBefore(1))
+	insertAdminEstablishment(t, "trial", "Trial", daysBefore(4))
+	insertAdminSubscription(t, "trial", "TRIALING", `"trialEndsAt" = $2`, future)
+	insertAdminEstablishment(t, "stripe-live", "Stripe live", daysBefore(5))
+	insertAdminSubscription(t, "stripe-live", "ACTIVE", `"stripeSubscriptionId" = 'sub_2', "currentPeriodEnd" = $2`, future)
 
 	page := domain.PageRequest{Page: 1, PageSize: 20}
 	tests := []struct {
@@ -371,7 +377,8 @@ func TestAdminEstablishmentRepositoryBillingSource(t *testing.T) {
 		want   []string
 	}{
 		{domain.BillingSourceManual, []string{"pro-grant"}},
-		{domain.BillingSourceNone, []string{"free-grant"}},
+		{domain.BillingSourceStripe, []string{"trial", "stripe-live"}},
+		{domain.BillingSourceNone, []string{"free-grant", "stripe-ended"}},
 	}
 	for _, tt := range tests {
 		found, total, err := establishments.List(ctx, domain.AdminEstablishmentFilter{BillingSource: tt.source}, page, adminTestNow)

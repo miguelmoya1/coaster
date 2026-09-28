@@ -1,6 +1,16 @@
 SELECT count(*)
 FROM "Establishment" e
 LEFT JOIN "EstablishmentSubscription" s ON s."establishmentId" = e.id
+CROSS JOIN LATERAL (
+    SELECT s."manualPlan" IS NOT NULL AND s."manualPlan" <> 'FREE'
+               AND (s."manualGrantExpiresAt" IS NULL OR s."manualGrantExpiresAt" >= $4) AS live_grant,
+           COALESCE(
+               (s.status = 'ACTIVE' AND s."stripeSubscriptionId" IS NOT NULL AND s."currentPeriodEnd" >= $4)
+               OR (s.status = 'TRIALING' AND s."trialEndsAt" >= $4)
+               OR (s.status = 'CANCELED' AND s."currentPeriodEnd" >= $4),
+               false
+           ) AS live_stripe
+) access
 WHERE ($1::text IS NULL
        OR e.id = $1
        OR e.name ILIKE ('%' || $1 || '%')
@@ -10,14 +20,8 @@ WHERE ($1::text IS NULL
                   WHERE m."establishmentId" = e.id AND m."deletedAt" IS NULL AND u.email ILIKE ('%' || $1 || '%')))
   AND ($2::text IS NULL OR s.status::text = $2)
   AND CASE $3::text
-          WHEN 'MANUAL' THEN
-              s."manualPlan" IS NOT NULL AND s."manualPlan" <> 'FREE' AND (s."manualGrantExpiresAt" IS NULL OR s."manualGrantExpiresAt" >= $4)
-          WHEN 'STRIPE' THEN
-              s."stripeSubscriptionId" IS NOT NULL
-              AND NOT (s."manualPlan" IS NOT NULL AND s."manualPlan" <> 'FREE' AND (s."manualGrantExpiresAt" IS NULL OR s."manualGrantExpiresAt" >= $4))
-          WHEN 'NONE' THEN
-              s.id IS NULL
-              OR (s."stripeSubscriptionId" IS NULL
-                  AND NOT (s."manualPlan" IS NOT NULL AND s."manualPlan" <> 'FREE' AND (s."manualGrantExpiresAt" IS NULL OR s."manualGrantExpiresAt" >= $4)))
+          WHEN 'MANUAL' THEN access.live_grant
+          WHEN 'STRIPE' THEN access.live_stripe AND NOT access.live_grant
+          WHEN 'NONE' THEN NOT access.live_grant AND NOT access.live_stripe
           ELSE true
       END
