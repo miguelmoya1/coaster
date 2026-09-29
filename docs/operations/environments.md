@@ -38,7 +38,7 @@ environment that was never configured cannot half-deploy anything.
 
 | Value                                                                                                                                                      | Where it is set                             | Why there                                                                             |
 | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------- |
-| `GCP_SERVICE_NAME`, `GCP_JOB_NAME`, `PUBLIC_URL`                                                                                                           | GitHub environment **variables**            | CI needs them to know what it is deploying, and which set of credentials to wire      |
+| `GCP_SERVICE_NAME`, `GCP_JOB_NAME`, `PUBLIC_URL`, `API_RUNTIME`                                                                                            | GitHub environment **variables**            | CI needs them to know what it is deploying, and which set of credentials to wire      |
 | `DATABASE_URL`, `AUTH_JWT_SECRET`, `PRINTER_JWT_SECRET`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `RESEND_API_KEY`, `AI_GATEWAY_API_KEY`, `REDIS_URL` | **Secret Manager**, one set per environment | Credentials. CI passes their names and never their values — see [secrets](secrets.md) |
 | `FRONTEND_URL`, `CORS_ORIGINS`, `MEDIA_BUCKET`, `STRIPE_PRICE_*`, `EMAIL_FROM`, `GOOGLE_CLIENT_ID`, `BETA_ALLOWLIST_ENABLED` …                             | The Cloud Run service                       | Runtime configuration, never needed to build or release                               |
 | `PRODUCTION`, `API_URL`, `GOOGLE_CLIENT_ID`, `ALLOW_INDEXING`                                                                                              | Vercel project                              | Baked into the bundle at build time by `set-env.ts`                                   |
@@ -310,7 +310,23 @@ CI, so the switch survives without going back into the console. See
 ## Deploying
 
 Push to `dev`. Tests, image, migrations, service — the same pipeline production gets, in the same
-order, against beta's own database. Promoting is a merge into `main`.
+order, against beta's own database. Promoting is a merge into `main`. The deploy waits for the tests
+of the migrations and of the Go API, whichever API the environment runs.
+
+### Which API runs
+
+`API_RUNTIME` on the GitHub environment picks the image the service gets: `go` deploys the Go API
+(`apps/coaster-api`); unset deploys NestJS. Both answer the same routes with the same secrets on the
+same service, so the URL and Stripe's webhook stay as they are, and sessions survive the switch
+because the tokens are signed and read the same way. To move beta to Go:
+
+```sh
+gh variable set API_RUNTIME --env api-beta --body go
+```
+
+and push to `dev` (or re-run the last deploy). To go back, delete the variable and deploy again, or
+send the traffic to the previous revision in the Cloud Run console. The schema does not depend on
+the runtime, so going back needs nothing else.
 
 ## Checking it came up
 
