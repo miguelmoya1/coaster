@@ -5,22 +5,24 @@ siendo la API en producción y la **referencia de comportamiento** hasta el camb
 
 ## Antes de hacer nada, leer
 
+La documentación está en `docs/apps/coaster-api/`:
+
 1. `README.md`: cómo arrancar y probar.
-2. `MIGRACION.md`: objetivos, decisiones, **estado**, **siguiente paso** y diferencias con Nest.
-3. `CONVENCIONES.md`: cómo se hace cada cosa (rutas, validación, eventos, SQL, tests…).
-4. `ESTRUCTURA.md`: la estructura de carpetas y para qué sirve cada una.
-5. `LIBRERIAS.md`: las librerías aprobadas.
+2. `migracion.md`: objetivos, decisiones, **estado**, **siguiente paso** y diferencias con Nest.
+3. `convenciones.md`: cómo se hace cada cosa (rutas, validación, eventos, SQL, tests…).
+4. `estructura.md`: la estructura de carpetas y para qué sirve cada una.
+5. `librerias.md`: las librerías aprobadas.
 
 ## Reglas
 
-- **Sigue `ESTRUCTURA.md`.** Arquitectura hexagonal: `core` (domain + ports), `service` y
+- **Sigue `estructura.md`.** Arquitectura hexagonal: `core` (domain + ports), `service` y
   `adapter`. Sin CQRS: un servicio por entidad y un método por caso de uso.
 - **Las interfaces de los servicios están en `core/ports`** (`ports.OrderService`…). Los handlers
   y middlewares reciben esas; nunca se declaran interfaces en el archivo del handler.
 - **SQL a mano, un archivo `.sql` por consulta**, en `internal/adapter/repository/queries/<entidad>/`,
   cargado con `//go:embed` en una variable por consulta. Consultas simples, sin anidar
   relaciones: si hace falta, dos consultas y se juntan en Go.
-- **Solo librerías marcadas ✅ en `LIBRERIAS.md`.** Si hace falta una que no lo está, preguntar antes.
+- **Solo librerías marcadas ✅ en `librerias.md`.** Si hace falta una que no lo está, preguntar antes.
 - **El contrato de la API no cambia**: rutas, JSON, formato de errores, `ErrorCodes` de
   `@coaster/common` y cookies tienen que ser idénticos a `apps/api`. Ante la duda, leer el
   código de `apps/api` y copiar su comportamiento.
@@ -31,8 +33,8 @@ siendo la API en producción y la **referencia de comportamiento** hasta el camb
   existe. Un fake nuevo de un puerto que ya tiene uno amplía ese.
 - **Un cambio está terminado** cuando pasan `gofmt -l .` (vacío), `go vet ./...`, `go test ./...`
   y `scripts/e2e-go.sh`, y lo que no se ha podido copiar de Nest está en «Diferencias
-  conocidas» de `MIGRACION.md`.
+  conocidas» de `migracion.md`.
 - **Todo va a `dev`, sin ramas**, en commits pequeños. Cada push a `dev` despliega `api-beta`:
   se empuja cuando el cambio está entero.
-- **Al terminar algo**, quitarlo del «Siguiente paso» de `MIGRACION.md` (lo hecho no se apunta:
-  queda en git) y actualizar `CONVENCIONES.md` si cambia cómo se hace algo.
+- **Al terminar algo**, quitarlo del «Siguiente paso» de `migracion.md` (lo hecho no se apunta:
+  queda en git) y actualizar `convenciones.md` si cambia cómo se hace algo.

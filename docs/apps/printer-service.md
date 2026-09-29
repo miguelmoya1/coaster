@@ -1,9 +1,10 @@
 # Print bridge
 
-A Go service installed on a computer at the venue that pushes tickets to the thermal printer,
-whether it is connected over USB, network or Bluetooth.
+`apps/printer-service`: a Go service installed on a computer at the venue that pushes tickets to the
+thermal printer, whether it is connected over USB, network or Bluetooth. The paths below are relative
+to it.
 
-How it fits the rest of the platform is in [printing bridge](../../docs/architecture/printing-bridge.md).
+How it fits the rest of the platform is in [printing bridge](../architecture/printing-bridge.md).
 
 ## How a ticket reaches the printer
 

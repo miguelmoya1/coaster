@@ -1,7 +1,7 @@
 # Migración de `apps/api` (NestJS) a `apps/coaster-api`
 
 Por qué y cómo se reescribe la API de coaster en Go, en qué punto está y en qué se diferencia
-de Nest. Cómo se hace cada cosa está en `CONVENCIONES.md`; las carpetas, en `ESTRUCTURA.md`.
+de Nest. Cómo se hace cada cosa está en [convenciones](convenciones.md); las carpetas, en [estructura](estructura.md).
 
 ## Objetivos
 
@@ -28,7 +28,7 @@ El rendimiento **no** es el motivo. Casi toda la latencia de la API viene de Pos
 - **Las transacciones viven dentro del repositorio**, igual que en `apps/api`, donde los 14
   archivos que usan `$transaction` son repositorios. No hay `TxManager` ni `UnitOfWork`.
 - **SQL a mano, un archivo `.sql` por consulta**, incrustado con `go:embed` (ver
-  `ESTRUCTURA.md`). Sin ORM y sin sqlc por ahora.
+  [estructura](estructura.md)). Sin ORM y sin sqlc por ahora.
 - **Prisma sigue siendo dueño del esquema hasta P5.** Mientras Nest esté en producción, las
   migraciones se escriben en Prisma. Los tests de Go aplican las `migration.sql` de
   `apps/api/prisma/migrations` en orden. goose entra en P5, con una migración base sacada
@@ -85,7 +85,7 @@ en git.
 ## Siguiente paso
 
 1. **Confirmar los modelos de respaldo del AI Gateway** con la clave de verdad (Miguel): cómo
-   probarlo está en «IA» de `CONVENCIONES.md`.
+   probarlo está en «IA» de [convenciones](convenciones.md).
 2. **Probar argon2 con un hash real** de la base de datos de producción.
 3. **P5 Salida** (no la hacen los agentes): migración base de goose desde el esquema de ese
    momento, el endpoint del webhook de Go en el panel de Stripe, el servicio de Cloud Run y su
@@ -104,7 +104,7 @@ Lo que Go hace distinto de Nest a propósito o porque no se ha podido copiar.
 | P0 | `iso8601` acepta fecha, o fecha y hora con segundos, fracción y zona opcionales; no semanas ni días del año | Es lo que manda `apps/web`, y Go no tiene la expresión regular de validator.js |
 | P0 | Solo gzip, sin deflate | gzhttp solo hace gzip, y todos los navegadores lo aceptan |
 | P0 | Un cuerpo que no es JSON responde 415 | Fastify acepta también `text/plain`; ningún endpoint lo usa |
-| P0 | Sin Swagger en `/api/docs` | Descartado en `LIBRERIAS.md`; solo existía fuera de producción |
+| P0 | Sin Swagger en `/api/docs` | Descartado en [librerías](librerias.md); solo existía fuera de producción |
 | P1 | Sin `RESEND_API_KEY` los emails de auth se escriben en el log en lugar de fallar | Resend llega en P2e; hasta entonces el flujo funciona en local y en beta |
 | P1 | El contador del rate limit va por patrón de ruta e IP, no por clase y método del controlador | En Go no hay clases; como la clave es otra, Nest y Go no comparten contadores en el mismo Redis |
 | P1 | Un cuerpo que no es JSON válido responde 400 después del rate limit y de los guards, no antes | Fastify lee el cuerpo antes de los guards; en Go lo lee el handler |
@@ -122,7 +122,7 @@ Lo que Go hace distinto de Nest a propósito o porque no se ha podido copiar.
 | P2e | Sin `RESEND_API_KEY` los emails siguen yendo al log; Nest usa una clave falsa y el envío falla | Se mantiene lo de P1 |
 | P2a | En un `PATCH`, un `null` en un campo que no admite nulos (`name`, `price`, `categoryId`, `allergens`, `taxRate` de la categoría…) se ignora; Nest lo deja pasar y Prisma responde 500. `null` en `icon`, `imageUrl` y `ownTaxRate` sí vacía la columna, igual que en Nest | Go no distingue un campo que falta de uno a `null` sin leer el cuerpo aparte; solo se hace para las columnas que admiten nulos |
 | P2a | Un número con decimales en un campo entero (`price`, `currentStock`, `taxRate`…) responde 400 `INVALID_TYPE`; en Nest pasa `@IsNumber` y Prisma responde 500 | Los campos son `int` en Go |
-| P2a | El slug de la carta quita los acentos con una tabla de las letras latinas (U+00C0–U+017F) y no con la normalización NFD | `golang.org/x/text` no está en `LIBRERIAS.md`; en ese rango da lo mismo que Node (comprobado letra a letra) y fuera de él la letra se cambia por `-` |
+| P2a | El slug de la carta quita los acentos con una tabla de las letras latinas (U+00C0–U+017F) y no con la normalización NFD | `golang.org/x/text` no está en [librerías](librerias.md); en ese rango da lo mismo que Node (comprobado letra a letra) y fuera de él la letra se cambia por `-` |
 | P2a | El nombre y la descripción de una línea de la carta se cortan a 80 y 300 caracteres, no unidades UTF-16 | Solo cambia con emojis y otros caracteres fuera del plano básico |
 | P2a | Las claves del JSON de la carta publicada salen en el orden del struct, no en el de `jsonb` | Nest devuelve el objeto tal como lo guarda Postgres; el contenido es el mismo |
 | P2c | Las fechas de texto (`startDate`/`endDate` de `GET /shifts`, `occurredAt` de los fichajes) se leen solo en las formas ISO 8601: fecha, o fecha y hora con o sin zona (sin zona es UTC) | `new Date()` de JS acepta además formatos como `Sep 27 2026`; `apps/web` manda ISO |
@@ -166,7 +166,7 @@ Lo que Go hace distinto de Nest a propósito o porque no se ha podido copiar.
 | P2d-1 | Los ajustes de un pedido salen ordenados por `createdAt` e `id` | Nest los pide sin `orderBy` y salen en el orden en que Postgres los devuelva |
 | P2d-1 | En `orderIds` de `POST /orders/merge`, cada id que no es UUID da su propio `INVALID_TYPE`; class-validator da uno por campo | validator comprueba cada elemento con `dive`. Viene de P0 y pasa igual con cualquier `{ each: true }` |
 | P3 | **Pendiente de confirmar por Miguel.** Los cuatro modelos de respaldo van en el cuerpo de la API compatible con OpenAI como `providerOptions: {gateway: {models: [...]}}`; Nest los pasa con las `providerOptions` del proveedor `gateway` del AI SDK | Sin el SDK de Vercel no hay proveedor `gateway`. Es lo que documenta el AI Gateway para Chat Completions (también acepta `models` en la raíz del cuerpo), pero no se ha podido probar sin la clave de verdad. Si el gateway no los leyera, Go solo usaría `zai/glm-4.7` |
-| P3 | Go habla con el gateway por su API compatible con OpenAI (Chat Completions); Nest, con el protocolo propio del proveedor `gateway` del AI SDK. El razonamiento que devuelva el modelo no vuelve en los pasos siguientes | Es la API que se puede usar con openai-go (`LIBRERIAS.md`); el texto, las herramientas y sus resultados son los mismos |
+| P3 | Go habla con el gateway por su API compatible con OpenAI (Chat Completions); Nest, con el protocolo propio del proveedor `gateway` del AI SDK. El razonamiento que devuelva el modelo no vuelve en los pasos siguientes | Es la API que se puede usar con openai-go ([librerías](librerias.md)); el texto, las herramientas y sus resultados son los mismos |
 | P3 | Las herramientas que el modelo pide en un mismo paso se ejecutan una detrás de otra, en su orden; el AI SDK las lanza a la vez | Mismos resultados sin escrituras a la vez sobre el mismo pedido o mesa |
 | P3 | El texto que recibe el modelo cuando la entrada de una herramienta no cumple su esquema imita el de zod (`Invalid input for tool …: Type validation failed: …` con sus issues), pero el orden de los campos de cada issue puede cambiar, falta el `note` de un entero fuera del rango seguro y el error de un JSON roto es el de Go | La comprobación se escribe a mano sobre el esquema; el modelo solo lo lee para corregirse |
 | P3 | Un cuerpo de `POST ai` con `messages` que no es una lista se trata como si no viniera (se usa `prompt`) y un mensaje con campos de otro tipo los lee vacíos; en Nest lo primero es un `TypeError` (500, o el `done` de error en el stream) y lo segundo el error del gateway | El cuerpo no tiene DTO en Nest y `apps/web` siempre manda texto y una lista |

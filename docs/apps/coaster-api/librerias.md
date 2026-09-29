@@ -21,8 +21,8 @@ Estado: ⬜ sin revisar · ✅ aprobada · ❌ descartada
 
 | Ahora | En Go | Notas | Estado |
 |---|---|---|---|
-| Prisma Client | `github.com/jackc/pgx/v5` + `pgxpool` | SQL escrito a mano en archivos `.sql` con `go:embed` (ver `ESTRUCTURA.md`). | ✅ |
-| Prisma Migrate | `github.com/pressly/goose/v3` | Entra en P5, con una migración base sacada del esquema de ese momento. Hasta entonces el esquema lo lleva Prisma (ver `MIGRACION.md`). | ✅ |
+| Prisma Client | `github.com/jackc/pgx/v5` + `pgxpool` | SQL escrito a mano en archivos `.sql` con `go:embed` (ver [estructura](estructura.md)). | ✅ |
+| Prisma Migrate | `github.com/pressly/goose/v3` | Entra en P5, con una migración base sacada del esquema de ese momento. Hasta entonces el esquema lo lleva Prisma (ver [migración](migracion.md)). | ✅ |
 | — | ~~sqlc~~ | Descartado por ahora: se prefiere escribir el SQL y el mapeo a mano. Se puede añadir más adelante sin cambiar los `.sql`. | ❌ |
 
 ## Seguridad y autenticación
@@ -58,7 +58,7 @@ Estado: ⬜ sin revisar · ✅ aprobada · ❌ descartada
 |---|---|---|---|
 | `ai` (AI SDK de Vercel) | `github.com/openai/openai-go/v3` | El AI Gateway de Vercel acepta el protocolo de OpenAI, así que basta con cambiar la URL base. El bucle de herramientas (hasta 8 pasos) se escribe a mano. | ✅ |
 | `zod` (esquemas de herramientas) | `github.com/invopop/jsonschema` | Genera el JSON Schema de cada herramienta a partir de un struct. Son 40 herramientas, así que compensa. | ✅ |
-| Modelos de respaldo del gateway | — (un campo más en el cuerpo con `SetExtraFields` de openai-go) | Hecho en P3 como `providerOptions.gateway.models` en el cuerpo de Chat Completions, que es lo que documenta el AI Gateway para su API compatible con OpenAI. **Falta que Miguel lo confirme con la clave de verdad** (cómo, en «IA» de `CONVENCIONES.md`). | ⬜ |
+| Modelos de respaldo del gateway | — (un campo más en el cuerpo con `SetExtraFields` de openai-go) | Hecho en P3 como `providerOptions.gateway.models` en el cuerpo de Chat Completions, que es lo que documenta el AI Gateway para su API compatible con OpenAI. **Falta que Miguel lo confirme con la clave de verdad** (cómo, en «IA» de [convenciones](convenciones.md)). | ⬜ |
 
 ## Tiempo real (SSE)
 
@@ -73,4 +73,4 @@ Estado: ⬜ sin revisar · ✅ aprobada · ❌ descartada
 | Vitest (unitarios) | `testing` (estándar) | Tests por tabla y fakes de las interfaces de `ports`. Las comprobaciones se escriben a mano con `if` y `t.Errorf`. | ✅ |
 | — | ~~`github.com/stretchr/testify`~~ | Con `testing` basta y es lo más idiomático. | ❌ |
 | testcontainers (Node) | `github.com/testcontainers/testcontainers-go/modules/postgres` | Para los tests de repositorios con una base de datos real. | ✅ |
-| e2e con supertest | **Se reutilizan los de `apps/api`** | `supertest` acepta una URL, así que se pueden lanzar contra el servidor Go. Ver «Tests» en `CONVENCIONES.md`. | ✅ |
+| e2e con supertest | **Se reutilizan los de `apps/api`** | `supertest` acepta una URL, así que se pueden lanzar contra el servidor Go. Ver «Tests» en [convenciones](convenciones.md). | ✅ |

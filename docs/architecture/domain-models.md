@@ -198,8 +198,8 @@ than three columns on the invoice — most tickets carry one 10% line, but a clo
 `OrderAuditLog` is the establishment-level counterpart of `AdminAuditLog`: who voided a line, applied
 a discount or reprinted a ticket, and why.
 
-The full design, and the eleven work packages it is split into, are in
-[`VERIFACTU.md`](../../VERIFACTU.md).
+The full design, and the work packages left, are in
+[the Veri*factu plan](../plans/verifactu.md).
 
 ### Where the tax rate lives
 

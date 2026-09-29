@@ -1,7 +1,7 @@
 # Pendiente
 
-Lo que está a medias y por qué, para no perderlo entre conversaciones. Lo terminado está en
-`docs/roadmap.md`.
+Lo que está a medias y por qué, para no perderlo entre conversaciones. Lo terminado está en el
+[roadmap](roadmap.md).
 
 ## Apagar Firebase
 
@@ -39,7 +39,7 @@ coste, no un apaño de cinco líneas.
 
 No está puesta en `api-beta`, así que cae al respaldo del código (`imagenes-clientes-app`), **que es
 el bucket de producción**: las imágenes que subas en beta acaban ahí. Se arregla creando el bucket
-de beta (las órdenes están en `docs/operations/environments.md`) o poniendo la variable
+de beta (las órdenes están en [producción y beta](operations/environments.md)) o poniendo la variable
 explícitamente.
 
 ## Rotar lo que pasó por el chat
@@ -49,7 +49,7 @@ Rótalas cuando la beta esté estable.
 
 ## Veri*factu: hay esquema, no hay código
 
-`VERIFACTU.md` son 791 líneas de plan escrito contra este repo, y la migración
+[El plan](plans/verifactu.md) está escrito contra este repo, y la migración
 `20260825120000_verifactu_w0_invoicing_foundations` ya creó `Invoice` e `InvoiceTaxLine` con todo
 lo que pide la AEAT: huella encadenada, `qrPayload`, `aeatStatus`, rectificativas y anulaciones.
 

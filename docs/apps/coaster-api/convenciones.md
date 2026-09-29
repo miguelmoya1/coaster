@@ -1,7 +1,7 @@
 # Convenciones
 
 Cómo está hecho `apps/coaster-api` y cómo se añade algo nuevo. Las carpetas están en
-`ESTRUCTURA.md`; lo que Go hace distinto de Nest, en «Diferencias conocidas» de `MIGRACION.md`.
+[estructura](estructura.md); lo que Go hace distinto de Nest, en «Diferencias conocidas» de [migración](migracion.md).
 
 ## Contrato HTTP
 

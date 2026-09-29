@@ -1,10 +1,10 @@
 # Coaster web
 
-Angular 22 — standalone components, signals, zoneless change detection — with Material and Tailwind
-v4.
+`apps/web`: Angular 22 — standalone components, signals, zoneless change detection — with Material
+and Tailwind v4. The paths below are relative to it.
 
 The architecture is documented once, in
-[frontend architecture](../../docs/architecture/frontend.md): the three layers, how they are
+[frontend architecture](../architecture/frontend.md): the three layers, how they are
 enforced by lint, how stores hold the current establishment, and the container traps that look like
 broken code. This file is only how to run it.
 

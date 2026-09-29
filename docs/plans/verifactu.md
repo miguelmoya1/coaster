@@ -30,10 +30,10 @@ Antes de escribir nada, lo que no hay que inventar:
 
 | Necesidad                                                         | Ya existe en                                                                                                                             |
 | ----------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| Cadena de huellas SHA-256, genesis, cadena canónica, verificación | [`time-entry-chain.ts`](apps/api/src/time-tracking/domain/time-entry-chain.ts)                                                           |
-| Correlativo sin huecos bajo concurrencia                          | `pg_advisory_xact_lock` en [`time-entries.write.repository.ts`](apps/api/src/time-tracking/data-access/time-entries.write.repository.ts) |
+| Cadena de huellas SHA-256, genesis, cadena canónica, verificación | [`time-entry-chain.ts`](../../apps/api/src/time-tracking/domain/time-entry-chain.ts)                                                           |
+| Correlativo sin huecos bajo concurrencia                          | `pg_advisory_xact_lock` en [`time-entries.write.repository.ts`](../../apps/api/src/time-tracking/data-access/time-entries.write.repository.ts) |
 | Corrección inmutable (registro nuevo que referencia al viejo)     | `supersedesId` / `rootId` en `DbTimeEntry`                                                                                               |
-| Cálculo de totales, descuentos y pagos                            | `OrderPricingEngine` en [`order-pricing.engine.ts`](packages/common/src/domain/pricing/order-pricing.engine.ts)                          |
+| Cálculo de totales, descuentos y pagos                            | `OrderPricingEngine` en [`order-pricing.engine.ts`](../../packages/common/src/domain/pricing/order-pricing.engine.ts)                          |
 | Cobro parcial y división de cuenta                                | `paidQuantityCash` / `paidQuantityCard` por línea                                                                                        |
 | Cola de impresión y bridge en el local                            | módulo `printer` + `apps/printer-service` (Go)                                                                                           |
 | Renderizado de QR                                                 | `coaster-qr-code` en web (`qrcode-generator`)                                                                                            |
@@ -453,7 +453,7 @@ categoría, no toca ningún ticket ya emitido.
 
 ## 4. Huella encadenada y numeración
 
-Copia directa de [`time-entry-chain.ts`](apps/api/src/time-tracking/domain/time-entry-chain.ts), con
+Copia directa de [`time-entry-chain.ts`](../../apps/api/src/time-tracking/domain/time-entry-chain.ts), con
 tres cambios:
 
 1. **El lock va por serie**, no solo por establecimiento:
@@ -527,7 +527,7 @@ Reglas:
    falta es que el cobro parcial, y no solo el cierre, pueda disparar una emisión.
 
 La concurrencia del cierre ya está resuelta en
-[`orders.write.repository.ts`](apps/api/src/orders/data-access/orders.write.repository.ts): el
+[`orders.write.repository.ts`](../../apps/api/src/orders/data-access/orders.write.repository.ts): el
 checkout reclama la comanda con un `updateMany ... where status = 'OPEN'` y el cobro parcial toma un
 `SELECT ... FOR UPDATE`. La emisión entra en esa misma transacción, no en una posterior.
 
@@ -649,8 +649,7 @@ Dos vías, y hay que elegir pronto porque cambian el modelo de datos y el de neg
 
 ### D. Dónde corre el despacho
 
-`TODO.md` ya lo advierte para otra cosa y aquí importa igual: Cloud Run para el contenedor cuando no
-hay tráfico, así que **un cron en proceso no dispara nunca**. El despacho necesita Cloud Tasks o
+Cloud Run para el contenedor cuando no hay tráfico, así que **un cron en proceso no dispara nunca**. El despacho necesita Cloud Tasks o
 Scheduler golpeando un endpoint. La máquina de estados de `aeatStatus` cubre el reintento con
 retroceso exponencial, el rechazo y el aviso cuando algo lleva demasiado tiempo sin aceptarse.
 

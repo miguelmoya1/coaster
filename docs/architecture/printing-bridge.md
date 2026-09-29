@@ -1,7 +1,7 @@
 # Printing bridge
 
 Tickets are printed by a small Go service (`apps/printer-service`) installed on a computer at the
-venue. Its own operating manual is in [`apps/printer-service/readme.md`](../../apps/printer-service/readme.md);
+venue. How to set it up, run it and publish it is in [its own page](../apps/printer-service.md);
 this page covers how it fits the platform.
 
 ## Why a bridge at all

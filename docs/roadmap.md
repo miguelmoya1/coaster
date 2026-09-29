@@ -1,7 +1,7 @@
 # Product roadmap
 
-What has been built, and why it counts as done. What is **left** lives in [`TODO.md`](../TODO.md) at
-the root, in the order it should be built — keeping the two apart is what stops them drifting into
+What has been built, and why it counts as done. What is **left** lives in [pending](todo.md), in the
+order it should be built — keeping the two apart is what stops them drifting into
 two different plans.
 
 ## Done
@@ -86,7 +86,7 @@ See [printing bridge](architecture/printing-bridge.md).
 
 ### Own accounts
 
-Firebase is gone from the code since 9 September 2026; switching it off is in `TODO.md`.
+Firebase is gone from the code since 9 September 2026; switching it off is in [pending](todo.md).
 
 - Email and password (Argon2id), and Google as an identity linked to the same person, verified by
   ID token against Google's published keys. Accounts are matched by verified email, so the old
