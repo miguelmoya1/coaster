@@ -143,17 +143,18 @@ func createCategory(t *testing.T, establishmentID, name string) string {
 }
 
 type product struct {
-	name  string
-	price int
-	stock int
+	name      string
+	price     int
+	stock     int
+	allergens []string
 }
 
 func createProduct(t *testing.T, categoryID string, p product) string {
 	t.Helper()
 
 	id := newID()
-	mustExec(t, `INSERT INTO "Product" (id, name, price, "categoryId", "currentStock", "updatedAt")
-		VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP)`, id, p.name, p.price, categoryID, p.stock)
+	mustExec(t, `INSERT INTO "Product" (id, name, price, "categoryId", "currentStock", allergens, "updatedAt")
+		VALUES ($1, $2, $3, $4, $5, $6::text[]::"Allergen"[], CURRENT_TIMESTAMP)`, id, p.name, p.price, categoryID, p.stock, p.allergens)
 	return id
 }
 
