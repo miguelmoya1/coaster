@@ -16,12 +16,19 @@ type fakeCashCloseRepository struct {
 	err      error
 
 	establishmentIDs []string
+	closedBetween    []time.Time
 	closeInput       *domain.NewCashClose
 	voidInput        *domain.VoidCashClose
 }
 
 func (f *fakeCashCloseRepository) ListRecent(_ context.Context, establishmentID string) ([]domain.CashClose, error) {
 	f.establishmentIDs = append(f.establishmentIDs, establishmentID)
+	return f.recent, f.err
+}
+
+func (f *fakeCashCloseRepository) ListClosedBetween(_ context.Context, establishmentID string, from, to time.Time) ([]domain.CashClose, error) {
+	f.establishmentIDs = append(f.establishmentIDs, establishmentID)
+	f.closedBetween = []time.Time{from, to}
 	return f.recent, f.err
 }
 

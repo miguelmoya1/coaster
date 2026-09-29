@@ -21,6 +21,7 @@ export * from './services/money-formatter';
 export * from './services/realtime';
 export * from './services/toast';
 export * from './services/virtual-keyboard';
+export * from './utils/calendar-date.utils';
 export * from './utils/errors.utils';
 export * from './utils/money.utils';
 export * from './utils/realtime-resource';

@@ -27,11 +27,11 @@ export const cashClosePreviewResource = (establishmentId: Signal<EstablishmentId
   return preview;
 };
 
-export const cashClosesResource = (establishmentId: Signal<EstablishmentId | undefined>) => {
+export const cashClosesResource = (establishmentId: Signal<EstablishmentId | undefined>, date: Signal<string>) => {
   const repository = inject(CashCloseRepository);
 
   return httpResource<CashClose[]>(() => {
     const id = establishmentId();
-    return id ? repository.routes.list(id) : undefined;
+    return id ? { url: repository.routes.list(id), params: { date: date() } } : undefined;
   });
 };

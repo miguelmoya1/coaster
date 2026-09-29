@@ -338,9 +338,7 @@
     "status_closed": "Cerrado",
     "status_open": "Abierto",
     "title": "Historial de Pedidos",
-    "today": "Hoy",
-    "total_orders": "Completados",
-    "yesterday": "Ayer"
+    "total_orders": "Completados"
   },
   "cash_close": {
     "tab": "Caja",
@@ -371,8 +369,8 @@
     "confirm_title": "Cerrar caja",
     "confirm_message": "Se cierran {{count}} comandas cobradas y el arqueo queda guardado. Si te equivocas, puedes deshacer el último cierre.",
     "closed": "Caja cerrada",
-    "history_title": "Cierres anteriores",
-    "no_history": "Todavía no se ha cerrado la caja",
+    "history_title": "Cierres",
+    "no_history": "Ese día no se cerró la caja",
     "closed_by": "Cerró {{name}}",
     "print": "Imprimir",
     "undo": "Deshacer",
@@ -1134,6 +1132,12 @@
   "BETA_TESTER_ALREADY_EXISTS": "Ese email ya está en la lista de testers.",
   "BETA_TESTER_NOT_FOUND": "Ese tester ya no está en la lista.",
   "components": {
+    "day_picker": {
+      "next_day": "Día siguiente",
+      "previous_day": "Día anterior",
+      "today": "Hoy",
+      "yesterday": "Ayer"
+    },
     "icon_picker": {
       "search": "Buscar icono",
       "loading": "Cargando iconos…",

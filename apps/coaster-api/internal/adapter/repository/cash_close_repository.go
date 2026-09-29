@@ -16,6 +16,8 @@ import (
 var (
 	//go:embed queries/cash_close/list_recent.sql
 	listRecentCashClosesQuery string
+	//go:embed queries/cash_close/list_closed_between.sql
+	listCashClosesClosedBetweenQuery string
 	//go:embed queries/cash_close/find_by_id.sql
 	findCashCloseByIDQuery string
 	//go:embed queries/cash_close/find_last.sql
@@ -57,7 +59,18 @@ func (r *CashCloseRepository) ListRecent(ctx context.Context, establishmentID st
 	if err != nil {
 		return nil, err
 	}
+	return collectCashCloses(rows)
+}
 
+func (r *CashCloseRepository) ListClosedBetween(ctx context.Context, establishmentID string, from, to time.Time) ([]domain.CashClose, error) {
+	rows, err := r.pool.Query(ctx, listCashClosesClosedBetweenQuery, establishmentID, from, to)
+	if err != nil {
+		return nil, err
+	}
+	return collectCashCloses(rows)
+}
+
+func collectCashCloses(rows pgx.Rows) ([]domain.CashClose, error) {
 	return pgx.CollectRows(rows, func(row pgx.CollectableRow) (domain.CashClose, error) {
 		return scanCashClose(row)
 	})

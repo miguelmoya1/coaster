@@ -12,8 +12,9 @@ import (
 )
 
 type tillCloses struct {
-	closed *domain.NewCashClose
-	voided *domain.VoidCashClose
+	closed        *domain.NewCashClose
+	voided        *domain.VoidCashClose
+	closedBetween []time.Time
 }
 
 var (
@@ -21,6 +22,11 @@ var (
 	tillVoidedAt = domain.NewTime(time.Date(2026, 9, 25, 8, 0, 0, 0, time.UTC))
 	tillVoidedBy = "Ana"
 )
+
+func (c *tillCloses) ListClosedBetween(ctx context.Context, establishmentID string, from, to time.Time) ([]domain.CashClose, error) {
+	c.closedBetween = []time.Time{from, to}
+	return c.ListRecent(ctx, establishmentID)
+}
 
 func (tillCloses) ListRecent(context.Context, string) ([]domain.CashClose, error) {
 	return []domain.CashClose{{
@@ -75,6 +81,7 @@ func TestCashCloseRoutesNeedTheOrdersModule(t *testing.T) {
 
 	for _, route := range []string{
 		"GET /api/v1/establishments/e1/cash-closes",
+		"GET /api/v1/establishments/e1/cash-closes?date=2026-09-23",
 		"GET /api/v1/establishments/e1/cash-closes/preview",
 		"POST /api/v1/establishments/e1/cash-closes",
 		"POST /api/v1/establishments/e1/cash-closes/close-1/void",
@@ -163,6 +170,25 @@ func TestCashCloseRoutesAnswerLikeNest(t *testing.T) {
 	}
 	if closes.voided == nil || *closes.voided != (domain.VoidCashClose{EstablishmentID: "e1", CashCloseID: "close-2", VoidedByID: testUser.ID}) {
 		t.Errorf("voided with %+v", closes.voided)
+	}
+}
+
+func TestCashCloseListOfADay(t *testing.T) {
+	closes := &tillCloses{}
+	server := newTillServer(fakeAccess{role: domain.EstablishmentRoleStaff, modules: domain.AllEstablishmentModules}, closes, &tillStats{})
+
+	response := send(server, "GET", "/api/v1/establishments/e1/cash-closes?date=2026-09-23", "", tillSignedIn)
+	if response.Code != http.StatusOK || !strings.HasPrefix(response.Body.String(), `[{"id":"close-1",`) {
+		t.Errorf("list of a day = %d %s", response.Code, response.Body)
+	}
+	if want := time.Date(2026, 9, 22, 22, 0, 0, 0, time.UTC); len(closes.closedBetween) != 2 || !closes.closedBetween[0].Equal(want) {
+		t.Errorf("read closes between %v, want from %s", closes.closedBetween, want)
+	}
+
+	response = send(server, "GET", "/api/v1/establishments/e1/cash-closes?date=23-09-2026", "", tillSignedIn)
+	want := `{"message":"INVALID_DATE","error":"Bad Request","statusCode":400}`
+	if response.Code != http.StatusBadRequest || response.Body.String() != want {
+		t.Errorf("list of a bad date = %d %s", response.Code, response.Body)
 	}
 }
 

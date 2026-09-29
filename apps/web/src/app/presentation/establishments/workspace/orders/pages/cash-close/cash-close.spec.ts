@@ -1,5 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ActionFeedback, asEstablishmentId, asUserId } from '@coaster/core';
+import { By } from '@angular/platform-browser';
+import { provideRouter, Router } from '@angular/router';
+import { ActionFeedback, asEstablishmentId, asUserId, todayCalendarDate } from '@coaster/core';
 import { asCashCloseId, ManageCashCloses, type CashClose, type CashClosePreview } from '@coaster/cash-close';
 import { fakeResource } from '@coaster/testing';
 import { CurrentEstablishmentStore } from '@coaster/establishments';
@@ -7,6 +9,7 @@ import { PrintTicket } from '@coaster/printer';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ConfirmationDialog } from '../../../../../components/confirm-dialog/confirmation-dialog.service';
+import { DayPicker } from '../../../../../components/day-picker/day-picker';
 import CashClosePage from './cash-close';
 
 const previewOf = (overrides: Partial<CashClosePreview> = {}): CashClosePreview => ({
@@ -16,7 +19,7 @@ const previewOf = (overrides: Partial<CashClosePreview> = {}): CashClosePreview 
   cashAmount: 42050,
   cardAmount: 31000,
   tipAmount: 1200,
-  since: '2026-09-23T08:00:00.000Z',
+  since: '2026-09-23T23:40:00.000Z',
   openOrders: 0,
   openOrdersCharged: 0,
   openingFloat: 15000,
@@ -64,6 +67,7 @@ const voidedClose: CashClose = {
 describe('CashClosePage', () => {
   let fixture: ComponentFixture<CashClosePage>;
   let component: CashClosePage;
+  let navigate: ReturnType<typeof vi.spyOn>;
 
   let preview = fakeResource(previewOf());
   let history = fakeResource<CashClose[]>([cashClose]);
@@ -75,11 +79,12 @@ describe('CashClosePage', () => {
   const confirmationMock = { confirm: vi.fn().mockResolvedValue(true) };
   const printMock = { executeText: vi.fn().mockResolvedValue(undefined) };
 
-  const render = async () => {
+  const render = async (date?: string) => {
     fixture = TestBed.createComponent(CashClosePage);
     fixture.componentRef.setInput('establishmentId', asEstablishmentId('establishment-1'));
     fixture.componentRef.setInput('preview', preview.resource);
     fixture.componentRef.setInput('history', history.resource);
+    fixture.componentRef.setInput('date', date);
     component = fixture.componentInstance;
     await fixture.whenStable();
   };
@@ -106,6 +111,7 @@ describe('CashClosePage', () => {
       imports: [CashClosePage],
       providers: [
         provideTranslateService(),
+        provideRouter([]),
         { provide: ManageCashCloses, useValue: manageMock },
         { provide: ConfirmationDialog, useValue: confirmationMock },
         { provide: PrintTicket, useValue: printMock },
@@ -113,7 +119,11 @@ describe('CashClosePage', () => {
         { provide: CurrentEstablishmentStore, useValue: { current: { value: () => ({ name: 'Bar Pepe' }) } } },
       ],
     }).compileComponents();
+
+    navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
   });
+
+  const cashClosePage = ['/establishments', 'establishment-1', 'orders', 'cash-close'];
 
   it('should show progress while the till is being added up', async () => {
     preview = fakeResource<CashClosePreview>();
@@ -163,6 +173,14 @@ describe('CashClosePage', () => {
     expect(history.reload).toHaveBeenCalled();
   });
 
+  it('should show today once the till is closed, where the new close is', async () => {
+    await render('2026-09-01');
+
+    await submit();
+
+    expect(navigate).toHaveBeenLastCalledWith(cashClosePage, { queryParams: { date: null } });
+  });
+
   it('should not close when the confirmation is turned down', async () => {
     confirmationMock.confirm.mockResolvedValueOnce(false);
     await render();
@@ -185,6 +203,32 @@ describe('CashClosePage', () => {
   const cards = () => [...fixture.nativeElement.querySelectorAll('[data-testid="cash-close"]')] as HTMLElement[];
   const undoButtons = () =>
     [...fixture.nativeElement.querySelectorAll('[data-testid="undo-cash-close-btn"]')] as HTMLButtonElement[];
+
+  it('should move between days through the URL, leaving it clean for today', async () => {
+    await render();
+    const pickDay = (date: string) =>
+      fixture.debugElement.query(By.directive(DayPicker)).componentInstance.dateChange.emit(date);
+
+    pickDay('2026-09-22');
+    expect(navigate).toHaveBeenLastCalledWith(cashClosePage, { queryParams: { date: '2026-09-22' } });
+
+    pickDay(todayCalendarDate());
+    expect(navigate).toHaveBeenLastCalledWith(cashClosePage, { queryParams: { date: null } });
+  });
+
+  it('should say when the till was not closed that day', async () => {
+    history = fakeResource<CashClose[]>([]);
+    await render('2026-09-01');
+
+    expect(text()).toContain('cash_close.no_history');
+  });
+
+  it('should not offer to undo a close of another day that is no longer the last', async () => {
+    history = fakeResource<CashClose[]>([olderClose]);
+    await render('2026-09-22');
+
+    expect(undoButtons()).toHaveLength(0);
+  });
 
   it('should offer to undo only the last close that still counts', async () => {
     history = fakeResource<CashClose[]>([voidedClose, cashClose, olderClose]);

@@ -136,6 +136,50 @@ func TestCashCloseVoidFailsWithTheRepository(t *testing.T) {
 	}
 }
 
+func TestCashCloseListByDateReadsTheDayInMadrid(t *testing.T) {
+	tests := []struct {
+		date     string
+		from, to time.Time
+	}{
+		{date: "2026-09-27", from: time.Date(2026, 9, 26, 22, 0, 0, 0, time.UTC), to: time.Date(2026, 9, 27, 22, 0, 0, 0, time.UTC)},
+		{date: "2026-10-25", from: time.Date(2026, 10, 24, 22, 0, 0, 0, time.UTC), to: time.Date(2026, 10, 25, 23, 0, 0, 0, time.UTC)},
+		{date: "2026-03-29", from: time.Date(2026, 3, 28, 23, 0, 0, 0, time.UTC), to: time.Date(2026, 3, 29, 22, 0, 0, 0, time.UTC)},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.date, func(t *testing.T) {
+			repo := &fakeCashCloseRepository{recent: []domain.CashClose{
+				{ID: "close-1", OpeningFloat: 15000, CountedCash: 57550, CashCloseTotals: domain.CashCloseTotals{CashAmount: 42050}},
+			}}
+
+			closes, err := NewCashCloseService(repo).ListByDate(context.Background(), "e1", tt.date)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			if len(repo.closedBetween) != 2 || !repo.closedBetween[0].Equal(tt.from) || !repo.closedBetween[1].Equal(tt.to) {
+				t.Errorf("read closes between %v, want %s and %s", repo.closedBetween, tt.from, tt.to)
+			}
+			if len(closes) != 1 || closes[0].ExpectedCash != 57050 || closes[0].Difference != 500 {
+				t.Errorf("closes = %+v, want them with the arqueo", closes)
+			}
+		})
+	}
+}
+
+func TestCashCloseListByDateRejectsWhatIsNotADay(t *testing.T) {
+	for _, date := range []string{"27/09/2026", "2026-02-30", "2026-09-27T10:00:00Z", "yesterday"} {
+		repo := &fakeCashCloseRepository{}
+
+		if _, err := NewCashCloseService(repo).ListByDate(context.Background(), "e1", date); !domain.HasCode(err, domain.CodeInvalidDate) {
+			t.Errorf("%s: err = %v, want %s", date, err, domain.CodeInvalidDate)
+		}
+		if repo.closedBetween != nil {
+			t.Errorf("%s: read the closes anyway", date)
+		}
+	}
+}
+
 func TestCashCloseListAddsTheArqueo(t *testing.T) {
 	repo := &fakeCashCloseRepository{recent: []domain.CashClose{
 		{ID: "close-2", OpeningFloat: 15000, CountedCash: 57550, CashCloseTotals: domain.CashCloseTotals{CashAmount: 42050}},

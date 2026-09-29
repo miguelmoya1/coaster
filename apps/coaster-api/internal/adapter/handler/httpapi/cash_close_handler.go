@@ -37,7 +37,15 @@ type closeCashRequest struct {
 }
 
 func (h *CashCloseHandler) list(w http.ResponseWriter, r *http.Request) {
-	closes, err := h.closes.List(r.Context(), r.PathValue("establishmentId"))
+	establishmentID := r.PathValue("establishmentId")
+
+	var closes []domain.CashClose
+	var err error
+	if date := r.URL.Query().Get("date"); date != "" {
+		closes, err = h.closes.ListByDate(r.Context(), establishmentID, date)
+	} else {
+		closes, err = h.closes.List(r.Context(), establishmentID)
+	}
 	if err != nil {
 		writeError(w, err)
 		return

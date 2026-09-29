@@ -114,6 +114,8 @@
 
 <h2 class="heading-2">{{ 'cash_close.history_title' | translate }}</h2>
 
+<coaster-day-picker [date]="selectedDate()" [today]="today" (dateChange)="showDay($event)" />
+
 <div class="flex flex-col gap-3">
   @for (cashClose of historyList(); track cashClose.id) {
     <div

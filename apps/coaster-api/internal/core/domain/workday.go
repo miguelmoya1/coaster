@@ -68,6 +68,11 @@ func ParseWorkdayDate(date string) (time.Time, bool) {
 	return parsed, err == nil
 }
 
+func ParseEstablishmentDay(date string) (time.Time, bool) {
+	start, err := time.ParseInLocation(workdayLayout, date, establishmentLocation)
+	return start, err == nil
+}
+
 func ToWorkdayDate(instant time.Time) time.Time {
 	date, _ := ParseWorkdayDate(WorkdayDateOf(instant))
 	return date

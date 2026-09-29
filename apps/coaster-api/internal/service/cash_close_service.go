@@ -20,11 +20,20 @@ func (s *CashCloseService) List(ctx context.Context, establishmentID string) ([]
 	if err != nil {
 		return nil, err
 	}
+	return withCashCounts(closes), nil
+}
 
-	for i := range closes {
-		closes[i] = withCashCount(closes[i])
+func (s *CashCloseService) ListByDate(ctx context.Context, establishmentID, date string) ([]domain.CashClose, error) {
+	start, ok := domain.ParseEstablishmentDay(date)
+	if !ok {
+		return nil, domain.BadRequest(domain.CodeInvalidDate)
 	}
-	return closes, nil
+
+	closes, err := s.closes.ListClosedBetween(ctx, establishmentID, start, start.AddDate(0, 0, 1))
+	if err != nil {
+		return nil, err
+	}
+	return withCashCounts(closes), nil
 }
 
 func (s *CashCloseService) Preview(ctx context.Context, establishmentID string) (domain.CashClosePreview, error) {
@@ -75,6 +84,13 @@ func (s *CashCloseService) Void(ctx context.Context, establishmentID, cashCloseI
 	}
 
 	return withCashCount(voided), nil
+}
+
+func withCashCounts(closes []domain.CashClose) []domain.CashClose {
+	for i := range closes {
+		closes[i] = withCashCount(closes[i])
+	}
+	return closes
 }
 
 func withCashCount(cashClose domain.CashClose) domain.CashClose {

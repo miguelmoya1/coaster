@@ -1,33 +1,4 @@
-<div class="flex items-center justify-between bg-surface-container rounded-2xl p-3 gap-2">
-  <button mat-icon-button (click)="prevDay()">
-    <mat-icon class="text-[20px]! w-[20px]! h-[20px]! leading-[20px]! m-0!">chevron_left</mat-icon>
-  </button>
-
-  <div class="flex items-center gap-2 flex-1 justify-center">
-    <input
-      [matDatepicker]="datePicker"
-      class="bg-transparent text-on-surface font-bold text-center outline-none cursor-pointer border-none"
-      [value]="selectedDateAsDate()"
-      [max]="todayDate"
-      (dateChange)="onDatePickerChange($event.value)"
-    />
-    <mat-datepicker-toggle [for]="datePicker" class="text-primary" />
-    <mat-datepicker #datePicker />
-  </div>
-
-  <button mat-icon-button [disabled]="isToday()" (click)="nextDay()">
-    <mat-icon class="text-[20px]! w-[20px]! h-[20px]! leading-[20px]! m-0!">chevron_right</mat-icon>
-  </button>
-</div>
-
-<div class="flex items-center gap-2">
-  <button mat-stroked-button class="w-full" (click)="goToday()">
-    {{ 'history.today' | translate }}
-  </button>
-  <button mat-stroked-button class="w-full" (click)="goYesterday()">
-    {{ 'history.yesterday' | translate }}
-  </button>
-</div>
+<coaster-day-picker [date]="selectedDate()" [today]="today" (dateChange)="showDay($event)" />
 
 <div class="grid grid-cols-2 gap-3">
   <coaster-stat-card [label]="'history.revenue' | translate" [value]="summary().revenue | price" />

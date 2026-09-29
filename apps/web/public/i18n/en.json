@@ -338,9 +338,7 @@
     "status_closed": "Closed",
     "status_open": "Open",
     "title": "Order History",
-    "today": "Today",
-    "total_orders": "Completed",
-    "yesterday": "Yesterday"
+    "total_orders": "Completed"
   },
   "cash_close": {
     "tab": "Till",
@@ -371,8 +369,8 @@
     "confirm_title": "Close the till",
     "confirm_message": "{{count}} paid orders are closed and the cash count is saved. If you get it wrong, you can undo the last till close.",
     "closed": "Till closed",
-    "history_title": "Previous closes",
-    "no_history": "The till has not been closed yet",
+    "history_title": "Closes",
+    "no_history": "The till was not closed that day",
     "closed_by": "Closed by {{name}}",
     "print": "Print",
     "undo": "Undo",
@@ -1134,6 +1132,12 @@
   "BETA_TESTER_ALREADY_EXISTS": "That email is already on the tester list.",
   "BETA_TESTER_NOT_FOUND": "That tester is no longer on the list.",
   "components": {
+    "day_picker": {
+      "next_day": "Next day",
+      "previous_day": "Previous day",
+      "today": "Today",
+      "yesterday": "Yesterday"
+    },
     "icon_picker": {
       "search": "Search icon",
       "loading": "Loading icons…",

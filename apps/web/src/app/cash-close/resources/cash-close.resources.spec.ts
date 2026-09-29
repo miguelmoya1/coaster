@@ -6,7 +6,7 @@ import type { Order } from '@coaster/orders';
 import { asEstablishmentId, Realtime, type EstablishmentId } from '@coaster/core';
 import { fakeRealtime } from '@coaster/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { cashClosePreviewResource } from './cash-close.resources';
+import { cashClosePreviewResource, cashClosesResource } from './cash-close.resources';
 
 const establishmentId = asEstablishmentId('establishment-1');
 const url = `/establishments/${establishmentId}/cash-closes/preview`;
@@ -50,5 +50,27 @@ describe('cashClosePreviewResource', () => {
     TestBed.tick();
 
     http.expectOne(url);
+  });
+});
+
+describe('cashClosesResource', () => {
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting()],
+    });
+  });
+
+  it('should ask for the closes of the day it is given, and again when the day changes', () => {
+    const http = TestBed.inject(HttpTestingController);
+    const date = signal('2026-09-27');
+    TestBed.runInInjectionContext(() => cashClosesResource(signal<EstablishmentId | undefined>(establishmentId), date));
+    TestBed.tick();
+
+    http.expectOne(`/establishments/${establishmentId}/cash-closes?date=2026-09-27`).flush([]);
+
+    date.set('2026-09-26');
+    TestBed.tick();
+
+    http.expectOne(`/establishments/${establishmentId}/cash-closes?date=2026-09-26`);
   });
 });

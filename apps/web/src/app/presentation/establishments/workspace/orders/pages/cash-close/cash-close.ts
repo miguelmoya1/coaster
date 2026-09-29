@@ -2,6 +2,7 @@ import { Component, computed, effect, inject, input, signal } from '@angular/cor
 import { form, FormField, FormRoot, maxLength, min, required } from '@angular/forms/signals';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
+import { Router } from '@angular/router';
 import {
   cashCloseTicket,
   cashDifferenceOf,
@@ -15,6 +16,7 @@ import {
   DateFormatterService,
   handleErrorFormField,
   loadedOr,
+  todayCalendarDate,
   type EstablishmentId,
   type PageResource,
 } from '@coaster/core';
@@ -23,6 +25,7 @@ import { CurrentEstablishmentStore } from '@coaster/establishments';
 import { PrintTicket } from '@coaster/printer';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ConfirmationDialog } from '../../../../../components/confirm-dialog/confirmation-dialog.service';
+import { DayPicker } from '../../../../../components/day-picker/day-picker';
 import { Field } from '../../../../../components/field/field';
 import { FormErrors } from '../../../../../components/field/form-errors';
 import { CoasterInput } from '../../../../../components/field/input.directive';
@@ -49,6 +52,7 @@ const toCents = (euros: number) => Math.round((euros || 0) * 100);
     StatCard,
     PricePipe,
     RequireSubscriptionDirective,
+    DayPicker,
   ],
   host: { class: 'flex flex-col gap-4' },
   templateUrl: './cash-close.html',
@@ -57,6 +61,7 @@ class CashClosePage {
   public readonly establishmentId = input.required<EstablishmentId>();
   public readonly preview = input.required<PageResource<CashClosePreview>>();
   public readonly history = input.required<PageResource<CashClose[]>>();
+  public readonly date = input<string>();
 
   readonly #manageCashCloses = inject(ManageCashCloses);
   readonly #currentEstablishment = inject(CurrentEstablishmentStore);
@@ -65,14 +70,21 @@ class CashClosePage {
   readonly #translate = inject(TranslateService);
   readonly #feedback = inject(ActionFeedback);
   readonly #dates = inject(DateFormatterService);
+  readonly #router = inject(Router);
 
   protected readonly printingId = signal<string | null>(null);
   protected readonly undoing = signal(false);
   protected readonly when = (iso: string) => this.#dates.formatDateTime(iso);
 
+  protected readonly today = todayCalendarDate();
+  protected readonly selectedDate = computed(() => this.date() ?? this.today);
+
   protected readonly historyList = computed(() => loadedOr(this.history(), []));
 
-  protected readonly lastCloseId = computed(() => this.historyList().find((cashClose) => !cashClose.voidedAt)?.id);
+  protected readonly lastCloseId = computed(() => {
+    const since = this.current()?.since;
+    return this.historyList().find((cashClose) => !cashClose.voidedAt && cashClose.closedAt === since)?.id;
+  });
 
   readonly #formBase = signal({ openingFloat: 0, countedCash: 0, notes: '' });
 
@@ -109,6 +121,7 @@ class CashClosePage {
             });
             this.preview().reload();
             this.history().reload();
+            this.showDay(this.today);
             this.form().reset({ openingFloat, countedCash: 0, notes: '' });
             this.#feedback.success(this.#translate.instant('cash_close.closed'));
             return null;
@@ -143,6 +156,12 @@ class CashClosePage {
       if (openingFloat !== undefined && !this.form.openingFloat().dirty()) {
         this.form.openingFloat().value.set(openingFloat / 100);
       }
+    });
+  }
+
+  protected showDay(date: string) {
+    void this.#router.navigate(['/establishments', this.establishmentId(), 'orders', 'cash-close'], {
+      queryParams: { date: date === this.today ? null : date },
     });
   }
 

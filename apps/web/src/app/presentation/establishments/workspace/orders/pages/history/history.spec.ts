@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideNativeDateAdapter } from '@angular/material/core';
+import { By } from '@angular/platform-browser';
 import { provideRouter, Router } from '@angular/router';
 import { asEstablishmentId } from '@coaster/core';
 import { MyMemberStore } from '@coaster/establishment-members';
@@ -9,6 +9,7 @@ import { fakeResource } from '@coaster/testing';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ConfirmationDialog } from '../../../../../components/confirm-dialog/confirmation-dialog.service';
+import { DayPicker } from '../../../../../components/day-picker/day-picker';
 import History from './history';
 
 const establishmentId = asEstablishmentId('establishment-1');
@@ -41,7 +42,6 @@ describe('History', () => {
       imports: [History],
       providers: [
         provideTranslateService(),
-        provideNativeDateAdapter(),
         provideRouter([]),
         { provide: ManageOrder, useValue: manageOrderMock },
         { provide: ConfirmationDialog, useValue: confirmationMock },
@@ -78,26 +78,21 @@ describe('History', () => {
     expect(component['summary']()).toEqual({ closed: 2, cancelled: 1, revenue: 3000, averageTicket: 1500 });
   });
 
+  const pickDay = (date: string) =>
+    fixture.debugElement.query(By.directive(DayPicker)).componentInstance.dateChange.emit(date);
+
   it('should move between days through the URL, leaving it clean for today', async () => {
     await render(fakeResource<Order[]>([]), '2026-09-10');
 
-    component.prevDay();
+    pickDay('2026-09-09');
     expect(navigate).toHaveBeenLastCalledWith(['/establishments', establishmentId, 'orders', 'history'], {
       queryParams: { date: '2026-09-09' },
     });
 
-    component.goToday();
+    pickDay(todayIso());
     expect(navigate).toHaveBeenLastCalledWith(['/establishments', establishmentId, 'orders', 'history'], {
       queryParams: { date: null },
     });
-  });
-
-  it('should not go past today', async () => {
-    await render();
-
-    component.nextDay();
-
-    expect(navigate).not.toHaveBeenCalled();
   });
 
   it('should delete an order after confirming and bring the day up to date', async () => {

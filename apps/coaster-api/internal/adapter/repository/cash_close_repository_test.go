@@ -475,3 +475,36 @@ func TestCashCloseRepositoryVoidsOnlyTheLastClose(t *testing.T) {
 		t.Errorf("the close before a voided one is the last again, but: %v", err)
 	}
 }
+
+func TestCashCloseRepositoryListsTheClosesOfADay(t *testing.T) {
+	seedTill(t)
+	ctx := context.Background()
+	from := time.Date(2026, 9, 26, 22, 0, 0, 0, time.UTC)
+	to := from.Add(24 * time.Hour)
+
+	insertTillClose(t, "the-day-before", "e1", "ana", from.Add(-time.Millisecond), 0)
+	insertTillClose(t, "at-midnight", "e1", "ana", from, 0)
+	insertTillClose(t, "after-midnight", "e1", "luis", from.Add(3*time.Hour), 0)
+	insertTillClose(t, "at-night", "e1", "ana", to.Add(-time.Minute), 0)
+	insertTillClose(t, "the-day-after", "e1", "ana", to, 0)
+	insertTillClose(t, "theirs", "e2", "ana", from.Add(time.Hour), 0)
+	if _, err := testPool.Exec(ctx, `UPDATE "CashClose" SET "voidedAt" = $2, "voidedById" = 'luis' WHERE id = $1`, "after-midnight", to); err != nil {
+		t.Fatal(err)
+	}
+
+	closes, err := NewCashCloseRepository(testPool).ListClosedBetween(ctx, "e1", from, to)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var ids []string
+	for _, c := range closes {
+		ids = append(ids, c.ID)
+	}
+	if want := []string{"at-night", "after-midnight", "at-midnight"}; !slices.Equal(ids, want) {
+		t.Fatalf("closes of the day = %v, want %v", ids, want)
+	}
+	if voided := closes[1]; voided.VoidedByName == nil || *voided.VoidedByName != "Luis" || voided.ClosedByName != "Luis" {
+		t.Errorf("the voided close = %+v, want it listed with who undid it", voided)
+	}
+}

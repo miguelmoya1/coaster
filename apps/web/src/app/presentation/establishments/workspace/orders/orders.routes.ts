@@ -1,9 +1,15 @@
 import { computed, type Signal } from '@angular/core';
-import { provideNativeDateAdapter } from '@angular/material/core';
 import { Routes } from '@angular/router';
 import { cashClosePreviewResource, cashClosesResource } from '@coaster/cash-close';
 import { categoriesResource } from '@coaster/categories';
-import { establishmentIdOf, nonBlockingResources, queryParam, routeParam, type EstablishmentId } from '@coaster/core';
+import {
+  establishmentIdOf,
+  nonBlockingResources,
+  queryParam,
+  routeParam,
+  todayCalendarDate,
+  type EstablishmentId,
+} from '@coaster/core';
 import { EstablishmentPermission, permissionGuard } from '@coaster/establishment-members';
 import { openOrdersResource, orderHistoryResource, orderResource, todayIso, type OrderId } from '@coaster/orders';
 import { productsResource } from '@coaster/products';
@@ -41,7 +47,6 @@ const ordersRoutes: Routes = [
       },
       {
         path: 'history',
-        providers: [provideNativeDateAdapter()],
         loadComponent: () => import('./pages/history/history'),
         resources: nonBlockingResources((context) => {
           const date = queryParam(context, 'date');
@@ -60,10 +65,14 @@ const ordersRoutes: Routes = [
         canActivate: [permissionGuard(EstablishmentPermission.ESTABLISHMENT_CLOSE_CASH)],
         resources: nonBlockingResources((context) => {
           const establishmentId = establishmentIdOf(context);
+          const date = queryParam(context, 'date');
 
           return {
             preview: cashClosePreviewResource(establishmentId),
-            history: cashClosesResource(establishmentId),
+            history: cashClosesResource(
+              establishmentId,
+              computed(() => date() ?? todayCalendarDate()),
+            ),
           };
         }),
       },

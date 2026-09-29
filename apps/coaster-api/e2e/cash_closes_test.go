@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strings"
 	"testing"
+	"time"
 
 	"coaster-api/internal/core/domain"
 )
@@ -89,6 +90,26 @@ func TestCashCloses(t *testing.T) {
 		if len(history) != 1 || history[0]["id"] != cashClose["id"] {
 			t.Errorf("history = %v, want only %v", history, cashClose["id"])
 		}
+	})
+
+	t.Run("lists the closes of a day", func(t *testing.T) {
+		api := newApp(t)
+		b := setup(t)
+		sell(t, api, b, "CASH", 0)
+		cashClose := closeTill(t, api, b, 0, 1100)
+		today := domain.WorkdayDateOf(time.Now())
+		yesterday := domain.WorkdayDateOf(time.Now().AddDate(0, 0, -1))
+
+		closes := api.get(t, b.base+"/cash-closes?date="+today).expect(t, http.StatusOK).list(t)
+		if len(closes) != 1 || closes[0]["id"] != cashClose["id"] || closes[0]["expectedCash"] != float64(1100) {
+			t.Errorf("closes of today = %v, want only %v", closes, cashClose["id"])
+		}
+
+		if closes := api.get(t, b.base+"/cash-closes?date="+yesterday).expect(t, http.StatusOK).list(t); len(closes) != 0 {
+			t.Errorf("closes of yesterday = %v, want none", closes)
+		}
+
+		messageContains(t, api.get(t, b.base+"/cash-closes?date=ayer").expect(t, http.StatusBadRequest), domain.CodeInvalidDate)
 	})
 
 	t.Run("leaves an open order out, warns about what it charged and counts it once paid", func(t *testing.T) {

@@ -1,6 +1,5 @@
 import { Component, computed, inject, input } from '@angular/core';
-import { MatButton, MatIconButton } from '@angular/material/button';
-import { MatDatepicker, MatDatepickerInput, MatDatepickerToggle } from '@angular/material/datepicker';
+import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { MyMemberStore } from '@coaster/establishment-members';
@@ -9,6 +8,7 @@ import { ActionFeedback, loadedOr, type EstablishmentId, type PageResource } fro
 import { asOrderId, ManageOrder, orderHistorySummary, OrderStatus, todayIso, type Order } from '@coaster/orders';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ConfirmationDialog } from '../../../../../components/confirm-dialog/confirmation-dialog.service';
+import { DayPicker } from '../../../../../components/day-picker/day-picker';
 import { ResourceStatus } from '../../../../../components/resource-status/resource-status';
 import { StatCard } from '../../../../../components/stat-card/stat-card';
 import { PricePipe } from '../../../pipes/price/price';
@@ -16,13 +16,10 @@ import { PricePipe } from '../../../pipes/price/price';
 @Component({
   selector: 'coaster-history',
   imports: [
-    MatDatepicker,
-    MatDatepickerInput,
-    MatDatepickerToggle,
+    DayPicker,
     ResourceStatus,
     TranslatePipe,
     MatIcon,
-    MatButton,
     MatIconButton,
     PricePipe,
     StatCard,
@@ -45,9 +42,7 @@ class History {
   readonly #feedback = inject(ActionFeedback);
 
   readonly today = todayIso();
-  readonly todayDate = new Date();
   protected readonly selectedDate = computed(() => this.date() ?? this.today);
-  protected readonly selectedDateAsDate = computed(() => new Date(this.selectedDate()));
 
   readonly #orders = computed(() => loadedOr(this.history(), []));
   protected readonly summary = computed(() => orderHistorySummary(this.#orders()));
@@ -65,38 +60,7 @@ class History {
     })),
   );
 
-  onDatePickerChange(date: Date | null) {
-    if (date) {
-      this.#showDay(date.toISOString().split('T')[0]);
-    }
-  }
-
-  prevDay() {
-    this.#showDay(this.#shift(-1));
-  }
-
-  nextDay() {
-    if (this.isToday()) return;
-    this.#showDay(this.#shift(1));
-  }
-
-  goToday() {
-    this.#showDay(this.today);
-  }
-
-  goYesterday() {
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    this.#showDay(yesterday.toISOString().split('T')[0]);
-  }
-
-  #shift(days: number): string {
-    const current = new Date(this.selectedDate());
-    current.setDate(current.getDate() + days);
-    return current.toISOString().split('T')[0];
-  }
-
-  #showDay(date: string) {
+  protected showDay(date: string) {
     void this.#router.navigate(['/establishments', this.establishmentId(), 'orders', 'history'], {
       queryParams: { date: date === this.today ? null : date },
     });
