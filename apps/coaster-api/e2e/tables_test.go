@@ -6,8 +6,6 @@ import (
 )
 
 func TestTables(t *testing.T) {
-	api := newApp(t)
-
 	setup := func(t *testing.T) string {
 		resetWithMockUser(t)
 		return createEstablishment(t, "My Establishment")
@@ -21,6 +19,7 @@ func TestTables(t *testing.T) {
 	}
 
 	t.Run("creates a table", func(t *testing.T) {
+		api := newApp(t)
 		establishmentID := setup(t)
 
 		api.post(t, "/establishments/"+establishmentID+"/tables", map[string]any{"name": "Table 1"}).
@@ -37,12 +36,14 @@ func TestTables(t *testing.T) {
 	})
 
 	t.Run("rejects an invalid payload", func(t *testing.T) {
+		api := newApp(t)
 		establishmentID := setup(t)
 
 		api.post(t, "/establishments/"+establishmentID+"/tables", map[string]any{}).expect(t, http.StatusBadRequest)
 	})
 
 	t.Run("lists the tables", func(t *testing.T) {
+		api := newApp(t)
 		establishmentID := setup(t)
 		tableID := createTable(t, establishmentID, "Table 2")
 
@@ -54,6 +55,7 @@ func TestTables(t *testing.T) {
 	})
 
 	t.Run("renames a table", func(t *testing.T) {
+		api := newApp(t)
 		establishmentID := setup(t)
 		tableID := createTable(t, establishmentID, "Old Name")
 
@@ -66,6 +68,7 @@ func TestTables(t *testing.T) {
 	})
 
 	t.Run("deletes a table", func(t *testing.T) {
+		api := newApp(t)
 		establishmentID := setup(t)
 		tableID := createTable(t, establishmentID, "To Delete")
 

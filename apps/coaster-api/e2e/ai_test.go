@@ -6,9 +6,8 @@ import (
 )
 
 func TestAI(t *testing.T) {
-	api := newApp(t)
-
 	t.Run("answers a member without a gateway key with the translatable error", func(t *testing.T) {
+		api := newApp(t)
 		resetWithMockUser(t)
 		establishmentID := createEstablishment(t, "My Establishment")
 

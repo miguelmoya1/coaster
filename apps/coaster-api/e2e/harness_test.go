@@ -6,9 +6,8 @@ import (
 )
 
 func TestUnknownRoutes(t *testing.T) {
-	api := newApp(t)
-
 	t.Run("answers the 404 of Nest", func(t *testing.T) {
+		api := newApp(t)
 		body := api.get(t, "/no-such-route").expect(t, http.StatusNotFound).object(t)
 
 		want := map[string]any{"statusCode": float64(404), "error": "Not Found", "message": "Cannot GET /api/v1/no-such-route"}
@@ -23,6 +22,7 @@ func TestUnknownRoutes(t *testing.T) {
 	})
 
 	t.Run("answers it with a body too", func(t *testing.T) {
+		api := newApp(t)
 		body := api.post(t, "/no-such-route", map[string]any{"name": "anything"}).expect(t, http.StatusNotFound).object(t)
 
 		if body["message"] != "Cannot POST /api/v1/no-such-route" {

@@ -6,9 +6,8 @@ import (
 )
 
 func TestUsers(t *testing.T) {
-	api := newApp(t)
-
 	t.Run("returns the profile of the caller", func(t *testing.T) {
+		api := newApp(t)
 		resetWithMockUser(t)
 
 		profile := api.get(t, "/users/me").expect(t, http.StatusOK).object(t)
@@ -19,6 +18,7 @@ func TestUsers(t *testing.T) {
 	})
 
 	t.Run("updates the profile of the caller", func(t *testing.T) {
+		api := newApp(t)
 		resetWithMockUser(t)
 
 		api.patch(t, "/users/me", map[string]any{"name": "Updated Name"}).expect(t, http.StatusOK)

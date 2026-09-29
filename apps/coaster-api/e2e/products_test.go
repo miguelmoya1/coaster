@@ -6,8 +6,6 @@ import (
 )
 
 func TestProducts(t *testing.T) {
-	api := newApp(t)
-
 	setup := func(t *testing.T) (string, string) {
 		resetWithMockUser(t)
 		establishmentID := createEstablishment(t, "My Establishment")
@@ -15,6 +13,7 @@ func TestProducts(t *testing.T) {
 	}
 
 	t.Run("creates a product", func(t *testing.T) {
+		api := newApp(t)
 		establishmentID, categoryID := setup(t)
 
 		api.post(t, "/establishments/"+establishmentID+"/products", map[string]any{
@@ -28,6 +27,7 @@ func TestProducts(t *testing.T) {
 	})
 
 	t.Run("rejects a product without a name", func(t *testing.T) {
+		api := newApp(t)
 		establishmentID, categoryID := setup(t)
 
 		api.post(t, "/establishments/"+establishmentID+"/products", map[string]any{"categoryId": categoryID}).
@@ -35,6 +35,7 @@ func TestProducts(t *testing.T) {
 	})
 
 	t.Run("lists the products", func(t *testing.T) {
+		api := newApp(t)
 		establishmentID, categoryID := setup(t)
 		productID := createProduct(t, categoryID, product{name: "Coke", price: 2})
 
@@ -46,6 +47,7 @@ func TestProducts(t *testing.T) {
 	})
 
 	t.Run("updates a product", func(t *testing.T) {
+		api := newApp(t)
 		establishmentID, categoryID := setup(t)
 		productID := createProduct(t, categoryID, product{name: "Old Name"})
 
@@ -58,6 +60,7 @@ func TestProducts(t *testing.T) {
 	})
 
 	t.Run("updates the stock", func(t *testing.T) {
+		api := newApp(t)
 		establishmentID, categoryID := setup(t)
 		productID := createProduct(t, categoryID, product{name: "Beer", stock: 10})
 
@@ -70,6 +73,7 @@ func TestProducts(t *testing.T) {
 	})
 
 	t.Run("deletes a product softly", func(t *testing.T) {
+		api := newApp(t)
 		establishmentID, categoryID := setup(t)
 		productID := createProduct(t, categoryID, product{name: "To Delete"})
 

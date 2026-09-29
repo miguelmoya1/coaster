@@ -6,14 +6,13 @@ import (
 )
 
 func TestCategories(t *testing.T) {
-	api := newApp(t)
-
 	setup := func(t *testing.T) string {
 		resetWithMockUser(t)
 		return createEstablishment(t, "My Establishment")
 	}
 
 	t.Run("creates a category", func(t *testing.T) {
+		api := newApp(t)
 		establishmentID := setup(t)
 
 		api.post(t, "/establishments/"+establishmentID+"/categories", map[string]any{"name": "Drinks", "icon": "beer"}).
@@ -26,12 +25,14 @@ func TestCategories(t *testing.T) {
 	})
 
 	t.Run("rejects an invalid payload", func(t *testing.T) {
+		api := newApp(t)
 		establishmentID := setup(t)
 
 		api.post(t, "/establishments/"+establishmentID+"/categories", map[string]any{"name": ""}).expect(t, http.StatusBadRequest)
 	})
 
 	t.Run("lists the categories", func(t *testing.T) {
+		api := newApp(t)
 		establishmentID := setup(t)
 		categoryID := createCategory(t, establishmentID, "Food")
 
@@ -43,6 +44,7 @@ func TestCategories(t *testing.T) {
 	})
 
 	t.Run("renames a category", func(t *testing.T) {
+		api := newApp(t)
 		establishmentID := setup(t)
 		categoryID := createCategory(t, establishmentID, "Old Name")
 
@@ -55,6 +57,7 @@ func TestCategories(t *testing.T) {
 	})
 
 	t.Run("deletes a category softly", func(t *testing.T) {
+		api := newApp(t)
 		establishmentID := setup(t)
 		categoryID := createCategory(t, establishmentID, "To Delete")
 

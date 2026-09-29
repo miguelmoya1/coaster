@@ -69,10 +69,3 @@ func (b *mailbox) waitFor(t *testing.T, kind, to string) email {
 	t.Fatalf("no %s email ever reached %s", kind, to)
 	return email{}
 }
-
-func (b *mailbox) clear() {
-	b.mu.Lock()
-	defer b.mu.Unlock()
-
-	b.sent = nil
-}

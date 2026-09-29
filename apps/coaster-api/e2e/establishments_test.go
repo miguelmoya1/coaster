@@ -8,9 +8,8 @@ import (
 )
 
 func TestEstablishments(t *testing.T) {
-	api := newApp(t)
-
 	t.Run("creates an establishment owned by the caller", func(t *testing.T) {
+		api := newApp(t)
 		resetWithMockUser(t)
 
 		api.post(t, "/establishments", map[string]any{"name": "My New Establishment"}).expect(t, http.StatusCreated)
@@ -27,12 +26,14 @@ func TestEstablishments(t *testing.T) {
 	})
 
 	t.Run("rejects an invalid payload", func(t *testing.T) {
+		api := newApp(t)
 		resetWithMockUser(t)
 
 		api.post(t, "/establishments", map[string]any{"name": "A"}).expect(t, http.StatusBadRequest)
 	})
 
 	t.Run("lists the establishments the caller belongs to", func(t *testing.T) {
+		api := newApp(t)
 		resetWithMockUser(t)
 		id := createEstablishment(t, "Seeded Establishment", ownedBy(mockUser.id, domain.EstablishmentRoleStaff))
 
@@ -44,6 +45,7 @@ func TestEstablishments(t *testing.T) {
 	})
 
 	t.Run("returns an establishment the caller belongs to", func(t *testing.T) {
+		api := newApp(t)
 		resetWithMockUser(t)
 		id := createEstablishment(t, "My Establishment", ownedBy(mockUser.id, domain.EstablishmentRoleManager))
 
@@ -55,6 +57,7 @@ func TestEstablishments(t *testing.T) {
 	})
 
 	t.Run("refuses one the caller does not belong to", func(t *testing.T) {
+		api := newApp(t)
 		resetWithMockUser(t)
 		id := createEstablishment(t, "Other Establishment", withoutOwner())
 

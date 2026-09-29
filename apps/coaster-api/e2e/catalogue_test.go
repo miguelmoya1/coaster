@@ -8,8 +8,6 @@ import (
 )
 
 func TestCatalogue(t *testing.T) {
-	api := newApp(t)
-
 	setup := func(t *testing.T) string {
 		resetDatabase(t)
 		admin := mockUser
@@ -22,11 +20,11 @@ func TestCatalogue(t *testing.T) {
 		mustExec(t, `UPDATE "EstablishmentSettings" SET language = $2 WHERE "establishmentId" = $1`, establishmentID, language)
 	}
 
-	catalogueOf := func(t *testing.T, establishmentID string) []map[string]any {
+	catalogueOf := func(t *testing.T, api *app, establishmentID string) []map[string]any {
 		return api.get(t, "/establishments/"+establishmentID+"/catalogue").expect(t, http.StatusOK).list(t)
 	}
 
-	importInto := func(t *testing.T, establishmentID string, body map[string]any) *response {
+	importInto := func(t *testing.T, api *app, establishmentID string, body map[string]any) *response {
 		return api.post(t, "/establishments/"+establishmentID+"/catalogue/import", body)
 	}
 
@@ -40,10 +38,11 @@ func TestCatalogue(t *testing.T) {
 	}
 
 	t.Run("hands back words rather than translation keys", func(t *testing.T) {
+		api := newApp(t)
 		establishmentID := setup(t)
 
 		var names []string
-		for _, category := range catalogueOf(t, establishmentID) {
+		for _, category := range catalogueOf(t, api, establishmentID) {
 			names = append(names, category["name"].(string))
 			for _, product := range category["products"].([]any) {
 				names = append(names, product.(map[string]any)["name"].(string))
@@ -61,23 +60,25 @@ func TestCatalogue(t *testing.T) {
 	})
 
 	t.Run("answers in the establishment language", func(t *testing.T) {
+		api := newApp(t)
 		establishmentID := setup(t)
 
-		if name := catalogueOf(t, establishmentID)[0]["name"]; name != "Cafetería" {
+		if name := catalogueOf(t, api, establishmentID)[0]["name"]; name != "Cafetería" {
 			t.Errorf("first category = %v, want Cafetería", name)
 		}
 
 		setLanguage(t, establishmentID, "en")
 
-		if name := catalogueOf(t, establishmentID)[0]["name"]; name != "Coffee Shop" {
+		if name := catalogueOf(t, api, establishmentID)[0]["name"]; name != "Coffee Shop" {
 			t.Errorf("first category = %v, want Coffee Shop", name)
 		}
 	})
 
 	t.Run("creates the chosen categories with their products", func(t *testing.T) {
+		api := newApp(t)
 		establishmentID := setup(t)
 
-		importInto(t, establishmentID, map[string]any{"categoryKeys": []string{"cafeteria"}}).expect(t, http.StatusCreated)
+		importInto(t, api, establishmentID, map[string]any{"categoryKeys": []string{"cafeteria"}}).expect(t, http.StatusCreated)
 
 		if categories := categoryNames(t, establishmentID); !slices.Equal(categories, []string{"Cafetería"}) {
 			t.Errorf("categories = %v, want [Cafetería]", categories)
@@ -88,9 +89,10 @@ func TestCatalogue(t *testing.T) {
 	})
 
 	t.Run("takes no selection as the whole catalogue", func(t *testing.T) {
+		api := newApp(t)
 		establishmentID := setup(t)
 
-		importInto(t, establishmentID, map[string]any{}).expect(t, http.StatusCreated)
+		importInto(t, api, establishmentID, map[string]any{}).expect(t, http.StatusCreated)
 
 		if categories := len(categoryNames(t, establishmentID)); categories != 7 {
 			t.Errorf("categories = %d, want 7", categories)
@@ -101,10 +103,11 @@ func TestCatalogue(t *testing.T) {
 	})
 
 	t.Run("writes the establishment language into the rows", func(t *testing.T) {
+		api := newApp(t)
 		establishmentID := setup(t)
 		setLanguage(t, establishmentID, "en")
 
-		importInto(t, establishmentID, map[string]any{"categoryKeys": []string{"cafeteria"}}).expect(t, http.StatusCreated)
+		importInto(t, api, establishmentID, map[string]any{"categoryKeys": []string{"cafeteria"}}).expect(t, http.StatusCreated)
 
 		if categories := categoryNames(t, establishmentID); !slices.Equal(categories, []string{"Coffee Shop"}) {
 			t.Errorf("categories = %v, want [Coffee Shop]", categories)
@@ -115,10 +118,11 @@ func TestCatalogue(t *testing.T) {
 	})
 
 	t.Run("duplicates nothing when the same import runs twice", func(t *testing.T) {
+		api := newApp(t)
 		establishmentID := setup(t)
 
-		importInto(t, establishmentID, map[string]any{"categoryKeys": []string{"cafeteria"}}).expect(t, http.StatusCreated)
-		importInto(t, establishmentID, map[string]any{"categoryKeys": []string{"cafeteria"}}).expect(t, http.StatusCreated)
+		importInto(t, api, establishmentID, map[string]any{"categoryKeys": []string{"cafeteria"}}).expect(t, http.StatusCreated)
+		importInto(t, api, establishmentID, map[string]any{"categoryKeys": []string{"cafeteria"}}).expect(t, http.StatusCreated)
 
 		if categories := len(categoryNames(t, establishmentID)); categories != 1 {
 			t.Errorf("categories = %d, want 1", categories)
@@ -129,9 +133,10 @@ func TestCatalogue(t *testing.T) {
 	})
 
 	t.Run("rejects a selection naming nothing the catalogue has", func(t *testing.T) {
+		api := newApp(t)
 		establishmentID := setup(t)
 
-		importInto(t, establishmentID, map[string]any{"categoryKeys": []string{"sushi"}}).expect(t, http.StatusBadRequest)
+		importInto(t, api, establishmentID, map[string]any{"categoryKeys": []string{"sushi"}}).expect(t, http.StatusBadRequest)
 
 		if categories := categoryNames(t, establishmentID); len(categories) != 0 {
 			t.Errorf("categories = %v, want none", categories)
