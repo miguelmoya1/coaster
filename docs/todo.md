@@ -66,7 +66,7 @@ cadena de hashes del registro horario (`time_entry_chain.go` y `lock_chain.sql`)
 entre ellos el cambio de la API a Go: producción sigue con Nest y con las migraciones de Prisma
 hasta el merge, y la primera vez el job de migraciones adopta el historial de Prisma, como hizo en
 beta. Qué falta antes y después está en «Siguiente paso» de la
-[migración](apps/coaster-api/migracion.md).
+[migración](apps/api/migracion.md).
 
 El 4 de septiembre producción tenía **0 fichajes**: el registro horario está probado por e2e y
 unitarios, pero nadie lo había usado nunca de verdad. Antes de contárselo a un cliente como

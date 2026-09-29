@@ -7,7 +7,7 @@
   ],
   "scripts": {
     "dev:web": "npm run dev -w apps/web",
-    "dev:api": "apps/coaster-api/scripts/dev.sh",
+    "dev:api": "apps/api/scripts/dev.sh",
     "build": "npm run build --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",
     "lint:fix": "npm run lint:fix --workspaces --if-present",

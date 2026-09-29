@@ -1,10 +1,10 @@
 # Stack
 
-- **Monorepo:** one npm workspace, `apps/web`, and three Go modules: the API (`apps/coaster-api`), the
+- **Monorepo:** one npm workspace, `apps/web`, and three Go modules: the API (`apps/api`), the
   schema (`apps/database`) and the printer bridge (`apps/printer-service`). The web holds the API
   contract in each domain's `models/` (the permission table and the error codes included).
 - **Backend:** Go, hexagonal, with pgx and hand-written SQL over PostgreSQL; goose migrations in
-  `apps/database`. See [backend](backend.md), [API](../apps/coaster-api/README.md) and
+  `apps/database`. See [backend](backend.md), [API](../apps/api/README.md) and
   [database](../apps/database.md).
   Production runs the NestJS API it replaced until `dev` is merged into `main`.
 - **Frontend:** Angular 22 — standalone, signals, zoneless — with Material and Tailwind CSS v4. See

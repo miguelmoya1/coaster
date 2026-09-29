@@ -1,6 +1,6 @@
 # Convenciones
 
-Cómo está hecho `apps/coaster-api` y cómo se añade algo nuevo. Las carpetas están en
+Cómo está hecho `apps/api` y cómo se añade algo nuevo. Las carpetas están en
 [estructura](estructura.md); lo que Go hace distinto de Nest, en «Diferencias conocidas» de [migración](migracion.md).
 
 ## Contrato HTTP
@@ -256,7 +256,7 @@ func (h *OrderHandler) RegisterRoutes(mux *http.ServeMux, guard *middleware.Guar
   Un fake nuevo de un puerto que ya tiene uno amplía ese en lugar de copiarlo.
 - Para un puntero a un valor, `new("texto")`.
 
-**e2e** (`apps/coaster-api/e2e`)
+**e2e** (`apps/api/e2e`)
 - `TestMain` levanta Postgres con testcontainers (`internal/testdb`, con las migraciones de
   `apps/database`), compila `./cmd/api` una vez y sirve un JWKS de Google con una clave RSA propia.
 - Cada subtest arranca su propia API con `newApp(t)`: un proceso en un puerto libre, sin Redis,

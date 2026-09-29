@@ -68,12 +68,12 @@ jobs:
       - name: 🧪 Go Unit Tests (Printer Service)
         run: cd apps/printer-service && go test -v ./... -cover
 
-  coaster-api:
+  api:
     name: 🐹 API en Go
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: apps/coaster-api
+        working-directory: apps/api
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
@@ -81,8 +81,8 @@ jobs:
       - name: 🐹 Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version-file: apps/coaster-api/go.mod
-          cache-dependency-path: apps/coaster-api/go.sum
+          go-version-file: apps/api/go.mod
+          cache-dependency-path: apps/api/go.sum
 
       - name: 🧹 gofmt
         run: |
@@ -129,11 +129,11 @@ jobs:
       - name: 🧪 go test
         run: go test ./...
 
-  # database and coaster-api are here so no migration and no API reach beta or production
+  # database and api are here so no migration and no API reach beta or production
   # before their tests pass.
   deploy-backend:
     name: 🚀 Deploy Backend & Migrate DB
-    needs: [build-and-test, database, coaster-api]
+    needs: [build-and-test, database, api]
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     environment: ${{ github.ref_name == 'main' && 'api-production' || 'api-beta' }}
@@ -254,7 +254,7 @@ jobs:
 
       - name: 🛠️ Build & Push Docker Images
         run: |
-          docker build -t ${{ env.GCP_IMAGE_NAME }}:${{ github.sha }} -f apps/coaster-api/Dockerfile .
+          docker build -t ${{ env.GCP_IMAGE_NAME }}:${{ github.sha }} -f apps/api/Dockerfile .
           docker push ${{ env.GCP_IMAGE_NAME }}:${{ github.sha }}
           docker build -t ${{ env.GCP_DATABASE_IMAGE_NAME }}:${{ github.sha }} -f apps/database/Dockerfile .
           docker push ${{ env.GCP_DATABASE_IMAGE_NAME }}:${{ github.sha }}

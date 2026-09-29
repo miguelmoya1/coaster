@@ -30,10 +30,10 @@ Antes de escribir nada, lo que no hay que inventar:
 
 | Necesidad                                                         | Ya existe en                                                                                                                        |
 | ----------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| Cadena de huellas SHA-256, genesis, cadena canónica, verificación | [`time_entry_chain.go`](../../apps/coaster-api/internal/core/domain/time_entry_chain.go)                                            |
-| Correlativo sin huecos bajo concurrencia                          | `pg_advisory_xact_lock` en [`lock_chain.sql`](../../apps/coaster-api/internal/adapter/repository/queries/time_entry/lock_chain.sql) |
+| Cadena de huellas SHA-256, genesis, cadena canónica, verificación | [`time_entry_chain.go`](../../apps/api/internal/core/domain/time_entry_chain.go)                                            |
+| Correlativo sin huecos bajo concurrencia                          | `pg_advisory_xact_lock` en [`lock_chain.sql`](../../apps/api/internal/adapter/repository/queries/time_entry/lock_chain.sql) |
 | Corrección inmutable (registro nuevo que referencia al viejo)     | `supersedesId` / `rootId` en `DbTimeEntry`                                                                                          |
-| Cálculo de totales, descuentos y pagos                            | `CalculatePricing` en [`order_pricing.go`](../../apps/coaster-api/internal/core/domain/order_pricing.go)                            |
+| Cálculo de totales, descuentos y pagos                            | `CalculatePricing` en [`order_pricing.go`](../../apps/api/internal/core/domain/order_pricing.go)                            |
 | Cobro parcial y división de cuenta                                | `paidQuantityCash` / `paidQuantityCard` por línea                                                                                   |
 | Cola de impresión y bridge en el local                            | módulo `printer` + `apps/printer-service` (Go)                                                                                      |
 | Renderizado de QR                                                 | `coaster-qr-code` en web (`qrcode-generator`)                                                                                       |
@@ -453,7 +453,7 @@ categoría, no toca ningún ticket ya emitido.
 
 ## 4. Huella encadenada y numeración
 
-Copia directa de [`time_entry_chain.go`](../../apps/coaster-api/internal/core/domain/time_entry_chain.go), con
+Copia directa de [`time_entry_chain.go`](../../apps/api/internal/core/domain/time_entry_chain.go), con
 tres cambios:
 
 1. **El lock va por serie**, no solo por establecimiento:
@@ -527,7 +527,7 @@ Reglas:
    falta es que el cobro parcial, y no solo el cierre, pueda disparar una emisión.
 
 La concurrencia del cierre ya está resuelta en
-[`order_repository.go`](../../apps/coaster-api/internal/adapter/repository/order_repository.go): el
+[`order_repository.go`](../../apps/api/internal/adapter/repository/order_repository.go): el
 checkout reclama la comanda con un `UPDATE ... WHERE status = 'OPEN'` (`claim_for_checkout.sql`) y el
 cobro parcial toma un `SELECT ... FOR UPDATE` (`lock.sql`). La emisión entra en esa misma transacción, no en una posterior.
 

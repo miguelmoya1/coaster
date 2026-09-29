@@ -13,7 +13,7 @@ y, en producción hasta el merge a `main`, Nest.
 | `schema.sql`  | El esquema entero, generado desde las migraciones. Es para leerlo de un vistazo, como lo era `schema.prisma`; nunca se aplica |
 | `migrate.go`  | `Migrate`: aplica las migraciones pendientes y, la primera vez sobre una base que migró Prisma, adopta su historial           |
 | `cmd/migrate` | El programa que corre el job de Cloud Run y el servicio `migrate` de compose. Solo lee `DATABASE_URL`                         |
-| `queries/`    | Las consultas de `Migrate`, un archivo por consulta como en `apps/coaster-api`                                                |
+| `queries/`    | Las consultas de `Migrate`, un archivo por consulta como en `apps/api`                                                |
 | `Dockerfile`  | La imagen del job: solo lleva `migrate`                                                                                       |
 
 ## Añadir una migración
@@ -25,7 +25,7 @@ y, en producción hasta el merge a `main`, Nest.
 2. Mientras producción siga con Nest, no puede romperlo: se añaden tablas o columnas que admiten
    `null` o tienen valor por defecto, y no se borra ni se renombra nada.
 3. `go test -run TestSchemaIsUpToDate -update` rehace `schema.sql`.
-4. `go test ./...` aquí y en `apps/coaster-api`, cuyos tests de `repository/` y e2e montan su base
+4. `go test ./...` aquí y en `apps/api`, cuyos tests de `repository/` y e2e montan su base
    con estas migraciones.
 
 ## Aplicarlas
@@ -74,4 +74,4 @@ dejar de coincidir.
   niega a adoptar un historial roto.
 
 En el CI, el job `database` pasa `gofmt`, `go vet` y `go test`. Las librerías son las aprobadas en
-[librerías](coaster-api/librerias.md).
+[librerías](api/librerias.md).

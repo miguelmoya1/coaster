@@ -21,7 +21,7 @@ turning the switch on, and turning it on against an empty list locks out everybo
 See [closed beta](../saas/closed-beta.md).
 
 The starter catalogue an establishment can import is no longer edited here: it ships with the API as
-`starterCatalogue` in [`catalogue.go`](../../apps/coaster-api/internal/core/domain/catalogue.go), so changing it is a
+`starterCatalogue` in [`catalogue.go`](../../apps/api/internal/core/domain/catalogue.go), so changing it is a
 reviewed commit rather than a paste into production. See
 [catalogue and menu](../architecture/catalogue-and-menu.md).
 
@@ -99,11 +99,11 @@ Two consequences worth keeping in mind:
 
 ## Code layout
 
-Same split as everywhere else (see the [API structure](../apps/coaster-api/estructura.md) and
+Same split as everywhere else (see the [API structure](../apps/api/estructura.md) and
 [frontend](../architecture/frontend.md)):
 
 ```text
-apps/coaster-api/internal/               admin_*_handler.go, admin_*_service.go, admin_*_repository.go
+apps/api/internal/               admin_*_handler.go, admin_*_service.go, admin_*_repository.go
 apps/web/src/app/admin/                 domain: HTTP repository, signal stores, mappers
 apps/web/src/app/presentation/admin/    layout, pages and components
 ```

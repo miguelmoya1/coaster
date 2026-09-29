@@ -44,7 +44,7 @@ the internal side free of language decisions.
 
 The two template tables, the `templates` module in the API and the admin editor are gone — roughly
 1220 lines that maintained 83 rows of content. In their place, `starterCatalogue` in
-[`catalogue.go`](../../apps/coaster-api/internal/core/domain/catalogue.go): languages written out,
+[`catalogue.go`](../../apps/api/internal/core/domain/catalogue.go): languages written out,
 no keys and no slugs.
 
 ```go

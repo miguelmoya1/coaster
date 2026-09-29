@@ -1,6 +1,6 @@
 # Librerías para la API en Go
 
-Equivalencias entre lo que usaba la API de NestJS y lo que usa `apps/coaster-api`.
+Equivalencias entre lo que usaba la API de NestJS y lo que usa `apps/api`.
 Revisadas el 27-sep-2026. Solo queda ⬜ lo de los modelos de respaldo de la IA (P3).
 Antes de añadir cualquiera, comprobar la última versión, si sigue mantenida y su licencia.
 
@@ -11,7 +11,7 @@ Estado: ⬜ sin revisar · ✅ aprobada · ❌ descartada
 | Ahora | En Go | Notas | Estado |
 |---|---|---|---|
 | NestJS + Fastify | `net/http` (librería estándar) | Desde Go 1.22 el router estándar ya acepta métodos y parámetros (`GET /orders/{id}`). No hace falta framework. | ✅ |
-| `@nestjs/config` | `os.Getenv` | Sin lector de `.env` propio. En local, `apps/coaster-api/.env` lo cargan el servicio de `compose.yaml` (con `env_file`) y `scripts/dev.sh`. | ✅ |
+| `@nestjs/config` | `os.Getenv` | Sin lector de `.env` propio. En local, `apps/api/.env` lo cargan el servicio de `compose.yaml` (con `env_file`) y `scripts/dev.sh`. | ✅ |
 | Logger de Nest | `log/slog` (estándar) | Logs en JSON, que Cloud Run entiende directamente. | ✅ |
 | `Temporal` | `time` (estándar) | | ✅ |
 | `class-validator` | `github.com/go-playground/validator/v10` | Validación con tags en los structs. Hay que traducir cada error al texto de class-validator (`"email must be an email"`) y rechazar los campos desconocidos (`"property x should not exist"`), porque `apps/web` muestra `message[0]`. | ✅ |
@@ -73,4 +73,4 @@ Estado: ⬜ sin revisar · ✅ aprobada · ❌ descartada
 | Vitest (unitarios) | `testing` (estándar) | Tests por tabla y fakes de las interfaces de `ports`. Las comprobaciones se escriben a mano con `if` y `t.Errorf`. | ✅ |
 | — | ~~`github.com/stretchr/testify`~~ | Con `testing` basta y es lo más idiomático. | ❌ |
 | testcontainers (Node) | `github.com/testcontainers/testcontainers-go/modules/postgres` | Para los tests de repositorios con una base de datos real. | ✅ |
-| e2e con supertest | `net/http` y testcontainers | En `apps/coaster-api/e2e`: el binario de verdad contra un Postgres de verdad. Ver «Tests» en [convenciones](convenciones.md). | ✅ |
+| e2e con supertest | `net/http` y testcontainers | En `apps/api/e2e`: el binario de verdad contra un Postgres de verdad. Ver «Tests» en [convenciones](convenciones.md). | ✅ |

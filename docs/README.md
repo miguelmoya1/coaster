@@ -19,9 +19,9 @@ the most rules per line and is the easiest to get wrong.
 
 ## Applications
 
-- [API](apps/coaster-api/README.md) — Go: its [structure](apps/coaster-api/estructura.md),
-  [conventions](apps/coaster-api/convenciones.md), [migration from NestJS](apps/coaster-api/migracion.md)
-  and [libraries](apps/coaster-api/librerias.md)
+- [API](apps/api/README.md) — Go: its [structure](apps/api/estructura.md),
+  [conventions](apps/api/convenciones.md), [migration from NestJS](apps/api/migracion.md)
+  and [libraries](apps/api/librerias.md)
 - [Web](apps/web.md) — Angular
 - [Printer bridge](apps/printer-service.md) — the Go service on the venue's computer
 - [Database](apps/database.md) — the schema: goose migrations, `schema.sql` and the job that applies

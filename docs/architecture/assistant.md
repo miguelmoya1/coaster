@@ -1,7 +1,7 @@
 # The assistant
 
 An in-app assistant that reads the venue's live state and executes actions on it. It lives in
-`apps/coaster-api/internal/service/ai_*.go` and `internal/adapter/ai`, behind
+`apps/api/internal/service/ai_*.go` and `internal/adapter/ai`, behind
 `POST /establishments/:establishmentId/ai` (and `/ai/stream`), and is driven from a panel in the
 workspace top bar (`presentation/establishments/workspace/components/ai-assistant`).
 

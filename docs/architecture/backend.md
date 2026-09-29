@@ -1,9 +1,9 @@
 # Backend architecture
 
-The API is a Go service in `apps/coaster-api`: hexagonal (`core/domain`, `core/ports`, `service`,
+The API is a Go service in `apps/api`: hexagonal (`core/domain`, `core/ports`, `service`,
 `adapter`), one service per entity and one method per use case, hand-written SQL over pgx. How it is
-laid out and how each thing is done live next to it: [API](../apps/coaster-api/README.md),
-[structure](../apps/coaster-api/estructura.md) and [conventions](../apps/coaster-api/convenciones.md).
+laid out and how each thing is done live next to it: [API](../apps/api/README.md),
+[structure](../apps/api/estructura.md) and [conventions](../apps/api/convenciones.md).
 This page keeps the reasoning behind the cross-cutting concerns, which does not depend on the
 language it is written in.
 
@@ -207,4 +207,4 @@ everything written in raw SQL — the append-only triggers on `TimeEntry`, the p
 This distinction is not academic. A fake cannot run SQL, so a type error inside a query is invisible
 to a service test. A `WHERE id = $1::uuid` against a `text` column once passed every unit test and
 only failed against a real database. How each kind of test is written is in
-[conventions](../apps/coaster-api/convenciones.md).
+[conventions](../apps/api/convenciones.md).

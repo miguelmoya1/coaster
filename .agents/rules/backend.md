@@ -1,10 +1,10 @@
 ---
 trigger: glob
-globs: "apps/coaster-api/**"
+globs: "apps/api/**"
 ---
 
 # Backend Architecture (Go, hexagonal)
-When working within `apps/coaster-api`, follow its `CLAUDE.md` and the documentation it points to in `docs/apps/coaster-api/`.
+When working within `apps/api`, follow its `CLAUDE.md` and the documentation it points to in `docs/apps/api/`.
 
 ## Implementation Rules
 1. **Layers:** `core/domain` (types and rules), `core/ports` (interfaces), `service` (one service per entity, one method per use case) and `adapter` (HTTP handlers, repositories, external services). No CQRS.

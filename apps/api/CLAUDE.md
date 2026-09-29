@@ -1,11 +1,11 @@
-# apps/coaster-api
+# apps/api
 
 La API de Coaster, en Go. Sustituye a la de NestJS, que ya no está en el repositorio: beta corre
 Go y producción sigue con Nest hasta el merge a `main` (ver `migracion.md`).
 
 ## Antes de hacer nada, leer
 
-La documentación está en `docs/apps/coaster-api/`:
+La documentación está en `docs/apps/api/`:
 
 1. `README.md`: cómo arrancar y probar.
 2. `migracion.md`: objetivos, decisiones, **estado**, **siguiente paso** y en qué se diferencia de

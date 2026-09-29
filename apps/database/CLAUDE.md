@@ -12,6 +12,6 @@ aplica y `schema.sql`, el esquema entero generado desde ellas. Antes de tocar na
   columnas que admiten `null` o tienen valor por defecto, y no se borra ni se renombra nada.
 - **`schema.sql` no se escribe a mano**: `go test -run TestSchemaIsUpToDate -update` lo rehace, y
   el mismo test sin `-update` falla si no coincide con las migraciones.
-- **Sin comentarios en el código Go**, igual que en `apps/coaster-api`.
+- **Sin comentarios en el código Go**, igual que en `apps/api`.
 - **Un cambio está terminado** cuando pasan `gofmt -l .` (vacío), `go vet ./...` y `go test ./...`
-  aquí, y `go test ./...` en `apps/coaster-api`, que monta su base con estas migraciones.
+  aquí, y `go test ./...` en `apps/api`, que monta su base con estas migraciones.

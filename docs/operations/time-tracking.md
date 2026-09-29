@@ -10,7 +10,7 @@ The law does **not** prescribe a format. Paper is compliant. That is worth knowi
 machinery: CSV export satisfies "make it available", and cryptographic anchoring is an engineering
 choice, not an obligation.
 
-The module is the `time_entry_*` files of `apps/coaster-api/internal` and hangs off `establishments/:establishmentId/time-entries`.
+The module is the `time_entry_*` files of `apps/api/internal` and hangs off `establishments/:establishmentId/time-entries`.
 
 ## The table is the audit trail
 

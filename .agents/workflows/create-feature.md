@@ -12,8 +12,8 @@ Execute the following steps sequentially to build a new feature. Do not proceed 
 - Ensure everything is correctly exported in the domain's `index.ts`.
 - Ask the user to validate the contracts if there are ambiguous business rules.
 
-## Step 2: Implement Backend (`apps/coaster-api`, Go)
-- Follow `apps/coaster-api/CLAUDE.md` and `docs/apps/coaster-api/convenciones.md`.
+## Step 2: Implement Backend (`apps/api`, Go)
+- Follow `apps/api/CLAUDE.md` and `docs/apps/api/convenciones.md`.
 - If database changes are needed, add a goose migration in `apps/database/migrations/` and regenerate `schema.sql` (see `docs/apps/database.md`).
 - Add the use case as a method of the entity's service, its SQL in `repository/queries/`, and the route in its handler, answering the shapes defined in Step 1.
 - Write unit tests for the service and the handler, covering both success and failure cases.

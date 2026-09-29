@@ -37,16 +37,16 @@ services:
       db:
         condition: service_healthy
 
-  coaster-api:
+  api:
     build:
       context: .
-      dockerfile: ./apps/coaster-api/Dockerfile
+      dockerfile: ./apps/api/Dockerfile
     ports:
       - '3000:8080'
     env_file:
-      - path: ./apps/coaster-api/.env
+      - path: ./apps/api/.env
         required: false
-    # apps/coaster-api/.env is written for the host (scripts/dev.sh): what differs inside Docker is
+    # apps/api/.env is written for the host (scripts/dev.sh): what differs inside Docker is
     # set here, and environment wins over env_file.
     environment:
       - NODE_ENV=development
@@ -75,7 +75,7 @@ services:
       - API_URL=${API_URL:-http://localhost:3000}
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
     depends_on:
-      coaster-api:
+      api:
         condition: service_started
     volumes:
       - ./:/app
@@ -86,15 +86,15 @@ services:
   stripe:
     image: stripe/stripe-cli:latest
     env_file:
-      - ./apps/coaster-api/.env
+      - ./apps/api/.env
     entrypoint: /bin/sh
     command:
       - -c
       - >-
         exec stripe listen --api-key "$${STRIPE_SECRET_KEY}"
-        --forward-to http://coaster-api:8080/api/v1/stripe/webhook
+        --forward-to http://api:8080/api/v1/stripe/webhook
     depends_on:
-      coaster-api:
+      api:
         condition: service_started
 
 volumes:

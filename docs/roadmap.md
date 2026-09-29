@@ -116,5 +116,5 @@ See [production and beta](operations/environments.md) and [closed beta](saas/clo
   before each deploy, which took over the Prisma history on its first run.
 - Its own e2e suite, the real binary against a real Postgres, gating the deploy.
 
-See [API](apps/coaster-api/README.md), [migration](apps/coaster-api/migracion.md) and
+See [API](apps/api/README.md), [migration](apps/api/migracion.md) and
 [database](apps/database.md).

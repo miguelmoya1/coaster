@@ -15,7 +15,7 @@ Execute these steps to systematically track down and fix a bug that involves bot
 - Check if any enum values or required/optional fields have been modified recently causing a mismatch.
 - Fix any discrepancies in the shared contracts FIRST before touching the app logic.
 
-## Step 3: Backend Fix (`apps/coaster-api`, Go)
+## Step 3: Backend Fix (`apps/api`, Go)
 - If the bug resides in the API layer, write a failing test in the relevant service or handler that reproduces the issue perfectly.
 - Fix the business logic in the service or the query in `repository/queries/`.
 - Ensure the test now passes and the handler returns the fixed shape.

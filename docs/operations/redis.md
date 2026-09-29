@@ -9,7 +9,7 @@ existed: an event reaches only the clients of the instance that raised it, the t
 memory, every guard reads Postgres. That is also the rollback — unset it and redeploy, no code
 change.
 
-The product name appears in `apps/coaster-api/internal/adapter/cache` and nowhere else. The rest
+The product name appears in `apps/api/internal/adapter/cache` and nowhere else. The rest
 of the codebase asks a `CacheService` to `remember` and `forget`.
 
 ## What it holds
@@ -117,7 +117,7 @@ To reproduce the multi-instance behaviour, start a second Go API next to the one
 runs:
 
 ```bash
-docker compose run --rm --publish 3002:8080 coaster-api
+docker compose run --rm --publish 3002:8080 api
 ```
 
 That gives `:3000` and `:3002` against the same database and the same cache. Both should log

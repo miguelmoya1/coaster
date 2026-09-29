@@ -1,5 +1,5 @@
 #!/bin/bash
-# Deja una sesión de Claude Code en la nube lista para lanzar los tests de apps/coaster-api
+# Deja una sesión de Claude Code en la nube lista para lanzar los tests de apps/api
 # (testcontainers necesita Docker) y los e2e contra Go (Node 26 por Temporal, Go de go.mod).
 # En local no hace nada.
 set -euo pipefail
@@ -48,7 +48,7 @@ fi
 
 {
   npm install --no-audit --no-fund
-  (cd apps/coaster-api && go mod download)
+  (cd apps/api && go mod download)
   (cd apps/database && go mod download)
   docker pull -q postgres:18-alpine
   docker pull -q postgres:16-alpine

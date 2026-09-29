@@ -117,14 +117,14 @@ The version lives in **two places that have to match**, because the bridge refus
 update that did not take (otherwise it would loop downloading and restarting):
 
 1. `internal/updater/version.go` → `CurrentVersion`
-2. `apps/coaster-api/internal/core/domain/printer.go` → `PrinterBridgeVersion`
+2. `apps/api/internal/core/domain/printer.go` → `PrinterBridgeVersion`
 
 Bump both and build the binaries into the folder the API serves:
 
 ```bash
 cd apps/printer-service
-GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o ../coaster-api/public/downloads/printer-service-linux ./cmd/server
-GOOS=windows GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o ../coaster-api/public/downloads/printer-service-windows.exe ./cmd/server
+GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o ../api/public/downloads/printer-service-linux ./cmd/server
+GOOS=windows GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o ../api/public/downloads/printer-service-windows.exe ./cmd/server
 ```
 
 Check the API advertises the right version and checksum:

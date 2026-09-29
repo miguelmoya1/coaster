@@ -86,7 +86,7 @@ internal/
 ## Estado
 
 Beta corre Go desde el 29 de septiembre de 2026: `deploy-backend` construye
-`apps/coaster-api/Dockerfile` y despliega en el servicio de siempre, con la misma URL, los mismos
+`apps/api/Dockerfile` y despliega en el servicio de siempre, con la misma URL, los mismos
 secretos y el mismo webhook de Stripe. Nest ya no está en el repositorio; producción sigue con su
 imagen hasta el merge a `main`. Go responde las 124 rutas de Nest con los mismos permisos, códigos
 y cuerpos, y lo que hace distinto está en «Diferencias conocidas». Aquí solo se apunta lo que
