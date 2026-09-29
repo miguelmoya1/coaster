@@ -16,7 +16,7 @@ ENV PORT=8080
 ENV PUBLIC_DIR=/app/public
 
 COPY --from=builder /api /app/api
-COPY apps/api/public /app/public
+COPY apps/coaster-api/public /app/public
 
 EXPOSE 8080
 ENTRYPOINT ["/app/api"]

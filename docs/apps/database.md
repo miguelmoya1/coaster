@@ -9,7 +9,7 @@ y, mientras exista, Nest.
 
 | Ruta          | Qué es                                                                                                                        |
 | ------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `migrations/` | Las migraciones de goose, una por archivo, con la fecha como versión. Las 47 primeras son las de Prisma copiadas tal cual     |
+| `migrations/` | Las migraciones de goose, una por archivo, con la fecha como versión. Las 47 primeras son las de Prisma, copiadas tal cual    |
 | `schema.sql`  | El esquema entero, generado desde las migraciones. Es para leerlo de un vistazo, como lo era `schema.prisma`; nunca se aplica |
 | `migrate.go`  | `Migrate`: aplica las migraciones pendientes y, la primera vez sobre una base que migró Prisma, adopta su historial           |
 | `cmd/migrate` | El programa que corre el job de Cloud Run y el servicio `migrate` de compose. Solo lee `DATABASE_URL`                         |
@@ -73,8 +73,6 @@ dejar de coincidir.
 - `TestMigrateTakesOverThePrismaHistory` simula una base de Prisma a la que le faltan las dos últimas
   migraciones y comprueba que acaba con el mismo esquema que una vacía; los otros tests, que se
   niega a adoptar un historial roto.
-- `TestMigrationsAreThePrismaOnes` comprueba que las migraciones de Prisma siguen copiadas tal cual.
-  Se borra con Nest.
 
 En el CI, el job `database` pasa `gofmt`, `go vet` y `go test`. Las librerías son las aprobadas en
 [librerías](coaster-api/librerias.md).

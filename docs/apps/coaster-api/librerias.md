@@ -11,7 +11,7 @@ Estado: ⬜ sin revisar · ✅ aprobada · ❌ descartada
 | Ahora | En Go | Notas | Estado |
 |---|---|---|---|
 | NestJS + Fastify | `net/http` (librería estándar) | Desde Go 1.22 el router estándar ya acepta métodos y parámetros (`GET /orders/{id}`). No hace falta framework. | ✅ |
-| `@nestjs/config` | `os.Getenv` | Sin lector de `.env` propio. En local, el servicio de `compose.yaml` carga `apps/api/.env` con `env_file`. | ✅ |
+| `@nestjs/config` | `os.Getenv` | Sin lector de `.env` propio. En local, `apps/coaster-api/.env` lo cargan el servicio de `compose.yaml` (con `env_file`) y `scripts/dev.sh`. | ✅ |
 | Logger de Nest | `log/slog` (estándar) | Logs en JSON, que Cloud Run entiende directamente. | ✅ |
 | `Temporal` | `time` (estándar) | | ✅ |
 | `class-validator` | `github.com/go-playground/validator/v10` | Validación con tags en los structs. Hay que traducir cada error al texto de class-validator (`"email must be an email"`) y rechazar los campos desconocidos (`"property x should not exist"`), porque `apps/web` muestra `message[0]`. | ✅ |

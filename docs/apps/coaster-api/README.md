@@ -9,15 +9,14 @@ comportamiento. El contrato HTTP (rutas, JSON, errores, códigos de error de la 
 - **Con Docker**: `docker compose up`, desde la raíz del repo. Go escucha en
   `http://localhost:3000`, y la web y el reenvío de webhooks de `stripe` van contra él. Nest sigue
   en el 3001 mientras exista, contra la misma base de datos, pero nada apunta a él;
-  `docker compose up web` levanta la web con Go y sin Nest. El servicio carga `apps/api/.env` (las
-  variables son las mismas que las de Nest) y fija en `compose.yaml` las que son de Go (`PORT`,
-  `PUBLIC_DIR`, `PUBLIC_URL`). Las migraciones las aplica el servicio `migrate`
+  `docker compose up web` levanta la web con Go y sin Nest. El servicio carga
+  `apps/coaster-api/.env` (se crea copiando `.env_example`) y fija en `compose.yaml` lo que cambia
+  dentro de Docker (`DATABASE_URL`, `REDIS_URL`, `PORT`, `PUBLIC_DIR`, `PUBLIC_URL`). Las migraciones las aplica el servicio `migrate`
   ([database](../database.md)) antes de que arranque cualquiera de las dos APIs. La imagen no se
   recarga sola: después de cambiar código, `docker compose up -d --build coaster-api`.
-- **En el anfitrión**: `apps/coaster-api/scripts/dev.sh`. La primera vez crea
-  `apps/coaster-api/.env` a partir de `apps/api/.env` (`scripts/env-local.sh`, que se puede volver
-  a lanzar si cambia) y arranca `go run ./cmd/api` en el 3000. Necesita `db`, `redis` y `migrate`
-  de compose, y el puerto libre: `docker compose stop coaster-api`.
+- **En el anfitrión**: `apps/coaster-api/scripts/dev.sh` carga el mismo `apps/coaster-api/.env` y
+  arranca `go run ./cmd/api` en el 3000. Necesita `db`, `redis` y `migrate` de compose, y el puerto
+  libre: `docker compose stop coaster-api`.
 - **La web contra Nest**: `API_URL=http://localhost:3001 docker compose up -d web`.
 
 Qué variables lee Go está en `apps/coaster-api/.env_example`; las obligatorias son `DATABASE_URL`,

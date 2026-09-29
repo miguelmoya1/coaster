@@ -4,9 +4,7 @@ import (
 	"context"
 	"io/fs"
 	"net/url"
-	"os"
 	"path"
-	"path/filepath"
 	"slices"
 	"strconv"
 	"strings"
@@ -14,8 +12,6 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
-
-const prismaMigrationsDir = "../api/prisma/migrations"
 
 const prismaMigrationsTable = `
 	CREATE TABLE "_prisma_migrations" (
@@ -28,35 +24,6 @@ const prismaMigrationsTable = `
 		"started_at" TIMESTAMPTZ NOT NULL DEFAULT now(),
 		"applied_steps_count" INTEGER NOT NULL DEFAULT 0
 	)`
-
-func TestMigrationsAreThePrismaOnes(t *testing.T) {
-	entries, err := os.ReadDir(prismaMigrationsDir)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	for _, entry := range entries {
-		if !entry.IsDir() {
-			continue
-		}
-
-		prisma, err := os.ReadFile(filepath.Join(prismaMigrationsDir, entry.Name(), "migration.sql"))
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		copied, err := migrationFiles.ReadFile("migrations/" + entry.Name() + ".sql")
-		if err != nil {
-			t.Errorf("%s is not among the goose migrations", entry.Name())
-			continue
-		}
-
-		want := "-- +goose Up\n-- +goose StatementBegin\n" + strings.TrimSuffix(string(prisma), "\n") + "\n-- +goose StatementEnd\n"
-		if string(copied) != want {
-			t.Errorf("%s is not a verbatim copy of its Prisma migration", entry.Name())
-		}
-	}
-}
 
 func TestMigrateTakesOverThePrismaHistory(t *testing.T) {
 	ctx := context.Background()

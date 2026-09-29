@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
-# Lanza la API en Go en el anfitrión, en http://localhost:3000, con apps/coaster-api/.env. Si no
-# existe, lo crea antes a partir de apps/api/.env (scripts/env-local.sh). Necesita Postgres
-# con las migraciones aplicadas (docker compose up db redis migrate) y el puerto libre: el
+# Lanza la API en Go en el anfitrión, en http://localhost:3000, con apps/coaster-api/.env. Necesita
+# Postgres con las migraciones aplicadas (docker compose up db redis migrate) y el puerto libre: el
 # contenedor coaster-api usa el mismo (docker compose stop coaster-api).
 set -euo pipefail
 
 here="$(cd "$(dirname "$0")/.." && pwd)"
 
 if [ ! -f "$here/.env" ]; then
-  "$here/scripts/env-local.sh"
+  echo "No existe apps/coaster-api/.env: cópialo de apps/coaster-api/.env_example y rellénalo." >&2
+  exit 1
 fi
 
 set -a

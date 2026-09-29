@@ -259,7 +259,7 @@ func (h *OrderHandler) RegisterRoutes(mux *http.ServeMux, guard *middleware.Guar
 **e2e contra Go** (`apps/api/test/utils/go-app.ts`)
 - Con `E2E_TARGET=go`, `setup.e2e.ts` compila `./cmd/api` una vez en
   `os.tmpdir()/coaster-api-e2e` y cada archivo e2e arranca su propio proceso Go en un puerto
-  libre, con el entorno del test (`REDIS_URL` vacío, `PUBLIC_DIR=apps/api/public`,
+  libre, con el entorno del test (`REDIS_URL` vacío, `PUBLIC_DIR=apps/coaster-api/public`,
   `TEST_MAILBOX_URL`, `GOOGLE_CERTS_URL`…). Con varios agentes en la misma máquina, cada uno
   lanza los e2e con su propio `TMPDIR`.
 - `testSetup.app.getHttpServer()` es un proxy que pasa `/api/...` a `/api/v1/...`, cambia

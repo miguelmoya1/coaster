@@ -68,10 +68,10 @@ services:
     ports:
       - '3000:8080'
     env_file:
-      - path: ./apps/api/.env
+      - path: ./apps/coaster-api/.env
         required: false
-    # apps/api/.env is Nest's: PORT, PUBLIC_DIR and PUBLIC_URL are set here so its values
-    # (PORT="" in the example, the port of Nest) cannot override the ones of this image.
+    # apps/coaster-api/.env is written for the host (scripts/dev.sh): what differs inside Docker is
+    # set here, and environment wins over env_file.
     environment:
       - NODE_ENV=development
       - PORT=8080
@@ -110,7 +110,7 @@ services:
   stripe:
     image: stripe/stripe-cli:latest
     env_file:
-      - ./apps/api/.env
+      - ./apps/coaster-api/.env
     entrypoint: /bin/sh
     command:
       - -c

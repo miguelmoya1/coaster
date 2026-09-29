@@ -123,8 +123,8 @@ Bump both and build the binaries into the folder the API serves:
 
 ```bash
 cd apps/printer-service
-GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o ../api/public/downloads/printer-service-linux ./cmd/server
-GOOS=windows GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o ../api/public/downloads/printer-service-windows.exe ./cmd/server
+GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o ../coaster-api/public/downloads/printer-service-linux ./cmd/server
+GOOS=windows GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o ../coaster-api/public/downloads/printer-service-windows.exe ./cmd/server
 ```
 
 Check the API advertises the right version and checksum:

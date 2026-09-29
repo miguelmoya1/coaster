@@ -39,7 +39,7 @@ plan, see invoices). Save. Without this, the "manage billing" button in the app 
 
 ### 3. Environment variables
 
-In `apps/api/.env` (copy `.env_example` if it does not exist):
+In `apps/coaster-api/.env` (copy `.env_example` if it does not exist):
 
 ```env
 STRIPE_SECRET_KEY="sk_test_..."
@@ -53,14 +53,14 @@ FRONTEND_URL="http://localhost:4200"
 ### 4. Forward webhooks
 
 `docker compose up` already starts a `stripe` service that runs `stripe listen --forward-to
-http://coaster-api:8080/api/v1/stripe/webhook` —the Go API— using the key from `apps/api/.env`. Its
+http://coaster-api:8080/api/v1/stripe/webhook` —the Go API— using the key from `apps/coaster-api/.env`. Its
 log prints the signing secret on startup:
 
 ```bash
 docker compose logs stripe | grep "signing secret"
 ```
 
-Put that value in `apps/api/.env`:
+Put that value in `apps/coaster-api/.env`:
 
 ```env
 STRIPE_WEBHOOK_SECRET="whsec_..."

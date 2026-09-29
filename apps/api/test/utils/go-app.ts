@@ -164,7 +164,7 @@ export class GoApp {
       env: {
         ...process.env,
         PORT: String(this.#goPort),
-        PUBLIC_DIR: path.resolve(__dirname, '../../public'),
+        PUBLIC_DIR: path.resolve(__dirname, '../../../coaster-api/public'),
         TEST_MAILBOX_URL: `http://127.0.0.1:${mailboxPort}`,
         GOOGLE_CERTS_URL: `http://127.0.0.1:${googlePort}`,
       },
