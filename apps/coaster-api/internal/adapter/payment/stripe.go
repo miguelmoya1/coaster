@@ -23,7 +23,9 @@ type StripeGateway struct {
 }
 
 func NewStripeGateway(secretKey, webhookSecret string) *StripeGateway {
-	return newStripeGateway(secretKey, webhookSecret, stripe.NewBackendsWithConfig(&stripe.BackendConfig{}))
+	return newStripeGateway(secretKey, webhookSecret, stripe.NewBackendsWithConfig(&stripe.BackendConfig{
+		LeveledLogger: &stripe.LeveledLogger{Level: stripe.LevelNull},
+	}))
 }
 
 func newStripeGateway(secretKey, webhookSecret string, backends *stripe.Backends) *StripeGateway {
