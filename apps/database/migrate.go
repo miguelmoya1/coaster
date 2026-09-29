@@ -1,4 +1,4 @@
-package repository
+package database
 
 import (
 	"context"
@@ -13,18 +13,18 @@ import (
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/pressly/goose/v3"
-	"github.com/pressly/goose/v3/database"
+	goosedb "github.com/pressly/goose/v3/database"
 	"github.com/pressly/goose/v3/lock"
 )
 
 var (
 	//go:embed migrations/*.sql
 	migrationFiles embed.FS
-	//go:embed queries/migration/lock.sql
+	//go:embed queries/lock.sql
 	migrationLockQuery string
-	//go:embed queries/migration/history_tables.sql
+	//go:embed queries/history_tables.sql
 	migrationHistoryTablesQuery string
-	//go:embed queries/migration/prisma_history.sql
+	//go:embed queries/prisma_history.sql
 	prismaHistoryQuery string
 )
 
@@ -56,13 +56,13 @@ func Migrate(ctx context.Context, databaseURL string) error {
 	return nil
 }
 
-func newMigrationProvider(db *sql.DB) (*goose.Provider, database.Store, error) {
+func newMigrationProvider(db *sql.DB) (*goose.Provider, goosedb.Store, error) {
 	migrations, err := fs.Sub(migrationFiles, "migrations")
 	if err != nil {
 		return nil, nil, err
 	}
 
-	store, err := database.NewStore(database.DialectPostgres, goose.DefaultTablename)
+	store, err := goosedb.NewStore(goosedb.DialectPostgres, goose.DefaultTablename)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -80,7 +80,7 @@ func newMigrationProvider(db *sql.DB) (*goose.Provider, database.Store, error) {
 	return provider, store, nil
 }
 
-func adoptPrismaHistory(ctx context.Context, db *sql.DB, store database.Store, sources []*goose.Source) error {
+func adoptPrismaHistory(ctx context.Context, db *sql.DB, store goosedb.Store, sources []*goose.Source) error {
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return err
@@ -108,7 +108,7 @@ func adoptPrismaHistory(ctx context.Context, db *sql.DB, store database.Store, s
 		return fmt.Errorf("creating the goose history: %w", err)
 	}
 	for _, version := range append([]int64{0}, versions...) {
-		if err := store.Insert(ctx, tx, database.InsertRequest{Version: version}); err != nil {
+		if err := store.Insert(ctx, tx, goosedb.InsertRequest{Version: version}); err != nil {
 			return fmt.Errorf("recording migration %d: %w", version, err)
 		}
 	}

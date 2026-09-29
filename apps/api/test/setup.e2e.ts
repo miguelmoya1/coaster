@@ -57,7 +57,7 @@ export async function setup() {
    * Migrations, not `db push`: the schema alone leaves out everything written in raw SQL, such as
    * the append-only triggers on TimeEntry and the partial unique index on ShiftExchange. Those are
    * invariants the tests should be able to lean on, so e2e runs against what production runs.
-   * Against Go they are goose's, applied by its own `migrate`, which is what deploys run.
+   * Against Go they are goose's, applied by `migrate` from `apps/database`, which is what deploys run.
    */
   if (isGoTarget) {
     const binaries = buildGo();
@@ -87,17 +87,21 @@ function applyPrismaMigrations(databaseUrl: string) {
 }
 
 /**
- * Built once for the whole run: `migrate` prepares the database and each test file then starts its
- * own server from `api` (see `GoApp`). `go` has to be on the PATH, with the toolchain
- * `apps/coaster-api/go.mod` asks for.
+ * Built once for the whole run: `migrate` (from `apps/database`) prepares the database and each test
+ * file then starts its own server from `api` (see `GoApp`). `go` has to be on the PATH, with the
+ * toolchain `apps/coaster-api/go.mod` asks for.
  */
 function buildGo(): string {
   const binaries = mkdtempSync(path.join(tmpdir(), 'coaster-api-e2e-'));
 
   console.log('⏳ Building the Go server and its migrations...');
 
-  execSync(`go build -o "${binaries}/" ./cmd/...`, {
+  execSync(`go build -o "${path.join(binaries, 'api')}" ./cmd/api`, {
     cwd: path.resolve(__dirname, '../../coaster-api'),
+    stdio: 'inherit',
+  });
+  execSync(`go build -o "${path.join(binaries, 'migrate')}" ./cmd/migrate`, {
+    cwd: path.resolve(__dirname, '../../database'),
     stdio: 'inherit',
   });
 

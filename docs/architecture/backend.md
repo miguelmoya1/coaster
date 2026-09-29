@@ -251,8 +251,8 @@ no unresolved `require("@coaster/...")` left in `dist`, so `node dist/main` runs
 `tsconfig-paths` or any extra loader.
 
 The production image runs as the `node` user and expects migrations to have been applied separately:
-the deploy runs goose's `migrate` from the Go image in a Cloud Run job first (see
-[configuration](../operations/configuration.md)).
+the deploy runs goose's `migrate` from `apps/database` in a Cloud Run job first (see
+[database](../apps/database.md)).
 
 ## Tests
 

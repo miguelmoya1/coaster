@@ -12,9 +12,9 @@ el mismo.
   en el 3001 mientras exista, contra la misma base de datos, pero nada apunta a él;
   `docker compose up web` levanta la web con Go y sin Nest. El servicio carga `apps/api/.env` (las
   variables son las mismas que las de Nest) y fija en `compose.yaml` las que son de Go (`PORT`,
-  `PUBLIC_DIR`, `PUBLIC_URL`). Las migraciones las aplica el servicio `migrate` antes de que arranque
-  cualquiera de las dos APIs. La imagen no se recarga sola: después de cambiar código,
-  `docker compose up -d --build coaster-api`.
+  `PUBLIC_DIR`, `PUBLIC_URL`). Las migraciones las aplica el servicio `migrate`
+  ([database](../database.md)) antes de que arranque cualquiera de las dos APIs. La imagen no se
+  recarga sola: después de cambiar código, `docker compose up -d --build coaster-api`.
 - **En el anfitrión**: `apps/coaster-api/scripts/dev.sh`. La primera vez crea
   `apps/coaster-api/.env` a partir de `apps/api/.env` (`scripts/env-local.sh`, que se puede volver
   a lanzar si cambia) y arranca `go run ./cmd/api` en el 3000. Necesita `db`, `redis` y `migrate`

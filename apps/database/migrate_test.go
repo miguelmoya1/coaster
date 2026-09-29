@@ -1,4 +1,4 @@
-package repository
+package database
 
 import (
 	"context"
@@ -15,7 +15,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-const prismaMigrationsDir = "../../../../api/prisma/migrations"
+const prismaMigrationsDir = "../api/prisma/migrations"
 
 const prismaMigrationsTable = `
 	CREATE TABLE "_prisma_migrations" (
@@ -60,7 +60,7 @@ func TestMigrationsAreThePrismaOnes(t *testing.T) {
 
 func TestMigrateTakesOverThePrismaHistory(t *testing.T) {
 	ctx := context.Background()
-	databaseURL, pool := newDatabase(t)
+	name, databaseURL, pool := newDatabase(t)
 
 	names := migrationNames(t)
 	appliedByPrisma := names[:len(names)-2]
@@ -103,8 +103,8 @@ func TestMigrateTakesOverThePrismaHistory(t *testing.T) {
 		t.Fatalf("goose has %d migrations recorded, want %d", len(versions), len(names))
 	}
 
-	if got, want := schemaOf(t, pool), schemaOf(t, testPool); !slices.Equal(got, want) {
-		t.Errorf("the schema after taking over differs from a fresh one:\ngot  %d columns\nwant %d columns", len(got), len(want))
+	if dumpSchema(t, name) != dumpSchema(t, "coaster") {
+		t.Error("the schema after taking over differs from the one of an empty database")
 	}
 }
 
@@ -120,7 +120,7 @@ func TestMigrateRefusesAPrismaHistoryItCannotTakeOver(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			databaseURL, pool := newDatabase(t)
+			_, databaseURL, pool := newDatabase(t)
 
 			mustExec(t, pool, prismaMigrationsTable)
 			mustExec(t, pool, `INSERT INTO "_prisma_migrations" (id, checksum, migration_name, finished_at) VALUES ('1', '', $1, `+tt.finishedAt+`)`, tt.migration)
@@ -141,7 +141,7 @@ func TestMigrateRefusesAPrismaHistoryItCannotTakeOver(t *testing.T) {
 	}
 }
 
-func newDatabase(t *testing.T) (string, *pgxpool.Pool) {
+func newDatabase(t *testing.T) (string, string, *pgxpool.Pool) {
 	t.Helper()
 
 	ctx := context.Background()
@@ -160,13 +160,13 @@ func newDatabase(t *testing.T) (string, *pgxpool.Pool) {
 	}
 	databaseURL.Path = "/" + name
 
-	pool, err := NewPool(ctx, databaseURL.String())
+	pool, err := pgxpool.New(ctx, databaseURL.String())
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Cleanup(pool.Close)
 
-	return databaseURL.String(), pool
+	return name, databaseURL.String(), pool
 }
 
 func migrationNames(t *testing.T) []string {
@@ -184,34 +184,6 @@ func migrationNames(t *testing.T) []string {
 	slices.Sort(names)
 
 	return names
-}
-
-func schemaOf(t *testing.T, pool *pgxpool.Pool) []string {
-	t.Helper()
-
-	rows, err := pool.Query(context.Background(), `
-		SELECT table_name || '.' || column_name || ' ' || data_type || ' ' || is_nullable || ' ' || coalesce(column_default, '')
-		FROM information_schema.columns
-		WHERE table_schema = 'public' AND table_name NOT IN ('_prisma_migrations', 'goose_db_version')
-		ORDER BY table_name, column_name
-	`)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	var columns []string
-	for rows.Next() {
-		var column string
-		if err := rows.Scan(&column); err != nil {
-			t.Fatal(err)
-		}
-		columns = append(columns, column)
-	}
-	if err := rows.Err(); err != nil {
-		t.Fatal(err)
-	}
-
-	return columns
 }
 
 func mustExec(t *testing.T, pool *pgxpool.Pool, sql string, args ...any) {

@@ -19,7 +19,6 @@ import (
 	"coaster-api/internal/adapter/google"
 	"coaster-api/internal/adapter/handler/httpapi"
 	"coaster-api/internal/adapter/handler/middleware"
-	"coaster-api/internal/adapter/logging"
 	"coaster-api/internal/adapter/payment"
 	"coaster-api/internal/adapter/pwned"
 	"coaster-api/internal/adapter/repository"
@@ -32,7 +31,7 @@ import (
 const shutdownTimeout = 8 * time.Second
 
 func main() {
-	slog.SetDefault(logging.NewCloudLogger(os.Stdout))
+	slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{ReplaceAttr: cloudLoggingNames})))
 
 	if err := run(); err != nil {
 		slog.Error("the API stopped", "error", err)
@@ -274,4 +273,19 @@ func run() error {
 	defer cancel()
 
 	return server.Shutdown(shutdownCtx)
+}
+
+func cloudLoggingNames(groups []string, attr slog.Attr) slog.Attr {
+	if len(groups) > 0 {
+		return attr
+	}
+
+	switch attr.Key {
+	case slog.LevelKey:
+		attr.Key = "severity"
+	case slog.MessageKey:
+		attr.Key = "message"
+	}
+
+	return attr
 }

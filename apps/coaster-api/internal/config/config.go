@@ -65,28 +65,14 @@ type Config struct {
 	GoogleCertsURL string
 }
 
-func DatabaseURL() (string, error) {
-	databaseURL := os.Getenv("DATABASE_URL")
-	if databaseURL == "" {
-		return "", errors.New("DATABASE_URL environment variable is required")
-	}
-
-	return databaseURL, nil
-}
-
 func Load() (Config, error) {
-	databaseURL, err := DatabaseURL()
-	if err != nil {
-		return Config{}, err
-	}
-
 	isProduction := os.Getenv("NODE_ENV") == "production"
 
 	cfg := Config{
 		Port:         withDefault(os.Getenv("PORT"), defaultPort),
 		IsProduction: isProduction,
 
-		DatabaseURL: databaseURL,
+		DatabaseURL: os.Getenv("DATABASE_URL"),
 		RedisURL:    os.Getenv("REDIS_URL"),
 
 		AuthJWTSecret:         os.Getenv("AUTH_JWT_SECRET"),
@@ -121,6 +107,10 @@ func Load() (Config, error) {
 
 		TestMailboxURL: os.Getenv("TEST_MAILBOX_URL"),
 		GoogleCertsURL: os.Getenv("GOOGLE_CERTS_URL"),
+	}
+
+	if cfg.DatabaseURL == "" {
+		return Config{}, errors.New("DATABASE_URL environment variable is required")
 	}
 
 	if cfg.AuthJWTSecret == "" {

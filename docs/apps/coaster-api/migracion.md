@@ -33,12 +33,14 @@ El rendimiento **no** es el motivo. Casi toda la latencia de la API viene de Pos
   Las 47 migraciones de Prisma están copiadas tal cual, una de goose por cada una y con la misma
   fecha como versión, en lugar de una migración base: producción va por detrás de dev, y así
   cada entorno aplica lo que le falte. En una base que migró Prisma, la primera vez que corre
-  `cmd/migrate` apunta lo que Prisma ya aplicó y aplica el resto.
+  `migrate` apunta lo que Prisma ya aplicó y aplica el resto.
+- **El esquema es una aplicación aparte, `apps/database`** ([database](../database.md)), con su
+  imagen y su job de Cloud Run. No depende de qué API lo use, y la imagen del job no lleva la API.
 - **Las migraciones se aplican en un job de Cloud Run, no al arrancar la API.** El job corre en
   cada despliegue, antes de la revisión nueva. Así varias instancias no compiten por migrar, una
   migración larga no choca con el tiempo de arranque que da Cloud Run, y volver a una revisión
-  anterior no toca el esquema. El job usa la imagen de Go (`/app/migrate`) aunque el servicio
-  siga siendo Nest.
+  anterior no toca el esquema. El job corre `migrate` de `apps/database` aunque el servicio siga
+  siendo Nest.
 - **Sin log de peticiones ni ruta de salud.** Cloud Run ya registra cada petición y comprueba
   el puerto, y Nest no tiene ninguna de las dos. `slog` se usa para errores.
 - **Validación casi idéntica.** Mismo formato (`message: string[]`), mismos textos y los

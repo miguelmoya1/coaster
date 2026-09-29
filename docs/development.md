@@ -2,7 +2,8 @@
 
 The repository is an npm workspace with the API (`apps/api`), the web application (`apps/web`), the
 shared TypeScript package (`packages/common`) and the printer bridge (`apps/printer-service`). The Go
-rewrite of the API (`apps/coaster-api`) has its own page: [coaster-api](apps/coaster-api/README.md).
+rewrite of the API (`apps/coaster-api`) and the database schema (`apps/database`) have their own
+pages: [coaster-api](apps/coaster-api/README.md) and [database](apps/database.md).
 
 ## Running it
 
@@ -91,6 +92,7 @@ npm run build -w @coaster/common && docker compose restart api
 - API e2e tests: `npm run test:e2e -w @coaster/api` — brings up a database with testcontainers
 - Web e2e tests: `cd apps/web && npx playwright test`
 - Printer bridge tests: `cd apps/printer-service && go test ./...`
+- Database tests, `schema.sql` included: `cd apps/database && go test ./...`
 - Generate the Prisma client: `npm run db:generate` (in the container) or
   `cd apps/api && npx prisma generate` (on the host, which is where the unit tests run)
 - Apply migrations: `npm run db:migrate`

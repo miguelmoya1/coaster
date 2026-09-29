@@ -11,10 +11,8 @@ project/
 │   └── compose.yml
 ├── server/                          # Backend en Go
 │   ├── cmd/
-│   │   ├── api/
-│   │   │   └── main.go              # Punto de entrada y cableado de dependencias
-│   │   └── migrate/
-│   │       └── main.go              # Aplica las migraciones
+│   │   └── api/
+│   │       └── main.go              # Punto de entrada y cableado de dependencias
 │   ├── internal/
 │   │   ├── config/                  # Carga de configuración
 │   │   ├── core/
@@ -27,8 +25,7 @@ project/
 │   │       │   ├── middleware/      # Middlewares HTTP (auth, permisos, logging…)
 │   │       │   └── respond/         # Escritura de respuestas JSON y errores
 │   │       ├── repository/          # Acceso a base de datos
-│   │       │   ├── queries/         # Un archivo .sql por consulta
-│   │       │   └── migrations/      # Las migraciones, un archivo .sql cada una
+│   │       │   └── queries/         # Un archivo .sql por consulta
 │   │       ├── cache/               # Redis: caché, bus de eventos, rate limit
 │   │       ├── payment/             # Pasarela de pagos (Stripe…)
 │   │       ├── email/               # Envío de emails (Resend…)
@@ -128,10 +125,8 @@ Las **implementaciones concretas** que conectan el núcleo con el mundo exterior
   - `xxx_repository.go` hay uno por entidad. Implementa las interfaces `XxxRepository`.
   - Las **transacciones** empiezan y terminan dentro de un método del repositorio, como en
     `apps/api`. Así los servicios no necesitan saber nada de transacciones.
-  - `queries/` guarda el SQL, un archivo por consulta (ver más abajo).
-  - `migrations/` guarda las migraciones y `migrate.go` las aplica con goose. Están aquí, y no en
-    `scripts/`, porque `go:embed` solo alcanza archivos por debajo de su paquete y así van dentro
-    del binario.
+  - `queries/` guarda el SQL, un archivo por consulta (ver más abajo). Las migraciones no están
+    aquí: el esquema es su propia aplicación, `apps/database`.
 - **`cache/`, `payment/`, `email/`, `storage/`, `ai/`**: un adaptador por servicio externo.
   Cada uno implementa su interfaz de `ports`, así que se puede cambiar de proveedor sin tocar
   los servicios.
@@ -227,6 +222,6 @@ HTTP → middleware → handler → service → repository → base de datos
 | 2. Interfaces del repositorio y del servicio | `internal/core/ports/xxx.go` |
 | 3. Lógica de negocio | `internal/service/xxx_service.go` |
 | 4. Consultas SQL | `internal/adapter/repository/queries/xxx/*.sql` |
-| 5. Persistencia | `internal/adapter/repository/xxx_repository.go` + migración en `internal/adapter/repository/migrations/` |
+| 5. Persistencia | `internal/adapter/repository/xxx_repository.go` + migración en `apps/database/migrations/` |
 | 6. Endpoints HTTP | `internal/adapter/handler/httpapi/xxx_handler.go` con su `RegisterRoutes` |
 | 7. Conexión de todo | `cmd/api/main.go` |

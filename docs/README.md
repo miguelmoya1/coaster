@@ -22,6 +22,8 @@ the most rules per line and is the easiest to get wrong.
 - [API](apps/api.md) — NestJS, in production today
 - [Web](apps/web.md) — Angular
 - [Printer bridge](apps/printer-service.md) — the Go service on the venue's computer
+- [Database](apps/database.md) — the schema: goose migrations, `schema.sql` and the job that applies
+  them
 - [coaster-api](apps/coaster-api/README.md) — the Go rewrite of the API: its
   [structure](apps/coaster-api/estructura.md), [conventions](apps/coaster-api/convenciones.md),
   [migration](apps/coaster-api/migracion.md) and [libraries](apps/coaster-api/librerias.md)

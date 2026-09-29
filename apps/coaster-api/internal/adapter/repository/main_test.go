@@ -2,20 +2,23 @@ package repository
 
 import (
 	"context"
+	"database/sql"
+	"fmt"
 	"log"
 	"os"
 	"strings"
 	"testing"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	_ "github.com/jackc/pgx/v5/stdlib"
+	"github.com/pressly/goose/v3"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 )
 
-var (
-	testPool        *pgxpool.Pool
-	testDatabaseURL string
-)
+const migrationsDir = "../../../../database/migrations"
+
+var testPool *pgxpool.Pool
 
 func TestMain(m *testing.M) {
 	os.Exit(run(m))
@@ -40,18 +43,18 @@ func run(m *testing.M) int {
 		}
 	}()
 
-	testDatabaseURL, err = container.ConnectionString(ctx, "sslmode=disable")
+	databaseURL, err := container.ConnectionString(ctx, "sslmode=disable")
 	if err != nil {
 		log.Printf("reading the connection string: %v", err)
 		return 1
 	}
 
-	if err := Migrate(ctx, testDatabaseURL); err != nil {
+	if err := applyMigrations(ctx, databaseURL); err != nil {
 		log.Print(err)
 		return 1
 	}
 
-	testPool, err = NewPool(ctx, testDatabaseURL)
+	testPool, err = NewPool(ctx, databaseURL)
 	if err != nil {
 		log.Print(err)
 		return 1
@@ -59,6 +62,25 @@ func run(m *testing.M) int {
 	defer testPool.Close()
 
 	return m.Run()
+}
+
+func applyMigrations(ctx context.Context, databaseURL string) error {
+	db, err := sql.Open("pgx", databaseURL)
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	provider, err := goose.NewProvider(goose.DialectPostgres, db, os.DirFS(migrationsDir))
+	if err != nil {
+		return fmt.Errorf("reading the migrations of apps/database: %w", err)
+	}
+
+	if _, err := provider.Up(ctx); err != nil {
+		return fmt.Errorf("applying the migrations: %w", err)
+	}
+
+	return nil
 }
 
 func resetDB(t *testing.T) {

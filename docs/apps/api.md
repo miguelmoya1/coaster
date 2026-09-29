@@ -43,8 +43,8 @@ From the repository root, `npm run db:generate` runs the same Prisma command **i
 container**. That distinction matters: the unit tests run on the host, so a client generated only in
 the container makes them fail inside `@prisma/param-graph`. Generate on both when in doubt.
 
-The schema no longer changes through Prisma: migrations are goose's, in the Go API (see its
-[conventions](coaster-api/convenciones.md)), and `npm run db:migrate` applies them.
+The schema no longer changes through Prisma: migrations are goose's, in
+[`apps/database`](database.md), and `npm run db:migrate` applies them.
 
 The e2e suite runs `prisma migrate deploy` (goose's `migrate` when it targets Go), never `db push` — the schema alone leaves out everything
 written in raw SQL (the append-only triggers on `TimeEntry`, the partial unique index on

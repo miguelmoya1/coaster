@@ -150,8 +150,8 @@ A new Neon project — not a branch of production: beta has no business holding 
 its pooled connection string; that is the `DATABASE_URL` for both the GitHub environment and the
 Cloud Run service.
 
-Migrations run themselves on every deploy, in a Cloud Run job with the Go image (`/app/migrate`),
-before the new revision takes traffic.
+Migrations run themselves on every deploy, in a Cloud Run job with the image of `apps/database`
+(`/app/migrate`), before the new revision takes traffic — see [database](../apps/database.md).
 
 ### 4. The Cloud Run service and its migration job
 

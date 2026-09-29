@@ -15,7 +15,7 @@ env:
   GCP_REGION_SERVICE: 'europe-west1'
   GCP_REGION_JOB: 'europe-southwest1'
   GCP_IMAGE_NAME: 'europe-west1-docker.pkg.dev/coaster-437f2/coaster-repo/api-new'
-  GCP_GO_IMAGE_NAME: 'europe-west1-docker.pkg.dev/coaster-437f2/coaster-repo/coaster-api'
+  GCP_DATABASE_IMAGE_NAME: 'europe-west1-docker.pkg.dev/coaster-437f2/coaster-repo/coaster-database'
 
 jobs:
   build-and-test:
@@ -107,6 +107,37 @@ jobs:
       - name: 🧪 go test
         run: go test ./...
 
+  database:
+    name: 🗄️ Base de datos
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/database
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🐹 Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: apps/database/go.mod
+          cache-dependency-path: apps/database/go.sum
+
+      - name: 🧹 gofmt
+        run: |
+          unformatted=$(gofmt -l .)
+          if [ -n "$unformatted" ]; then
+            echo "::error::Sin gofmt: $unformatted"
+            exit 1
+          fi
+
+      - name: 🔎 go vet
+        run: go vet ./...
+
+      # Incluye schema.sql: falla si no coincide con las migraciones.
+      - name: 🧪 go test
+        run: go test ./...
+
   # Los e2e de apps/api contra el servidor Go.
   # Como el job coaster-api, no bloquea build-and-test ni el despliegue.
   coaster-api-e2e:
@@ -126,7 +157,9 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version-file: apps/coaster-api/go.mod
-          cache-dependency-path: apps/coaster-api/go.sum
+          cache-dependency-path: |
+            apps/coaster-api/go.sum
+            apps/database/go.sum
 
       - name: 📦 Install Dependencies
         run: npm ci
@@ -265,15 +298,15 @@ jobs:
         run: |
           docker build -t ${{ env.GCP_IMAGE_NAME }}:${{ github.sha }} -f apps/api/Dockerfile .
           docker push ${{ env.GCP_IMAGE_NAME }}:${{ github.sha }}
-          docker build -t ${{ env.GCP_GO_IMAGE_NAME }}:${{ github.sha }} -f apps/coaster-api/Dockerfile .
-          docker push ${{ env.GCP_GO_IMAGE_NAME }}:${{ github.sha }}
+          docker build -t ${{ env.GCP_DATABASE_IMAGE_NAME }}:${{ github.sha }} -f apps/database/Dockerfile .
+          docker push ${{ env.GCP_DATABASE_IMAGE_NAME }}:${{ github.sha }}
 
-      # goose owns the schema: the job runs the migrate binary of the Go image. On a database
+      # goose owns the schema: the job runs the migrate binary of apps/database. On a database
       # Prisma migrated, its first run records what Prisma applied and applies only the rest.
       - name: 🗄️ Run Migrations (Cloud Run Job)
         run: |
           gcloud run jobs deploy ${{ vars.GCP_JOB_NAME }} \
-            --image ${{ env.GCP_GO_IMAGE_NAME }}:${{ github.sha }} \
+            --image ${{ env.GCP_DATABASE_IMAGE_NAME }}:${{ github.sha }} \
             --region ${{ env.GCP_REGION_JOB }} \
             ${REMOVE_STALE_JOB} \
             --update-secrets="DATABASE_URL=${SECRET_PREFIX}-database-url:latest" \
