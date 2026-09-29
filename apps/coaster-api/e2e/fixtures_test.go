@@ -3,6 +3,7 @@ package e2e
 import (
 	"context"
 	"testing"
+	"time"
 	"uuid"
 
 	"coaster-api/internal/core/domain"
@@ -153,5 +154,24 @@ func createProduct(t *testing.T, categoryID string, p product) string {
 	id := newID()
 	mustExec(t, `INSERT INTO "Product" (id, name, price, "categoryId", "currentStock", "updatedAt")
 		VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP)`, id, p.name, p.price, categoryID, p.stock)
+	return id
+}
+
+func createShift(t *testing.T, establishmentID, userID string, startsIn, length time.Duration, notes string) string {
+	t.Helper()
+
+	id := newID()
+	mustExec(t, `INSERT INTO "Shift" (id, "startTime", "endTime", "userId", "establishmentId", notes, "updatedAt")
+		VALUES ($1, CURRENT_TIMESTAMP + make_interval(secs => $2), CURRENT_TIMESTAMP + make_interval(secs => $3), $4, $5, nullif($6, ''), CURRENT_TIMESTAMP)`,
+		id, startsIn.Seconds(), (startsIn + length).Seconds(), userID, establishmentID, notes)
+	return id
+}
+
+func createExchange(t *testing.T, shiftID, requesterID, targetID string) string {
+	t.Helper()
+
+	id := newID()
+	mustExec(t, `INSERT INTO "ShiftExchange" (id, "shiftId", "requesterId", "targetId", status) VALUES ($1, $2, $3, nullif($4, ''), 'PENDING')`,
+		id, shiftID, requesterID, targetID)
 	return id
 }
