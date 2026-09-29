@@ -69,3 +69,22 @@ func (b *mailbox) waitFor(t *testing.T, kind, to string) email {
 	t.Fatalf("no %s email ever reached %s", kind, to)
 	return email{}
 }
+
+func (b *mailbox) count(kind string) int {
+	count := 0
+	for _, sent := range b.all() {
+		if sent.Kind == kind {
+			count++
+		}
+	}
+	return count
+}
+
+func (b *mailbox) expectNone(t *testing.T, kind string) {
+	t.Helper()
+
+	time.Sleep(200 * time.Millisecond)
+	if count := b.count(kind); count != 0 {
+		t.Errorf("%d %s emails were sent, want none", count, kind)
+	}
+}

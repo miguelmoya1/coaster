@@ -284,3 +284,22 @@ func (b *lockedBuffer) String() string {
 	defer b.mu.Unlock()
 	return b.buffer.String()
 }
+
+func (r *response) cookie(t *testing.T, name string) string {
+	t.Helper()
+
+	for _, cookie := range r.header.Values("Set-Cookie") {
+		if strings.HasPrefix(cookie, name+"=") {
+			return cookie
+		}
+	}
+
+	t.Fatalf("%s %s set no %s cookie: %v", r.method, r.path, name, r.header.Values("Set-Cookie"))
+	return ""
+}
+
+func cookieValue(setCookie string) string {
+	pair, _, _ := strings.Cut(setCookie, ";")
+	_, value, _ := strings.Cut(pair, "=")
+	return value
+}
