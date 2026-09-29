@@ -100,7 +100,10 @@ falta; lo hecho queda en git.
    probarlo está en «IA» de [convenciones](convenciones.md).
 3. **Producción**: merge de `dev` a `main`. La primera vez, el job de migraciones de producción
    apunta lo que Prisma ya aplicó y aplica el resto, como hizo en beta. Antes, repasar
-   «Diferencias conocidas»: es lo que notarán los usuarios de producción.
+   «Diferencias conocidas»: es lo que notarán los usuarios de producción. El mismo día, el
+   proyecto `coaster` de Vercel pasa a la configuración que ya tiene `coaster-beta`: Root Directory
+   `apps/web`, Build Command `npm run build` y Output Directory `dist/coaster/browser` (sin
+   `package.json` en la raíz, la de hoy no construye).
 4. **Con producción en Go**: juntar las migraciones en una, quitar `_prisma_migrations` y el código
    de `apps/database` que la adopta, y la regla de que una migración no puede romper Nest. Esta
    tabla de diferencias deja de serlo: se queda como lo que hace la API.
