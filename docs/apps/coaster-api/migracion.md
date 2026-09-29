@@ -29,10 +29,16 @@ El rendimiento **no** es el motivo. Casi toda la latencia de la API viene de Pos
   archivos que usan `$transaction` son repositorios. No hay `TxManager` ni `UnitOfWork`.
 - **SQL a mano, un archivo `.sql` por consulta**, incrustado con `go:embed` (ver
   [estructura](estructura.md)). Sin ORM y sin sqlc por ahora.
-- **Prisma sigue siendo dueño del esquema hasta P5.** Mientras Nest esté en producción, las
-  migraciones se escriben en Prisma. Los tests de Go aplican las `migration.sql` de
-  `apps/api/prisma/migrations` en orden. goose entra en P5, con una migración base sacada
-  del esquema de ese momento.
+- **El esquema lo lleva goose desde el 29 de septiembre de 2026**, también mientras Nest sirve.
+  Las 47 migraciones de Prisma están copiadas tal cual, una de goose por cada una y con la misma
+  fecha como versión, en lugar de una migración base: producción va por detrás de dev, y así
+  cada entorno aplica lo que le falte. En una base que migró Prisma, la primera vez que corre
+  `cmd/migrate` apunta lo que Prisma ya aplicó y aplica el resto.
+- **Las migraciones se aplican en un job de Cloud Run, no al arrancar la API.** El job corre en
+  cada despliegue, antes de la revisión nueva. Así varias instancias no compiten por migrar, una
+  migración larga no choca con el tiempo de arranque que da Cloud Run, y volver a una revisión
+  anterior no toca el esquema. El job usa la imagen de Go (`/app/migrate`) aunque el servicio
+  siga siendo Nest.
 - **Sin log de peticiones ni ruta de salud.** Cloud Run ya registra cada petición y comprueba
   el puerto, y Nest no tiene ninguna de las dos. `slog` se usa para errores.
 - **Validación casi idéntica.** Mismo formato (`message: string[]`), mismos textos y los
@@ -87,9 +93,11 @@ en git.
 1. **Confirmar los modelos de respaldo del AI Gateway** con la clave de verdad (Miguel): cómo
    probarlo está en «IA» de [convenciones](convenciones.md).
 2. **Probar argon2 con un hash real** de la base de datos de producción.
-3. **P5 Salida** (no la hacen los agentes): migración base de goose desde el esquema de ese
-   momento, el endpoint del webhook de Go en el panel de Stripe, el servicio de Cloud Run y su
-   job de migraciones, beta con uso real en paralelo a Nest y el cambio en producción.
+3. **Los e2e en Go**, con `net/http`, pgx y testcontainers, para borrar la suite de TypeScript
+   junto con Nest. Hasta entonces, la de TypeScript es la prueba de que Go hace lo mismo que Nest.
+4. **P5 Salida** (no la hacen los agentes): desplegar la imagen de Go en el servicio de Cloud Run
+   de siempre (así no cambian la URL ni el webhook de Stripe), un tiempo de uso real en beta y el
+   cambio en producción.
 
 ## Diferencias conocidas
 
@@ -196,8 +204,9 @@ Lo que Go hace distinto de Nest a propósito o porque no se ha podido copiar.
 - **Contraseñas**: argon2 en Go tiene que verificar los hashes existentes.
 - **Tokens**: mismos claims y mismo secreto, para que nadie tenga que volver a iniciar
   sesión al hacer el cambio.
-- **Migraciones**: goose empieza en P5 desde el esquema de ese momento. Los triggers de `TimeEntry` y el
-  índice parcial de `ShiftExchange` ya están en las migraciones SQL, así que no se pierden.
+- **Migraciones**: mientras Nest sirva en algún entorno, las de goose no pueden romperlo (ver
+  «Base de datos» en [convenciones](convenciones.md)). Los triggers de `TimeEntry` y el índice
+  parcial de `ShiftExchange` están en las migraciones SQL, así que no se pierden.
   La tabla `_prisma_migrations` deja de usarse.
 - **Tipos compartidos** (`@coaster/common`): siguen en TypeScript y hay que mantenerlos a
   mano o generarlos desde OpenAPI.

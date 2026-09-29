@@ -22,7 +22,7 @@ Estado: ⬜ sin revisar · ✅ aprobada · ❌ descartada
 | Ahora | En Go | Notas | Estado |
 |---|---|---|---|
 | Prisma Client | `github.com/jackc/pgx/v5` + `pgxpool` | SQL escrito a mano en archivos `.sql` con `go:embed` (ver [estructura](estructura.md)). | ✅ |
-| Prisma Migrate | `github.com/pressly/goose/v3` | Entra en P5, con una migración base sacada del esquema de ese momento. Hasta entonces el esquema lo lleva Prisma (ver [migración](migracion.md)). | ✅ |
+| Prisma Migrate | `github.com/pressly/goose/v3` | Lleva el esquema desde el 29 de septiembre de 2026, con las migraciones de Prisma copiadas tal cual y `cmd/migrate` (ver «Base de datos» en [convenciones](convenciones.md)). | ✅ |
 | — | ~~sqlc~~ | Descartado por ahora: se prefiere escribir el SQL y el mapeo a mano. Se puede añadir más adelante sin cambiar los `.sql`. | ❌ |
 
 ## Seguridad y autenticación

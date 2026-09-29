@@ -43,7 +43,8 @@ repository root, which is also the one `docker compose` reads — see [web](../a
 | `BETA_ALLOWLIST_ENABLED`                     | Closes sign-up to the `BetaTester` table. Default off; on with an empty list locks everybody out — see [closed beta](../saas/closed-beta.md)                                                         |
 | `PWNED_PASSWORDS_ENABLED`                    | Only `false` turns the Have I Been Pwned check off; unset leaves it on, and a service that will not answer lets the password through                                                                 |
 
-Migrations are **not** run by the production image. The CI deploy applies them with
-`prisma migrate deploy` in a Cloud Run job before the new revision; locally the `migrate` service of
-`compose.yaml` runs it before either API starts, so a local database is never a step behind the
-checkout.
+Migrations are **not** run by the API when it starts. The CI deploy applies them in a Cloud Run job
+before the new revision, with the `migrate` binary of the Go image (goose); locally the `migrate`
+service of `compose.yaml` runs the same binary before either API starts, so a local database is never
+a step behind the checkout. How to write one is in the
+[coaster-api conventions](../apps/coaster-api/convenciones.md).

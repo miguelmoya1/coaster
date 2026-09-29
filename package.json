@@ -15,7 +15,7 @@
     "test": "npm run test --workspaces --if-present",
     "test:e2e": "npm run test:e2e --workspaces --if-present",
     "test:cov": "npm run test:cov --workspaces --if-present",
-    "db:migrate": "docker compose exec api npx prisma migrate dev",
+    "db:migrate": "docker compose run --rm migrate",
     "db:generate": "docker compose exec api npx prisma generate",
     "db:studio": "docker compose exec api npx prisma studio"
   },

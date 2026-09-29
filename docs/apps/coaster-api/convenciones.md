@@ -136,14 +136,26 @@ func (h *OrderHandler) RegisterRoutes(mux *http.ServeMux, guard *middleware.Guar
 
 - SQL a mano, un archivo por consulta en `repository/queries/<entidad>/`, con `//go:embed` en una
   variable. Las transacciones empiezan y terminan dentro de un método del repositorio.
-- Prisma es dueño del esquema hasta P5: las migraciones se escriben en `apps/api/prisma`.
+- El esquema lo lleva goose. Una migración es un archivo
+  `repository/migrations/<AAAAMMDDhhmmss>_<nombre>.sql` que empieza por `-- +goose Up`. Si tiene
+  funciones con `$$`, o para mandarla entera de una vez, va entre `-- +goose StatementBegin` y
+  `-- +goose StatementEnd`. No lleva `Down`: una migración se corrige con otra.
+- No se escriben más migraciones de Prisma. Mientras Nest sirva en algún entorno, una migración
+  no puede romperlo: se añaden tablas o columnas que admiten `null` o tienen valor por defecto, y
+  no se borra ni se renombra nada. Si Nest tiene que leer la columna, va también a
+  `schema.prisma`, sin migración.
+- Las aplica `cmd/migrate`, nunca la API al arrancar: el job de Cloud Run en cada despliegue y el
+  servicio `migrate` de compose en local. En una base que migró Prisma, la primera vez apunta en
+  `goose_db_version` lo que Prisma aplicó (según `_prisma_migrations`) y aplica solo lo que falte.
+  Si Prisma dejó una a medias o aplicó una que goose no tiene, para sin tocar nada.
 - Las tablas y columnas son las de Prisma, con comillas: `"User"`, `"createdAt"`.
 - Prisma pone `@default(uuid())` y `@updatedAt` desde el cliente: Go genera el `id` con
   `uuid.NewV4()` y cada `UPDATE` de una tabla con `@updatedAt` escribe `"updatedAt"`.
 - Los arrays de enums se escriben con `$n::text[]::"Allergen"[]` y se leen con
   `COALESCE(columna, '{}')::text[]`.
-- En los tests de `repository/`, `testPool` tiene todas las migraciones de Prisma aplicadas y
-  `resetDB(t)` vacía las tablas.
+- En los tests de `repository/`, `testPool` tiene todas las migraciones aplicadas con `Migrate` y
+  `resetDB(t)` vacía las tablas, salvo `goose_db_version`. `TestMigrationsAreThePrismaOnes`
+  comprueba que las de Prisma siguen copiadas tal cual; se borra con Nest.
 
 ## Caché
 

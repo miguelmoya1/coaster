@@ -242,7 +242,7 @@ export class E2eTestSetup {
 
     const tables = tablenames
       .map(({ tablename }) => tablename)
-      .filter((name) => name !== '_prisma_migrations')
+      .filter((name) => name !== '_prisma_migrations' && name !== 'goose_db_version')
       .map((name) => `"${name}"`)
       .join(', ');
 

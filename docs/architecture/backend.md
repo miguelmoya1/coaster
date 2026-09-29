@@ -250,8 +250,9 @@ TypeScript aliases are compile-time only. Nest's SWC builder resolves them at bu
 no unresolved `require("@coaster/...")` left in `dist`, so `node dist/main` runs without
 `tsconfig-paths` or any extra loader.
 
-The production image runs as the `node` user and expects migrations to have been applied separately
-(`prisma migrate deploy`).
+The production image runs as the `node` user and expects migrations to have been applied separately:
+the deploy runs goose's `migrate` from the Go image in a Cloud Run job first (see
+[configuration](../operations/configuration.md)).
 
 ## Tests
 

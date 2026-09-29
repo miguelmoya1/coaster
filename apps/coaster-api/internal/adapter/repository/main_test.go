@@ -2,11 +2,8 @@ package repository
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
-	"path/filepath"
-	"slices"
 	"strings"
 	"testing"
 
@@ -15,9 +12,10 @@ import (
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 )
 
-const migrationsDir = "../../../../api/prisma/migrations"
-
-var testPool *pgxpool.Pool
+var (
+	testPool        *pgxpool.Pool
+	testDatabaseURL string
+)
 
 func TestMain(m *testing.M) {
 	os.Exit(run(m))
@@ -42,53 +40,25 @@ func run(m *testing.M) int {
 		}
 	}()
 
-	databaseURL, err := container.ConnectionString(ctx, "sslmode=disable")
+	testDatabaseURL, err = container.ConnectionString(ctx, "sslmode=disable")
 	if err != nil {
 		log.Printf("reading the connection string: %v", err)
 		return 1
 	}
 
-	testPool, err = NewPool(ctx, databaseURL)
+	if err := Migrate(ctx, testDatabaseURL); err != nil {
+		log.Print(err)
+		return 1
+	}
+
+	testPool, err = NewPool(ctx, testDatabaseURL)
 	if err != nil {
 		log.Print(err)
 		return 1
 	}
 	defer testPool.Close()
 
-	if err := applyMigrations(ctx, testPool); err != nil {
-		log.Print(err)
-		return 1
-	}
-
 	return m.Run()
-}
-
-func applyMigrations(ctx context.Context, pool *pgxpool.Pool) error {
-	entries, err := os.ReadDir(migrationsDir)
-	if err != nil {
-		return fmt.Errorf("reading %s: %w", migrationsDir, err)
-	}
-
-	var names []string
-	for _, entry := range entries {
-		if entry.IsDir() {
-			names = append(names, entry.Name())
-		}
-	}
-	slices.Sort(names)
-
-	for _, name := range names {
-		sql, err := os.ReadFile(filepath.Join(migrationsDir, name, "migration.sql"))
-		if err != nil {
-			return fmt.Errorf("reading migration %s: %w", name, err)
-		}
-
-		if _, err := pool.Exec(ctx, string(sql)); err != nil {
-			return fmt.Errorf("applying migration %s: %w", name, err)
-		}
-	}
-
-	return nil
 }
 
 func resetDB(t *testing.T) {
@@ -99,7 +69,7 @@ func resetDB(t *testing.T) {
 	rows, err := testPool.Query(ctx, `
 		SELECT quote_ident(tablename)
 		FROM pg_tables
-		WHERE schemaname = 'public' AND tablename <> '_prisma_migrations'
+		WHERE schemaname = 'public' AND tablename <> 'goose_db_version'
 	`)
 	if err != nil {
 		t.Fatalf("listing tables: %v", err)

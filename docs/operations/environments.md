@@ -150,7 +150,8 @@ A new Neon project — not a branch of production: beta has no business holding 
 its pooled connection string; that is the `DATABASE_URL` for both the GitHub environment and the
 Cloud Run service.
 
-Migrations run themselves on every deploy, from the same image that is about to serve traffic.
+Migrations run themselves on every deploy, in a Cloud Run job with the Go image (`/app/migrate`),
+before the new revision takes traffic.
 
 ### 4. The Cloud Run service and its migration job
 
@@ -214,7 +215,7 @@ gcloud run jobs create api-migrate-beta \
   --region europe-southwest1 \
   --image "$IMAGE" \
   --service-account "$SA" \
-  --command "npx,prisma,migrate,deploy,--config=apps/api/prisma.config.ts"
+  --command "/app/migrate"
 ```
 
 Create it as the same account the API runs as, which CI is already allowed to act as. Skip this and

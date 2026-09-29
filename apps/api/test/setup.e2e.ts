@@ -1,6 +1,7 @@
 import { PostgreSqlContainer, StartedPostgreSqlContainer } from '@testcontainers/postgresql';
 import { execSync } from 'child_process';
 import { randomBytes } from 'crypto';
+import { mkdtempSync } from 'fs';
 import { tmpdir } from 'os';
 import * as path from 'path';
 import { GO_BINARY_ENV, isGoTarget } from './utils/e2e-target';
@@ -51,13 +52,24 @@ export async function setup() {
   process.env.DATABASE_URL = databaseUrl;
 
   console.log(`✅ Testcontainer started: ${databaseUrl}`);
-  console.log('⏳ Applying Prisma migrations...');
 
   /*
    * Migrations, not `db push`: the schema alone leaves out everything written in raw SQL, such as
    * the append-only triggers on TimeEntry and the partial unique index on ShiftExchange. Those are
    * invariants the tests should be able to lean on, so e2e runs against what production runs.
+   * Against Go they are goose's, applied by its own `migrate`, which is what deploys run.
    */
+  if (isGoTarget) {
+    const binaries = buildGo();
+    applyGoMigrations(binaries, databaseUrl);
+  } else {
+    applyPrismaMigrations(databaseUrl);
+  }
+}
+
+function applyPrismaMigrations(databaseUrl: string) {
+  console.log('⏳ Applying Prisma migrations...');
+
   try {
     execSync('npx prisma migrate deploy', {
       env: {
@@ -72,29 +84,42 @@ export async function setup() {
     console.error('❌ Error applying Prisma migrations:', err);
     throw err;
   }
-
-  if (isGoTarget) {
-    buildGoServer();
-  }
 }
 
 /**
- * Built once for the whole run; each test file then starts its own server from it (see `GoApp`).
- * `go` has to be on the PATH, with the toolchain `apps/coaster-api/go.mod` asks for.
+ * Built once for the whole run: `migrate` prepares the database and each test file then starts its
+ * own server from `api` (see `GoApp`). `go` has to be on the PATH, with the toolchain
+ * `apps/coaster-api/go.mod` asks for.
  */
-function buildGoServer() {
-  const binary = path.join(tmpdir(), 'coaster-api-e2e');
+function buildGo(): string {
+  const binaries = mkdtempSync(path.join(tmpdir(), 'coaster-api-e2e-'));
 
-  console.log('⏳ Building the Go server...');
+  console.log('⏳ Building the Go server and its migrations...');
 
-  execSync(`go build -o "${binary}" ./cmd/api`, {
+  execSync(`go build -o "${binaries}/" ./cmd/...`, {
     cwd: path.resolve(__dirname, '../../coaster-api'),
     stdio: 'inherit',
   });
 
-  process.env[GO_BINARY_ENV] = binary;
+  process.env[GO_BINARY_ENV] = path.join(binaries, 'api');
 
-  console.log(`✅ Go server built: ${binary}`);
+  console.log(`✅ Go server built: ${process.env[GO_BINARY_ENV]}`);
+
+  return binaries;
+}
+
+function applyGoMigrations(binaries: string, databaseUrl: string) {
+  console.log('⏳ Applying the goose migrations...');
+
+  execSync(`"${path.join(binaries, 'migrate')}"`, {
+    env: {
+      ...process.env,
+      DATABASE_URL: databaseUrl,
+    },
+    stdio: 'inherit',
+  });
+
+  console.log('✅ goose migrations applied successfully.');
 }
 
 export async function teardown() {

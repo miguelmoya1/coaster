@@ -30,18 +30,13 @@ services:
   migrate:
     build:
       context: .
-      dockerfile: ./apps/api/Dockerfile.dev
-    command: ['npx', 'prisma', 'migrate', 'deploy']
+      dockerfile: ./apps/coaster-api/Dockerfile
+    entrypoint: ['/app/migrate']
     environment:
       - DATABASE_URL=postgres://admin:admin@db:5432/coaster
     depends_on:
       db:
         condition: service_healthy
-    volumes:
-      - ./:/app
-      - /app/node_modules
-      - /app/apps/api/node_modules
-      - /app/packages/common/node_modules
 
   api:
     build:

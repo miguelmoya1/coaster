@@ -15,6 +15,7 @@ env:
   GCP_REGION_SERVICE: 'europe-west1'
   GCP_REGION_JOB: 'europe-southwest1'
   GCP_IMAGE_NAME: 'europe-west1-docker.pkg.dev/coaster-437f2/coaster-repo/api-new'
+  GCP_GO_IMAGE_NAME: 'europe-west1-docker.pkg.dev/coaster-437f2/coaster-repo/coaster-api'
 
 jobs:
   build-and-test:
@@ -260,19 +261,23 @@ jobs:
       - name: 🔑 Configure Docker
         run: gcloud auth configure-docker ${{ env.GCP_REGION_SERVICE }}-docker.pkg.dev
 
-      - name: 🛠️ Build & Push Docker Image
+      - name: 🛠️ Build & Push Docker Images
         run: |
           docker build -t ${{ env.GCP_IMAGE_NAME }}:${{ github.sha }} -f apps/api/Dockerfile .
           docker push ${{ env.GCP_IMAGE_NAME }}:${{ github.sha }}
+          docker build -t ${{ env.GCP_GO_IMAGE_NAME }}:${{ github.sha }} -f apps/coaster-api/Dockerfile .
+          docker push ${{ env.GCP_GO_IMAGE_NAME }}:${{ github.sha }}
 
-      - name: 🗄️ Run Prisma Migrations (Cloud Run Job)
+      # goose owns the schema: the job runs the migrate binary of the Go image. On a database
+      # Prisma migrated, its first run records what Prisma applied and applies only the rest.
+      - name: 🗄️ Run Migrations (Cloud Run Job)
         run: |
           gcloud run jobs deploy ${{ vars.GCP_JOB_NAME }} \
-            --image ${{ env.GCP_IMAGE_NAME }}:${{ github.sha }} \
+            --image ${{ env.GCP_GO_IMAGE_NAME }}:${{ github.sha }} \
             --region ${{ env.GCP_REGION_JOB }} \
             ${REMOVE_STALE_JOB} \
             --update-secrets="DATABASE_URL=${SECRET_PREFIX}-database-url:latest" \
-            --command "npx,prisma,migrate,deploy,--config=apps/api/prisma.config.ts"
+            --command "/app/migrate"
 
           gcloud run jobs execute ${{ vars.GCP_JOB_NAME }} --region ${{ env.GCP_REGION_JOB }} --wait
 
