@@ -1,8 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { asEstablishmentId, asUserId } from '@coaster/core';
+import { ActionFeedback, asEstablishmentId, asUserId } from '@coaster/core';
 import { asCashCloseId, ManageCashCloses, type CashClose, type CashClosePreview } from '@coaster/cash-close';
 import { fakeResource } from '@coaster/testing';
-import { EstablishmentPermission, MyMemberStore } from '@coaster/establishment-members';
 import { CurrentEstablishmentStore } from '@coaster/establishments';
 import { PrintTicket } from '@coaster/printer';
 import { provideTranslateService } from '@ngx-translate/core';
@@ -42,6 +41,24 @@ const cashClose: CashClose = {
   expectedCash: 57050,
   difference: -100,
   notes: null,
+  voidedAt: null,
+  voidedById: null,
+  voidedByName: null,
+};
+
+const olderClose: CashClose = {
+  ...cashClose,
+  id: asCashCloseId('close-0'),
+  closedAt: '2026-09-22T23:40:00.000Z',
+};
+
+const voidedClose: CashClose = {
+  ...cashClose,
+  id: asCashCloseId('close-2'),
+  closedAt: '2026-09-24T23:40:00.000Z',
+  voidedAt: '2026-09-25T08:00:00.000Z',
+  voidedById: asUserId('user-2'),
+  voidedByName: 'Pablo',
 };
 
 describe('CashClosePage', () => {
@@ -50,11 +67,11 @@ describe('CashClosePage', () => {
 
   let preview = fakeResource(previewOf());
   let history = fakeResource<CashClose[]>([cashClose]);
-  const granted = new Set<EstablishmentPermission>();
-
   const manageMock = {
     close: vi.fn().mockResolvedValue(cashClose),
+    void: vi.fn().mockResolvedValue(cashClose),
   };
+  const feedbackMock = { success: vi.fn(), error: vi.fn() };
   const confirmationMock = { confirm: vi.fn().mockResolvedValue(true) };
   const printMock = { executeText: vi.fn().mockResolvedValue(undefined) };
 
@@ -84,8 +101,6 @@ describe('CashClosePage', () => {
     vi.clearAllMocks();
     preview = fakeResource(previewOf());
     history = fakeResource<CashClose[]>([cashClose]);
-    granted.clear();
-    granted.add(EstablishmentPermission.ESTABLISHMENT_VIEW_FINANCIALS);
 
     await TestBed.configureTestingModule({
       imports: [CashClosePage],
@@ -94,10 +109,7 @@ describe('CashClosePage', () => {
         { provide: ManageCashCloses, useValue: manageMock },
         { provide: ConfirmationDialog, useValue: confirmationMock },
         { provide: PrintTicket, useValue: printMock },
-        {
-          provide: MyMemberStore,
-          useValue: { hasPermission: (permission: EstablishmentPermission) => granted.has(permission) },
-        },
+        { provide: ActionFeedback, useValue: feedbackMock },
         { provide: CurrentEstablishmentStore, useValue: { current: { value: () => ({ name: 'Bar Pepe' }) } } },
       ],
     }).compileComponents();
@@ -170,10 +182,58 @@ describe('CashClosePage', () => {
     expect(ticket).toContain('Bar Pepe');
   });
 
-  it('should keep past closes away from whoever cannot see the takings', async () => {
-    granted.clear();
+  const cards = () => [...fixture.nativeElement.querySelectorAll('[data-testid="cash-close"]')] as HTMLElement[];
+  const undoButtons = () =>
+    [...fixture.nativeElement.querySelectorAll('[data-testid="undo-cash-close-btn"]')] as HTMLButtonElement[];
+
+  it('should offer to undo only the last close that still counts', async () => {
+    history = fakeResource<CashClose[]>([voidedClose, cashClose, olderClose]);
     await render();
 
-    expect(text()).not.toContain('cash_close.history_title');
+    expect(undoButtons()).toHaveLength(1);
+    expect(cards().findIndex((card) => card.contains(undoButtons()[0]))).toBe(1);
+  });
+
+  it('should keep a voided close in the history, saying who undid it', async () => {
+    history = fakeResource<CashClose[]>([voidedClose, cashClose]);
+    await render();
+
+    const voided = cards()[0];
+    expect(voided.textContent).toContain('cash_close.voided_by');
+    expect(voided.querySelector('button')).toBeNull();
+  });
+
+  it('should undo the close once confirmed, and add up the till again', async () => {
+    await render();
+
+    undoButtons()[0].click();
+    await fixture.whenStable();
+
+    expect(manageMock.void).toHaveBeenCalledWith('establishment-1', 'close-1');
+    expect(preview.reload).toHaveBeenCalled();
+    expect(history.reload).toHaveBeenCalled();
+    expect(feedbackMock.success).toHaveBeenCalled();
+  });
+
+  it('should not undo when the confirmation is turned down', async () => {
+    confirmationMock.confirm.mockResolvedValueOnce(false);
+    await render();
+
+    undoButtons()[0].click();
+    await fixture.whenStable();
+
+    expect(manageMock.void).not.toHaveBeenCalled();
+  });
+
+  it('should tell why the close could not be undone', async () => {
+    const notLast = new Error('CASH_CLOSE_NOT_LAST');
+    manageMock.void.mockRejectedValueOnce(notLast);
+    await render();
+
+    undoButtons()[0].click();
+    await fixture.whenStable();
+
+    expect(feedbackMock.error).toHaveBeenCalledWith(notLast);
+    expect(history.reload).not.toHaveBeenCalled();
   });
 });

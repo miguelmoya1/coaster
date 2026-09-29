@@ -64,6 +64,19 @@ func (s *CashCloseService) Close(ctx context.Context, establishmentID, closedByI
 	return withCashCount(closed), nil
 }
 
+func (s *CashCloseService) Void(ctx context.Context, establishmentID, cashCloseID, voidedByID string) (domain.CashClose, error) {
+	voided, err := s.closes.Void(ctx, domain.VoidCashClose{
+		EstablishmentID: establishmentID,
+		CashCloseID:     cashCloseID,
+		VoidedByID:      voidedByID,
+	})
+	if err != nil {
+		return domain.CashClose{}, err
+	}
+
+	return withCashCount(voided), nil
+}
+
 func withCashCount(cashClose domain.CashClose) domain.CashClose {
 	cashClose.ExpectedCash = domain.ExpectedCashOf(cashClose.OpeningFloat, cashClose.CashAmount)
 	cashClose.Difference = domain.CashDifferenceOf(cashClose.CountedCash, cashClose.OpeningFloat, cashClose.CashAmount)

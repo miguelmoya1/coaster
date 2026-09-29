@@ -13,9 +13,14 @@ import (
 
 type tillCloses struct {
 	closed *domain.NewCashClose
+	voided *domain.VoidCashClose
 }
 
-var tillClosedAt = domain.NewTime(time.Date(2026, 9, 23, 23, 40, 0, 0, time.UTC))
+var (
+	tillClosedAt = domain.NewTime(time.Date(2026, 9, 23, 23, 40, 0, 0, time.UTC))
+	tillVoidedAt = domain.NewTime(time.Date(2026, 9, 25, 8, 0, 0, 0, time.UTC))
+	tillVoidedBy = "Ana"
+)
 
 func (tillCloses) ListRecent(context.Context, string) ([]domain.CashClose, error) {
 	return []domain.CashClose{{
@@ -34,6 +39,15 @@ func (c *tillCloses) Close(_ context.Context, input domain.NewCashClose) (domain
 		Since: &tillClosedAt, ClosedAt: domain.NewTime(time.Date(2026, 9, 24, 23, 0, 0, 0, time.UTC)),
 		CashCloseTotals: domain.CashCloseTotals{ClosedOrders: 1, CancelledOrders: 1, CancelledAmount: 1100, CashAmount: 1300, CardAmount: 1100, TipAmount: 200},
 		OpeningFloat:    input.OpeningFloat, CountedCash: input.CountedCash, Notes: input.Notes,
+	}, nil
+}
+
+func (c *tillCloses) Void(_ context.Context, input domain.VoidCashClose) (domain.CashClose, error) {
+	c.voided = &input
+	return domain.CashClose{
+		ID: input.CashCloseID, EstablishmentID: input.EstablishmentID, ClosedByID: "user-1", ClosedByName: "Ana",
+		ClosedAt: domain.NewTime(time.Date(2026, 9, 24, 23, 0, 0, 0, time.UTC)),
+		VoidedAt: &tillVoidedAt, VoidedByID: &input.VoidedByID, VoidedByName: &tillVoidedBy,
 	}, nil
 }
 
@@ -63,6 +77,7 @@ func TestCashCloseRoutesNeedTheOrdersModule(t *testing.T) {
 		"GET /api/v1/establishments/e1/cash-closes",
 		"GET /api/v1/establishments/e1/cash-closes/preview",
 		"POST /api/v1/establishments/e1/cash-closes",
+		"POST /api/v1/establishments/e1/cash-closes/close-1/void",
 	} {
 		method, target, _ := strings.Cut(route, " ")
 
@@ -82,22 +97,29 @@ func TestCashCloseRoutesNeedTheOrdersModule(t *testing.T) {
 	}
 }
 
-func TestCashCloseRoutesKeepStaffOut(t *testing.T) {
+func TestStaffCanCloseTheTill(t *testing.T) {
 	server := newTillServer(fakeAccess{role: domain.EstablishmentRoleStaff, modules: domain.AllEstablishmentModules}, &tillCloses{}, &tillStats{})
 
-	for _, route := range []string{
-		"GET /api/v1/establishments/e1/cash-closes",
-		"GET /api/v1/establishments/e1/cash-closes/preview",
-		"POST /api/v1/establishments/e1/cash-closes",
-		"GET /api/v1/establishments/e1/stats",
+	for _, tt := range []struct {
+		route string
+		want  int
+	}{
+		{route: "GET /api/v1/establishments/e1/cash-closes", want: http.StatusOK},
+		{route: "GET /api/v1/establishments/e1/cash-closes/preview", want: http.StatusOK},
+		{route: "POST /api/v1/establishments/e1/cash-closes", want: http.StatusCreated},
+		{route: "POST /api/v1/establishments/e1/cash-closes/close-1/void", want: http.StatusCreated},
 	} {
-		method, target, _ := strings.Cut(route, " ")
+		method, target, _ := strings.Cut(tt.route, " ")
 
-		response := send(server, method, target, `{"openingFloat":0,"countedCash":0}`, tillSignedIn)
-		want := `{"message":"UNAUTHORIZED","error":"Forbidden","statusCode":403}`
-		if response.Code != http.StatusForbidden || response.Body.String() != want {
-			t.Errorf("%s as staff = %d %s", route, response.Code, response.Body)
+		if response := send(server, method, target, `{"openingFloat":0,"countedCash":0}`, tillSignedIn); response.Code != tt.want {
+			t.Errorf("%s as staff = %d %s, want %d", tt.route, response.Code, response.Body, tt.want)
 		}
+	}
+
+	response := send(server, "GET", "/api/v1/establishments/e1/stats", "", tillSignedIn)
+	want := `{"message":"UNAUTHORIZED","error":"Forbidden","statusCode":403}`
+	if response.Code != http.StatusForbidden || response.Body.String() != want {
+		t.Errorf("stats as staff = %d %s", response.Code, response.Body)
 	}
 }
 
@@ -108,7 +130,7 @@ func TestCashCloseRoutesAnswerLikeNest(t *testing.T) {
 	response := send(server, "GET", "/api/v1/establishments/e1/cash-closes", "", tillSignedIn)
 	want := `[{"id":"close-1","establishmentId":"e1","closedById":"u1","closedByName":"Ana","since":null,"closedAt":"2026-09-23T23:40:00.000Z",` +
 		`"closedOrders":2,"cancelledOrders":0,"cancelledAmount":0,"cashAmount":2200,"cardAmount":0,"tipAmount":0,` +
-		`"openingFloat":15000,"countedCash":17100,"expectedCash":17200,"difference":-100,"notes":null}]`
+		`"openingFloat":15000,"countedCash":17100,"expectedCash":17200,"difference":-100,"notes":null,"voidedAt":null,"voidedById":null,"voidedByName":null}]`
 	if response.Code != http.StatusOK || response.Body.String() != want {
 		t.Errorf("list = %d %s\nwant %s", response.Code, response.Body, want)
 	}
@@ -123,12 +145,24 @@ func TestCashCloseRoutesAnswerLikeNest(t *testing.T) {
 	response = send(server, "POST", "/api/v1/establishments/e1/cash-closes", `{"openingFloat":15000,"countedCash":16400,"notes":"  Sin incidencias "}`, tillSignedIn)
 	want = `{"id":"close-2","establishmentId":"e1","closedById":"u1","closedByName":"Ana","since":"2026-09-23T23:40:00.000Z","closedAt":"2026-09-24T23:00:00.000Z",` +
 		`"closedOrders":1,"cancelledOrders":1,"cancelledAmount":1100,"cashAmount":1300,"cardAmount":1100,"tipAmount":200,` +
-		`"openingFloat":15000,"countedCash":16400,"expectedCash":16300,"difference":100,"notes":"Sin incidencias"}`
+		`"openingFloat":15000,"countedCash":16400,"expectedCash":16300,"difference":100,"notes":"Sin incidencias","voidedAt":null,"voidedById":null,"voidedByName":null}`
 	if response.Code != http.StatusCreated || response.Body.String() != want {
 		t.Errorf("close = %d %s\nwant %s", response.Code, response.Body, want)
 	}
 	if closes.closed == nil || closes.closed.EstablishmentID != "e1" || closes.closed.ClosedByID != testUser.ID {
 		t.Errorf("closed with %+v", closes.closed)
+	}
+
+	response = send(server, "POST", "/api/v1/establishments/e1/cash-closes/close-2/void", "", tillSignedIn)
+	want = `{"id":"close-2","establishmentId":"e1","closedById":"user-1","closedByName":"Ana","since":null,"closedAt":"2026-09-24T23:00:00.000Z",` +
+		`"closedOrders":0,"cancelledOrders":0,"cancelledAmount":0,"cashAmount":0,"cardAmount":0,"tipAmount":0,` +
+		`"openingFloat":0,"countedCash":0,"expectedCash":0,"difference":0,"notes":null,` +
+		`"voidedAt":"2026-09-25T08:00:00.000Z","voidedById":"` + testUser.ID + `","voidedByName":"Ana"}`
+	if response.Code != http.StatusCreated || response.Body.String() != want {
+		t.Errorf("void = %d %s\nwant %s", response.Code, response.Body, want)
+	}
+	if closes.voided == nil || *closes.voided != (domain.VoidCashClose{EstablishmentID: "e1", CashCloseID: "close-2", VoidedByID: testUser.ID}) {
+		t.Errorf("voided with %+v", closes.voided)
 	}
 }
 

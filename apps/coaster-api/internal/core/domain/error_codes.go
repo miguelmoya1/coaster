@@ -66,6 +66,9 @@ const (
 	CodeOrderAlreadyPaid                      = "ORDER_ALREADY_PAID"
 	CodeInvalidOrderIds                       = "INVALID_ORDER_IDS"
 	CodeOrderInCashClose                      = "ORDER_IN_CASH_CLOSE"
+	CodeCashCloseNotFound                     = "CASH_CLOSE_NOT_FOUND"
+	CodeCashCloseNotLast                      = "CASH_CLOSE_NOT_LAST"
+	CodeCashCloseAlreadyVoided                = "CASH_CLOSE_ALREADY_VOIDED"
 	CodePrinterNotConfigured                  = "PRINTER_NOT_CONFIGURED"
 	CodePrinterPairingInvalid                 = "PRINTER_PAIRING_INVALID"
 	CodePrinterNotConnected                   = "PRINTER_NOT_CONNECTED"
@@ -167,6 +170,9 @@ var AllErrorCodes = []string{
 	CodeOrderAlreadyPaid,
 	CodeInvalidOrderIds,
 	CodeOrderInCashClose,
+	CodeCashCloseNotFound,
+	CodeCashCloseNotLast,
+	CodeCashCloseAlreadyVoided,
 	CodePrinterNotConfigured,
 	CodePrinterPairingInvalid,
 	CodePrinterNotConnected,

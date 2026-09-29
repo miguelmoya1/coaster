@@ -30,6 +30,9 @@ export interface CashClose extends CashCloseTotals {
   expectedCash: number;
   difference: number;
   notes: string | null;
+  voidedAt: string | null;
+  voidedById: UserId | null;
+  voidedByName: string | null;
 }
 
 export interface CloseCashDto {

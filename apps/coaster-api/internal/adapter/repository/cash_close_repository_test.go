@@ -368,3 +368,110 @@ func TestCashCloseRepositoryListsClosesOfTheSameInstantByID(t *testing.T) {
 		t.Errorf("ListRecent = %v, want %v", ids, want)
 	}
 }
+
+func TestCashCloseRepositoryVoidsTheLastClose(t *testing.T) {
+	seedTillDay(t)
+	ctx := context.Background()
+	closes := NewCashCloseRepository(testPool)
+	before := time.Now().Add(-time.Second)
+
+	closed, err := closes.Close(ctx, domain.NewCashClose{EstablishmentID: "e1", ClosedByID: "ana", OpeningFloat: 20000, CountedCash: 23000})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	voided, err := closes.Void(ctx, domain.VoidCashClose{EstablishmentID: "e1", CashCloseID: closed.ID, VoidedByID: "luis"})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if voided.VoidedAt == nil || voided.VoidedAt.Before(before) || voided.VoidedByID == nil || *voided.VoidedByID != "luis" || voided.VoidedByName == nil || *voided.VoidedByName != "Luis" {
+		t.Errorf("voided = %+v", voided)
+	}
+	if voided.ID != closed.ID || voided.CashCloseTotals != tillDayTotals || voided.CountedCash != 23000 || voided.ClosedByName != "Ana" {
+		t.Errorf("the voided close lost its count: %+v", voided)
+	}
+
+	for _, orderID := range []string{"A", "B", "C", "E"} {
+		if id := cashCloseIDOf(t, orderID); id != nil {
+			t.Errorf("order %s is still in close %s", orderID, *id)
+		}
+	}
+	if id := cashCloseIDOf(t, "counted"); id == nil || *id != "old-close" {
+		t.Errorf("order counted moved to close %v", id)
+	}
+
+	till, err := closes.FindTill(ctx, "e1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if till.Last == nil || till.Last.ID != "old-close" || till.Last.OpeningFloat != 15000 || len(till.UnclosedOrders) != 4 {
+		t.Errorf("after the void the till starts at %+v with %d orders, want old-close with 4", till.Last, len(till.UnclosedOrders))
+	}
+
+	again, err := closes.Close(ctx, domain.NewCashClose{EstablishmentID: "e1", ClosedByID: "luis", CountedCash: 100})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if again.Since == nil || !again.Since.Equal(time.Date(2026, 9, 20, 23, 0, 0, 0, time.UTC)) || again.CashCloseTotals != tillDayTotals {
+		t.Errorf("the close after the void = %+v, want the day again from old-close", again)
+	}
+
+	recent, err := closes.ListRecent(ctx, "e1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var ids []string
+	for _, c := range recent {
+		ids = append(ids, c.ID)
+	}
+	if want := []string{again.ID, closed.ID, "old-close", "older-close"}; !slices.Equal(ids, want) {
+		t.Fatalf("ListRecent = %v, want %v", ids, want)
+	}
+	listed, _ := json.Marshal(recent[1])
+	returned, _ := json.Marshal(voided)
+	if string(listed) != string(returned) {
+		t.Errorf("listed close = %s\nwant %s", listed, returned)
+	}
+}
+
+func TestCashCloseRepositoryVoidsOnlyTheLastClose(t *testing.T) {
+	seedTillDay(t)
+	ctx := context.Background()
+	closes := NewCashCloseRepository(testPool)
+
+	void := func(establishmentID, cashCloseID string) error {
+		_, err := closes.Void(ctx, domain.VoidCashClose{EstablishmentID: establishmentID, CashCloseID: cashCloseID, VoidedByID: "ana"})
+		return err
+	}
+
+	tests := []struct {
+		name            string
+		establishmentID string
+		cashCloseID     string
+		wantCode        string
+	}{
+		{name: "an unknown close", establishmentID: "e1", cashCloseID: "missing", wantCode: domain.CodeCashCloseNotFound},
+		{name: "a close of another establishment", establishmentID: "e1", cashCloseID: "their-close", wantCode: domain.CodeCashCloseNotFound},
+		{name: "an unknown establishment", establishmentID: "missing", cashCloseID: "old-close", wantCode: domain.CodeEstablishmentNotFound},
+		{name: "a close that is not the last", establishmentID: "e1", cashCloseID: "older-close", wantCode: domain.CodeCashCloseNotLast},
+	}
+	for _, tt := range tests {
+		if err := void(tt.establishmentID, tt.cashCloseID); !domain.HasCode(err, tt.wantCode) {
+			t.Errorf("%s: err = %v, want %s", tt.name, err, tt.wantCode)
+		}
+	}
+
+	if err := void("e1", "old-close"); err != nil {
+		t.Fatal(err)
+	}
+	if err := void("e1", "old-close"); !domain.HasCode(err, domain.CodeCashCloseAlreadyVoided) {
+		t.Errorf("voiding it twice: err = %v", err)
+	}
+	if id := cashCloseIDOf(t, "counted"); id != nil {
+		t.Errorf("order counted is still in close %s", *id)
+	}
+	if err := void("e1", "older-close"); err != nil {
+		t.Errorf("the close before a voided one is the last again, but: %v", err)
+	}
+}

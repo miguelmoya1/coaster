@@ -141,6 +141,7 @@ var staffPermissions = []EstablishmentPermission{
 	PermissionCancelOrder,
 	PermissionMoveOrderTable,
 	PermissionMergeOrders,
+	PermissionCloseCash,
 
 	PermissionViewCategories,
 	PermissionViewProducts,
@@ -159,7 +160,6 @@ var staffPermissions = []EstablishmentPermission{
 
 var managerPermissions = []EstablishmentPermission{
 	PermissionViewFinancials,
-	PermissionCloseCash,
 
 	PermissionInviteMember,
 

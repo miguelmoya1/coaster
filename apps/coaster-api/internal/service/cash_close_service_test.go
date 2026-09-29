@@ -110,6 +110,32 @@ func TestCashCloseCloseFailsWithTheRepository(t *testing.T) {
 	}
 }
 
+func TestCashCloseVoidKeepsTheArqueo(t *testing.T) {
+	repo := &fakeCashCloseRepository{
+		closed: domain.CashClose{OpeningFloat: 15000, CountedCash: 17100, CashCloseTotals: domain.CashCloseTotals{CashAmount: 2200}},
+	}
+
+	voided, err := NewCashCloseService(repo).Void(context.Background(), "e1", "close-1", "u2")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if repo.voidInput == nil || *repo.voidInput != (domain.VoidCashClose{EstablishmentID: "e1", CashCloseID: "close-1", VoidedByID: "u2"}) {
+		t.Fatalf("voided with %+v", repo.voidInput)
+	}
+	if voided.ExpectedCash != 17200 || voided.Difference != -100 {
+		t.Errorf("expected cash %d, difference %d; want 17200 and -100", voided.ExpectedCash, voided.Difference)
+	}
+}
+
+func TestCashCloseVoidFailsWithTheRepository(t *testing.T) {
+	notLast := domain.BadRequest(domain.CodeCashCloseNotLast)
+
+	if _, err := NewCashCloseService(&fakeCashCloseRepository{err: notLast}).Void(context.Background(), "e1", "close-1", "u2"); !errors.Is(err, notLast) {
+		t.Errorf("err = %v, want %v", err, notLast)
+	}
+}
+
 func TestCashCloseListAddsTheArqueo(t *testing.T) {
 	repo := &fakeCashCloseRepository{recent: []domain.CashClose{
 		{ID: "close-2", OpeningFloat: 15000, CountedCash: 57550, CashCloseTotals: domain.CashCloseTotals{CashAmount: 42050}},

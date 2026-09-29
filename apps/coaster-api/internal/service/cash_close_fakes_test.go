@@ -17,6 +17,7 @@ type fakeCashCloseRepository struct {
 
 	establishmentIDs []string
 	closeInput       *domain.NewCashClose
+	voidInput        *domain.VoidCashClose
 }
 
 func (f *fakeCashCloseRepository) ListRecent(_ context.Context, establishmentID string) ([]domain.CashClose, error) {
@@ -42,6 +43,19 @@ func (f *fakeCashCloseRepository) Close(_ context.Context, input domain.NewCashC
 	closed.CountedCash = input.CountedCash
 	closed.Notes = input.Notes
 	return closed, nil
+}
+
+func (f *fakeCashCloseRepository) Void(_ context.Context, input domain.VoidCashClose) (domain.CashClose, error) {
+	f.voidInput = &input
+	if f.err != nil {
+		return domain.CashClose{}, f.err
+	}
+
+	voided := f.closed
+	voided.ID = input.CashCloseID
+	voided.EstablishmentID = input.EstablishmentID
+	voided.VoidedByID = &input.VoidedByID
+	return voided, nil
 }
 
 type fakeStatsRepository struct {

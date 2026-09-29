@@ -21,10 +21,12 @@ func (h *CashCloseHandler) RegisterRoutes(mux *http.ServeMux, guard *middleware.
 	orders := middleware.Modules(domain.ModuleOrders)
 
 	handle(mux, guard, "GET /establishments/{establishmentId}/cash-closes", h.list,
-		middleware.Permissions(domain.PermissionViewFinancials), orders)
+		middleware.Permissions(domain.PermissionCloseCash), orders)
 	handle(mux, guard, "GET /establishments/{establishmentId}/cash-closes/preview", h.preview,
 		middleware.Permissions(domain.PermissionCloseCash), orders)
 	handle(mux, guard, "POST /establishments/{establishmentId}/cash-closes", h.closeCash,
+		middleware.Permissions(domain.PermissionCloseCash), orders)
+	handle(mux, guard, "POST /establishments/{establishmentId}/cash-closes/{cashCloseId}/void", h.void,
 		middleware.Permissions(domain.PermissionCloseCash), orders)
 }
 
@@ -72,4 +74,14 @@ func (h *CashCloseHandler) closeCash(w http.ResponseWriter, r *http.Request) {
 	}
 
 	respond.JSON(w, http.StatusCreated, closed)
+}
+
+func (h *CashCloseHandler) void(w http.ResponseWriter, r *http.Request) {
+	voided, err := h.closes.Void(r.Context(), r.PathValue("establishmentId"), r.PathValue("cashCloseId"), middleware.CurrentUser(r.Context()).ID)
+	if err != nil {
+		writeError(w, err)
+		return
+	}
+
+	respond.JSON(w, http.StatusCreated, voided)
 }

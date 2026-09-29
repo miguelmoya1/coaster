@@ -22,7 +22,6 @@ const MANAGER_MUST_NOT_HAVE: EstablishmentPermission[] = [
 const STAFF_MUST_NOT_HAVE: EstablishmentPermission[] = [
   ...MANAGER_MUST_NOT_HAVE,
   EstablishmentPermission.ESTABLISHMENT_VIEW_FINANCIALS,
-  EstablishmentPermission.ESTABLISHMENT_CLOSE_CASH,
   EstablishmentPermission.ESTABLISHMENT_INVITE_MEMBER,
   EstablishmentPermission.ESTABLISHMENT_CREATE_CATEGORY,
   EstablishmentPermission.ESTABLISHMENT_UPDATE_CATEGORY,
@@ -81,6 +80,7 @@ describe('establishment permissions', () => {
         true,
       );
       expect(hasPermission(EstablishmentRole.STAFF, EstablishmentPermission.ESTABLISHMENT_VIEW_PRINTER)).toBe(true);
+      expect(hasPermission(EstablishmentRole.STAFF, EstablishmentPermission.ESTABLISHMENT_CLOSE_CASH)).toBe(true);
     });
 
     it('should be denied everything above the floor', () => {

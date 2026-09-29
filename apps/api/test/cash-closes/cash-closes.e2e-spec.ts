@@ -3,7 +3,7 @@ import { ErrorCodes, OrderStatus, PaymentMethod } from '@coaster/common';
 import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { DbEstablishmentRole } from '../../src/core/db';
-import { E2eTestSetup, mockUser } from '../utils/e2e-setup';
+import { E2eTestSetup, isGoTarget, mockUser } from '../utils/e2e-setup';
 
 const manager = {
   id: '00000000-0000-4000-8000-0000000000b1',
@@ -190,7 +190,8 @@ describe('CashClosesController (e2e)', () => {
     expect(await testSetup.prisma.dbOrder.count({ where: { id: orderId } })).toBe(1);
   });
 
-  it('should let a manager close the till and keep staff out of it', async () => {
+  // Go lets staff close the till too: the establishment decides who does it.
+  it.skipIf(isGoTarget)('should let a manager close the till and keep staff out of it', async () => {
     await request(http()).get(`${base()}/cash-closes/preview`).set(testSetup.actAs(manager)).expect(200);
     await request(http())
       .post(`${base()}/cash-closes`)

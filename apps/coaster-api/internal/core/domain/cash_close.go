@@ -28,6 +28,9 @@ type CashClose struct {
 	ExpectedCash int     `json:"expectedCash"`
 	Difference   int     `json:"difference"`
 	Notes        *string `json:"notes"`
+	VoidedAt     *Time   `json:"voidedAt"`
+	VoidedByID   *string `json:"voidedById"`
+	VoidedByName *string `json:"voidedByName"`
 }
 
 type CashClosePreview struct {
@@ -47,8 +50,15 @@ type NewCashClose struct {
 }
 
 type LastCashClose struct {
+	ID           string
 	ClosedAt     time.Time
 	OpeningFloat int
+}
+
+type VoidCashClose struct {
+	EstablishmentID string
+	CashCloseID     string
+	VoidedByID      string
 }
 
 type CashCloseTill struct {

@@ -53,7 +53,7 @@ describe('OrdersLayout', () => {
     expect(cashCloseLink()).toBeTruthy();
   });
 
-  it('should hide the till tab from staff', async () => {
+  it('should hide the till tab from whoever cannot close it', async () => {
     await render();
 
     expect(cashCloseLink()).toBeUndefined();

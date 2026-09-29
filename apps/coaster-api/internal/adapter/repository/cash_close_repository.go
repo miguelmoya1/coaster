@@ -38,6 +38,10 @@ var (
 	assignOrdersToCashCloseQuery string
 	//go:embed queries/cash_close/update_totals.sql
 	updateCashCloseTotalsQuery string
+	//go:embed queries/cash_close/void.sql
+	voidCashCloseQuery string
+	//go:embed queries/cash_close/release_orders.sql
+	releaseCashCloseOrdersQuery string
 )
 
 type CashCloseRepository struct {
@@ -85,7 +89,7 @@ func (r *CashCloseRepository) FindTill(ctx context.Context, establishmentID stri
 func findLastCashClose(ctx context.Context, tx pgx.Tx, establishmentID string) (*domain.LastCashClose, error) {
 	var last domain.LastCashClose
 
-	err := tx.QueryRow(ctx, findLastCashCloseQuery, establishmentID).Scan(&last.ClosedAt, &last.OpeningFloat)
+	err := tx.QueryRow(ctx, findLastCashCloseQuery, establishmentID).Scan(&last.ID, &last.ClosedAt, &last.OpeningFloat)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, nil
 	}
@@ -116,20 +120,17 @@ func (r *CashCloseRepository) Close(ctx context.Context, input domain.NewCashClo
 	}
 	defer tx.Rollback(ctx)
 
-	var lockedID string
-	err = tx.QueryRow(ctx, lockCashCloseEstablishmentQuery, input.EstablishmentID).Scan(&lockedID)
-	if errors.Is(err, pgx.ErrNoRows) {
-		return domain.CashClose{}, domain.NotFound(domain.CodeEstablishmentNotFound)
-	}
-	if err != nil {
+	if err := lockCashCloseEstablishment(ctx, tx, input.EstablishmentID); err != nil {
 		return domain.CashClose{}, err
 	}
 
-	var since *time.Time
-	var previousFloat int
-	err = tx.QueryRow(ctx, findLastCashCloseQuery, input.EstablishmentID).Scan(&since, &previousFloat)
-	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+	last, err := findLastCashClose(ctx, tx, input.EstablishmentID)
+	if err != nil {
 		return domain.CashClose{}, err
+	}
+	var since *time.Time
+	if last != nil {
+		since = &last.ClosedAt
 	}
 
 	id := uuid.NewV4().String()
@@ -170,12 +171,71 @@ func (r *CashCloseRepository) Close(ctx context.Context, input domain.NewCashClo
 	return closed, nil
 }
 
+func (r *CashCloseRepository) Void(ctx context.Context, input domain.VoidCashClose) (domain.CashClose, error) {
+	tx, err := r.pool.Begin(ctx)
+	if err != nil {
+		return domain.CashClose{}, err
+	}
+	defer tx.Rollback(ctx)
+
+	if err := lockCashCloseEstablishment(ctx, tx, input.EstablishmentID); err != nil {
+		return domain.CashClose{}, err
+	}
+
+	cashClose, err := scanCashClose(tx.QueryRow(ctx, findCashCloseByIDQuery, input.CashCloseID))
+	if errors.Is(err, pgx.ErrNoRows) || (err == nil && cashClose.EstablishmentID != input.EstablishmentID) {
+		return domain.CashClose{}, domain.NotFound(domain.CodeCashCloseNotFound)
+	}
+	if err != nil {
+		return domain.CashClose{}, err
+	}
+	if cashClose.VoidedAt != nil {
+		return domain.CashClose{}, domain.BadRequest(domain.CodeCashCloseAlreadyVoided)
+	}
+
+	last, err := findLastCashClose(ctx, tx, input.EstablishmentID)
+	if err != nil {
+		return domain.CashClose{}, err
+	}
+	if last == nil || last.ID != cashClose.ID {
+		return domain.CashClose{}, domain.BadRequest(domain.CodeCashCloseNotLast)
+	}
+
+	voidedAt := now()
+	if _, err := tx.Exec(ctx, voidCashCloseQuery, cashClose.ID, voidedAt, input.VoidedByID); err != nil {
+		return domain.CashClose{}, err
+	}
+	if _, err := tx.Exec(ctx, releaseCashCloseOrdersQuery, cashClose.ID, voidedAt); err != nil {
+		return domain.CashClose{}, err
+	}
+
+	voided, err := scanCashClose(tx.QueryRow(ctx, findCashCloseByIDQuery, cashClose.ID))
+	if err != nil {
+		return domain.CashClose{}, err
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		return domain.CashClose{}, err
+	}
+
+	return voided, nil
+}
+
+func lockCashCloseEstablishment(ctx context.Context, tx pgx.Tx, establishmentID string) error {
+	var lockedID string
+	err := tx.QueryRow(ctx, lockCashCloseEstablishmentQuery, establishmentID).Scan(&lockedID)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return domain.NotFound(domain.CodeEstablishmentNotFound)
+	}
+	return err
+}
+
 func scanCashClose(row pgx.Row) (domain.CashClose, error) {
 	var c domain.CashClose
 	err := row.Scan(
 		&c.ID, &c.EstablishmentID, &c.ClosedByID, &c.ClosedByName, &c.Since, &c.ClosedAt,
 		&c.ClosedOrders, &c.CancelledOrders, &c.CancelledAmount, &c.CashAmount, &c.CardAmount, &c.TipAmount,
-		&c.OpeningFloat, &c.CountedCash, &c.Notes,
+		&c.OpeningFloat, &c.CountedCash, &c.Notes, &c.VoidedAt, &c.VoidedByID, &c.VoidedByName,
 	)
 	return c, err
 }

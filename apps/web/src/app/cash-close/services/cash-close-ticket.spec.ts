@@ -22,6 +22,9 @@ const cashClose: CashClose = {
   expectedCash: 157050,
   difference: -100,
   notes: null,
+  voidedAt: null,
+  voidedById: null,
+  voidedByName: null,
 };
 
 const text: CashCloseTicketText = {

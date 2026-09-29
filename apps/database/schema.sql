@@ -246,7 +246,9 @@ CREATE TABLE public."CashClose" (
     "tipAmount" integer NOT NULL,
     "openingFloat" integer NOT NULL,
     "countedCash" integer NOT NULL,
-    notes text
+    notes text,
+    "voidedAt" timestamp(3) without time zone,
+    "voidedById" text
 );
 
 CREATE TABLE public."Category" (
@@ -871,6 +873,9 @@ ALTER TABLE ONLY public."CashClose"
 
 ALTER TABLE ONLY public."CashClose"
     ADD CONSTRAINT "CashClose_establishmentId_fkey" FOREIGN KEY ("establishmentId") REFERENCES public."Establishment"(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+ALTER TABLE ONLY public."CashClose"
+    ADD CONSTRAINT "CashClose_voidedById_fkey" FOREIGN KEY ("voidedById") REFERENCES public."User"(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 ALTER TABLE ONLY public."Category"
     ADD CONSTRAINT "Category_establishmentId_fkey" FOREIGN KEY ("establishmentId") REFERENCES public."Establishment"(id) ON UPDATE CASCADE ON DELETE CASCADE;

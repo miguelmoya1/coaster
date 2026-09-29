@@ -125,17 +125,53 @@ func TestCashCloses(t *testing.T) {
 		}
 	})
 
-	t.Run("lets a manager close the till and keeps staff out", func(t *testing.T) {
+	t.Run("undoes the last close, keeps it in the history and gives its orders back to the till", func(t *testing.T) {
+		api := newApp(t)
+		b := setup(t)
+		sell(t, api, b, "CASH", 0)
+		sell(t, api, b, "CASH", 0)
+		first := closeTill(t, api, b, 15000, 17200)
+		sell(t, api, b, "CASH", 0)
+		second := closeTill(t, api, b, 15000, 16000)
+
+		messageContains(t, api.post(t, b.base+"/cash-closes/"+first["id"].(string)+"/void", nil).expect(t, http.StatusBadRequest), domain.CodeCashCloseNotLast)
+
+		voided := api.post(t, b.base+"/cash-closes/"+second["id"].(string)+"/void", nil, as(staff.id)).expect(t, http.StatusCreated).object(t)
+		expectFields(t, "voided", voided, map[string]any{
+			"id": second["id"], "closedOrders": 1, "cashAmount": 1100, "countedCash": 16000,
+			"voidedById": staff.id, "voidedByName": staff.name,
+		})
+		if voided["voidedAt"] == nil {
+			t.Errorf("voidedAt = nil")
+		}
+
+		expectFields(t, "preview", preview(t, api, b), map[string]any{
+			"closedOrders": 1, "cashAmount": 1100, "since": first["closedAt"], "openingFloat": 15000,
+		})
+
+		history := api.get(t, b.base+"/cash-closes").expect(t, http.StatusOK).list(t)
+		if len(history) != 2 || history[0]["id"] != second["id"] || history[0]["voidedByName"] != staff.name || history[1]["voidedAt"] != nil {
+			t.Errorf("history = %v, want the voided close on top of the first", history)
+		}
+
+		messageContains(t, api.post(t, b.base+"/cash-closes/"+second["id"].(string)+"/void", nil).expect(t, http.StatusBadRequest), domain.CodeCashCloseAlreadyVoided)
+		messageContains(t, api.post(t, b.base+"/cash-closes/"+newID()+"/void", nil).expect(t, http.StatusNotFound), domain.CodeCashCloseNotFound)
+
+		expectFields(t, "close after the void", closeTill(t, api, b, 15000, 16100), map[string]any{
+			"since": first["closedAt"], "closedOrders": 1, "cashAmount": 1100, "difference": 0,
+		})
+	})
+
+	t.Run("lets anyone on the staff close the till", func(t *testing.T) {
 		api := newApp(t)
 		b := setup(t)
 		empty := map[string]any{"openingFloat": 0, "countedCash": 0}
 
-		api.get(t, b.base+"/cash-closes/preview", as(manager.id)).expect(t, http.StatusOK)
-		api.post(t, b.base+"/cash-closes", empty, as(manager.id)).expect(t, http.StatusCreated)
-
-		api.get(t, b.base+"/cash-closes/preview", as(staff.id)).expect(t, http.StatusForbidden)
-		api.get(t, b.base+"/cash-closes", as(staff.id)).expect(t, http.StatusForbidden)
-		api.post(t, b.base+"/cash-closes", empty, as(staff.id)).expect(t, http.StatusForbidden)
+		for _, member := range []user{manager, staff} {
+			api.get(t, b.base+"/cash-closes/preview", as(member.id)).expect(t, http.StatusOK)
+			api.post(t, b.base+"/cash-closes", empty, as(member.id)).expect(t, http.StatusCreated)
+			api.get(t, b.base+"/cash-closes", as(member.id)).expect(t, http.StatusOK)
+		}
 	})
 
 	t.Run("rejects a negative count", func(t *testing.T) {

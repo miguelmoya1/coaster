@@ -17,6 +17,7 @@ const STAFF_PERMISSIONS: EstablishmentPermission[] = [
   'establishment:cancel-order',
   'establishment:move-order-table',
   'establishment:merge-orders',
+  'establishment:close-cash',
 
   'establishment:view-categories',
   'establishment:view-products',
@@ -35,7 +36,6 @@ const STAFF_PERMISSIONS: EstablishmentPermission[] = [
 
 const MANAGER_PERMISSIONS: EstablishmentPermission[] = [
   'establishment:view-financials',
-  'establishment:close-cash',
 
   'establishment:invite-member',
 

@@ -18,7 +18,6 @@ import {
   type EstablishmentId,
   type PageResource,
 } from '@coaster/core';
-import { EstablishmentPermission, MyMemberStore } from '@coaster/establishment-members';
 import { RequireSubscriptionDirective } from '@coaster/establishment-subscription';
 import { CurrentEstablishmentStore } from '@coaster/establishments';
 import { PrintTicket } from '@coaster/printer';
@@ -60,7 +59,6 @@ class CashClosePage {
   public readonly history = input.required<PageResource<CashClose[]>>();
 
   readonly #manageCashCloses = inject(ManageCashCloses);
-  readonly #myMember = inject(MyMemberStore);
   readonly #currentEstablishment = inject(CurrentEstablishmentStore);
   readonly #printTicket = inject(PrintTicket);
   readonly #confirmation = inject(ConfirmationDialog);
@@ -69,13 +67,12 @@ class CashClosePage {
   readonly #dates = inject(DateFormatterService);
 
   protected readonly printingId = signal<string | null>(null);
+  protected readonly undoing = signal(false);
   protected readonly when = (iso: string) => this.#dates.formatDateTime(iso);
 
   protected readonly historyList = computed(() => loadedOr(this.history(), []));
 
-  protected readonly canSeeHistory = computed(() =>
-    this.#myMember.hasPermission(EstablishmentPermission.ESTABLISHMENT_VIEW_FINANCIALS),
-  );
+  protected readonly lastCloseId = computed(() => this.historyList().find((cashClose) => !cashClose.voidedAt)?.id);
 
   readonly #formBase = signal({ openingFloat: 0, countedCash: 0, notes: '' });
 
@@ -158,6 +155,31 @@ class CashClosePage {
       this.#feedback.error(error);
     } finally {
       this.printingId.set(null);
+    }
+  }
+
+  protected async undo(cashClose: CashClose) {
+    const confirmed = await this.#confirmation.confirm({
+      destructive: true,
+      title: this.#translate.instant('cash_close.undo_title'),
+      text: this.#translate.instant('cash_close.undo_message', { count: cashClose.closedOrders }),
+      confirmLabel: this.#translate.instant('cash_close.undo'),
+    });
+
+    if (!confirmed) {
+      return;
+    }
+
+    this.undoing.set(true);
+    try {
+      await this.#manageCashCloses.void(this.establishmentId(), cashClose.id);
+      this.preview().reload();
+      this.history().reload();
+      this.#feedback.success(this.#translate.instant('cash_close.undone'));
+    } catch (error) {
+      this.#feedback.error(error);
+    } finally {
+      this.undoing.set(false);
     }
   }
 
