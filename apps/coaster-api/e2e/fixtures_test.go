@@ -176,3 +176,53 @@ func createExchange(t *testing.T, shiftID, requesterID, targetID string) string 
 		id, shiftID, requesterID, targetID)
 	return id
 }
+
+type order struct {
+	status         string
+	tableID        string
+	totalAmount    int
+	amountPaidCash int
+	amountPaidCard int
+	tipAmount      int
+}
+
+func createOrder(t *testing.T, establishmentID string, o order) string {
+	t.Helper()
+
+	status := o.status
+	if status == "" {
+		status = "OPEN"
+	}
+	id := newID()
+	mustExec(t, `INSERT INTO "Order" (id, "establishmentId", "tableId", status, "totalAmount", "amountPaidCash", "amountPaidCard", "tipAmount", "updatedAt")
+		VALUES ($1, $2, nullif($3, ''), $4::"OrderStatus", $5, $6, $7, $8, CURRENT_TIMESTAMP)`,
+		id, establishmentID, o.tableID, status, o.totalAmount, o.amountPaidCash, o.amountPaidCard, o.tipAmount)
+	return id
+}
+
+type orderItem struct {
+	productID string
+	quantity  int
+	price     int
+	served    int
+	paid      int
+}
+
+func addOrderItem(t *testing.T, orderID string, item orderItem) string {
+	t.Helper()
+
+	id := newID()
+	mustExec(t, `INSERT INTO "OrderItem" (id, "orderId", "productId", quantity, "priceAtPurchase", "productNameAtPurchase", "servedQuantity", "paidQuantity", "updatedAt")
+		VALUES ($1, $2, $3, $4, $5, 'Test Product', $6, $7, CURRENT_TIMESTAMP)`,
+		id, orderID, item.productID, item.quantity, item.price, item.served, item.paid)
+	return id
+}
+
+func addAdjustment(t *testing.T, orderID, target, kind string, value int) string {
+	t.Helper()
+
+	id := newID()
+	mustExec(t, `INSERT INTO "OrderAdjustment" (id, "orderId", target, type, value) VALUES ($1, $2, $3::"AdjustmentTarget", $4::"AdjustmentType", $5)`,
+		id, orderID, target, kind, value)
+	return id
+}
