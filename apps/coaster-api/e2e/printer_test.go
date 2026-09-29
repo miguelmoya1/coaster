@@ -66,3 +66,17 @@ func TestPrinterPairing(t *testing.T) {
 		}
 	})
 }
+
+func TestPrintOrder(t *testing.T) {
+	t.Run("answers an order that does not exist without failing", func(t *testing.T) {
+		api := newApp(t)
+		resetWithMockUser(t)
+		establishmentID := createEstablishment(t, "My Establishment")
+
+		response := api.post(t, "/establishments/"+establishmentID+"/printers/print-order", map[string]any{"orderId": "non-existing-order-id"})
+
+		if response.status != http.StatusNotFound && response.status != http.StatusBadRequest && response.status != http.StatusCreated {
+			t.Errorf("status = %d, want 404, 400 or 201: %s", response.status, response.body)
+		}
+	})
+}

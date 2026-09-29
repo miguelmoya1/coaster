@@ -95,12 +95,20 @@ en git.
 1. **Confirmar los modelos de respaldo del AI Gateway** con la clave de verdad (Miguel): cómo
    probarlo está en «IA» de [convenciones](convenciones.md).
 2. **Probar argon2 con un hash real** de la base de datos de producción.
-3. **Los e2e en Go** (`apps/coaster-api/e2e`), para borrar la suite de TypeScript junto con Nest.
-   Hasta entonces, la de TypeScript es la prueba de que Go hace lo mismo que Nest. Faltan por pasar
-   la carpeta `admin` de `apps/api/test`.
-4. **P5 Salida** (no la hacen los agentes): desplegar la imagen de Go en el servicio de Cloud Run
-   de siempre (así no cambian la URL ni el webhook de Stripe), un tiempo de uso real en beta y el
-   cambio en producción.
+3. **P5 Salida** (no la hacen los agentes). Un solo commit en `dev`, sin variables ni pasos a mano:
+   - `deploy-backend` construye `apps/coaster-api/Dockerfile` en lugar de `apps/api/Dockerfile` y
+     la despliega en el servicio de siempre, así que no cambian la URL, los secretos ni el webhook
+     de Stripe. Pasa a esperar al job `coaster-api`, que lleva los e2e de Go.
+   - Fuera del CI lo de Nest: Prisma, el build y los e2e de `apps/api` en `build-and-test`, y el
+     job `coaster-api-e2e`.
+   - Se borran `apps/api`, el servicio `api` de `compose.yaml`, `scripts/e2e-go.sh`, los scripts
+     de Prisma de `package.json` y de `.claude/hooks/session-start.sh`, y la documentación de Nest
+     (`docs/apps/api.md`, `docs/architecture/backend.md`). Las «Diferencias conocidas» dejan de
+     ser diferencias: se quedan como lo que hace la API.
+   - `apps/coaster-api/CLAUDE.md` deja de tomar `apps/api` como referencia.
+
+   Volver atrás es revertir ese commit. Después, un tiempo de uso real en beta y el merge a
+   `main` para producción.
 
 ## Diferencias conocidas
 

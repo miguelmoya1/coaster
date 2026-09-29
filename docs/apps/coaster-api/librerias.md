@@ -73,4 +73,4 @@ Estado: ⬜ sin revisar · ✅ aprobada · ❌ descartada
 | Vitest (unitarios) | `testing` (estándar) | Tests por tabla y fakes de las interfaces de `ports`. Las comprobaciones se escriben a mano con `if` y `t.Errorf`. | ✅ |
 | — | ~~`github.com/stretchr/testify`~~ | Con `testing` basta y es lo más idiomático. | ❌ |
 | testcontainers (Node) | `github.com/testcontainers/testcontainers-go/modules/postgres` | Para los tests de repositorios con una base de datos real. | ✅ |
-| e2e con supertest | **Se reutilizan los de `apps/api`** | `supertest` acepta una URL, así que se pueden lanzar contra el servidor Go. Ver «Tests» en [convenciones](convenciones.md). | ✅ |
+| e2e con supertest | `net/http` y testcontainers | En `apps/coaster-api/e2e`: el binario de verdad contra un Postgres de verdad. Mientras exista Nest, sus e2e también se lanzan contra Go. Ver «Tests» en [convenciones](convenciones.md). | ✅ |

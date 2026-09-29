@@ -26,10 +26,14 @@ Qué variables lee Go está en `apps/coaster-api/.env_example`; las obligatorias
 
 - `go vet ./...` y `go test ./...`, desde `apps/coaster-api`. Los tests de `repository/` levantan
   `postgres:18-alpine` con testcontainers, así que necesitan Docker.
-- Los e2e de `apps/api` contra Go: `apps/coaster-api/scripts/e2e-go.sh`, desde la raíz del repo.
-  Necesitan Docker, Node 26 y el Go de `go.mod` (`export GOTOOLCHAIN=go1.27.0`). Los argumentos
-  van a vitest: un directorio (`test/orders`) o un nombre de test (`-t 'nombre'`).
-- En el CI, el job `coaster-api` pasa `gofmt`, `go vet` y `go test`, y `coaster-api-e2e` los e2e.
+- Los e2e están en `e2e/` y entran en `go test ./...`: compilan la API y la lanzan contra un
+  Postgres de testcontainers. Uno suelto: `go test ./e2e/ -run 'TestOrders/checks'`.
+- Mientras exista Nest, sus e2e también se lanzan contra Go con `apps/coaster-api/scripts/e2e-go.sh`,
+  desde la raíz del repo. Necesitan Docker, Node 26 y el Go de `go.mod`
+  (`export GOTOOLCHAIN=go1.27.0`). Los argumentos van a vitest: un directorio (`test/orders`) o un
+  nombre de test (`-t 'nombre'`).
+- En el CI, el job `coaster-api` pasa `gofmt`, `go vet` y `go test` (los e2e de Go incluidos), y
+  `coaster-api-e2e` los de `apps/api` contra Go.
 
 ## Documentación
 

@@ -256,20 +256,27 @@ func (h *OrderHandler) RegisterRoutes(mux *http.ServeMux, guard *middleware.Guar
   Un fake nuevo de un puerto que ya tiene uno amplía ese en lugar de copiarlo.
 - Para un puntero a un valor, `new("texto")`.
 
-**e2e contra Go** (`apps/api/test/utils/go-app.ts`)
-- Con `E2E_TARGET=go`, `setup.e2e.ts` compila `./cmd/api` una vez en
-  `os.tmpdir()/coaster-api-e2e` y cada archivo e2e arranca su propio proceso Go en un puerto
-  libre, con el entorno del test (`REDIS_URL` vacío, `PUBLIC_DIR=apps/coaster-api/public`,
-  `TEST_MAILBOX_URL`, `GOOGLE_CERTS_URL`…). Con varios agentes en la misma máquina, cada uno
-  lanza los e2e con su propio `TMPDIR`.
-- `testSetup.app.getHttpServer()` es un proxy que pasa `/api/...` a `/api/v1/...`, cambia
-  `x-e2e-user-id` (o `mockUser`) por un JWT de verdad y deja pasar los streams SSE. Prisma sigue
-  preparando los datos y `clearDatabase` vacía las tablas.
-- El usuario del test tiene que existir en la base de datos y estar activo, y su `role` es el de
-  la base de datos.
-- `TEST_MAILBOX_URL` (Go hace `POST` de `{"kind","to","token"}` en lugar de mandar el email) y
-  `GOOGLE_CERTS_URL` (claves de Google) son solo para tests: `config.Load` falla si vienen en
+**e2e** (`apps/coaster-api/e2e`)
+- `TestMain` levanta Postgres con testcontainers (`internal/testdb`, con las migraciones de
+  `apps/database`), compila `./cmd/api` una vez y sirve un JWKS de Google con una clave RSA propia.
+- Cada subtest arranca su propia API con `newApp(t)`: un proceso en un puerto libre, sin Redis,
+  con su buzón (`TEST_MAILBOX_URL`) y las claves de Google de los tests (`GOOGLE_CERTS_URL`). Así
+  nada pasa de un test al siguiente, ni un email que llega tarde ni el rate limit. Si el test
+  falla, se ven los logs de la API.
+- Los datos se preparan y se comprueban con SQL: `fixtures_test.go` tiene `resetWithMockUser`,
+  `createEstablishment`, `createProduct`, `createOrder`… y `queryValue[T]` y `mustExec`. Los `id`
+  los pone el test (`newID()`) y `updatedAt` hay que darlo, porque lo ponía Prisma desde el cliente.
+- Las peticiones van a `/api/v1` con `api.get/post/patch/put/delete(t, "/ruta", cuerpo, opciones...)`,
+  firmadas como `mockUser` con el mismo `AccessTokenService` que las valida: `as(id)` cambia de
+  usuario, `anonymous()` las manda sin sesión y `withHeader` añade una cabecera. La respuesta tiene
+  `expect(t, estado)`, `object`, `list`, `decode` y `cookie`, y `expectFields`/`expectExactly`
+  comparan campos aceptando enteros donde el JSON trae `float64`.
+- El usuario del test tiene que existir y estar activo, y su `role` es el de la base de datos.
+- Los emails se mandan después de responder: `api.mailbox.waitFor(t, tipo, destinatario)` los
+  espera, y `expectNone` deja pasar un momento antes de dar por hecho que no llegó ninguno.
+- `TEST_MAILBOX_URL` y `GOOGLE_CERTS_URL` son solo para tests: `config.Load` falla si vienen en
   producción.
-- Un test que no puede ir contra Go se salta solo en modo Go, con `it.skipIf(isGoTarget)` y un
-  comentario con el motivo. Hoy se saltan los de `realtime` que llaman a `RealtimeService` dentro
-  del proceso (Go los cubre en sus tests) y dos de `admin` que dependen de `MockAuthGuard`.
+
+**e2e de `apps/api` contra Go** (`scripts/e2e-go.sh`), mientras exista Nest: la misma suite de
+TypeScript que prueba Nest, lanzada contra el binario de Go a través de un proxy que convierte
+`x-e2e-user-id` en un token de verdad. Se borra con Nest.
