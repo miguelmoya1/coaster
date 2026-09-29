@@ -7,7 +7,7 @@ Cloud Run service, because it is configuration rather than a credential and hidi
 harder to read.
 
 Nothing in the application knows any of this. Cloud Run resolves a secret and hands it to the
-container as an environment variable, `ConfigService` reads `process.env` the way it always did, and
+container as an environment variable, `config.Load` reads it with `os.Getenv` like any other, and
 a local `.env` is still a local `.env`. The whole change lives in the service's configuration and in
 [ci.yml](../../.github/workflows/ci.yml).
 

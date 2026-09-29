@@ -53,8 +53,10 @@ Each establishment falls into one of three states, mutually exclusive and in thi
 - **STRIPE** — a live Stripe subscription with no grant on top.
 - **NONE** — neither: the establishment is read only.
 
-The calculation (`AdminMapper`) deliberately mirrors `SubscriptionActiveGuard`, so the panel never
-shows access the API is about to refuse.
+The calculation (`AdminEstablishmentRow.Summary`, in `core/domain/admin.go`) is made of the same two
+checks as `domain.SubscriptionGrantsAccess`, which the guard's subscription step uses —
+`IsManualGrantActive` and the Stripe half — so the panel never shows access the API is about to
+refuse.
 
 ## Rules the panel will not let you break
 
@@ -75,26 +77,26 @@ Recorded actions: `ESTABLISHMENT_PLAN_GRANTED`, `ESTABLISHMENT_PLAN_REVOKED`, `E
 
 ### How it is recorded
 
-No handler writes to the audit repository. They all publish **a single event**, `AdminActionEvent`,
-carrying the entry already assembled; `RecordAdminActionHandler` is the only subscriber and the only
-writer.
+No service writes to the audit repository directly. They all publish **a single event**,
+`AdminActionEvent`, carrying the entry already assembled; `AdminAuditService.recordAction` is the
+only subscriber and the only writer.
 
 ```text
-command handler ─┐
-                 ├─► AdminActionEvent ─► RecordAdminActionHandler ─► AdminAuditLog
-MemberRoleChangedEvent (when the actor is ADMIN) ─┘
+admin_*_service.go ───────────────────────────────┐
+MemberRoleChangedEvent (when the actor is ADMIN) ─┼─► AdminActionEvent ─► AdminAuditService ─► AdminAuditLog
+TimeEntry*Event (when the actor is ADMIN) ────────┘
 ```
 
-One event per action would have meant several identical handlers: the audit entry already has the
+One event per action would have meant several identical subscribers: the audit entry already has the
 same shape for all of them, so the event carries it as is.
 
 Two consequences worth keeping in mind:
 
-- Recording is **asynchronous**. It effectively already was — the write never shared a transaction
-  with the action — but now a handler failure does not break the request: it is logged as an error
-  with which action went unaudited.
+- Recording is **asynchronous**: `event.Bus` runs the subscriber on its own goroutine, and the write
+  never shares a transaction with the action. A failure does not break the request: it is logged as
+  an error with which action went unaudited.
 - `ESTABLISHMENT_MEMBER_ROLE_CHANGED` does not come from a backoffice route. The panel changes roles with the
-  same `PATCH /establishments/:establishmentId/members/:memberId` an owner uses, and the entry is written only when the
+  same `PATCH /establishments/{establishmentId}/members/{memberId}` an owner uses, and the entry is written only when the
   actor is an `ADMIN`.
 
 ## Code layout

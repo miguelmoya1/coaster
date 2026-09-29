@@ -29,11 +29,11 @@ the venue's wifi.
 ## Authentication
 
 The bridge is not a user, so it does not carry an access token. Each venue has a **device key**
-stored in `PrinterConfig`. The bridge sends it in the `X-Device-Key` header, and `DeviceKeyService`
-compares it with `crypto.timingSafeEqual`.
+stored in `PrinterConfig`. The bridge sends it in the `X-Device-Key` header, and `PrinterService`
+compares it with `subtle.ConstantTimeCompare`.
 
-That is why the printer controller is the one API controller without `AuthGuard`: it
-authenticates per device, per establishment.
+That is why the bridge's routes (`printer_handler.go`) are registered without an auth rule:
+`PrinterService` authenticates per device, per establishment.
 
 The long-poll endpoint is exempt from rate limiting — it deliberately holds a connection open and
 reconnects immediately.
@@ -56,7 +56,8 @@ readable aloud over a phone.
 
 `PrinterPairing` rows carry `expiresAt` and `redeemedAt`, so a code is spent the moment it is used
 and expires on its own if it is not. `POST /printer/pair` is unauthenticated by necessity — the
-bridge has no credential yet — so it is throttled to 10/minute and carries `@SkipSubscriptionCheck()`.
+bridge has no credential yet — so it is throttled to 10/minute (`middleware.Throttle`) and registered with
+`middleware.SkipSubscriptionCheck()`.
 
 The device key can still be issued and rotated by hand from the app by someone with
 `establishment:manage-printer` (`POST /establishments/:id/printer/device-key`); it is shown once, and

@@ -82,8 +82,8 @@ allowance would stop it, but only after it had been spent.
 
 ## Streaming
 
-`POST .../ai/stream` hijacks the Fastify reply and writes SSE frames itself: `delta` per token,
-`done` with the final `AiResponse`. A gateway failure is still sent as a `done` frame carrying an
+`POST .../ai/stream` writes SSE frames straight onto the `http.ResponseWriter`, flushing after each
+one: `delta` per token, `done` with the final `domain.AIResponse`. A gateway failure is still sent as a `done` frame carrying an
 error key, never as a broken stream — the panel has something to render either way.
 
 This is unrelated to the realtime stream in [the shared cache](../operations/redis.md); it is one

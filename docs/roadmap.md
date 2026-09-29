@@ -11,7 +11,7 @@ two different plans.
 - Marketing landing at the root, application under `/establishments`.
 - Stripe Checkout, Customer Portal and webhooks, with the Pro price tax-exclusive through Stripe Tax.
 - Internal domain events published from webhook handlers, so side effects stay decoupled.
-- `SubscriptionActiveGuard`: an unpaid venue loses writes but **keeps reads**, so it never loses
+- The guard's subscription step: an unpaid venue loses writes but **keeps reads**, so it never loses
   access to its own history — and never loses the working-time register at all.
 
 See [Stripe integration](saas/stripe-integration.md).
@@ -43,7 +43,7 @@ See [time tracking](operations/time-tracking.md).
 
 - `TIME_TRACKING`, `ORDERS` and `INVENTORY` on `EstablishmentSettings`, chosen once at onboarding
   from a business type and changed afterwards under Settings.
-- Enforced on all three surfaces from the same array: `EstablishmentModulesGuard` on the API,
+- Enforced on all three surfaces from the same array: `middleware.Modules` on the API,
   `moduleGuard` on the routes, and the assistant's tool list.
 
 ### The catalogue and the menu
@@ -70,7 +70,7 @@ See [the shared cache](operations/redis.md).
 
 ### The assistant
 
-- Text and voice, over tools that dispatch the same CQRS commands the HTTP routes do and check the
+- Text and voice, over tools that call the same services the HTTP routes do and check the
   same permission first — it can never do more than the caller can.
 - Bounded on both sides: a context budget per message, a monthly allowance per venue.
 

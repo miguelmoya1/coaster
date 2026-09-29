@@ -19,7 +19,8 @@
   [the shared cache](../operations/redis.md).
 - **Billing:** Stripe Checkout, Customer Portal and webhooks. See
   [Stripe integration](../saas/stripe-integration.md).
-- **Assistant:** the Vercel AI SDK against the AI Gateway, calling CQRS commands as tools.
+- **Assistant:** a tool-calling loop against the AI Gateway, whose tools call the same services as
+  the HTTP routes. See [assistant](assistant.md).
 - **Printer bridge:** a Go service polling a job queue from inside the venue. See
   [printing bridge](printing-bridge.md).
 - **Testing:** Vitest for unit tests, Vitest + testcontainers (a real Postgres, real migrations) for

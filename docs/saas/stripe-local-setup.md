@@ -100,7 +100,7 @@ that is expected, not a failure.
 
 ## Production
 
-`STRIPE_WEBHOOK_SECRET` is **required**. `StripeWebhookGuard` verifies every notification's
+`STRIPE_WEBHOOK_SECRET` is **required**. `StripeGateway.ParseWebhook` verifies every notification's
 signature; if the variable is missing or wrong, every webhook is rejected and subscriptions never
 activate.
 

@@ -192,19 +192,22 @@ manualGrantedAt       when
 Keeping them separate is what lets a later Stripe webhook update billing **without clobbering the
 grant**, and lets revoking it drop the establishment cleanly back to whatever Stripe says.
 
-`isManualGrantActive()` is the only function that decides whether a grant is still live, and the
-guard, the mapper and the backoffice all use it so they cannot disagree.
+`domain.IsManualGrantActive` is the only function that decides whether a grant is still live, and
+the guard (through `SubscriptionGrantsAccess`), the workspace view and the backoffice summary all use
+it so they cannot disagree.
 
 ### What is visible, and to whom
 
 `GET /establishments/:establishmentId/establishment-subscription` can be called by any member of the establishment. That is why the same
 data has two shapes:
 
-- `toDomain()` — workspace payload. Only `plan` and `expiresAt`: enough for the UI not to lock.
-- `toAdminDomain()` — backoffice only. Adds the reason, who granted it and when.
+- `EstablishmentSubscription.View` — workspace payload. Its `manualGrant` is only `plan` and
+  `expiresAt`: enough for the UI not to lock.
+- `AdminBilling.AdminView` — backoffice only. Adds the reason, who granted it and when.
 
-The admin's internal note must not reach the venue. `establishment-subscription.mapper.spec.ts` pins this by
-serialising the public payload and asserting it contains neither the reason nor the admin's name.
+The admin's internal note must not reach the venue. The `keeps the admin note away from the members`
+case in `e2e/admin_test.go` pins this by reading the public payload and asserting it does not contain
+the reason and that its `manualGrant` is exactly `plan` and `expiresAt`.
 
 ## Auditing
 

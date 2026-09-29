@@ -65,7 +65,7 @@ Around an establishment the split is:
 `establishments` it would form a `establishments -> establishment-members -> establishments` cycle.
 
 `moduleGuard` is its counterpart for the fourth access axis: it keeps a route out of reach when the
-establishment does not run that module, mirroring `EstablishmentModulesGuard` on the API — see
+establishment does not run that module, mirroring `middleware.Modules` on the API — see
 [access model](permissions.md). It lives in `establishments` because the module list is the
 establishment's, not the member's.
 

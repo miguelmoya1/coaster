@@ -1,50 +1,54 @@
 # The shared cache
 
 One Redis instance behind three things that used to live in the memory of a single process: the
-realtime bus, the rate-limit counter, and the preamble every authenticated request pays before its
-handler starts.
+realtime bus, the rate-limit and sign-in failure counters, and the preamble every authenticated
+request pays before its handler starts.
 
 **`REDIS_URL` is the whole switch.** Unset, the application behaves exactly as it did before this
-existed: an event reaches only the clients of the instance that raised it, the throttler counts in
-memory, every guard reads Postgres. That is also the rollback — unset it and redeploy, no code
+existed: an event reaches only the clients of the instance that raised it, the counters live in
+memory, every step of the guard reads Postgres. That is also the rollback — unset it and redeploy, no code
 change.
 
-The product name appears in `apps/api/internal/adapter/cache` and nowhere else. The rest
-of the codebase asks a `CacheService` to `remember` and `forget`.
+The client library is imported in `apps/api/internal/adapter/cache` and nowhere else;
+`cmd/api/main.go` only hands it `REDIS_URL`. The rest of the codebase sees `ports.Cache` (`Get`,
+`Set`, `Forget`), mostly through `remember` in `service/cache.go`.
 
 ## What it holds
 
-| Key                                  | Read by                                         | Dropped by                                                           |
-| ------------------------------------ | ----------------------------------------------- | -------------------------------------------------------------------- |
-| `user:{userId}:role`                 | `SecurityRepository.getUserRole`                | `UserUpdatedEvent`                                                   |
-| `user:{userId}`                      | `AccessTokenService.resolve`                    | `UserUpdatedEvent`                                                   |
-| `establishment:{id}:member:{userId}` | `SecurityRepository.getEstablishmentMemberRole` | `MemberInvitedEvent`, `MemberRemovedEvent`, `MemberRoleChangedEvent` |
-| `establishment:{id}:modules`         | `SecurityRepository.getEnabledModules`          | `EstablishmentSettingsUpdatedEvent`                                  |
-| `establishment:{id}:subscription`    | `SecurityRepository.getSubscriptionState`       | `SubscriptionActivated/Renewed/Cancelled/PaymentFailed/Overridden`   |
-| `throttle:{throttler}:{tracker}`     | `ThrottlerCacheStorage`                         | its own 60-second window                                             |
+| Key                                  | Read by                                                         | Dropped by                                                                                             |
+| ------------------------------------ | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `user:{userId}:role`                 | `SecurityService.UserRole`                                      | `UserUpdatedEvent`                                                                                     |
+| `user:{userId}`                      | `AccessTokenService.Resolve`                                    | `UserUpdatedEvent`, and `AuthService` or `AccountService` right after they change the user             |
+| `establishment:{id}:member:{userId}` | `SecurityService.Membership`                                    | `MemberInvitedEvent`, `MemberRemovedEvent`, `MemberRoleChangedEvent`                                   |
+| `establishment:{id}:modules`         | `SecurityService.EnabledModules`                                | `EstablishmentSettingsUpdatedEvent`, and `AdminEstablishmentService` when an admin changes the modules |
+| `establishment:{id}:subscription`    | `SecurityService.SubscriptionState`                             | `SubscriptionActivated/Renewed/Cancelled/PaymentFailed/Overridden`, and `SubscriptionService.Refresh`  |
+| `throttle:default:{hash}`            | `RateLimiter.Hit`, with the hash of the route and the client IP | its own window, 60 seconds unless the route sets `middleware.Throttle`                                 |
+| `auth:login-failures:{hash}`         | `LoginAttempts.LockedFor`, with the hash of the email           | a successful sign-in, or its own 15-minute window                                                      |
 
 Orders, the catalogue, shifts and stats are **not** cached. They change constantly, few people read
 them at once, and caching them trades latency nobody notices for a stale figure somebody acts on.
 
-The TTL is **8 hours** — roughly a working day, so a missed invalidation cannot outlive the shift
+The TTL of a cached value (`cache.TTL`) is **8 hours** — roughly a working day, so a missed invalidation cannot outlive the shift
 that saw it.
 
 ## The realtime bus
 
 One channel, `coaster:realtime`, carrying two kinds of message: an event for an establishment, and
 an order to close the streams of one user in one establishment. `RealtimeService` is the only thing
-that publishes, and the twenty-six CQRS handlers in `src/realtime/events` are the only things that
-call it.
+that publishes, and the event subscribers in the services (`order_realtime.go`,
+`catalog_realtime.go`, and the `EventHandlers` of the member, shift and subscription services) are
+the only things that call it. The Redis side is `RealtimeBus`, in `adapter/cache/realtime_bus.go`.
 
-**Delivery is local first, and the bus is a copy.** `publish` hands the event to the streams open on
-this instance and _then_ puts it on the channel; every message carries the id of the instance that
-sent it, and a subscriber drops what it recognises as its own. The order matters: a cache that is
+**Delivery is local first, and the bus is a copy.** `Publish` hands the frame to the streams open on
+this instance (`Deliver`) and _then_ puts it on the channel and in the replay buffer; every message
+carries the id of the instance that sent it (`origin`), and a subscriber drops what it recognises as
+its own. The order matters: a cache that is
 down costs the venue nothing but the clients on the other instances, because the local delivery
 never depended on it.
 
-A stream is one `GET /establishments/:id/events` held open. There is nothing to route: the
-establishment is in the URL, `EstablishmentPermissionsGuard` decides who may open it, and
-`RealtimeRegistry` is a `Map` from establishment to the streams watching it. Nothing about a client
+A stream is one `GET /establishments/{establishmentId}/events` held open. There is nothing to route:
+the establishment is in the URL, `middleware.Permissions()` on the route decides who may open it, and
+`RealtimeService.Watch` adds the stream to a map from establishment to the streams watching it. Nothing about a client
 is stored in Redis, so there is no room state to go stale, no rejoining after a reconnect, and
 nothing to ask the other instances for.
 
@@ -65,37 +69,39 @@ The stream is registered before the buffer is read, so an event arriving during 
 delivered rather than lost. It can therefore reach the client ahead of an older replayed frame — a
 window of a millisecond or two, which is the price of never dropping one.
 
-Without a cache there is no buffer, `replay` answers with nothing, and a reconnect starts from the
+Without a cache there is no buffer, `Replay` answers with nothing, and a reconnect starts from the
 present — which is what every reconnect did before this existed.
 
 ## Three rules it is built on
 
 **A miss is not an error.** Not in the cache means ask Postgres, hand back the answer, store it on
 the way out. A cache that is down, slow or refusing connections degrades into yesterday's behaviour,
-never into an outage. The cache connection is opened with `enableOfflineQueue: false` precisely so a
-command fails fast instead of hanging a request.
+never into an outage. go-redis has no offline queue, so a command against a cache that is down fails
+instead of waiting for it to come back; both clients retry a failed command once (`MaxRetries = 1`),
+and after a run of failed dials the pool answers with the last error until a background dial gets
+through, so a request is not held up dialling again and again.
 
-That rule is only true because two specific things were closed, and each one is a way the whole
-service would otherwise have gone down:
+That rule is only true because two specific failures are handled, and each one is a way the whole
+service would otherwise go down:
 
-- **A malformed `REDIS_URL` used to kill the boot.** `new Redis('rediss://user:pass@')` throws
-  synchronously, which in a Nest provider means the container never starts — a copy-paste typo in one
-  environment variable would have been a crash loop. `CacheConnection.open` catches it, logs, and
-  hands back no client.
-- **An unanswered `publish` takes the process with it.** With ioredis a refused command is a rejected
-  promise, and Node exits on an unhandled one: a cache answering `OOM`, `NOPERM` or `NOAUTH` — an
-  account over its plan limit, or suspended — would turn every event into a crash. `RealtimeBus`
-  catches its own `publish` and `subscribe`, drops the message and logs once.
+- **A malformed `REDIS_URL` does not stop the boot.** A copy-paste typo in one environment variable
+  must not become a crash loop. `cache.NewClient` (`adapter/cache/client.go`) logs the parse error and
+  hands back no client, and `NewRealtimeBus` does the same for the bus, so the instance starts and
+  carries on as if the variable were unset.
+- **A refused command is an error value, not a crash.** A cache answering `OOM`, `NOPERM` or `NOAUTH`
+  — an account over its plan limit, or suspended — fails every command. Each caller in
+  `adapter/cache` checks the error and falls back: the cache reads Postgres, the counters count in
+  memory, and `RealtimeBus` drops the message and logs once.
 
-The second used to be worse and is worth remembering, because it is the argument for owning this
-code rather than importing it. `@socket.io/redis-adapter` called `publish` without a `.catch()` and
-had to be wrapped from outside to survive a cache that said no; and evicting a removed member meant
-`fetchSockets()`, a question asked of the other instances that rejected inside a CQRS handler when
-the bus refused to carry it. Neither exists now: the publish is ours to catch, and revocation is a
-message every instance applies to its own streams.
+That is also the argument for owning this code rather than importing it. An earlier bus built on a
+socket.io adapter published without handling the error and had to be wrapped from outside to survive
+a cache that said no; and evicting a removed member meant asking the other instances for their
+sockets, a question that failed whenever the bus refused to carry it. Neither exists now: every
+publish goes through `RealtimeBus.send`, which handles its own error, and revocation is a `revoke`
+message every instance applies to its own streams (`RealtimeService.CloseStreams`).
 
-**A change deletes the key, it never rewrites it.** Writing the new value from an event handler lets
-two commands arriving out of order leave the older one in the cache, where the TTL would keep it for
+**A change deletes the key, it never rewrites it.** Writing the new value from an event subscriber
+lets two changes arriving out of order leave the older one in the cache, where the TTL would keep it for
 hours. Deleting is idempotent and cannot invert.
 
 **Absence is cached too.** `{"v":null}` is a stored answer, distinct from a key that is not there.
@@ -104,9 +110,10 @@ used to bite on `user:` — a sign-in could cache the absence of an account that
 the same breath, and lock it out until the TTL. It cannot any more: the key is now our own user id,
 read from a token we only sign for a row that already exists.
 
-Dates are revived on read. Without that, `currentPeriodEnd` would come back as a string and
-`SubscriptionActiveGuard` would compare a `Date` against text. The guard caches the row, never the
-decision: expiry is still evaluated against `new Date()` on every request.
+A cached value is decoded into the same Go type it was stored from, so `currentPeriodEnd` comes back
+as a date inside `domain.SubscriptionState`, never as text. `SecurityService` caches the row, never
+the decision: `domain.SubscriptionGrantsAccess` still evaluates expiry against the clock on every
+request.
 
 ## Locally
 
@@ -132,13 +139,13 @@ Stop the cache (`docker compose stop redis`) and the same test must show the eve
 **while the API keeps answering** — that is the degradation working, and it is what production
 looked like before.
 
-The e2e suite forces `REDIS_URL` to empty in `test/setup.e2e.ts`. It gets a database of its own from
-testcontainers but would otherwise share whatever cache the developer happens to be running, and
-`clearDatabase` cannot reach into it — a role cached by one test then answers for a user the next
-test has already deleted, which shows up as unrelated 403s in the admin suite. Empty rather than
-deleted, because `ConfigModule` only fills in variables that are absent and would hand the job
-straight back to `.env`. `test/realtime` therefore exercises the local half of the bus, which is the
-half that has to work without a cache at all.
+The e2e suite starts the API with `REDIS_URL` empty (`e2e/app_test.go`). It gets a database of its
+own from testcontainers but would otherwise share whatever cache the developer happens to be running,
+and `testdb.Reset` cannot reach into it — a role cached by one test then answers for a user the next
+test has already deleted, which shows up as unrelated 403s in the admin suite. The binary gets only
+the environment the test lists, so neither the developer's shell nor `.env` can hand it a cache back.
+`e2e/realtime_test.go` therefore exercises the local half of the bus, which is the half that has to
+work without a cache at all.
 
 Watch it work:
 
@@ -146,9 +153,11 @@ Watch it work:
 docker compose exec redis redis-cli --scan
 ```
 
-Four connections is right: two per instance — cache and throttler share one, which also carries the
-publishes, plus the subscriber, which has to be a connection of its own because `SUBSCRIBE` takes
-one over.
+`redis-cli CLIENT LIST` shows the connections by name. An instance that has cached a value and published an
+event holds three: `coaster-cache` (cache and counters), `coaster-realtime` (publishes and the replay
+buffer), and the subscriber, which has to be a connection of its own because `SUBSCRIBE` takes one
+over. Both clients are go-redis pools, so a busy instance opens more — see
+[Connection budget](#connection-budget).
 
 ## In production
 
@@ -164,10 +173,11 @@ both are a plan upgrade rather than a code change:
   and order payloads cross the public internet in clear, along with the AUTH password on every
   connect, and anyone on the path can inject pub/sub messages — fake events on a venue's screens.
   Onboarding a real venue is the deadline for this, not a busy month.
-- **The free tier caps at 30 connections**, and each instance opens two. Past fifteen instances the
-  extra ones keep serving but lose the shared bus, which is this document's whole subject reappearing
-  silently under load. Fifteen instances is ~1200 concurrent requests, so it is a ceiling worth
-  knowing rather than one worth fearing.
+- **The free tier caps at 30 connections**, and an instance holds up to three at rest and up to
+  twenty-one in a burst (see [Connection budget](#connection-budget)). Ten quiet instances, or two
+  busy ones, can reach the cap. Past it, commands that need a new connection fail and fall back, and an instance
+  that cannot open its subscriber at boot keeps serving without the shared bus — this document's
+  whole subject reappearing silently under load.
 
 Upgrading is the slider in the database's Configuration tab; TLS then lives under Security → Edit,
 with client certificate authentication left off. The URL becomes `rediss://` with two esses, and
@@ -205,17 +215,23 @@ gcloud run services describe api-new --region europe-west1
   the number that decides when a second instance appears.
 - **`--max-instances` is bounded by the connection budget, not by traffic.** An instance that cannot
   get a connection keeps serving, but it loses the shared bus with it — and an instance whose clients
-  are isolated is the exact failure this whole thing exists to prevent. Keep `max-instances × 2`
-  comfortably under the plan's connection limit. At 256 connections that is 128 instances, well past
-  what Cloud Run will run, so on a paid plan the cache stops being the binding constraint.
+  are isolated is the exact failure this whole thing exists to prevent. Keep `max-instances` times
+  the most one instance can hold comfortably under the plan's connection limit (see
+  [Connection budget](#connection-budget)).
 - **`--min-instances=1`** is optional and buys away the cold start on the first order of the day.
 
 ### Connection budget
 
-Two connections per instance — cache and throttler share one, which also carries the publishes, and
-the subscriber needs one of its own. A paid Essentials plan allows 256, so `--max-instances` is
-bounded by Cloud Run rather than by the cache. An instance that cannot get a connection degrades to
-working without one, so hitting the ceiling costs latency, not availability.
+Each instance opens two go-redis clients against `REDIS_URL` — `coaster-cache` for the cache and
+the counters, `coaster-realtime` for publishes and the replay buffer — plus the subscriber, which
+needs a connection of its own. Each client is a pool that opens connections as concurrent commands
+need them, up to ten per CPU the process sees (`10 × GOMAXPROCS`), and closes those idle for 30
+minutes. On one vCPU that is up to three connections at rest and twenty-one at the most.
+
+A paid Essentials plan allows 256, which is twelve instances at their worst. If that ever binds,
+go-redis reads `pool_size` from the URL (`…?pool_size=2`), which caps both pools with no code change.
+An instance that cannot get a connection degrades to working without one, so hitting the ceiling
+costs latency, not availability.
 
 If the venue count ever makes even a TLS-encrypted public endpoint the wrong trade, the move is
 Memorystore on a private IP with Direct VPC egress enabled on the Cloud Run service. Nothing in the

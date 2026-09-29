@@ -80,7 +80,7 @@ do. An establishment picks a business type at onboarding, and that turns on modu
 | `ORDERS`        | tables, orders, payments, the printer |      ✓      |        |       |
 | `INVENTORY`     | catalogue, stock, the public menu     |      ✓      |   ✓    |       |
 
-It is enforced, not merely hidden: `EstablishmentModulesGuard` answers `403 MODULE_NOT_ENABLED` on
+It is enforced, not merely hidden: `middleware.Modules` answers `403 MODULE_NOT_ENABLED` on
 the API, `moduleGuard` blocks the route in the browser, and the assistant is not even offered the
 tools. Changing it later is the owner's call, under **Settings**.
 
@@ -96,5 +96,5 @@ Four independent axes, all of which a request must pass:
 | Enabled module | `TIME_TRACKING`, `ORDERS`, `INVENTORY` |
 
 An unpaid venue keeps **read** access to its history — it only loses writes. And it never loses the
-working-time register: clocking in carries `@SkipSubscriptionCheck()`, because the legal obligation
+working-time register: clocking in is registered with `middleware.SkipSubscriptionCheck()`, because the legal obligation
 does not depend on the invoice being paid. Full detail in [access model](architecture/permissions.md).

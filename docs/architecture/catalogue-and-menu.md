@@ -94,7 +94,7 @@ idempotent, so importing twice adds nothing.
 
 The plan was for the same file to fill a draft menu's translations at import — a venue that imports
 the standard catalogue would get a menu already written in both languages for free. **That has not
-been built**: `ImportStarterCatalogueHandler` writes categories and products and stops there, so an
+been built**: `CatalogueService.Import` writes categories and products and stops there, so an
 establishment that imported the catalogue still starts its menu empty. The languages are sitting in
 the file; nothing reads them for the menu yet.
 
@@ -104,32 +104,36 @@ Not a view over the catalogue. The catalogue is operational and private: it hold
 test products and things nobody should read. The menu is published, ordered, described and
 deliberate.
 
-```prisma
-model DbMenu {
-  id                String
-  establishmentId   String
-  slug              String  @unique
-  defaultLanguage   String
-  languages         String[]
-  publishedSnapshot Json?
-  publishedAt       DateTime?
-}
+From [`apps/database/schema.sql`](../../apps/database/schema.sql), without the timestamps:
 
-model DbMenuSection {
-  id           String
-  menuId       String
-  position     Int
-  translations Json   // { "es": { "name": "Cafetería" }, "en": { ... } }
-}
+```sql
+CREATE TABLE "Menu" (
+    id text NOT NULL,
+    "establishmentId" text NOT NULL,
+    slug text NOT NULL,                -- unique
+    name text NOT NULL,
+    "defaultLanguage" text NOT NULL,
+    languages text[],
+    "publishedSnapshot" jsonb,
+    "publishedAt" timestamp(3)
+);
 
-model DbMenuItem {
-  id           String
-  sectionId    String
-  productId    String?  // null for something sold only on the menu
-  price        Int?     // null takes the product's price
-  position     Int
-  translations Json     // { "es": { "name": ..., "description": ... }, ... }
-}
+CREATE TABLE "MenuSection" (
+    id text NOT NULL,
+    "menuId" text NOT NULL,
+    "position" integer NOT NULL,
+    translations jsonb NOT NULL        -- { "es": { "name": "Cafetería" }, "en": { ... } }
+);
+
+CREATE TABLE "MenuItem" (
+    id text NOT NULL,
+    "sectionId" text NOT NULL,
+    "productId" text,                  -- null for something sold only on the menu
+    price integer,                     -- null takes the product's price
+    "position" integer NOT NULL,
+    translations jsonb NOT NULL,       -- { "es": { "name": ..., "description": ... }, ... }
+    "isVisible" boolean DEFAULT true NOT NULL
+);
 ```
 
 **Translations are JSON, not tables.** A menu is only ever read whole, never queried by language, so
@@ -156,13 +160,14 @@ switch on the menu.
 
 - `GET /api/v1/menus/:slug?lang=` — outside every guard, and the first thing a stranger can reach,
   so it carries its own rate limit (60/minute) rather than the authenticated one. The page a customer
-  scans is the Angular route `/m/:slug`, which reads it. A spec asserts the controller has no guards,
-  so it cannot acquire one by accident either.
+  scans is the Angular route `/m/:slug`, which reads it. `TestPublicMenuRouteIsOpenAndThrottled`
+  reads it without a token until the limit answers 429, so it can neither acquire an auth rule nor
+  lose its limit by accident.
 - A slug, never the internal UUID, so the QR points at something printable.
 - Shows section, name, description, price, image, allergens. **Never** stock, takings or staff.
 - Unpublished is a 404, not an empty menu — publishing **is** the switch, and unpublishing takes it
   back off without deleting the draft.
-- The editor requires the `INVENTORY` module (`@RequiresModule`) and `establishment:manage-menu`,
+- The editor requires the `INVENTORY` module (`middleware.Modules`) and `establishment:manage-menu`,
   which is a MANAGER permission. The public read requires neither, by definition.
 - **Not ordering.** A customer ordering from the QR is a different product, with payments, fraud and
   table state in it. A menu is a menu.

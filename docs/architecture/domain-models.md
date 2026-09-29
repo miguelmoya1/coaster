@@ -32,7 +32,7 @@ administration.
 - Establishment — a name, and everything else hangs off it.
 - EstablishmentSettings — one row per establishment, created with it:
   - `modules`: which of `TIME_TRACKING`, `ORDERS`, `INVENTORY` the venue runs. Enforced by
-    `EstablishmentModulesGuard` — see [access model](permissions.md).
+    the modules step of `middleware.Guard` — see [access model](permissions.md).
   - `language`: the establishment's own language, inherited from its creator. It decides what the
     starter catalogue is imported as and what a draft menu's default language is. It is **not** the
     language of the interface, which is `UserPreferences.language`, per person.
@@ -94,7 +94,8 @@ Rules worth knowing:
 
 - Item discounts are clamped to the line total, and order discounts to the post-item-discount
   subtotal, so a total can never go negative.
-- Percentage adjustments are capped at 100 by DTO validation.
+- Percentage adjustments are capped at 100 by request validation (the `percentage` rule in
+  `adapter/handler/httpapi/validation.go`).
 - Adjustments and tips are refused once an order is `CLOSED`. Allowing them would rewrite historical
   takings without recalculating what was actually collected.
 - Checkout accepts `CASH` or `CARD` only. `MIXED` and `NONE` are states an order arrives at from
@@ -276,7 +277,8 @@ end at the same realtime handler, which tells the establishment's clients with `
 
 ## Indexing
 
-PostgreSQL does not index foreign keys on its own and Prisma does not add them. Every hot filter has
+PostgreSQL does not index foreign keys on its own, and the migrations are plain SQL, so nothing adds
+them for us. Every hot filter has
 an explicit index: `Order(establishmentId, status)`, `Order(establishmentId, createdAt)` and
 `Order(establishmentId, createdById, createdAt)` for one waiter's own takings, `OrderItem(orderId)`,
 `OrderAdjustment(orderId)`, `Shift(establishmentId, startTime)` and `Shift(userId, startTime)`,
