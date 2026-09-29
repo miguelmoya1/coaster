@@ -79,7 +79,6 @@ services:
         condition: service_started
     volumes:
       - ./:/app
-      - /app/node_modules
       - /app/apps/web/node_modules
       - web_angular_cache:/app/apps/web/.angular
 

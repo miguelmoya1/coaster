@@ -13,7 +13,7 @@ el de `apps/web`.
   dentro de Docker (`DATABASE_URL`, `REDIS_URL`, `PORT`, `PUBLIC_DIR`, `PUBLIC_URL`). Las migraciones las aplica el servicio `migrate`
   ([database](../database.md)) antes de que arranque la API. La imagen no se
   recarga sola: después de cambiar código, `docker compose up -d --build api`.
-- **En el anfitrión**: `npm run dev:api` (o `apps/api/scripts/dev.sh`) carga el mismo
+- **En el anfitrión**: `apps/api/scripts/dev.sh` carga el mismo
   `apps/api/.env` y arranca `go run ./cmd/api` en el 3000. Necesita `db`, `redis` y
   `migrate` de compose, y el puerto libre: `docker compose stop api`.
 

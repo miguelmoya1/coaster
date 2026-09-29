@@ -1,7 +1,8 @@
 # Stack
 
-- **Monorepo:** one npm workspace, `apps/web`, and three Go modules: the API (`apps/api`), the
-  schema (`apps/database`) and the printer bridge (`apps/printer-service`). The web holds the API
+- **Monorepo:** nothing to install at the root. `apps/web` is an npm project with its own lockfile,
+  and the API (`apps/api`), the schema (`apps/database`) and the printer bridge
+  (`apps/printer-service`) are Go modules. The web holds the API
   contract in each domain's `models/` (the permission table and the error codes included).
 - **Backend:** Go, hexagonal, with pgx and hand-written SQL over PostgreSQL; goose migrations in
   `apps/database`. See [backend](backend.md), [API](../apps/api/README.md) and

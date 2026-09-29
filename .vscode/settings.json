@@ -13,7 +13,7 @@
     "source.organizeImports": "always",
     "source.fixAll.eslint": "explicit"
   },
-  "js/ts.tsdk.path": "node_modules/typescript/lib",
+  "js/ts.tsdk.path": "apps/web/node_modules/typescript/lib",
   "chat.mcp.serverSampling": {
     "coaster/.vscode/mcp.json: angular-cli": {
       "allowedDuringChat": true

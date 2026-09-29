@@ -229,7 +229,7 @@ npx tsc --noEmit -p tsconfig.app.json
 npx tsc --noEmit -p tsconfig.spec.json
 ```
 
-In practice `npm test -w @coaster/web` is the better signal, because the Angular compiler catches
+In practice `npm test` (in `apps/web`) is the better signal, because the Angular compiler catches
 template errors that raw `tsc` does not. `strictUnclaimedEventNames` is on, so a misspelt output in
 a template (`(userSelcted)`) fails the build instead of silently never firing.
 
@@ -278,7 +278,7 @@ Two things are deliberately lazy:
 Three container traps, all of which look like "my change did not apply":
 
 - **Adding an npm dependency.** `node_modules` are anonymous volumes, so the host install is
-  invisible inside the container. Run `docker compose exec api npm install` (or `web`).
+  invisible inside the container. Run `docker compose exec web npm install`.
 - **Upgrading Angular.** The same volumes keep the old framework, and the dev server fails with
   errors about APIs that plainly exist (`'resources' does not exist in type 'Route'`). Rebuild the
   image and throw the volumes away:

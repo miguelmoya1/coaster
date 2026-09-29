@@ -18,9 +18,12 @@ env:
   GCP_DATABASE_IMAGE_NAME: 'europe-west1-docker.pkg.dev/coaster-437f2/coaster-repo/coaster-database'
 
 jobs:
-  build-and-test:
-    name: 🧪 Tests & Quality Checks
+  web:
+    name: 🧪 Web
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/web
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
@@ -30,15 +33,15 @@ jobs:
         with:
           node-version: 26
           cache: 'npm'
+          cache-dependency-path: apps/web/package-lock.json
 
       - name: 📦 Install Dependencies
         run: npm ci
 
-      - name: 🏗️ Build Web
-        run: npm run build -w @coaster/web
+      - name: 🏗️ Build
+        run: npm run build
 
       - name: 🏗️ The production bundle must build, budgets included
-        working-directory: apps/web
         env:
           PRODUCTION: 'true'
         run: |
@@ -49,15 +52,23 @@ jobs:
         run: npm run lint
 
       - name: 🧪 Unit Tests
-        run: npm run test
+        run: npm test
 
       #      - name: 🌐 Install Playwright Browsers
       #        run: npx playwright install --with-deps
-      #        working-directory: apps/web
       #
       #      - name: 🧪 Frontend E2E Tests
       #        run: npx playwright test
-      #        working-directory: apps/web
+
+  printer-service:
+    name: 🖨️ Puente de impresora
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/printer-service
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
 
       - name: 🐹 Setup Go
         uses: actions/setup-go@v5
@@ -65,8 +76,8 @@ jobs:
           go-version: '1.26'
           cache-dependency-path: apps/printer-service/go.sum
 
-      - name: 🧪 Go Unit Tests (Printer Service)
-        run: cd apps/printer-service && go test -v ./... -cover
+      - name: 🧪 go test
+        run: go test -v ./... -cover
 
   api:
     name: 🐹 API en Go
@@ -129,11 +140,11 @@ jobs:
       - name: 🧪 go test
         run: go test ./...
 
-  # database and api are here so no migration and no API reach beta or production
-  # before their tests pass.
+  # Every job is here so no migration and no API reach beta or production before the
+  # whole repository passes.
   deploy-backend:
     name: 🚀 Deploy Backend & Migrate DB
-    needs: [build-and-test, database, api]
+    needs: [web, printer-service, api, database]
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     environment: ${{ github.ref_name == 'main' && 'api-production' || 'api-beta' }}

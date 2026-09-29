@@ -47,7 +47,7 @@ if [ -n "${CLAUDE_ENV_FILE:-}" ]; then
 fi
 
 {
-  npm install --no-audit --no-fund
+  (cd apps/web && npm install --no-audit --no-fund)
   (cd apps/api && go mod download)
   (cd apps/database && go mod download)
   docker pull -q postgres:18-alpine

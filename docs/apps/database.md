@@ -31,7 +31,7 @@ y, en producción hasta el merge a `main`, Nest.
 ## Aplicarlas
 
 - **En local**, `docker compose up` las aplica antes de arrancar las APIs. A mano:
-  `docker compose run --rm migrate` (o `npm run db:migrate`), o en el anfitrión
+  `docker compose run --rm migrate`, o en el anfitrión
   `DATABASE_URL=postgres://admin:admin@localhost:5432/coaster go run ./cmd/migrate`.
 - **Al desplegar**, el CI construye la imagen de esta aplicación y corre el job de Cloud Run
   (`api-migrate-beta` o `api-migrate`) antes de la revisión nueva de la API. El despliegue espera

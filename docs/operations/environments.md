@@ -258,9 +258,9 @@ preview of the existing one: preview deployments are behind Vercel Authenticatio
 `beta.coaster.business` currently answers with a redirect to `vercel.com/sso-api` instead of the
 app. Turning that off would expose every pull-request preview too.
 
-Copy the existing project's Root Directory, Build Command, Install Command and Node version exactly
-— the monorepo installs from the root through npm workspaces, and a project configured differently
-will build something subtly different. Then set, in its **Production** environment:
+Copy the existing project's Root Directory (`apps/web`), Build Command (`npm run build`), Output
+Directory (`dist/coaster/browser`), Install Command and Node version exactly — a project configured
+differently will build something subtly different. Then set, in its **Production** environment:
 
 | Variable           | Value                               |
 | ------------------ | ----------------------------------- |
