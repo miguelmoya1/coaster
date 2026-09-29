@@ -132,3 +132,26 @@ func queryValue[T any](t *testing.T, sql string, args ...any) T {
 	}
 	return value
 }
+
+func createCategory(t *testing.T, establishmentID, name string) string {
+	t.Helper()
+
+	id := newID()
+	mustExec(t, `INSERT INTO "Category" (id, "establishmentId", name) VALUES ($1, $2, $3)`, id, establishmentID, name)
+	return id
+}
+
+type product struct {
+	name  string
+	price int
+	stock int
+}
+
+func createProduct(t *testing.T, categoryID string, p product) string {
+	t.Helper()
+
+	id := newID()
+	mustExec(t, `INSERT INTO "Product" (id, name, price, "categoryId", "currentStock", "updatedAt")
+		VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP)`, id, p.name, p.price, categoryID, p.stock)
+	return id
+}

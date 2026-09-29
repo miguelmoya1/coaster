@@ -97,9 +97,8 @@ en git.
 2. **Probar argon2 con un hash real** de la base de datos de producción.
 3. **Los e2e en Go** (`apps/coaster-api/e2e`), para borrar la suite de TypeScript junto con Nest.
    Hasta entonces, la de TypeScript es la prueba de que Go hace lo mismo que Nest. Faltan por pasar
-   las carpetas de `apps/api/test`: `admin`, `ai`, `auth`, `cash-closes`, `catalogue`, `categories`,
-   `establishment-members`, `establishments`, `menu`, `modules`, `orders`, `permissions`, `printer`,
-   `products`, `realtime`, `shifts`, `stats`, `time-tracking` y `users`.
+   las carpetas de `apps/api/test`: `admin`, `auth`, `cash-closes`, `establishment-members`, `menu`,
+   `modules`, `orders`, `permissions`, `realtime`, `shifts`, `stats` y `time-tracking`.
 4. **P5 Salida** (no la hacen los agentes): desplegar la imagen de Go en el servicio de Cloud Run
    de siempre (así no cambian la URL ni el webhook de Stripe), un tiempo de uso real en beta y el
    cambio en producción.
