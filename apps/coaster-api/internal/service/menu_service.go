@@ -67,42 +67,55 @@ func (s *MenuService) SaveDraft(ctx context.Context, establishmentID string, inp
 		return domain.MenuDraft{}, domain.NotFound(domain.CodeMenuNotFound)
 	}
 
+	offered := offeredLanguages(input.Languages)
+	if !slices.Contains(offered, domain.AsLanguage(menu.DefaultLanguage)) {
+		return domain.MenuDraft{}, domain.BadRequest(domain.CodeMenuLanguageNotOffered)
+	}
+
+	if err := s.checkOwnedProducts(ctx, establishmentID, input.ProductIDs()); err != nil {
+		return domain.MenuDraft{}, err
+	}
+
+	saved, err := s.menus.ReplaceDraft(ctx, menu.ID, strings.TrimSpace(input.Name), offered, draftSections(input.Sections, offered))
+	if err != nil {
+		return domain.MenuDraft{}, err
+	}
+
+	return saved.Draft(), nil
+}
+
+func offeredLanguages(languages []string) []string {
 	var offered []string
-	for _, language := range input.Languages {
+	for _, language := range languages {
 		language = domain.AsLanguage(language)
 		if !slices.Contains(offered, language) {
 			offered = append(offered, language)
 		}
 	}
+	return offered
+}
 
-	if !slices.Contains(offered, domain.AsLanguage(menu.DefaultLanguage)) {
-		return domain.MenuDraft{}, domain.BadRequest(domain.CodeMenuLanguageNotOffered)
+func (s *MenuService) checkOwnedProducts(ctx context.Context, establishmentID string, productIDs []string) error {
+	if len(productIDs) == 0 {
+		return nil
 	}
 
-	var referenced []string
-	for _, section := range input.Sections {
-		for _, item := range section.Items {
-			if item.ProductID != nil && *item.ProductID != "" {
-				referenced = append(referenced, *item.ProductID)
-			}
-		}
+	owned, err := s.menus.ProductsOf(ctx, establishmentID, productIDs)
+	if err != nil {
+		return err
 	}
 
-	if len(referenced) > 0 {
-		owned, err := s.menus.ProductsOf(ctx, establishmentID, referenced)
-		if err != nil {
-			return domain.MenuDraft{}, err
-		}
-
-		for _, productID := range referenced {
-			if !slices.Contains(owned, productID) {
-				return domain.MenuDraft{}, domain.NotFound(domain.CodeProductNotFound)
-			}
+	for _, productID := range productIDs {
+		if !slices.Contains(owned, productID) {
+			return domain.NotFound(domain.CodeProductNotFound)
 		}
 	}
+	return nil
+}
 
-	sections := make([]domain.MenuSectionDraft, 0, len(input.Sections))
-	for _, section := range input.Sections {
+func draftSections(inputs []domain.MenuSectionInput, offered []string) []domain.MenuSectionDraft {
+	sections := make([]domain.MenuSectionDraft, 0, len(inputs))
+	for _, section := range inputs {
 		items := make([]domain.MenuItemDraft, 0, len(section.Items))
 		for _, item := range section.Items {
 			items = append(items, domain.MenuItemDraft{
@@ -118,15 +131,8 @@ func (s *MenuService) SaveDraft(ctx context.Context, establishmentID string, inp
 			Items:        items,
 		})
 	}
-
-	saved, err := s.menus.ReplaceDraft(ctx, menu.ID, strings.TrimSpace(input.Name), offered, sections)
-	if err != nil {
-		return domain.MenuDraft{}, err
-	}
-
-	return saved.Draft(), nil
+	return sections
 }
-
 func (s *MenuService) Publish(ctx context.Context, establishmentID string) error {
 	menu, err := s.menus.FindByEstablishment(ctx, establishmentID)
 	if err != nil {
@@ -160,49 +166,35 @@ func (s *MenuService) Published(ctx context.Context, slug, language string) (dom
 		return domain.PublishedMenu{}, domain.NotFound(domain.CodeMenuNotFound)
 	}
 
-	defaultLanguage := domain.AsLanguage(page.DefaultLanguage)
-
-	chosen := defaultLanguage
-	if _, ok := page.Snapshot[language]; ok && domain.IsLanguage(language) {
-		chosen = language
-	}
-
-	published, ok := page.Snapshot[chosen]
-	if !ok {
-		published, ok = page.Snapshot[defaultLanguage]
-	}
+	published, ok := page.In(language)
 	if !ok {
 		return domain.PublishedMenu{}, errors.New("the published menu has no version in its default language")
 	}
 
-	if !page.MarkSoldOut {
-		return published, nil
-	}
-
-	var productIDs []string
-	for _, section := range published.Sections {
-		for _, item := range section.Items {
-			if item.ProductID != nil && *item.ProductID != "" {
-				productIDs = append(productIDs, *item.ProductID)
-			}
-		}
-	}
-
-	soldOut := map[string]bool{}
-	if len(productIDs) > 0 {
-		soldOut, err = s.menus.SoldOutAmong(ctx, productIDs)
-		if err != nil {
+	if page.MarkSoldOut {
+		if err := s.markSoldOut(ctx, &published); err != nil {
 			return domain.PublishedMenu{}, err
 		}
 	}
+	return published, nil
+}
 
-	for i := range published.Sections {
-		for j := range published.Sections[i].Items {
-			item := &published.Sections[i].Items[j]
+func (s *MenuService) markSoldOut(ctx context.Context, menu *domain.PublishedMenu) error {
+	soldOut := map[string]bool{}
+	if productIDs := menu.ProductIDs(); len(productIDs) > 0 {
+		var err error
+		soldOut, err = s.menus.SoldOutAmong(ctx, productIDs)
+		if err != nil {
+			return err
+		}
+	}
+
+	for i := range menu.Sections {
+		for j := range menu.Sections[i].Items {
+			item := &menu.Sections[i].Items[j]
 			isSoldOut := item.ProductID != nil && soldOut[*item.ProductID]
 			item.SoldOut = &isSoldOut
 		}
 	}
-
-	return published, nil
+	return nil
 }

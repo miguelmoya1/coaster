@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"slices"
 	"time"
 
 	"coaster-api/internal/core/domain"
@@ -64,62 +65,64 @@ func (s *OrderService) Create(ctx context.Context, establishmentID string, input
 		return err
 	}
 
-	var tableName *string
-	if input.TableID != nil && *input.TableID != "" {
-		table, err := findTable(ctx, s.tables, establishmentID, *input.TableID)
-		if err != nil {
-			return err
-		}
-		if table.Status == domain.TableOccupied {
-			return domain.BadRequest(domain.CodeTableAlreadyOccupied)
-		}
-		tableName = &table.Name
+	tableID := domain.NilIfEmpty(input.TableID)
+	tableName, err := s.freeTableName(ctx, establishmentID, tableID)
+	if err != nil {
+		return err
 	}
 
-	adjustments := make([]domain.NewOrderAdjustment, 0, len(input.Adjustments))
-	for _, adjustment := range input.Adjustments {
-		if adjustment.Target == domain.AdjustmentItem {
-			if adjustment.ItemID == nil || *adjustment.ItemID == "" {
-				return domain.BadRequest(domain.MessageItemIDRequiredForItemTarget)
-			}
-			return domain.NotFound(domain.CodeOrderItemNotFound)
-		}
-		adjustments = append(adjustments, newOrderAdjustment(adjustment))
-	}
-
-	var createdByID *string
-	if input.CreatedByID != "" {
-		createdByID = &input.CreatedByID
-	}
-
-	tipAmount := 0
-	if input.TipAmount != nil {
-		tipAmount = *input.TipAmount
+	adjustments, err := newOrderAdjustments(input.Adjustments)
+	if err != nil {
+		return err
 	}
 
 	row, err := s.orders.Create(ctx, domain.NewOrder{
 		EstablishmentID: establishmentID,
-		CreatedByID:     createdByID,
-		TableID:         domain.NilIfEmpty(input.TableID),
+		CreatedByID:     domain.NilIfEmpty(&input.CreatedByID),
+		TableID:         tableID,
 		TableName:       tableName,
 		TotalAmount:     totalAmount,
 		Items:           items,
 		Adjustments:     adjustments,
-		TipAmount:       tipAmount,
+		TipAmount:       intOrZero(input.TipAmount),
 		Notes:           cutOrderNote(input.Notes),
 	})
 	if err != nil {
 		return err
 	}
 
-	s.events.Publish(ctx, domain.OrderCreatedEvent{
-		EstablishmentID: establishmentID,
-		Order:           row.ToOrder(),
-		TableID:         domain.NilIfEmpty(input.TableID),
-	})
+	s.events.Publish(ctx, domain.OrderCreatedEvent{EstablishmentID: establishmentID, Order: row.ToOrder(), TableID: tableID})
 	return nil
 }
 
+func (s *OrderService) freeTableName(ctx context.Context, establishmentID string, tableID *string) (*string, error) {
+	if tableID == nil {
+		return nil, nil
+	}
+
+	table, err := findTable(ctx, s.tables, establishmentID, *tableID)
+	if err != nil {
+		return nil, err
+	}
+	if table.Status == domain.TableOccupied {
+		return nil, domain.BadRequest(domain.CodeTableAlreadyOccupied)
+	}
+	return &table.Name, nil
+}
+
+func newOrderAdjustments(inputs []domain.OrderAdjustmentInput) ([]domain.NewOrderAdjustment, error) {
+	adjustments := make([]domain.NewOrderAdjustment, 0, len(inputs))
+	for _, adjustment := range inputs {
+		if adjustment.Target == domain.AdjustmentItem {
+			if domain.NilIfEmpty(adjustment.ItemID) == nil {
+				return nil, domain.BadRequest(domain.MessageItemIDRequiredForItemTarget)
+			}
+			return nil, domain.NotFound(domain.CodeOrderItemNotFound)
+		}
+		adjustments = append(adjustments, newOrderAdjustment(adjustment))
+	}
+	return adjustments, nil
+}
 func (s *OrderService) AddItems(ctx context.Context, establishmentID, orderID string, input domain.AddOrderItemsInput) error {
 	order, err := s.findOpen(ctx, establishmentID, orderID)
 	if err != nil {
@@ -162,27 +165,8 @@ func (s *OrderService) BulkUpdate(ctx context.Context, establishmentID, orderID 
 		if !ok {
 			return domain.NotFound(domain.CodeOrderItemNotFound)
 		}
-
-		if update.PaidQuantity != nil {
-			paying := *update.PaidQuantity > item.PaidQuantity
-			if paying && update.PaymentMethod != nil && *update.PaymentMethod != domain.PaymentCash && *update.PaymentMethod != domain.PaymentCard {
-				return domain.BadRequest(domain.CodeInvalidType)
-			}
-			if *update.PaidQuantity > item.Quantity {
-				return domain.BadRequest(domain.MessagePayQuantityExceedsTotal)
-			}
-			if *update.PaidQuantity < 0 {
-				return domain.BadRequest(domain.MessagePayQuantityCannotBeNegative)
-			}
-		}
-
-		if update.ServedQuantity != nil {
-			if *update.ServedQuantity > item.Quantity {
-				return domain.BadRequest(domain.MessageServeQuantityExceedsTotal)
-			}
-			if *update.ServedQuantity < 0 {
-				return domain.BadRequest(domain.MessageServeQuantityCannotBeNegative)
-			}
+		if err := checkItemUpdate(item, update); err != nil {
+			return err
 		}
 	}
 
@@ -195,6 +179,35 @@ func (s *OrderService) BulkUpdate(ctx context.Context, establishmentID, orderID 
 	return nil
 }
 
+func checkItemUpdate(item domain.OrderItemRow, update domain.OrderItemUpdate) error {
+	if update.PaidQuantity != nil {
+		paying := *update.PaidQuantity > item.PaidQuantity
+		if paying && update.PaymentMethod != nil && !slices.Contains(chargeableMethods, *update.PaymentMethod) {
+			return domain.BadRequest(domain.CodeInvalidType)
+		}
+		err := checkQuantity(*update.PaidQuantity, item.Quantity, domain.MessagePayQuantityExceedsTotal, domain.MessagePayQuantityCannotBeNegative)
+		if err != nil {
+			return err
+		}
+	}
+
+	if update.ServedQuantity != nil {
+		return checkQuantity(*update.ServedQuantity, item.Quantity, domain.MessageServeQuantityExceedsTotal, domain.MessageServeQuantityCannotBeNegative)
+	}
+	return nil
+}
+
+var chargeableMethods = []domain.PaymentMethod{domain.PaymentCash, domain.PaymentCard}
+
+func checkQuantity(quantity, total int, exceedsTotal, negative string) error {
+	if quantity > total {
+		return domain.BadRequest(exceedsTotal)
+	}
+	if quantity < 0 {
+		return domain.BadRequest(negative)
+	}
+	return nil
+}
 func (s *OrderService) Checkout(ctx context.Context, establishmentID, orderID string, method domain.PaymentMethod) error {
 	order, err := s.findOpen(ctx, establishmentID, orderID)
 	if err != nil {
@@ -261,33 +274,13 @@ func (s *OrderService) Merge(ctx context.Context, establishmentID string, input 
 	if err != nil {
 		return err
 	}
-	if len(orders) != len(input.OrderIDs) {
-		return domain.NotFound(domain.CodeOrderNotFound)
-	}
-	if len(orders) == 0 {
-		return errors.New("merging needs at least one order")
-	}
-
-	for _, order := range orders {
-		if order.EstablishmentID != establishmentID {
-			return domain.NotFound(domain.CodeOrderNotFound)
-		}
-	}
-	for _, order := range orders {
-		if order.Status != domain.OrderOpen {
-			return domain.BadRequest(domain.CodeOrderNotOpen)
-		}
+	if err := checkMergeable(orders, input.OrderIDs, establishmentID); err != nil {
+		return err
 	}
 
 	targetTableID := domain.NilIfEmpty(input.TargetTableID)
-	if targetTableID != nil {
-		table, err := findTable(ctx, s.tables, establishmentID, *targetTableID)
-		if err != nil {
-			return err
-		}
-		if table.Status == domain.TableOccupied && !anyOrderAtTable(orders, table.ID) {
-			return domain.BadRequest(domain.CodeTableAlreadyOccupied)
-		}
+	if err := s.checkMergeTable(ctx, establishmentID, targetTableID, orders); err != nil {
+		return err
 	}
 
 	primary := orders[0]
@@ -314,6 +307,36 @@ func (s *OrderService) Merge(ctx context.Context, establishmentID string, input 
 	return nil
 }
 
+func checkMergeable(orders []domain.OrderRow, orderIDs []string, establishmentID string) error {
+	if len(orders) != len(orderIDs) {
+		return domain.NotFound(domain.CodeOrderNotFound)
+	}
+	if len(orders) == 0 {
+		return errors.New("merging needs at least one order")
+	}
+	if slices.ContainsFunc(orders, func(order domain.OrderRow) bool { return order.EstablishmentID != establishmentID }) {
+		return domain.NotFound(domain.CodeOrderNotFound)
+	}
+	if slices.ContainsFunc(orders, func(order domain.OrderRow) bool { return order.Status != domain.OrderOpen }) {
+		return domain.BadRequest(domain.CodeOrderNotOpen)
+	}
+	return nil
+}
+
+func (s *OrderService) checkMergeTable(ctx context.Context, establishmentID string, targetTableID *string, orders []domain.OrderRow) error {
+	if targetTableID == nil {
+		return nil
+	}
+
+	table, err := findTable(ctx, s.tables, establishmentID, *targetTableID)
+	if err != nil {
+		return err
+	}
+	if table.Status == domain.TableOccupied && !anyOrderAtTable(orders, table.ID) {
+		return domain.BadRequest(domain.CodeTableAlreadyOccupied)
+	}
+	return nil
+}
 func (s *OrderService) RemoveItem(ctx context.Context, establishmentID, orderID, itemID string) error {
 	order, err := s.findOpen(ctx, establishmentID, orderID)
 	if err != nil {

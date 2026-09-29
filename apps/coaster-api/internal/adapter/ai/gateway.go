@@ -45,37 +45,9 @@ func (g *Gateway) Generate(ctx context.Context, request ports.AIRequest) (string
 		return "", err
 	}
 
-	messages := []openai.ChatCompletionMessageParamUnion{openai.SystemMessage(request.System)}
-	for _, message := range request.Messages {
-		switch message.Role {
-		case "assistant":
-			messages = append(messages, openai.AssistantMessage(message.Content))
-		case "system":
-			messages = append(messages, openai.SystemMessage(message.Content))
-		default:
-			messages = append(messages, openai.UserMessage(message.Content))
-		}
-	}
-
+	messages := conversationOf(request)
 	for step := 1; ; step++ {
-		params := openai.ChatCompletionNewParams{
-			Model:       request.Model,
-			Messages:    messages,
-			Tools:       tools,
-			Temperature: openai.Float(request.Temperature),
-		}
-		if len(request.FallbackModels) > 0 {
-			params.SetExtraFields(map[string]any{
-				"providerOptions": map[string]any{"gateway": map[string]any{"models": request.FallbackModels}},
-			})
-		}
-
-		var answer modelAnswer
-		if request.OnDelta != nil {
-			answer, err = g.stream(ctx, params, request.OnDelta)
-		} else {
-			answer, err = g.complete(ctx, params)
-		}
+		answer, err := g.answer(ctx, completionParams(request, messages, tools), request.OnDelta)
 		if err != nil {
 			return "", err
 		}
@@ -93,6 +65,43 @@ func (g *Gateway) Generate(ctx context.Context, request ports.AIRequest) (string
 			return answer.text, nil
 		}
 	}
+}
+
+func conversationOf(request ports.AIRequest) []openai.ChatCompletionMessageParamUnion {
+	messages := []openai.ChatCompletionMessageParamUnion{openai.SystemMessage(request.System)}
+	for _, message := range request.Messages {
+		switch message.Role {
+		case "assistant":
+			messages = append(messages, openai.AssistantMessage(message.Content))
+		case "system":
+			messages = append(messages, openai.SystemMessage(message.Content))
+		default:
+			messages = append(messages, openai.UserMessage(message.Content))
+		}
+	}
+	return messages
+}
+
+func completionParams(request ports.AIRequest, messages []openai.ChatCompletionMessageParamUnion, tools []openai.ChatCompletionToolUnionParam) openai.ChatCompletionNewParams {
+	params := openai.ChatCompletionNewParams{
+		Model:       request.Model,
+		Messages:    messages,
+		Tools:       tools,
+		Temperature: openai.Float(request.Temperature),
+	}
+	if len(request.FallbackModels) > 0 {
+		params.SetExtraFields(map[string]any{
+			"providerOptions": map[string]any{"gateway": map[string]any{"models": request.FallbackModels}},
+		})
+	}
+	return params
+}
+
+func (g *Gateway) answer(ctx context.Context, params openai.ChatCompletionNewParams, onDelta func(string)) (modelAnswer, error) {
+	if onDelta != nil {
+		return g.stream(ctx, params, onDelta)
+	}
+	return g.complete(ctx, params)
 }
 
 type modelAnswer struct {
@@ -128,41 +137,11 @@ func (g *Gateway) stream(ctx context.Context, params openai.ChatCompletionNewPar
 	stream := g.client.Chat.Completions.NewStreaming(ctx, params)
 	defer stream.Close()
 
-	var answer modelAnswer
-	var text strings.Builder
-	callAt := map[int64]int{}
-
+	answer := streamedAnswer{callAt: map[int64]int{}}
 	for stream.Next() {
 		for _, choice := range stream.Current().Choices {
-			if choice.Index != 0 {
-				continue
-			}
-
-			if choice.Delta.Content != "" {
-				text.WriteString(choice.Delta.Content)
-				onDelta(choice.Delta.Content)
-			}
-
-			for _, piece := range choice.Delta.ToolCalls {
-				at, seen := callAt[piece.Index]
-				if !seen {
-					at = len(answer.toolCalls)
-					callAt[piece.Index] = at
-					answer.toolCalls = append(answer.toolCalls, toolCall{})
-				}
-
-				call := &answer.toolCalls[at]
-				if piece.ID != "" {
-					call.id = piece.ID
-				}
-				if piece.Function.Name != "" {
-					call.name = piece.Function.Name
-				}
-				call.arguments += piece.Function.Arguments
-			}
-
-			if choice.FinishReason != "" {
-				answer.finishReason = choice.FinishReason
+			if choice.Index == 0 {
+				answer.add(choice, onDelta)
 			}
 		}
 	}
@@ -170,8 +149,47 @@ func (g *Gateway) stream(ctx context.Context, params openai.ChatCompletionNewPar
 		return modelAnswer{}, err
 	}
 
-	answer.text = text.String()
-	return answer, nil
+	answer.text = answer.content.String()
+	return answer.modelAnswer, nil
+}
+
+type streamedAnswer struct {
+	modelAnswer
+	content strings.Builder
+	callAt  map[int64]int
+}
+
+func (a *streamedAnswer) add(choice openai.ChatCompletionChunkChoice, onDelta func(string)) {
+	if choice.Delta.Content != "" {
+		a.content.WriteString(choice.Delta.Content)
+		onDelta(choice.Delta.Content)
+	}
+
+	for _, piece := range choice.Delta.ToolCalls {
+		a.addToolCall(piece)
+	}
+
+	if choice.FinishReason != "" {
+		a.finishReason = choice.FinishReason
+	}
+}
+
+func (a *streamedAnswer) addToolCall(piece openai.ChatCompletionChunkChoiceDeltaToolCall) {
+	at, seen := a.callAt[piece.Index]
+	if !seen {
+		at = len(a.toolCalls)
+		a.callAt[piece.Index] = at
+		a.toolCalls = append(a.toolCalls, toolCall{})
+	}
+
+	call := &a.toolCalls[at]
+	if piece.ID != "" {
+		call.id = piece.ID
+	}
+	if piece.Function.Name != "" {
+		call.name = piece.Function.Name
+	}
+	call.arguments += piece.Function.Arguments
 }
 
 func toolsMayRun(finishReason string) bool {

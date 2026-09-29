@@ -114,6 +114,26 @@ type PublishedMenuPage struct {
 	MarkSoldOut     bool
 }
 
+func (p PublishedMenuPage) In(language string) (PublishedMenu, bool) {
+	if menu, ok := p.Snapshot[language]; ok && IsLanguage(language) {
+		return menu, true
+	}
+	menu, ok := p.Snapshot[AsLanguage(p.DefaultLanguage)]
+	return menu, ok
+}
+
+func (m PublishedMenu) ProductIDs() []string {
+	var ids []string
+	for _, section := range m.Sections {
+		for _, item := range section.Items {
+			if id := NilIfEmpty(item.ProductID); id != nil {
+				ids = append(ids, *id)
+			}
+		}
+	}
+	return ids
+}
+
 func (m Menu) Draft() MenuDraft {
 	sections := make([]MenuSectionDraft, 0, len(m.Sections))
 	for _, section := range m.Sections {
@@ -382,6 +402,18 @@ type SaveMenuDraftInput struct {
 	Name      string
 	Languages []string
 	Sections  []MenuSectionInput
+}
+
+func (in SaveMenuDraftInput) ProductIDs() []string {
+	var ids []string
+	for _, section := range in.Sections {
+		for _, item := range section.Items {
+			if id := NilIfEmpty(item.ProductID); id != nil {
+				ids = append(ids, *id)
+			}
+		}
+	}
+	return ids
 }
 
 type MenuSectionInput struct {

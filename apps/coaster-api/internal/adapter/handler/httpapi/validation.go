@@ -153,7 +153,7 @@ func (c *bodyCheck) object(structType reflect.Type, object map[string]any, prefi
 			if hasRule(field, "required") {
 				c.wrongType = append(c.wrongType, prefix+message(field, "required", name+" should not be empty"))
 			} else {
-				c.wrongType = append(c.wrongType, prefix+message(field, "type", typeMessage(field.Type, name)))
+				c.wrongTypeOf(field, prefix, typeMessage(field.Type, name))
 			}
 			continue
 		}
@@ -163,59 +163,59 @@ func (c *bodyCheck) object(structType reflect.Type, object map[string]any, prefi
 }
 
 func (c *bodyCheck) value(field reflect.StructField, fieldType reflect.Type, value any, name, prefix string) {
-	for fieldType.Kind() == reflect.Pointer {
-		fieldType = fieldType.Elem()
-	}
-
+	fieldType = withoutPointers(fieldType)
 	if reflect.PointerTo(fieldType).Implements(reflect.TypeFor[json.Unmarshaler]()) {
 		return
 	}
 
 	switch fieldType.Kind() {
 	case reflect.Struct:
-		object, ok := value.(map[string]any)
-		if !ok {
-			c.wrongType = append(c.wrongType, prefix+message(field, "type", typeMessage(fieldType, name)))
-			return
+		if object, ok := value.(map[string]any); ok {
+			c.object(fieldType, object, prefix+name+".")
+		} else {
+			c.wrongTypeOf(field, prefix, typeMessage(fieldType, name))
 		}
-		c.object(fieldType, object, prefix+name+".")
-
 	case reflect.Slice:
-		items, ok := value.([]any)
-		if !ok {
-			c.wrongType = append(c.wrongType, prefix+message(field, "type", typeMessage(fieldType, name)))
-			return
+		if items, ok := value.([]any); ok {
+			c.items(field, withoutPointers(fieldType.Elem()), items, name, prefix)
+		} else {
+			c.wrongTypeOf(field, prefix, typeMessage(fieldType, name))
 		}
-
-		elemType := fieldType.Elem()
-		for elemType.Kind() == reflect.Pointer {
-			elemType = elemType.Elem()
-		}
-
-		for i, item := range items {
-			if elemType.Kind() == reflect.Struct {
-				object, ok := item.(map[string]any)
-				if !ok {
-					c.wrongType = append(c.wrongType, prefix+message(field, "type", "nested property "+name+" must be either object or array"))
-					continue
-				}
-				c.object(elemType, object, prefix+name+"."+strconv.Itoa(i)+".")
-				continue
-			}
-
-			if !matchesKind(elemType, item) {
-				c.wrongType = append(c.wrongType, prefix+message(field, "type", "each value in "+typeMessage(elemType, name)))
-				return
-			}
-		}
-
 	default:
 		if !matchesKind(fieldType, value) {
-			c.wrongType = append(c.wrongType, prefix+message(field, "type", typeMessage(fieldType, name)))
+			c.wrongTypeOf(field, prefix, typeMessage(fieldType, name))
 		}
 	}
 }
 
+func (c *bodyCheck) items(field reflect.StructField, elemType reflect.Type, items []any, name, prefix string) {
+	for i, item := range items {
+		if elemType.Kind() != reflect.Struct {
+			if !matchesKind(elemType, item) {
+				c.wrongTypeOf(field, prefix, "each value in "+typeMessage(elemType, name))
+				return
+			}
+			continue
+		}
+
+		if object, ok := item.(map[string]any); ok {
+			c.object(elemType, object, prefix+name+"."+strconv.Itoa(i)+".")
+		} else {
+			c.wrongTypeOf(field, prefix, "nested property "+name+" must be either object or array")
+		}
+	}
+}
+
+func (c *bodyCheck) wrongTypeOf(field reflect.StructField, prefix, text string) {
+	c.wrongType = append(c.wrongType, prefix+message(field, "type", text))
+}
+
+func withoutPointers(goType reflect.Type) reflect.Type {
+	for goType.Kind() == reflect.Pointer {
+		goType = goType.Elem()
+	}
+	return goType
+}
 func matchesKind(goType reflect.Type, value any) bool {
 	switch goType.Kind() {
 	case reflect.String:
@@ -243,11 +243,7 @@ func matchesKind(goType reflect.Type, value any) bool {
 }
 
 func typeMessage(goType reflect.Type, name string) string {
-	for goType.Kind() == reflect.Pointer {
-		goType = goType.Elem()
-	}
-
-	switch goType.Kind() {
+	switch withoutPointers(goType).Kind() {
 	case reflect.String:
 		return name + " must be a string"
 	case reflect.Bool:

@@ -1,8 +1,9 @@
 package domain
 
 import (
+	"maps"
 	"math"
-	"sort"
+	"slices"
 )
 
 func TaxOf(netAmount, taxRate int) int {
@@ -77,105 +78,20 @@ type Pricing struct {
 }
 
 func CalculatePricing(input PricingInput) Pricing {
-	itemsSubtotal := 0
-	itemDiscountsTotal := 0
-	itemLines := make([]PricingItemLine, 0, len(input.Items))
+	itemLines := priceItems(input.Items, input.Adjustments)
 
-	for _, item := range input.Items {
-		baseTotal := item.Quantity * item.PriceAtPurchase
-		itemsSubtotal += baseTotal
-
-		discountsAmount := 0
-		for _, adj := range input.Adjustments {
-			if adj.Target != AdjustmentItem || adj.ItemID == nil || *adj.ItemID != item.ID {
-				continue
-			}
-			switch adj.Type {
-			case AdjustmentPercentage:
-				discountsAmount += roundJS(float64(baseTotal*adj.Value) / 100)
-			case AdjustmentFixedAmount:
-				discountsAmount += adj.Value
-			}
-		}
-
-		discountsAmount = min(discountsAmount, baseTotal)
-		itemDiscountsTotal += discountsAmount
-
-		finalTotal := baseTotal - discountsAmount
-		itemLines = append(itemLines, PricingItemLine{
-			ID:              item.ID,
-			BaseTotal:       baseTotal,
-			DiscountsAmount: discountsAmount,
-			FinalTotal:      finalTotal,
-			GrossTotal:      GrossFromNet(finalTotal, item.TaxRate),
-			PaidQuantity:    item.PaidQuantity,
-			TaxRate:         item.TaxRate,
-		})
-	}
-
-	orderDiscountsTotal := 0
-	orderBaseForDiscount := itemsSubtotal - itemDiscountsTotal
-	for _, adj := range input.Adjustments {
-		if adj.Target != AdjustmentOrder {
-			continue
-		}
-		switch adj.Type {
-		case AdjustmentPercentage:
-			orderDiscountsTotal += roundJS(float64(itemsSubtotal*adj.Value) / 100)
-		case AdjustmentFixedAmount:
-			orderDiscountsTotal += adj.Value
-		}
-	}
-	orderDiscountsTotal = min(orderDiscountsTotal, orderBaseForDiscount)
-
-	netTotal := max(0, itemsSubtotal-itemDiscountsTotal-orderDiscountsTotal)
-
-	netByRate := map[int]int{}
+	itemsSubtotal, itemDiscountsTotal := 0, 0
 	for _, line := range itemLines {
-		netByRate[line.TaxRate] += line.FinalTotal
-	}
-	rates := make([]int, 0, len(netByRate))
-	for rate := range netByRate {
-		rates = append(rates, rate)
-	}
-	sort.Ints(rates)
-
-	type rateShare struct {
-		rate, net, share int
-	}
-	shares := make([]rateShare, 0, len(rates))
-	distributed := 0
-	for _, rate := range rates {
-		net := netByRate[rate]
-		share := 0
-		if orderBaseForDiscount > 0 {
-			share = roundJS(float64(orderDiscountsTotal*net) / float64(orderBaseForDiscount))
-		}
-		shares = append(shares, rateShare{rate: rate, net: net, share: share})
-		distributed += share
+		itemsSubtotal += line.BaseTotal
+		itemDiscountsTotal += line.DiscountsAmount
 	}
 
-	if len(shares) > 0 {
-		heaviest := 0
-		for i, entry := range shares {
-			winner := shares[heaviest]
-			if entry.net > winner.net || (entry.net == winner.net && entry.rate > winner.rate) {
-				heaviest = i
-			}
-		}
-		shares[heaviest].share += orderDiscountsTotal - distributed
-	}
+	orderBaseForDiscount := itemsSubtotal - itemDiscountsTotal
+	orderDiscountsTotal := min(orderDiscountOf(input.Adjustments, itemsSubtotal), orderBaseForDiscount)
 
-	taxBreakdown := []TaxLine{}
-	taxBaseTotal := 0
-	taxAmountTotal := 0
-	for _, entry := range shares {
-		taxBase := max(0, entry.net-entry.share)
-		if taxBase <= 0 {
-			continue
-		}
-		line := TaxLine{TaxRate: entry.rate, TaxBase: taxBase, TaxAmount: TaxOf(taxBase, entry.rate)}
-		taxBreakdown = append(taxBreakdown, line)
+	taxBreakdown := taxBreakdownOf(itemLines, orderDiscountsTotal, orderBaseForDiscount)
+	taxBaseTotal, taxAmountTotal := 0, 0
+	for _, line := range taxBreakdown {
 		taxBaseTotal += line.TaxBase
 		taxAmountTotal += line.TaxAmount
 	}
@@ -198,9 +114,109 @@ func CalculatePricing(input PricingInput) Pricing {
 		AmountPaidCard:      input.AmountPaidCard,
 		PendingAmount:       pendingAmount,
 		IsFullyPaid:         pendingAmount <= 0,
-		NetTotal:            netTotal,
+		NetTotal:            max(0, orderBaseForDiscount-orderDiscountsTotal),
 		TaxBreakdown:        taxBreakdown,
 		TaxBaseTotal:        taxBaseTotal,
 		TaxAmountTotal:      taxAmountTotal,
 	}
+}
+
+func priceItems(items []PricingItem, adjustments []PricingAdjustment) []PricingItemLine {
+	lines := make([]PricingItemLine, 0, len(items))
+	for _, item := range items {
+		baseTotal := item.Quantity * item.PriceAtPurchase
+		discountsAmount := min(itemDiscountOf(item.ID, adjustments, baseTotal), baseTotal)
+		finalTotal := baseTotal - discountsAmount
+
+		lines = append(lines, PricingItemLine{
+			ID:              item.ID,
+			BaseTotal:       baseTotal,
+			DiscountsAmount: discountsAmount,
+			FinalTotal:      finalTotal,
+			GrossTotal:      GrossFromNet(finalTotal, item.TaxRate),
+			PaidQuantity:    item.PaidQuantity,
+			TaxRate:         item.TaxRate,
+		})
+	}
+	return lines
+}
+
+func itemDiscountOf(itemID string, adjustments []PricingAdjustment, base int) int {
+	discount := 0
+	for _, adj := range adjustments {
+		if adj.Target == AdjustmentItem && adj.ItemID != nil && *adj.ItemID == itemID {
+			discount += adj.discountOn(base)
+		}
+	}
+	return discount
+}
+
+func orderDiscountOf(adjustments []PricingAdjustment, base int) int {
+	discount := 0
+	for _, adj := range adjustments {
+		if adj.Target == AdjustmentOrder {
+			discount += adj.discountOn(base)
+		}
+	}
+	return discount
+}
+
+func (a PricingAdjustment) discountOn(base int) int {
+	switch a.Type {
+	case AdjustmentPercentage:
+		return roundJS(float64(base*a.Value) / 100)
+	case AdjustmentFixedAmount:
+		return a.Value
+	default:
+		return 0
+	}
+}
+
+type rateShare struct {
+	rate, net, share int
+}
+
+func taxBreakdownOf(lines []PricingItemLine, orderDiscount, orderBase int) []TaxLine {
+	breakdown := []TaxLine{}
+	for _, entry := range orderDiscountShares(lines, orderDiscount, orderBase) {
+		taxBase := max(0, entry.net-entry.share)
+		if taxBase > 0 {
+			breakdown = append(breakdown, TaxLine{TaxRate: entry.rate, TaxBase: taxBase, TaxAmount: TaxOf(taxBase, entry.rate)})
+		}
+	}
+	return breakdown
+}
+
+func orderDiscountShares(lines []PricingItemLine, orderDiscount, orderBase int) []rateShare {
+	netByRate := map[int]int{}
+	for _, line := range lines {
+		netByRate[line.TaxRate] += line.FinalTotal
+	}
+
+	shares := make([]rateShare, 0, len(netByRate))
+	distributed := 0
+	for _, rate := range slices.Sorted(maps.Keys(netByRate)) {
+		share := 0
+		if orderBase > 0 {
+			share = roundJS(float64(orderDiscount*netByRate[rate]) / float64(orderBase))
+		}
+		shares = append(shares, rateShare{rate: rate, net: netByRate[rate], share: share})
+		distributed += share
+	}
+
+	if len(shares) > 0 {
+		shares[heaviestShare(shares)].share += orderDiscount - distributed
+	}
+	return shares
+}
+
+func heaviestShare(shares []rateShare) int {
+	heaviest := 0
+	for i, entry := range shares {
+		winner := shares[heaviest]
+		if entry.net > winner.net || (entry.net == winner.net && entry.rate > winner.rate) {
+			heaviest = i
+		}
+	}
+	return heaviest
 }

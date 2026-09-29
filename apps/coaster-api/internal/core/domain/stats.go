@@ -1,6 +1,9 @@
 package domain
 
-import "time"
+import (
+	"slices"
+	"time"
+)
 
 type DailyRevenue struct {
 	DayName string `json:"dayName"`
@@ -65,66 +68,31 @@ func StatsSince(now time.Time, includeHistory bool) time.Time {
 	return time.Date(startOfWeek.Year(), startOfWeek.Month(), startOfWeek.Day()-7, 0, 0, 0, 0, now.Location())
 }
 
+type statsPeriods struct {
+	now                 time.Time
+	startOfWeek         time.Time
+	previousMonth       time.Time
+	today               string
+	yesterday           string
+	sameWeekdayLastWeek string
+}
+
 func EstablishmentStatsOf(orders []StatsOrder, now time.Time, includeHistory bool) EstablishmentStats {
-	location := now.Location()
-	startOfWeek := startOfStatsWeek(now)
-
-	today := now.Format(statsDateLayout)
-	yesterday := now.AddDate(0, 0, -1).Format(statsDateLayout)
-	sameWeekdayLastWeek := now.AddDate(0, 0, -7).Format(statsDateLayout)
-
-	stats := EstablishmentStats{DailyRevenues: make([]DailyRevenue, len(statsDayNames))}
-	for i, name := range statsDayNames {
-		stats.DailyRevenues[i] = DailyRevenue{DayName: name, DateStr: startOfWeek.AddDate(0, 0, i).Format(statsDateLayout)}
+	periods := statsPeriods{
+		now:                 now,
+		startOfWeek:         startOfStatsWeek(now),
+		previousMonth:       time.Date(now.Year(), now.Month()-1, 1, 0, 0, 0, 0, now.Location()),
+		today:               now.Format(statsDateLayout),
+		yesterday:           now.AddDate(0, 0, -1).Format(statsDateLayout),
+		sameWeekdayLastWeek: now.AddDate(0, 0, -7).Format(statsDateLayout),
 	}
 
-	history := EstablishmentStatsHistory{MonthlyBreakdown: make([]MonthlyRevenue, len(statsMonthNames))}
-	for i, name := range statsMonthNames {
-		history.MonthlyBreakdown[i] = MonthlyRevenue{MonthIndex: i, MonthName: name}
-	}
-
-	previousMonth := time.Date(now.Year(), now.Month()-1, 1, 0, 0, 0, 0, location)
-
+	stats := newEstablishmentStats(periods.startOfWeek)
+	history := newStatsHistory()
 	for _, order := range orders {
-		revenue := order.AmountPaidCash + order.AmountPaidCard - order.TipAmount
-		createdAt := order.CreatedAt.In(location)
-		day := createdAt.Format(statsDateLayout)
-
-		if day == today {
-			stats.TodayRevenue += revenue
-			stats.TodayTicketCount++
-			stats.TodayCashRevenue += order.AmountPaidCash
-			stats.TodayCardRevenue += order.AmountPaidCard
-			stats.TodayTipAmount += order.TipAmount
-		}
-		if day == yesterday {
-			stats.YesterdayRevenue += revenue
-		}
-		if day == sameWeekdayLastWeek {
-			stats.SameWeekdayLastWeekRevenue += revenue
-		}
-		if !createdAt.Before(startOfWeek) {
-			stats.WeeklyRevenue += revenue
-		}
-
-		for i := range stats.DailyRevenues {
-			if stats.DailyRevenues[i].DateStr == day {
-				stats.DailyRevenues[i].Amount += revenue
-				break
-			}
-		}
-
-		if createdAt.Year() == now.Year() {
-			history.YearlyRevenue += revenue
-			history.MonthlyBreakdown[createdAt.Month()-1].Amount += revenue
-
-			if createdAt.Month() == now.Month() {
-				history.CurrentMonthRevenue += revenue
-			}
-		}
-		if createdAt.Year() == previousMonth.Year() && createdAt.Month() == previousMonth.Month() {
-			history.PreviousMonthRevenue += revenue
-		}
+		createdAt := order.CreatedAt.In(now.Location())
+		stats.add(order, createdAt, periods)
+		history.add(order.revenue(), createdAt, periods)
 	}
 
 	if stats.TodayTicketCount > 0 {
@@ -135,20 +103,7 @@ func EstablishmentStatsOf(orders []StatsOrder, now time.Time, includeHistory boo
 		return stats
 	}
 
-	percentageChange := 0
-	history.IsPositiveChange = true
-	if history.PreviousMonthRevenue > 0 {
-		change := float64(history.CurrentMonthRevenue-history.PreviousMonthRevenue) / float64(history.PreviousMonthRevenue)
-		percentageChange = roundJS(change * 100)
-		history.IsPositiveChange = history.CurrentMonthRevenue >= history.PreviousMonthRevenue
-	} else if history.CurrentMonthRevenue > 0 {
-		percentageChange = 100
-	}
-	if percentageChange < 0 {
-		percentageChange = -percentageChange
-	}
-	history.PercentageChange = percentageChange
-
+	history.PercentageChange, history.IsPositiveChange = monthOverMonth(history.CurrentMonthRevenue, history.PreviousMonthRevenue)
 	history.MaxMonthRevenue = 1
 	for _, month := range history.MonthlyBreakdown {
 		history.MaxMonthRevenue = max(history.MaxMonthRevenue, month.Amount)
@@ -156,4 +111,75 @@ func EstablishmentStatsOf(orders []StatsOrder, now time.Time, includeHistory boo
 
 	stats.History = &history
 	return stats
+}
+
+func (o StatsOrder) revenue() int {
+	return o.AmountPaidCash + o.AmountPaidCard - o.TipAmount
+}
+
+func newEstablishmentStats(startOfWeek time.Time) EstablishmentStats {
+	stats := EstablishmentStats{DailyRevenues: make([]DailyRevenue, len(statsDayNames))}
+	for i, name := range statsDayNames {
+		stats.DailyRevenues[i] = DailyRevenue{DayName: name, DateStr: startOfWeek.AddDate(0, 0, i).Format(statsDateLayout)}
+	}
+	return stats
+}
+
+func (s *EstablishmentStats) add(order StatsOrder, createdAt time.Time, periods statsPeriods) {
+	revenue := order.revenue()
+	day := createdAt.Format(statsDateLayout)
+
+	switch day {
+	case periods.today:
+		s.TodayRevenue += revenue
+		s.TodayTicketCount++
+		s.TodayCashRevenue += order.AmountPaidCash
+		s.TodayCardRevenue += order.AmountPaidCard
+		s.TodayTipAmount += order.TipAmount
+	case periods.yesterday:
+		s.YesterdayRevenue += revenue
+	case periods.sameWeekdayLastWeek:
+		s.SameWeekdayLastWeekRevenue += revenue
+	}
+
+	if !createdAt.Before(periods.startOfWeek) {
+		s.WeeklyRevenue += revenue
+	}
+	if i := slices.IndexFunc(s.DailyRevenues, func(d DailyRevenue) bool { return d.DateStr == day }); i >= 0 {
+		s.DailyRevenues[i].Amount += revenue
+	}
+}
+
+func newStatsHistory() EstablishmentStatsHistory {
+	history := EstablishmentStatsHistory{MonthlyBreakdown: make([]MonthlyRevenue, len(statsMonthNames))}
+	for i, name := range statsMonthNames {
+		history.MonthlyBreakdown[i] = MonthlyRevenue{MonthIndex: i, MonthName: name}
+	}
+	return history
+}
+
+func (h *EstablishmentStatsHistory) add(revenue int, createdAt time.Time, periods statsPeriods) {
+	if createdAt.Year() == periods.now.Year() {
+		h.YearlyRevenue += revenue
+		h.MonthlyBreakdown[createdAt.Month()-1].Amount += revenue
+		if createdAt.Month() == periods.now.Month() {
+			h.CurrentMonthRevenue += revenue
+		}
+	}
+	if createdAt.Year() == periods.previousMonth.Year() && createdAt.Month() == periods.previousMonth.Month() {
+		h.PreviousMonthRevenue += revenue
+	}
+}
+
+func monthOverMonth(current, previous int) (int, bool) {
+	switch {
+	case previous > 0:
+		change := float64(current-previous) / float64(previous)
+		percentage := roundJS(change * 100)
+		return max(percentage, -percentage), current >= previous
+	case current > 0:
+		return 100, true
+	default:
+		return 0, true
+	}
 }
