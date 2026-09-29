@@ -48,7 +48,6 @@ fi
 
 {
   npm install --no-audit --no-fund
-  npm run db:gen -w apps/api
   (cd apps/coaster-api && go mod download)
   (cd apps/database && go mod download)
   docker pull -q postgres:18-alpine

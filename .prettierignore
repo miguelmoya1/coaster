@@ -3,4 +3,3 @@
 /coverage
 .angular
 node_modules
-/apps/api/src/core/db/client

@@ -1,23 +1,21 @@
 # coaster-api
 
-La API de Coaster en Go, en `apps/coaster-api`. Sustituye a `apps/api` (NestJS + Prisma): hasta el
-cambio (P5 en la [migración](migracion.md)), `apps/api` sigue en producción y es la referencia de
-comportamiento. El contrato HTTP (rutas, JSON, errores, códigos de error de la web y cookies) es el mismo.
+La API de Coaster en Go, en `apps/coaster-api`. Sustituye a la de NestJS, que ya no está en el
+repositorio: beta corre Go y producción sigue con Nest hasta el merge a `main` (ver la
+[migración](migracion.md)). El contrato HTTP (rutas, JSON, errores, códigos de error y cookies) es
+el de `apps/web`.
 
 ## Arrancar
 
 - **Con Docker**: `docker compose up`, desde la raíz del repo. Go escucha en
-  `http://localhost:3000`, y la web y el reenvío de webhooks de `stripe` van contra él. Nest sigue
-  en el 3001 mientras exista, contra la misma base de datos, pero nada apunta a él;
-  `docker compose up web` levanta la web con Go y sin Nest. El servicio carga
+  `http://localhost:3000`, y la web y el reenvío de webhooks de `stripe` van contra él. El servicio carga
   `apps/coaster-api/.env` (se crea copiando `.env_example`) y fija en `compose.yaml` lo que cambia
   dentro de Docker (`DATABASE_URL`, `REDIS_URL`, `PORT`, `PUBLIC_DIR`, `PUBLIC_URL`). Las migraciones las aplica el servicio `migrate`
-  ([database](../database.md)) antes de que arranque cualquiera de las dos APIs. La imagen no se
+  ([database](../database.md)) antes de que arranque la API. La imagen no se
   recarga sola: después de cambiar código, `docker compose up -d --build coaster-api`.
-- **En el anfitrión**: `apps/coaster-api/scripts/dev.sh` carga el mismo `apps/coaster-api/.env` y
-  arranca `go run ./cmd/api` en el 3000. Necesita `db`, `redis` y `migrate` de compose, y el puerto
-  libre: `docker compose stop coaster-api`.
-- **La web contra Nest**: `API_URL=http://localhost:3001 docker compose up -d web`.
+- **En el anfitrión**: `npm run dev:api` (o `apps/coaster-api/scripts/dev.sh`) carga el mismo
+  `apps/coaster-api/.env` y arranca `go run ./cmd/api` en el 3000. Necesita `db`, `redis` y
+  `migrate` de compose, y el puerto libre: `docker compose stop coaster-api`.
 
 Qué variables lee Go está en `apps/coaster-api/.env_example`; las obligatorias son `DATABASE_URL`,
 `AUTH_JWT_SECRET` y `PRINTER_JWT_SECRET`. Solo `internal/config` lee el entorno.
@@ -28,18 +26,15 @@ Qué variables lee Go está en `apps/coaster-api/.env_example`; las obligatorias
   `postgres:18-alpine` con testcontainers, así que necesitan Docker.
 - Los e2e están en `e2e/` y entran en `go test ./...`: compilan la API y la lanzan contra un
   Postgres de testcontainers. Uno suelto: `go test ./e2e/ -run 'TestOrders/checks'`.
-- Mientras exista Nest, sus e2e también se lanzan contra Go con `apps/coaster-api/scripts/e2e-go.sh`,
-  desde la raíz del repo. Necesitan Docker, Node 26 y el Go de `go.mod`
-  (`export GOTOOLCHAIN=go1.27.0`). Los argumentos van a vitest: un directorio (`test/orders`) o un
-  nombre de test (`-t 'nombre'`).
-- En el CI, el job `coaster-api` pasa `gofmt`, `go vet` y `go test` (los e2e de Go incluidos), y
-  `coaster-api-e2e` los de `apps/api` contra Go.
+- En el CI, el job `coaster-api` pasa `gofmt`, `go vet` y `go test` (los e2e incluidos), y el
+  despliegue lo espera.
 
 ## Documentación
 
 - [Estructura](estructura.md): las carpetas y para qué sirve cada una (arquitectura hexagonal).
 - [Convenciones](convenciones.md): cómo se hace cada cosa (rutas, validación, eventos, SQL, tests…).
-- [Migración](migracion.md): objetivos, decisiones, estado, siguiente paso y diferencias con Nest.
+- [Migración](migracion.md): objetivos, decisiones, estado, siguiente paso y diferencias con lo
+  que corre en producción.
 - [Librerías](librerias.md): las librerías aprobadas.
 - `apps/coaster-api/CLAUDE.md`: las reglas para los agentes. Se queda junto al código porque es
   donde Claude Code lo busca.

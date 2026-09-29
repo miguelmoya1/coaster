@@ -19,19 +19,19 @@ the most rules per line and is the easiest to get wrong.
 
 ## Applications
 
-- [API](apps/api.md) — NestJS, in production today
+- [API](apps/coaster-api/README.md) — Go: its [structure](apps/coaster-api/estructura.md),
+  [conventions](apps/coaster-api/convenciones.md), [migration from NestJS](apps/coaster-api/migracion.md)
+  and [libraries](apps/coaster-api/librerias.md)
 - [Web](apps/web.md) — Angular
 - [Printer bridge](apps/printer-service.md) — the Go service on the venue's computer
 - [Database](apps/database.md) — the schema: goose migrations, `schema.sql` and the job that applies
   them
-- [coaster-api](apps/coaster-api/README.md) — the Go rewrite of the API: its
-  [structure](apps/coaster-api/estructura.md), [conventions](apps/coaster-api/convenciones.md),
-  [migration](apps/coaster-api/migracion.md) and [libraries](apps/coaster-api/librerias.md)
 
 ## Architecture
 
 - [Stack](architecture/stack.md) — what everything is built with
-- [Backend architecture](architecture/backend.md) — NestJS modules, aliases, layering, runtime
+- [Backend architecture](architecture/backend.md) — sessions, sign-in, email links, rate limits, CORS
+  and proxies
 - [Frontend architecture](architecture/frontend.md) — Angular layers, stores, bundle
 - [Access model](architecture/permissions.md) — roles, guards, enabled modules, plan grants
 - [Domain models](architecture/domain-models.md) — what each context owns

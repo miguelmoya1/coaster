@@ -117,7 +117,7 @@ The version lives in **two places that have to match**, because the bridge refus
 update that did not take (otherwise it would loop downloading and restarting):
 
 1. `internal/updater/version.go` → `CurrentVersion`
-2. `apps/api/src/printer/services/printer-release.service.ts` → `PRINTER_BRIDGE_VERSION`
+2. `apps/coaster-api/internal/core/domain/printer.go` → `PrinterBridgeVersion`
 
 Bump both and build the binaries into the folder the API serves:
 
@@ -135,8 +135,8 @@ curl "http://localhost:3000/api/v1/printer/check-version?os=linux"
 
 The API computes the SHA-256 of the binary it has on disk and publishes it; the bridge **writes
 nothing** that does not match that checksum, so a truncated download or an error page cannot replace
-a working binary. If the binary is not published, `check-version` answers 400 rather than advertising
-a URL that would 404.
+a working binary. If the binary is not published, `check-version` answers 404 rather than advertising
+a URL that would 404 too; an operating system it does not build for is a 400.
 
 In production `PUBLIC_URL` has to point at an address reachable from the venue; with the default
 (`localhost`) no computer could download the update.

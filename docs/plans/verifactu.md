@@ -28,17 +28,17 @@ oficial en local, sin certificado y sin red**. Cuando el certificado llegue solo
 
 Antes de escribir nada, lo que no hay que inventar:
 
-| Necesidad                                                         | Ya existe en                                                                                                                                   |
-| ----------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| Cadena de huellas SHA-256, genesis, cadena canónica, verificación | [`time-entry-chain.ts`](../../apps/api/src/time-tracking/domain/time-entry-chain.ts)                                                           |
-| Correlativo sin huecos bajo concurrencia                          | `pg_advisory_xact_lock` en [`time-entries.write.repository.ts`](../../apps/api/src/time-tracking/data-access/time-entries.write.repository.ts) |
-| Corrección inmutable (registro nuevo que referencia al viejo)     | `supersedesId` / `rootId` en `DbTimeEntry`                                                                                                     |
-| Cálculo de totales, descuentos y pagos                            | `CalculatePricing` en [`order_pricing.go`](../../apps/coaster-api/internal/core/domain/order_pricing.go)                                       |
-| Cobro parcial y división de cuenta                                | `paidQuantityCash` / `paidQuantityCard` por línea                                                                                              |
-| Cola de impresión y bridge en el local                            | módulo `printer` + `apps/printer-service` (Go)                                                                                                 |
-| Renderizado de QR                                                 | `coaster-qr-code` en web (`qrcode-generator`)                                                                                                  |
-| Interruptor por establecimiento                                   | `DbEstablishmentSettings` + `resolveModules`                                                                                                   |
-| Registro de acciones sensibles                                    | `DbAdminAuditLog` (patrón, no la tabla)                                                                                                        |
+| Necesidad                                                         | Ya existe en                                                                                                                        |
+| ----------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Cadena de huellas SHA-256, genesis, cadena canónica, verificación | [`time_entry_chain.go`](../../apps/coaster-api/internal/core/domain/time_entry_chain.go)                                            |
+| Correlativo sin huecos bajo concurrencia                          | `pg_advisory_xact_lock` en [`lock_chain.sql`](../../apps/coaster-api/internal/adapter/repository/queries/time_entry/lock_chain.sql) |
+| Corrección inmutable (registro nuevo que referencia al viejo)     | `supersedesId` / `rootId` en `DbTimeEntry`                                                                                          |
+| Cálculo de totales, descuentos y pagos                            | `CalculatePricing` en [`order_pricing.go`](../../apps/coaster-api/internal/core/domain/order_pricing.go)                            |
+| Cobro parcial y división de cuenta                                | `paidQuantityCash` / `paidQuantityCard` por línea                                                                                   |
+| Cola de impresión y bridge en el local                            | módulo `printer` + `apps/printer-service` (Go)                                                                                      |
+| Renderizado de QR                                                 | `coaster-qr-code` en web (`qrcode-generator`)                                                                                       |
+| Interruptor por establecimiento                                   | `DbEstablishmentSettings` + `resolveModules`                                                                                        |
+| Registro de acciones sensibles                                    | `DbAdminAuditLog` (patrón, no la tabla)                                                                                             |
 
 La sección 4 es, en la práctica, copiar el primer bloque cambiando el ámbito del lock. No se escribe
 un algoritmo nuevo.
@@ -453,7 +453,7 @@ categoría, no toca ningún ticket ya emitido.
 
 ## 4. Huella encadenada y numeración
 
-Copia directa de [`time-entry-chain.ts`](../../apps/api/src/time-tracking/domain/time-entry-chain.ts), con
+Copia directa de [`time_entry_chain.go`](../../apps/coaster-api/internal/core/domain/time_entry_chain.go), con
 tres cambios:
 
 1. **El lock va por serie**, no solo por establecimiento:
@@ -527,9 +527,9 @@ Reglas:
    falta es que el cobro parcial, y no solo el cierre, pueda disparar una emisión.
 
 La concurrencia del cierre ya está resuelta en
-[`orders.write.repository.ts`](../../apps/api/src/orders/data-access/orders.write.repository.ts): el
-checkout reclama la comanda con un `updateMany ... where status = 'OPEN'` y el cobro parcial toma un
-`SELECT ... FOR UPDATE`. La emisión entra en esa misma transacción, no en una posterior.
+[`order_repository.go`](../../apps/coaster-api/internal/adapter/repository/order_repository.go): el
+checkout reclama la comanda con un `UPDATE ... WHERE status = 'OPEN'` (`claim_for_checkout.sql`) y el
+cobro parcial toma un `SELECT ... FOR UPDATE` (`lock.sql`). La emisión entra en esa misma transacción, no en una posterior.
 
 ## 6. Tipos de factura y correcciones
 

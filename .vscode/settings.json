@@ -13,9 +13,6 @@
     "source.organizeImports": "always",
     "source.fixAll.eslint": "explicit"
   },
-  "[prisma]": {
-    "editor.defaultFormatter": "Prisma.prisma"
-  },
   "js/ts.tsdk.path": "node_modules/typescript/lib",
   "chat.mcp.serverSampling": {
     "coaster/.vscode/mcp.json: angular-cli": {

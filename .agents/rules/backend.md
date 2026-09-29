@@ -1,17 +1,16 @@
 ---
 trigger: glob
-globs: "apps/api/**"
+globs: "apps/coaster-api/**"
 ---
 
-# Backend Architecture (NestJS + CQRS)
-`apps/api` is being replaced by the Go API in `apps/coaster-api` (see its `CLAUDE.md`) and is only touched to adapt its e2e suite. While it lives, when working within `apps/api` you must follow Clean Architecture principles, domain-driven design concepts, and a strict CQRS pattern.
+# Backend Architecture (Go, hexagonal)
+When working within `apps/coaster-api`, follow its `CLAUDE.md` and the documentation it points to in `docs/apps/coaster-api/`.
 
 ## Implementation Rules
-1. **CQRS Strict Separation:** Every business use case must be explicitly separated into `commands` (mutations/writes) or `queries` (reads). Never mix read and write operations in a single handler.
-2. **Thin Controllers:** Controllers (`controllers/`) are strictly the entry point. They must only receive the HTTP request, rely on Pipes/DTOs for validation, and dispatch the Command or Query. They must contain ZERO business logic.
-3. **Validation & DTOs:** Rely heavily on `class-validator` and `class-transformer` inside your DTOs (whose shapes must match the web's models). Always validate input payload at the Controller boundary.
-4. **Data Access Isolation:** Database interactions (via Prisma) must be completely isolated within the `data-access` (or Repository) layer. Command and Query Handlers must call `data-access` services, never interact with the Prisma client directly.
-5. **Side Effects & Events:** Any side effect (e.g., sending an email, updating analytics, triggering a webhook) must be decoupled. Handlers should emit Domain Events to `events/handlers/` or be orchestrated via `sagas/`.
-6. **Exception Handling:** Use custom domain exceptions instead of throwing raw HTTP exceptions in the application layer. Let global Exception Filters map domain exceptions to standard HTTP responses.
-7. **Types:** Import shared types from `@coaster/common`, which in `apps/api` is a frozen copy in `src/common`. The contract itself lives in the web's models.
-8. **Testing:** Create and maintain robust unit tests for Handlers and Services. Use mocks for the `data-access` layer. Avoid testing controllers for business logic; controllers only need minimal integration tests or E2E tests.
+1. **Layers:** `core/domain` (types and rules), `core/ports` (interfaces), `service` (one service per entity, one method per use case) and `adapter` (HTTP handlers, repositories, external services). No CQRS.
+2. **Thin Handlers:** Handlers decode and validate the request, call a service through its `ports` interface and write the response. They contain no business logic.
+3. **SQL by hand:** one `.sql` file per query under `internal/adapter/repository/queries/<entity>/`, embedded with `//go:embed`. Transactions start and end inside a repository method.
+4. **Side Effects & Events:** realtime, audit and cache invalidation go through the `EventPublisher`, published only after the write is stored.
+5. **Errors:** services return `domain.Error` values with an error code from `apps/web/src/app/core/errors/error.types.ts`; the handler layer maps them to the HTTP response.
+6. **Contract:** the shapes, error codes, permissions and realtime events are the web's; change both sides together.
+7. **Testing:** table tests with `testing`, fakes of the `ports` interfaces, repositories against Postgres with testcontainers and e2e in `e2e/`. `gofmt -l .`, `go vet ./...` and `go test ./...` must pass.

@@ -21,7 +21,7 @@ turning the switch on, and turning it on against an empty list locks out everybo
 See [closed beta](../saas/closed-beta.md).
 
 The starter catalogue an establishment can import is no longer edited here: it ships with the API as
-[`starter-catalogue.ts`](../../apps/api/src/catalogue/starter-catalogue.ts), so changing it is a
+`starterCatalogue` in [`catalogue.go`](../../apps/coaster-api/internal/core/domain/catalogue.go), so changing it is a
 reviewed commit rather than a paste into production. See
 [catalogue and menu](../architecture/catalogue-and-menu.md).
 
@@ -99,19 +99,20 @@ Two consequences worth keeping in mind:
 
 ## Code layout
 
-Same split as everywhere else (see [backend](../architecture/backend.md) and
+Same split as everywhere else (see the [API structure](../apps/coaster-api/estructura.md) and
 [frontend](../architecture/frontend.md)):
 
 ```text
-apps/api/src/admin/                     CQRS module: controllers, commands, queries, data-access, dto
+apps/coaster-api/internal/               admin_*_handler.go, admin_*_service.go, admin_*_repository.go
 apps/web/src/app/admin/                 domain: HTTP repository, signal stores, mappers
 apps/web/src/app/presentation/admin/    layout, pages and components
 ```
 
-The API exposes everything under `/api/v1/admin`. The establishment routes carry `@SkipSubscriptionCheck()`:
-they have a `establishmentId`, and without it the global guard would block writes on exactly the lapsed establishments
-the admin came to fix.
+The API exposes everything under `/api/v1/admin`. Every admin route is registered with
+`middleware.Admin()` and `middleware.SkipSubscriptionCheck()`: the establishment routes have an
+`establishmentId`, and without the skip the subscription rule would block writes on exactly the
+lapsed establishments the admin came to fix.
 
-`admin-controllers.security.spec.ts` walks every admin controller and fails if one loses its
-`@Admin()`, its guards, or their order — the panel's routes are the ones where a missing decorator
-costs the most.
+`TestAdminRoutesAreForPlatformAdmins` calls each route of its `adminRoutes` list without a session
+and as a user who is not a platform admin, and fails unless both are refused — the panel's routes are
+the ones where a missing rule costs the most, so a new one goes on that list.

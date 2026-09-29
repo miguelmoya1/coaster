@@ -8,7 +8,7 @@ Execute these steps to systematically track down and fix a bug that involves bot
 ## Step 1: Reproduce and Analyze
 - Ask the user for the exact steps to reproduce the bug, or the specific error messages they are seeing.
 - Check the frontend network requests (payload and response). Identify if the issue is originating from an incorrect UI state, an invalid payload being sent, or a malformed backend response.
-- Analyze the relevant backend logs, database state, and Prisma queries.
+- Analyze the relevant backend logs, database state, and SQL queries.
 
 ## Step 2: Contract Verification (the web's `models/`)
 - Verify that the types, DTOs, and interfaces in the web's `models/` folders perfectly match what the API answers and what the frontend consumes.

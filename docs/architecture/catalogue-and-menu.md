@@ -43,17 +43,19 @@ the internal side free of language decisions.
 ## The starter catalogue is a file
 
 The two template tables, the `templates` module in the API and the admin editor are gone — roughly
-1220 lines that maintained 83 rows of content. In their place,
-[`starter-catalogue.ts`](../../apps/api/src/catalogue/starter-catalogue.ts): 141 lines, languages
-written out, no keys and no slugs.
+1220 lines that maintained 83 rows of content. In their place, `starterCatalogue` in
+[`catalogue.go`](../../apps/coaster-api/internal/core/domain/catalogue.go): languages written out,
+no keys and no slugs.
 
-```ts
+```go
 {
-  key: 'cafeteria',
-  icon: 'coffee',
-  taxRate: 1000,
-  names: { es: 'Cafetería', en: 'Coffee Shop' },
-  products: [{ names: { es: 'Café Solo', en: 'Black Coffee' }, price: 120, icon: 'coffee' }],
+	key:     "cafeteria",
+	icon:    "coffee",
+	taxRate: 1000,
+	names:   map[string]string{"es": "Cafetería", "en": "Coffee Shop"},
+	products: []starterProduct{
+		{names: map[string]string{"es": "Café Solo", "en": "Black Coffee"}, price: 120, icon: "coffee"},
+	},
 }
 ```
 

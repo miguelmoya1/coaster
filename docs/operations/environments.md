@@ -314,7 +314,7 @@ order, against beta's own database. Promoting is a merge into `main`.
 
 ## Checking it came up
 
-There is no health endpoint; a 404 from Nest is the proof, because only a booted application answers
+There is no health endpoint; a 404 from the API is the proof, because only a booted application answers
 in that shape:
 
 ```sh

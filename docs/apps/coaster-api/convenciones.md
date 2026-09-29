@@ -233,8 +233,8 @@ func (h *OrderHandler) RegisterRoutes(mux *http.ServeMux, guard *middleware.Guar
   confirmación, func() error {...})` o `aiQuery(tc, permiso, consulta, proyección)`. El dinero va
   en euros con `toEuros` y vuelve con `toCents`.
 - `service/testdata/nest_ai_tools.json` (esquemas) y `nest_ai_answers.json` (respuestas y
-  prompts) se sacaron ejecutando `apps/api/src/ai` con un spec de vitest temporal. Si Nest cambia
-  una herramienta, se vuelven a sacar igual.
+  prompts) se sacaron de Nest con un spec de vitest temporal y ahora son la referencia: si cambia
+  una herramienta o el prompt, se cambian a mano con él.
 - Las mesas y productos de los pedidos se nombran con la instantánea del turno, como en Nest.
 
 **Probar**
@@ -276,7 +276,3 @@ func (h *OrderHandler) RegisterRoutes(mux *http.ServeMux, guard *middleware.Guar
   espera, y `expectNone` deja pasar un momento antes de dar por hecho que no llegó ninguno.
 - `TEST_MAILBOX_URL` y `GOOGLE_CERTS_URL` son solo para tests: `config.Load` falla si vienen en
   producción.
-
-**e2e de `apps/api` contra Go** (`scripts/e2e-go.sh`), mientras exista Nest: la misma suite de
-TypeScript que prueba Nest, lanzada contra el binario de Go a través de un proxy que convierte
-`x-e2e-user-id` en un token de verdad. Se borra con Nest.

@@ -58,13 +58,15 @@ en `dev` y un TPV vendible en España. No es urgente —«no es obligatorio toda
 hay prisa»— y su primera mitad es un TPV mejor con AEAT o sin ella.
 
 La numeración correlativa es «copiar el primer bloque cambiando el ámbito del lock», a partir de la
-cadena de hashes del registro horario (`time-entry-chain.ts` y `time-entries.write.repository.ts`).
+cadena de hashes del registro horario (`time_entry_chain.go` y `lock_chain.sql`).
 
 ## Producción va por detrás de `dev`
 
-`main` se actualizó por última vez el 14 de septiembre de 2026 y `dev` le lleva 150 commits. Entre
-ellos van dos migraciones que producción no tiene: el registro de eventos de auth
-(`20260920200000_auth_events`) y el cierre de caja (`20260924100000_cash_close`).
+`main` se actualizó por última vez el 14 de septiembre de 2026 y `dev` le lleva unos 190 commits,
+entre ellos el cambio de la API a Go: producción sigue con Nest y con las migraciones de Prisma
+hasta el merge, y la primera vez el job de migraciones adopta el historial de Prisma, como hizo en
+beta. Qué falta antes y después está en «Siguiente paso» de la
+[migración](apps/coaster-api/migracion.md).
 
 El 4 de septiembre producción tenía **0 fichajes**: el registro horario está probado por e2e y
 unitarios, pero nadie lo había usado nunca de verdad. Antes de contárselo a un cliente como

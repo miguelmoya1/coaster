@@ -1,43 +1,45 @@
 # The assistant
 
 An in-app assistant that reads the venue's live state and executes actions on it. It lives in
-`apps/api/src/ai`, behind `POST /establishments/:establishmentId/ai` (and `/ai/stream`), and is
-driven from a panel in the workspace top bar (`presentation/establishments/workspace/components/ai-assistant`).
+`apps/coaster-api/internal/service/ai_*.go` and `internal/adapter/ai`, behind
+`POST /establishments/:establishmentId/ai` (and `/ai/stream`), and is driven from a panel in the
+workspace top bar (`presentation/establishments/workspace/components/ai-assistant`).
 
-It is a tool-calling loop over the Vercel AI SDK, pointed at the AI Gateway: `zai/glm-4.7` with
-four fallbacks listed in order, so a model being unavailable is a slower answer rather than an
-outage. `AI_GATEWAY_API_KEY` is the only credential, and it is read by the SDK, not by our code.
+It is a tool-calling loop over the AI Gateway's OpenAI-compatible API: `zai/glm-4.7` with four
+fallbacks listed in order, so a model being unavailable is a slower answer rather than an outage.
+`AI_GATEWAY_API_KEY` is the only credential.
 
 ## It cannot do more than the caller can
 
-This is the part worth reading. Every tool goes through `createToolRunner`, and the runner takes the
-required `EstablishmentPermission` as its **first argument**:
+This is the part worth reading. Every tool goes through the tool context, and both of its ways in
+take the required `EstablishmentPermission` as their **first argument**:
 
-```ts
-runner.execute(EstablishmentPermission.ESTABLISHMENT_DELETE_PRODUCT, new DeleteProductCommand(...))
+```go
+tc.execute(domain.PermissionDeleteProduct, confirmation, func() error { return s.products.Delete(...) })
+aiQuery(tc, domain.PermissionViewProducts, query, project)
 ```
 
-It then checks `hasPermission(establishmentRole, permission)` — the same function, the same table,
-the same array that `EstablishmentPermissionsGuard` reads — and on failure returns a `denied` result
-that tells the model to say so and stop rather than retry. There is no path from a tool to a
-repository: tools dispatch the same CQRS commands and queries the HTTP controllers dispatch, so every
-invariant, event and realtime notification happens exactly as it would from a button.
+They check the caller's role against the permission table — the same table the HTTP permission
+middleware reads — and on failure return a `denied` result that tells the model to say so and stop
+rather than retry. There is no path from a tool to a repository: tools call the same services the
+HTTP handlers call, so every invariant, event and realtime notification happens exactly as it would
+from a button.
 
 Three consequences:
 
 - A `STAFF` member asking the assistant to delete a product gets told they cannot, not a deletion.
-- A new permission on a command covers the assistant the day it is added; nothing in `ai/` lists
-  permissions of its own.
-- The prompt is not a security boundary. It is told what the caller may do — `getRolePermissions`
-  fills that section — but only so it can decline gracefully. The refusal is in the runner.
+- A new permission on a service call covers the assistant the day it is added; the tools list no
+  permissions of their own.
+- The prompt is not a security boundary. It is told what the caller may do — `domain.RolePermissions`
+  fills that section — but only so it can decline gracefully. The refusal is in the tool context.
 
-The controller sits behind `AuthGuard` and `EstablishmentPermissionsGuard` like everything
-else, so membership is settled before the model is reached, and a platform `ADMIN` gets the same
-`OWNER` treatment they get everywhere.
+The route sits behind the same authentication and membership middleware as everything else, so
+membership is settled before the model is reached, and a platform `ADMIN` gets the same `OWNER`
+treatment they get everywhere.
 
 ## Which tools exist depends on the modules
 
-`getAiTools` composes the tool set from `EstablishmentSettings.modules`:
+`aiTools` composes the tool set from `EstablishmentSettings.modules`:
 
 | Module      | Tools                         |
 | ----------- | ----------------------------- |
@@ -56,7 +58,7 @@ Two independent caps, both measured rather than guessed.
 **A context budget bounds one message.** Before the model is called, the handler takes a snapshot of
 the venue — tables, categories, open orders and the product catalogue — and puts it in the system
 prompt so ordinary questions need no tool call at all. The catalogue is the only unbounded part, so
-`formatProducts` is capped at `PRODUCT_BUDGET_CHARS` (12 000): past that the list is dropped entirely
+`FormatAIProducts` is capped at `AIProductBudgetChars` (12 000): past that the list is dropped entirely
 and the prompt tells the model to call `listProducts` with a search term instead. Dropped, not
 truncated — half a catalogue is worse than none, because the model cannot tell which half it has.
 

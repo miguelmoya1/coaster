@@ -106,3 +106,15 @@ Firebase is gone from the code since 9 September 2026; switching it off is in [p
   needs no rebuild.
 
 See [production and beta](operations/environments.md) and [closed beta](saas/closed-beta.md).
+
+### The API in Go
+
+- The NestJS API rewritten in Go: the same 124 routes, permissions, error codes and bodies, hexagonal,
+  with hand-written SQL over pgx. Beta runs it since 29 September 2026; production follows with the
+  merge of `dev` into `main`.
+- The schema as its own application, `apps/database`: goose migrations applied by a Cloud Run job
+  before each deploy, which took over the Prisma history on its first run.
+- Its own e2e suite, the real binary against a real Postgres, gating the deploy.
+
+See [API](apps/coaster-api/README.md), [migration](apps/coaster-api/migracion.md) and
+[database](apps/database.md).

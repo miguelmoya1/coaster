@@ -124,7 +124,7 @@ Las **implementaciones concretas** que conectan el núcleo con el mundo exterior
   - `client.go` crea el pool de conexiones.
   - `xxx_repository.go` hay uno por entidad. Implementa las interfaces `XxxRepository`.
   - Las **transacciones** empiezan y terminan dentro de un método del repositorio, como en
-    `apps/api`. Así los servicios no necesitan saber nada de transacciones.
+    Nest. Así los servicios no necesitan saber nada de transacciones.
   - `queries/` guarda el SQL, un archivo por consulta (ver más abajo). Las migraciones no están
     aquí: el esquema es su propia aplicación, `apps/database`.
 - **`cache/`, `payment/`, `email/`, `storage/`, `ai/`**: un adaptador por servicio externo.

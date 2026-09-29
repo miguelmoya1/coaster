@@ -37,7 +37,3 @@ coverage/
 .DS_Store
 Thumbs.db
 .git/
-
-# Prisma (opcional, pero buena práctica no copiar la BD local si usas SQLite)
-*.db
-*.db-journal

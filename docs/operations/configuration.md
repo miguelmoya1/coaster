@@ -6,7 +6,7 @@ eight that are credentials live in Secret Manager — see [secrets](secrets.md).
 
 Locally, `.env` files are for development only: they are in `.gitignore` and `.dockerignore`, so
 they neither travel in git nor enter an image. `apps/coaster-api/.env_example`,
-`apps/api/.env_example` and `apps/web/.env_example` list what each application reads.
+`apps/coaster-api/.env_example` and `apps/web/.env_example` list what each application reads.
 
 ## Web (read at build time)
 

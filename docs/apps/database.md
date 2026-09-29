@@ -3,7 +3,7 @@
 `apps/database` es el esquema de la base de datos de Coaster: las migraciones, el programa que las
 aplica y el esquema entero en un fichero. Es una aplicación aparte porque su despliegue también lo
 es (un job de Cloud Run), y porque el esquema no depende de qué API lo use: hoy lo leen la API en Go
-y, mientras exista, Nest.
+y, en producción hasta el merge a `main`, Nest.
 
 ## Qué hay
 
@@ -22,9 +22,8 @@ y, mientras exista, Nest.
    tiene funciones con `$$`, o para mandarla entera de una vez, va entre
    `-- +goose StatementBegin` y `-- +goose StatementEnd`. No lleva `Down`: una migración se corrige
    con otra, y las que ya están no se editan, porque ya se han aplicado en beta o en producción.
-2. Mientras Nest sirva en algún entorno, no puede romperlo: se añaden tablas o columnas que admiten
-   `null` o tienen valor por defecto, y no se borra ni se renombra nada. Si Nest tiene que leer la
-   columna, va también a `schema.prisma`, sin migración de Prisma.
+2. Mientras producción siga con Nest, no puede romperlo: se añaden tablas o columnas que admiten
+   `null` o tienen valor por defecto, y no se borra ni se renombra nada.
 3. `go test -run TestSchemaIsUpToDate -update` rehace `schema.sql`.
 4. `go test ./...` aquí y en `apps/coaster-api`, cuyos tests de `repository/` y e2e montan su base
    con estas migraciones.

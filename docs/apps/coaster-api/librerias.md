@@ -1,6 +1,6 @@
 # Librerías para la API en Go
 
-Equivalencias entre lo que usa `apps/api` (NestJS) y lo que usa `apps/coaster-api`.
+Equivalencias entre lo que usaba la API de NestJS y lo que usa `apps/coaster-api`.
 Revisadas el 27-sep-2026. Solo queda ⬜ lo de los modelos de respaldo de la IA (P3).
 Antes de añadir cualquiera, comprobar la última versión, si sigue mantenida y su licencia.
 
@@ -36,7 +36,7 @@ Estado: ⬜ sin revisar · ✅ aprobada · ❌ descartada
 | `@fastify/helmet` | Middleware propio | Copiar exactamente las cabeceras que envía hoy la API. | ✅ |
 | CORS de Nest | Middleware propio | La configuración es fija: lista de orígenes, 6 métodos, 3 cabeceras y `credentials`. Mantener la lista cerrada en producción. | ✅ |
 | — | ~~`github.com/rs/cors`~~ | Para una configuración fija es más fácil comprobar la paridad con código propio. | ❌ |
-| `@nestjs/throttler` | go-redis + script Lua propio | Copiar `apps/api/src/core/cache/throttler-cache.storage.ts`: el mismo script Lua con `redis.NewScript` y, sin Redis, un contador en memoria. 300 peticiones por minuto. | ✅ |
+| `@nestjs/throttler` | go-redis + script Lua propio | Copia de `throttler-cache.storage.ts` de Nest: el mismo script Lua con `redis.NewScript` y, sin Redis, un contador en memoria. 300 peticiones por minuto. | ✅ |
 | — | ~~`github.com/go-redis/redis_rate/v10`~~ | No publica versión desde 2023 y Nest ya usa un script propio. | ❌ |
 | `@fastify/cookie` | `net/http` (estándar) | | ✅ |
 
@@ -73,4 +73,4 @@ Estado: ⬜ sin revisar · ✅ aprobada · ❌ descartada
 | Vitest (unitarios) | `testing` (estándar) | Tests por tabla y fakes de las interfaces de `ports`. Las comprobaciones se escriben a mano con `if` y `t.Errorf`. | ✅ |
 | — | ~~`github.com/stretchr/testify`~~ | Con `testing` basta y es lo más idiomático. | ❌ |
 | testcontainers (Node) | `github.com/testcontainers/testcontainers-go/modules/postgres` | Para los tests de repositorios con una base de datos real. | ✅ |
-| e2e con supertest | `net/http` y testcontainers | En `apps/coaster-api/e2e`: el binario de verdad contra un Postgres de verdad. Mientras exista Nest, sus e2e también se lanzan contra Go. Ver «Tests» en [convenciones](convenciones.md). | ✅ |
+| e2e con supertest | `net/http` y testcontainers | En `apps/coaster-api/e2e`: el binario de verdad contra un Postgres de verdad. Ver «Tests» en [convenciones](convenciones.md). | ✅ |

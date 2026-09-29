@@ -1,7 +1,7 @@
-# Migración de `apps/api` (NestJS) a `apps/coaster-api`
+# Migración de la API de NestJS a Go
 
-Por qué y cómo se reescribe la API de coaster en Go, en qué punto está y en qué se diferencia
-de Nest. Cómo se hace cada cosa está en [convenciones](convenciones.md); las carpetas, en [estructura](estructura.md).
+Por qué y cómo se reescribió la API de coaster en Go, en qué punto está y en qué se diferencia
+de Nest, que sigue en producción hasta el merge a `main`. Cómo se hace cada cosa está en [convenciones](convenciones.md); las carpetas, en [estructura](estructura.md).
 
 ## Objetivos
 
@@ -25,7 +25,7 @@ El rendimiento **no** es el motivo. Casi toda la latencia de la API viene de Pos
   middlewares; los handlers y middlewares reciben esas y nunca declaran interfaces en su
   archivo. `main.go` les pasa el `*service.XService` de siempre. Los inputs de los servicios
   están en `domain`.
-- **Las transacciones viven dentro del repositorio**, igual que en `apps/api`, donde los 14
+- **Las transacciones viven dentro del repositorio**, igual que en Nest, donde los 14
   archivos que usan `$transaction` son repositorios. No hay `TxManager` ni `UnitOfWork`.
 - **SQL a mano, un archivo `.sql` por consulta**, incrustado con `go:embed` (ver
   [estructura](estructura.md)). Sin ORM y sin sqlc por ahora.
@@ -85,30 +85,25 @@ internal/
 
 ## Estado
 
-Todo menos P5 está hecho desde el 28 de septiembre de 2026: Go responde las 124 rutas de Nest con
-los mismos permisos, códigos y cuerpos, los 22 directorios de `apps/api/test` pasan contra él y lo
-que hace distinto está en «Diferencias conocidas». Aquí solo se apunta lo que falta; lo hecho queda
-en git.
+Beta corre Go desde el 29 de septiembre de 2026: `deploy-backend` construye
+`apps/coaster-api/Dockerfile` y despliega en el servicio de siempre, con la misma URL, los mismos
+secretos y el mismo webhook de Stripe. Nest ya no está en el repositorio; producción sigue con su
+imagen hasta el merge a `main`. Go responde las 124 rutas de Nest con los mismos permisos, códigos
+y cuerpos, y lo que hace distinto está en «Diferencias conocidas». Aquí solo se apunta lo que
+falta; lo hecho queda en git.
 
 ## Siguiente paso
 
-1. **Confirmar los modelos de respaldo del AI Gateway** con la clave de verdad (Miguel): cómo
+1. **Probar beta con Go**: iniciar sesión con la contraseña de siempre, el asistente, un cobro con
+   Stripe, la impresora y el realtime entre dos dispositivos.
+2. **Confirmar los modelos de respaldo del AI Gateway** con la clave de verdad (Miguel): cómo
    probarlo está en «IA» de [convenciones](convenciones.md).
-2. **Probar argon2 con un hash real** de la base de datos de producción.
-3. **P5 Salida** (no la hacen los agentes). Un solo commit en `dev`, sin variables ni pasos a mano:
-   - `deploy-backend` construye `apps/coaster-api/Dockerfile` en lugar de `apps/api/Dockerfile` y
-     la despliega en el servicio de siempre, así que no cambian la URL, los secretos ni el webhook
-     de Stripe. Pasa a esperar al job `coaster-api`, que lleva los e2e de Go.
-   - Fuera del CI lo de Nest: Prisma, el build y los e2e de `apps/api` en `build-and-test`, y el
-     job `coaster-api-e2e`.
-   - Se borran `apps/api`, el servicio `api` de `compose.yaml`, `scripts/e2e-go.sh`, los scripts
-     de Prisma de `package.json` y de `.claude/hooks/session-start.sh`, y la documentación de Nest
-     (`docs/apps/api.md`, `docs/architecture/backend.md`). Las «Diferencias conocidas» dejan de
-     ser diferencias: se quedan como lo que hace la API.
-   - `apps/coaster-api/CLAUDE.md` deja de tomar `apps/api` como referencia.
-
-   Volver atrás es revertir ese commit. Después, un tiempo de uso real en beta y el merge a
-   `main` para producción.
+3. **Producción**: merge de `dev` a `main`. La primera vez, el job de migraciones de producción
+   apunta lo que Prisma ya aplicó y aplica el resto, como hizo en beta. Antes, repasar
+   «Diferencias conocidas»: es lo que notarán los usuarios de producción.
+4. **Con producción en Go**: juntar las migraciones en una, quitar `_prisma_migrations` y el código
+   de `apps/database` que la adopta, y la regla de que una migración no puede romper Nest. Esta
+   tabla de diferencias deja de serlo: se queda como lo que hace la API.
 
 ## Diferencias conocidas
 
@@ -206,7 +201,7 @@ Lo que Go hace distinto de Nest a propósito o porque no se ha podido copiar.
 | P3 | En `POST ai/stream`, un rechazo con código (`AI_QUOTA_EXCEEDED`, `MEMBER_NOT_FOUND`) llega en el `done` como `{"text":código,"isError":true,"errorKey":código}`, que `apps/web` traduce; los demás errores siguen siendo `ai_gateway_failed` | Arreglado en Go; Nest sigue con el bug |
 | P3 | El mensaje se reserva antes de llamar al modelo con un solo `INSERT … ON CONFLICT … WHERE messages < cuota`, así que varios a la vez no pasan la cuota; si el modelo no responde, se devuelve. Un fallo de la base de datos al reservar es un 500 antes de ejecutar nada | Arreglado en Go; Nest sigue con el bug |
 | P3 | `createOrder` y `addOrderItems` fallan sin tocar nada si algún producto no está en la carta y dicen cuáles; `getOrdersByDate` suma el `orderTotal` de los pedidos cerrados (lo que enseña cada pedido); `updateProduct` rechaza un precio negativo | Arreglado en Go; Nest sigue con el bug |
-| Después de P4 | Cualquier miembro puede cerrar la caja: `establishment:close-cash` pasa de MANAGER a STAFF y el historial (`GET …/cash-closes`) pide ese permiso en vez de `view-financials`. `POST …/cash-closes/{id}/void` deshace el último cierre que cuenta: sus pedidos vuelven a la caja abierta y el cierre se queda en el historial con `voidedAt`, `voidedById` y `voidedByName` (400 `CASH_CLOSE_NOT_LAST` si no es el último, `CASH_CLOSE_ALREADY_VOIDED` si ya estaba deshecho; 404 `CASH_CLOSE_NOT_FOUND`). `GET …/cash-closes?date=AAAA-MM-DD` da todos los cierres de ese día natural en `Europe/Madrid` (400 `INVALID_DATE` si no es un día); sin `date` siguen siendo los 60 últimos | Función nueva, solo en Go. Mientras beta siga con Nest, el personal ve la pestaña de caja pero Nest le responde 403, «Deshacer» responde 404 y Nest no lee `date`, así que cualquier día enseña los 60 últimos |
+| Después de P5 | Cualquier miembro puede cerrar la caja: `establishment:close-cash` pasa de MANAGER a STAFF y el historial (`GET …/cash-closes`) pide ese permiso en vez de `view-financials`. `POST …/cash-closes/{id}/void` deshace el último cierre que cuenta: sus pedidos vuelven a la caja abierta y el cierre se queda en el historial con `voidedAt`, `voidedById` y `voidedByName` (400 `CASH_CLOSE_NOT_LAST` si no es el último, `CASH_CLOSE_ALREADY_VOIDED` si ya estaba deshecho; 404 `CASH_CLOSE_NOT_FOUND`). `GET …/cash-closes?date=AAAA-MM-DD` da todos los cierres de ese día natural en `Europe/Madrid` (400 `INVALID_DATE` si no es un día); sin `date` siguen siendo los 60 últimos | Función nueva, solo en Go |
 
 ## Riesgos
 
@@ -216,7 +211,7 @@ Lo que Go hace distinto de Nest a propósito o porque no se ha podido copiar.
 - **Contraseñas**: argon2 en Go tiene que verificar los hashes existentes.
 - **Tokens**: mismos claims y mismo secreto, para que nadie tenga que volver a iniciar
   sesión al hacer el cambio.
-- **Migraciones**: mientras Nest sirva en algún entorno, las de goose no pueden romperlo (ver
+- **Migraciones**: mientras producción siga con Nest, las de goose no pueden romperlo (ver
   «Base de datos» en [convenciones](convenciones.md)). Los triggers de `TimeEntry` y el índice
   parcial de `ShiftExchange` están en las migraciones SQL, así que no se pierden.
   La tabla `_prisma_migrations` deja de usarse.

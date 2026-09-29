@@ -37,8 +37,8 @@ requests failing at once produce one call to the API, not five.
 
 ### Domains — `establishments/`, `establishment-members/`, `establishment-subscription/`, `admin/`, `orders/`, ...
 
-Domains mirror the backend modules (`apps/api/src`), so the front end's `establishment-subscription`
-corresponds to the API's. Each domain groups everything of its own: `data-access/` (HTTP
+Domains mirror the API's entities (`apps/coaster-api/internal`), so the front end's
+`establishment-subscription` corresponds to the API's. Each domain groups everything of its own: `data-access/` (HTTP
 repositories), `resources/` (the factories routes read data through), `services/` (writes, as a
 `Manage<Thing>` service), `mappers/` and, where relevant, `store/` (session context only),
 `guards/`, `directives/` and `dialogs/`.

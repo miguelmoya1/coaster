@@ -9,7 +9,7 @@ existed: an event reaches only the clients of the instance that raised it, the t
 memory, every guard reads Postgres. That is also the rollback — unset it and redeploy, no code
 change.
 
-The product name appears in `apps/api/src/core/cache/cache.connection.ts` and nowhere else. The rest
+The product name appears in `apps/coaster-api/internal/adapter/cache` and nowhere else. The rest
 of the codebase asks a `CacheService` to `remember` and `forget`.
 
 ## What it holds

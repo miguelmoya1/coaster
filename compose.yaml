@@ -37,30 +37,6 @@ services:
       db:
         condition: service_healthy
 
-  api:
-    build:
-      context: .
-      dockerfile: ./apps/api/Dockerfile.dev
-    ports:
-      - '3001:3000'
-    environment:
-      - PUBLIC_URL=http://localhost:3001
-      - DATABASE_URL=postgres://admin:admin@db:5432/coaster
-      - REDIS_URL=redis://redis:6379
-      - TRUST_PROXY_HOPS=0
-      - BETA_ALLOWLIST_ENABLED=${BETA_ALLOWLIST_ENABLED:-false}
-      - CORS_ORIGINS=${CORS_ORIGINS:-}
-      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
-    depends_on:
-      migrate:
-        condition: service_completed_successfully
-      redis:
-        condition: service_healthy
-    volumes:
-      - ./:/app
-      - /app/node_modules
-      - /app/apps/api/node_modules
-
   coaster-api:
     build:
       context: .

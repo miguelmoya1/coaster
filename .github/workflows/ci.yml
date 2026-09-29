@@ -34,13 +34,8 @@ jobs:
       - name: 📦 Install Dependencies
         run: npm ci
 
-      - name: 🗄️ Generate Prisma Client
-        run: npm run db:gen -w apps/api
-
-      - name: 🏗️ Build All (API, Web)
-        run: |
-          npm run build -w @coaster/api
-          npm run build -w @coaster/web
+      - name: 🏗️ Build Web
+        run: npm run build -w @coaster/web
 
       - name: 🏗️ The production bundle must build, budgets included
         working-directory: apps/web
@@ -55,9 +50,6 @@ jobs:
 
       - name: 🧪 Unit Tests
         run: npm run test
-
-      - name: 🧪 Backend E2E Tests
-        run: npm run test:e2e -w @coaster/api
 
       #      - name: 🌐 Install Playwright Browsers
       #        run: npx playwright install --with-deps
@@ -137,42 +129,11 @@ jobs:
       - name: 🧪 go test
         run: go test ./...
 
-  # Los e2e de apps/api contra el servidor Go.
-  # Como el job coaster-api, no bloquea build-and-test ni el despliegue.
-  coaster-api-e2e:
-    name: 🐹 e2e contra Go
-    runs-on: ubuntu-latest
-    steps:
-      - name: 📥 Checkout code
-        uses: actions/checkout@v4
-
-      - name: 🟢 Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 26
-          cache: 'npm'
-
-      - name: 🐹 Setup Go
-        uses: actions/setup-go@v5
-        with:
-          go-version-file: apps/coaster-api/go.mod
-          cache-dependency-path: |
-            apps/coaster-api/go.sum
-            apps/database/go.sum
-
-      - name: 📦 Install Dependencies
-        run: npm ci
-
-      - name: 🗄️ Generate Prisma Client
-        run: npm run db:gen -w apps/api
-
-      - name: 🧪 e2e contra Go
-        run: apps/coaster-api/scripts/e2e-go.sh
-
-  # database is here so no migration reaches beta or production before its tests pass.
+  # database and coaster-api are here so no migration and no API reach beta or production
+  # before their tests pass.
   deploy-backend:
     name: 🚀 Deploy Backend & Migrate DB
-    needs: [build-and-test, database]
+    needs: [build-and-test, database, coaster-api]
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     environment: ${{ github.ref_name == 'main' && 'api-production' || 'api-beta' }}
@@ -293,7 +254,7 @@ jobs:
 
       - name: 🛠️ Build & Push Docker Images
         run: |
-          docker build -t ${{ env.GCP_IMAGE_NAME }}:${{ github.sha }} -f apps/api/Dockerfile .
+          docker build -t ${{ env.GCP_IMAGE_NAME }}:${{ github.sha }} -f apps/coaster-api/Dockerfile .
           docker push ${{ env.GCP_IMAGE_NAME }}:${{ github.sha }}
           docker build -t ${{ env.GCP_DATABASE_IMAGE_NAME }}:${{ github.sha }} -f apps/database/Dockerfile .
           docker push ${{ env.GCP_DATABASE_IMAGE_NAME }}:${{ github.sha }}

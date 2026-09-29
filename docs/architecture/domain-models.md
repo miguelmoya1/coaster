@@ -14,8 +14,7 @@ What the API and the front end need to agree on lives in the web, next to the do
 
 The Go API has its own types and must answer those shapes. Its tests compare the error codes, the
 permission table and the realtime event names with these files, so a change on one side without the
-other fails the build. NestJS keeps a frozen copy of the old shared package in `apps/api/src/common`
-until it is removed.
+other fails the build.
 
 `ErrorCodes` deserves a note: every value must have a translation in both `es.json` and `en.json`,
 and a test fails the build if one is missing. Adding an error code without a message would surface
