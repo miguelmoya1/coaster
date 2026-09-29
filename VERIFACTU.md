@@ -732,43 +732,37 @@ se han movido varias veces.
 
 ## 14. Paquetes de trabajo
 
+El esquema de la sección 2 y el desglose de IVA de la sección 3 ya están en el repo; lo que queda
+son estos paquetes.
+
 ```text
-                        [ W0 · Schema + identidad fiscal ]
-                                      │
-        ┌──────────┬──────────┬───────┴───────┬──────────┬──────────┐
-        ▼          ▼          ▼               ▼          ▼          ▼
-     [ W1 ]     [ W2 ]     [ W4 ]          [ W5 ]     [ W6 ]     [ W9 ]
-      IVA       cadena     QR en Go       anulacs.    arqueo Z   XML+XSD
-        └──────────┘                                                │
-             ▼                                                      │
-          [ W3 ] ticket en servidor                                 │
-             │                                                      │
-        ┌────┴────┐                                                 │
-        ▼         ▼                                                 ▼
-     [ W7 ]    [ W8 ]                                           [ W10 ]
-    F1+canje    PDF                                          SOAP + mTLS
-    rectific.                                          ← bloqueado por certificado
+       [ W2 ] cadena        [ W4 ] QR en Go    [ W5 ] anulaciones    [ W6 ] arqueo Z
+          │
+   ┌──────┼──────────┬──────────┐
+   ▼      ▼          ▼          ▼
+[ W3 ]  [ W7 ]     [ W8 ]     [ W9 ] XML+XSD
+ticket  F1+canje    PDF          │
+        rectific.                ▼
+                              [ W10 ] SOAP + mTLS
+                              ← bloqueado por certificado
 ```
 
-| #   | Paquete                                                                                                                     | Depende de       | Notas                                                                                                                                 |
-| --- | --------------------------------------------------------------------------------------------------------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| W0  | ~~Migración única: identidad fiscal, `taxRate`, `DbInvoice`, `DbInvoiceTaxLine`, `DbOrderAuditLog`~~ **Hecho** (2026-08-25) | —                | Salió entera, más `icon` en `DbProduct` y `productNameAtPurchase` en `DbOrderItem`. El backfill del nombre va dentro de la migración. |
-| W1  | ~~Desglose de IVA y prorrateo en `OrderPricingEngine`, más el IVA editable en categoría y producto~~ **Hecho** (2026-08-25) | W0               | Sección 3. Funciones puras, con tests de tabla. El tipo vive en la categoría y el producto lo pisa si hace falta.                     |
-| W2  | Cadena de huellas y correlativo por serie                                                                                   | W0               | Sección 4. Calca `time-entry-chain`.                                                                                                  |
-| W3  | Construcción del ticket en la API                                                                                           | W1, W2           | Sección 7.A.                                                                                                                          |
-| W4  | `GS ( k` en el renderer Go                                                                                                  | —                | Sección 7.C. Otro lenguaje, aislado del resto.                                                                                        |
-| W5  | Anulación de comandas: PIN, motivo, auditoría                                                                               | W0               | Sección 9.                                                                                                                            |
-| W6  | Cierre de caja                                                                                                              | W0, W1           | Sección 10.                                                                                                                           |
-| W7  | F1 directa, canje, rectificativas, anulación fiscal                                                                         | W2               | Sección 6.                                                                                                                            |
-| W8  | PDF desde `DbInvoice`                                                                                                       | W2               | Sección 7.D.                                                                                                                          |
-| W9  | Constructor de XML validado contra XSD y contra las validaciones publicadas                                                 | W1, W2           | Secciones 2.G, 8.B y 15. **Sin certificado.**                                                                                         |
-| W10 | Transporte SOAP, mTLS, despacho y reintentos                                                                                | W9 + certificado | Sección 8.C y 8.D.                                                                                                                    |
+| #   | Paquete                                                                     | Depende de       | Notas                                         |
+| --- | --------------------------------------------------------------------------- | ---------------- | --------------------------------------------- |
+| W2  | Cadena de huellas y correlativo por serie                                   | —                | Sección 4. Calca `time-entry-chain`.          |
+| W3  | Construcción del ticket en la API                                           | W2               | Sección 7.A.                                  |
+| W4  | `GS ( k` en el renderer Go                                                  | —                | Sección 7.C. Otro lenguaje, aislado del resto. |
+| W5  | Anulación de comandas: PIN, motivo, auditoría                               | —                | Sección 9.                                    |
+| W6  | Cierre de caja                                                              | —                | Sección 10.                                   |
+| W7  | F1 directa, canje, rectificativas, anulación fiscal                         | W2               | Sección 6.                                    |
+| W8  | PDF desde `DbInvoice`                                                       | W2               | Sección 7.D.                                  |
+| W9  | Constructor de XML validado contra XSD y contra las validaciones publicadas | W2               | Secciones 2.G, 8.B y 15. **Sin certificado.** |
+| W10 | Transporte SOAP, mTLS, despacho y reintentos                                | W9 + certificado | Sección 8.C y 8.D.                            |
 
-W1, W2, W4, W5, W6 y W9 arrancan a la vez en cuanto W0 esté en `main`. No comparten ficheros.
+W2, W4, W5 y W6 arrancan a la vez. No comparten ficheros.
 
-Todo lo que hay entre W0 y W8 tiene valor por sí solo aunque Veri*factu no llegara nunca: desglose
-de IVA en el ticket, número de factura, QR, PDF, arqueo y trazabilidad de anulaciones. Solo W9 y W10
-son específicos de la AEAT.
+Todo lo que hay hasta W8 tiene valor por sí solo aunque Veri*factu no llegara nunca: número de
+factura, QR, PDF, arqueo y trazabilidad de anulaciones. Solo W9 y W10 son específicos de la AEAT.
 
 ## 15. Fuentes
 

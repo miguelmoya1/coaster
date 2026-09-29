@@ -77,23 +77,10 @@ internal/
 
 ## Estado
 
-Actualizar esta tabla al terminar cada paquete.
-
-| Paquete | Estado | Qué hay |
-|---|---|---|
-| P0 Base | ✅ Hecho | Esqueleto, config, pool de pgx, contrato HTTP de Nest (errores, 404, validación), cabeceras, CORS, gzip, `/public/`, bus de eventos, Dockerfile, compose y CI |
-| P1 Auth y permisos | ✅ Hecho | `/auth` y `/account`, JWT, sesiones con rotación y detección de reutilización, Google, argon2 compatible con `@node-rs/argon2`, guard de rutas, caché y rate limit en Redis con respaldo en memoria, bloqueo de login y Have I Been Pwned |
-| P2a Catálogo | ✅ Hecho | Categorías, productos, catálogo inicial, carta (borrador, publicar, carta pública) y subidas a GCS |
-| P2b Locales y personas | ✅ Hecho | Locales y sus ajustes, usuarios, miembros e invitaciones, y el backoffice de admin con su auditoría |
-| P2c Turnos y fichajes | ✅ Hecho | Turnos, intercambios, fichajes con cadena de hashes, jornadas, hoja de horas, CSV e integridad |
-| P2d Pedidos | ✅ Hecho | Pedidos, mesas, impresoras, cierres de caja y estadísticas |
-| P2e Cobros | ✅ Hecho | Stripe (Checkout, portal, webhook y asientos) y emails con Resend |
-| P2f Realtime | ✅ Hecho | SSE con replay y bus en Redis compatible con Nest |
-| P3 IA | ✅ Hecho | AI Gateway con openai-go, bucle de herramientas, las 40 herramientas y la cuota. **Pendiente de Miguel**: confirmar los modelos de respaldo |
-| P4 Arnés e2e | ✅ Hecho | Los 22 directorios de `apps/api/test` pasan contra Go (`scripts/e2e-go.sh` y el job `coaster-api-e2e`) |
-| Bugs de Nest | ✅ Hecho | Los «posibles bugs» de Nest están arreglados en Go (ver «Diferencias conocidas»); no queda ninguno copiado tal cual |
-| Limpieza | ✅ Hecho | 28-sep-2026. `api-go` pasa a `coaster-api`, eventos tipados, sin código repetido, `httpapi` y `respond`, y esta documentación |
-| P5 Salida | ⬜ Pendiente | |
+Todo menos P5 está hecho desde el 28 de septiembre de 2026: Go responde las 124 rutas de Nest con
+los mismos permisos, códigos y cuerpos, los 22 directorios de `apps/api/test` pasan contra él y lo
+que hace distinto está en «Diferencias conocidas». Aquí solo se apunta lo que falta; lo hecho queda
+en git.
 
 ## Siguiente paso
 

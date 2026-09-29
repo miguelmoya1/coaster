@@ -34,5 +34,5 @@ siendo la API en producción y la **referencia de comportamiento** hasta el camb
   conocidas» de `MIGRACION.md`.
 - **Todo va a `dev`, sin ramas**, en commits pequeños. Cada push a `dev` despliega `api-beta`:
   se empuja cuando el cambio está entero.
-- **Al terminar un paquete**, actualizar la tabla de estado y el siguiente paso de `MIGRACION.md`,
-  y `CONVENCIONES.md` si cambia cómo se hace algo.
+- **Al terminar algo**, quitarlo del «Siguiente paso» de `MIGRACION.md` (lo hecho no se apunta:
+  queda en git) y actualizar `CONVENCIONES.md` si cambia cómo se hace algo.

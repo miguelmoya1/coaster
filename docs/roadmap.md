@@ -84,6 +84,21 @@ See [the assistant](architecture/assistant.md).
 
 See [printing bridge](architecture/printing-bridge.md).
 
+### Own accounts
+
+Firebase is gone from the code since 9 September 2026; switching it off is in `TODO.md`.
+
+- Email and password (Argon2id), and Google as an identity linked to the same person, verified by
+  ID token against Google's published keys. Accounts are matched by verified email, so the old
+  Firebase users land on their own record without a data migration.
+- A 15-minute access JWT as `Bearer`, and an opaque refresh token in an `httpOnly` cookie, rotated
+  on every use, sliding to 30 days and hashed, with reuse detection per family.
+- One `AuthToken` table for email verification, password reset and invitations, and four emails on
+  one template. Where somebody is waiting for the email, a sending failure shows.
+- Per-address lockout after ten failed logins in fifteen minutes (keyed by the sha256 of the
+  address), Have I Been Pwned with k-anonymity that lets the password through if the service is
+  down, and an `AuthEvent` log of every sign-in, failure and credential change.
+
 ### Two environments
 
 - `main` is production, `dev` is beta on `beta.coaster.business`, from one workflow and one image.
