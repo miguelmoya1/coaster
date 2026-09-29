@@ -12,28 +12,29 @@ The simplest thing that works is to run all of it in containers:
 docker compose up
 ```
 
-That brings up Postgres, Redis, the API on `:3000`, the web app on `:4200` and the Stripe CLI
-forwarding webhooks. The API container applies the pending migrations before it starts serving, so
-an empty database —a first checkout, or a dropped volume— comes up with its schema on its own. To
-run an application on the host instead, start the infrastructure it needs and then the app:
+That brings up Postgres, Redis, the Go API on `:3000`, the web app on `:4200` and the Stripe CLI
+forwarding webhooks to the Go API. The NestJS API comes up too, on `:3001`, until it is removed;
+nothing points at it. A one-shot `migrate` service applies the pending migrations before either API
+starts, so an empty database —a first checkout, or a dropped volume— comes up with its schema on its
+own. To run an application on the host instead, start the infrastructure it needs and then the app:
 
 ```sh
 # Start local infrastructure
 docker compose up db redis
 
 # Apply the migrations: nothing on the host does it for you
-cd apps/api && npx prisma migrate deploy && cd -
+docker compose run --rm migrate
 
-# Run the Backend API
-npm run dev:api
+# Run the Backend API (Go, on :3000)
+apps/coaster-api/scripts/dev.sh
 
 # Run the Frontend App
 npm run dev:web
 ```
 
 An API talking to a database with no tables in it looks like broken code rather than a missing
-schema: every request dies on Prisma and the browser is told `Internal server error`, the login
-included. If that is what you are seeing, that is the first thing to check.
+schema: every request dies on the database and the browser is told `Internal server error`, the
+login included. If that is what you are seeing, that is the first thing to check.
 
 `redis` is optional. With `REDIS_URL` unset the application behaves exactly as it did before the
 cache existed: every guard reads Postgres, the rate limit counts per process, and realtime events

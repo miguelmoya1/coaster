@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Crea apps/coaster-api/.env para lanzar la API en Go en el anfitrión (scripts/dev.sh), con las
 # variables que Go lee sacadas del .env de Nest (apps/api/.env, y el de la raíz si existe) y
-# lo que cambia para Go: puerto 3001, public de apps/api y NODE_ENV=development.
+# lo que cambia para Go: puerto 3000, public de apps/api y NODE_ENV=development.
 # Si apps/coaster-api/.env ya existe, lo vuelve a escribir.
 set -euo pipefail
 
@@ -49,9 +49,9 @@ missing=()
   echo "# Generado por apps/coaster-api/scripts/env-local.sh a partir de apps/api/.env."
   echo "# Para lanzar Go en el anfitrión: apps/coaster-api/scripts/dev.sh"
   echo "NODE_ENV='development'"
-  echo "PORT='3001'"
+  echo "PORT='3000'"
   echo "PUBLIC_DIR=$(quote "$root/apps/api/public")"
-  echo "PUBLIC_URL='http://localhost:3001'"
+  echo "PUBLIC_URL='http://localhost:3000'"
 
   while IFS=$'\t' read -r key value; do
     if [ "$key" = "DATABASE_URL" ] && [ -z "$value" ]; then

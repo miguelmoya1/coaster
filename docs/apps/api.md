@@ -13,13 +13,15 @@ The architecture — modules, aliases, layering, the guards, the runtime — is 
 The API is meant to run in its container, alongside the database:
 
 ```bash
-docker compose up db api
+docker compose up api
 ```
 
+It listens on `:3001`: the `:3000` belongs to the Go API that replaces it
+([coaster-api](coaster-api/README.md)), and the web app and the Stripe CLI talk to that one.
 `npm run dev:api` from the repository root starts it on the host instead, in which case
 `DATABASE_URL` has to point somewhere real.
 
-Swagger is at `http://localhost:3000/api/docs`, **outside production only**. Every route is under
+Swagger is at `http://localhost:3001/api/docs`, **outside production only**. Every route is under
 `/api/v1`.
 
 ## Commands

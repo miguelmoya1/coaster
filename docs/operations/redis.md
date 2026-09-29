@@ -113,18 +113,19 @@ decision: expiry is still evaluated against `new Date()` on every request.
 `compose.yaml` runs it with no volume and no persistence (`--save '' --appendonly no`): everything
 inside is either a cache or ephemeral pub/sub, so a restart costs a repopulation and a reconnect.
 
-To reproduce the multi-instance behaviour there is a second API container behind a profile:
+To reproduce the multi-instance behaviour, start a second Go API next to the one `docker compose up`
+runs:
 
 ```bash
-docker compose --profile cluster up
+docker compose run --rm --publish 3002:8080 coaster-api
 ```
 
-That gives `:3000` and `:3001` against the same database and the same cache. Both should log
+That gives `:3000` and `:3002` against the same database and the same cache. Both should log
 `Events are shared across instances` at boot. Open a stream against each, write through `:3000`, and
-the client on `:3001` has to hear it:
+the client on `:3002` has to hear it:
 
 ```bash
-curl -N -H "Authorization: Bearer $TOKEN" http://localhost:3001/api/v1/establishments/$ID/events
+curl -N -H "Authorization: Bearer $TOKEN" http://localhost:3002/api/v1/establishments/$ID/events
 ```
 
 Stop the cache (`docker compose stop redis`) and the same test must show the event staying local

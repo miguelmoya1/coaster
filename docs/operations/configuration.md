@@ -44,5 +44,6 @@ repository root, which is also the one `docker compose` reads — see [web](../a
 | `PWNED_PASSWORDS_ENABLED`                    | Only `false` turns the Have I Been Pwned check off; unset leaves it on, and a service that will not answer lets the password through                                                                 |
 
 Migrations are **not** run by the production image. The CI deploy applies them with
-`prisma migrate deploy` in a Cloud Run job before the new revision; the dev container runs it before
-the dev server, so a local database is never a step behind the checkout.
+`prisma migrate deploy` in a Cloud Run job before the new revision; locally the `migrate` service of
+`compose.yaml` runs it before either API starts, so a local database is never a step behind the
+checkout.
