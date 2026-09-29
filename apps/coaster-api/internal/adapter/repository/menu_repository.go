@@ -216,19 +216,8 @@ func findMenu(ctx context.Context, db menuReader, query string, arg string) (*do
 		return nil, err
 	}
 
-	sectionRows, err := db.Query(ctx, menuSectionsOfQuery, menu.ID)
-	if err != nil {
-		return nil, err
-	}
-
 	var sectionIDs []string
-	menu.Sections, err = pgx.CollectRows(sectionRows, func(row pgx.CollectableRow) (domain.MenuSection, error) {
-		var id string
-		var section domain.MenuSection
-		err := row.Scan(&id, &section.Translations)
-		sectionIDs = append(sectionIDs, id)
-		return section, err
-	})
+	menu.Sections, sectionIDs, err = menuSections(ctx, db, menu.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -237,16 +226,7 @@ func findMenu(ctx context.Context, db menuReader, query string, arg string) (*do
 		return &menu, nil
 	}
 
-	itemRows, err := db.Query(ctx, menuItemsOfQuery, sectionIDs)
-	if err != nil {
-		return nil, err
-	}
-
-	items, err := pgx.CollectRows(itemRows, func(row pgx.CollectableRow) (menuItemRow, error) {
-		var read menuItemRow
-		err := row.Scan(&read.sectionID, &read.item.ProductID, &read.item.Price, &read.item.IsVisible, &read.item.Translations)
-		return read, err
-	})
+	items, err := menuItems(ctx, db, sectionIDs)
 	if err != nil {
 		return nil, err
 	}
@@ -256,6 +236,41 @@ func findMenu(ctx context.Context, db menuReader, query string, arg string) (*do
 		return nil, err
 	}
 
+	placeItems(menu.Sections, sectionIDs, items, products)
+	return &menu, nil
+}
+
+func menuSections(ctx context.Context, db menuReader, menuID string) ([]domain.MenuSection, []string, error) {
+	rows, err := db.Query(ctx, menuSectionsOfQuery, menuID)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var ids []string
+	sections, err := pgx.CollectRows(rows, func(row pgx.CollectableRow) (domain.MenuSection, error) {
+		var id string
+		var section domain.MenuSection
+		err := row.Scan(&id, &section.Translations)
+		ids = append(ids, id)
+		return section, err
+	})
+	return sections, ids, err
+}
+
+func menuItems(ctx context.Context, db menuReader, sectionIDs []string) ([]menuItemRow, error) {
+	rows, err := db.Query(ctx, menuItemsOfQuery, sectionIDs)
+	if err != nil {
+		return nil, err
+	}
+
+	return pgx.CollectRows(rows, func(row pgx.CollectableRow) (menuItemRow, error) {
+		var read menuItemRow
+		err := row.Scan(&read.sectionID, &read.item.ProductID, &read.item.Price, &read.item.IsVisible, &read.item.Translations)
+		return read, err
+	})
+}
+
+func placeItems(sections []domain.MenuSection, sectionIDs []string, items []menuItemRow, products map[string]*domain.MenuProduct) {
 	for i, sectionID := range sectionIDs {
 		for _, read := range items {
 			if read.sectionID != sectionID {
@@ -266,11 +281,9 @@ func findMenu(ctx context.Context, db menuReader, query string, arg string) (*do
 			if item.ProductID != nil {
 				item.Product = products[*item.ProductID]
 			}
-			menu.Sections[i].Items = append(menu.Sections[i].Items, item)
+			sections[i].Items = append(sections[i].Items, item)
 		}
 	}
-
-	return &menu, nil
 }
 
 type menuItemRow struct {

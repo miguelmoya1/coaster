@@ -1,6 +1,7 @@
 package service
 
 import (
+	"cmp"
 	"context"
 	"log/slog"
 
@@ -99,13 +100,7 @@ func (s *SubscriptionService) checkoutState(ctx context.Context, customerID, sub
 		snapshot.StripeSubscriptionID = &subscriptionID
 	}
 
-	return domain.SubscriptionUpsert{
-		Plan:                 snapshot.Plan,
-		Status:               snapshot.Status,
-		StripeCustomerID:     customerID,
-		StripeSubscriptionID: snapshot.StripeSubscriptionID,
-		Billing:              &snapshot.Billing,
-	}, nil
+	return snapshot.Upsert(customerID), nil
 }
 
 func (s *SubscriptionService) cancelIfDuplicate(ctx context.Context, establishmentID, incomingID string) (bool, error) {
@@ -151,15 +146,9 @@ func (s *SubscriptionService) subscriptionChanged(ctx context.Context, subscript
 		return domain.Internal(domain.CodeStripeWebhookCustomerMissing)
 	}
 
-	existing, err := s.repo.FindByStripeSubscriptionID(ctx, subscription.ID)
+	existing, err := s.subscriptionOfStripe(ctx, subscription)
 	if err != nil {
 		return err
-	}
-	if existing == nil {
-		existing, err = s.repo.FindByStripeCustomerID(ctx, subscription.CustomerID)
-		if err != nil {
-			return err
-		}
 	}
 
 	establishmentID := subscription.Metadata["establishmentId"]
@@ -172,39 +161,55 @@ func (s *SubscriptionService) subscriptionChanged(ctx context.Context, subscript
 		return nil
 	}
 
-	if existing.HasStripeSubscription() && *existing.StripeSubscriptionID != subscription.ID {
-		tracked, err := s.payments.RetrieveSubscription(ctx, *existing.StripeSubscriptionID)
-		if err != nil {
-			return err
-		}
-
-		if tracked != nil && tracked.IsLive() {
-			slog.Warn("ignoring an event for an untracked subscription",
-				"establishmentId", establishmentID, "subscriptionId", subscription.ID, "liveId", *existing.StripeSubscriptionID)
-			return nil
-		}
-	}
-
-	snapshot := s.billing.snapshot(subscription)
-
-	err = s.repo.Upsert(ctx, establishmentID, domain.SubscriptionUpsert{
-		Plan:                 snapshot.Plan,
-		Status:               snapshot.Status,
-		StripeCustomerID:     subscription.CustomerID,
-		StripeSubscriptionID: snapshot.StripeSubscriptionID,
-		Billing:              &snapshot.Billing,
-	})
+	untracked, err := s.tracksAnotherLiveSubscription(ctx, existing, subscription.ID)
 	if err != nil {
 		return err
 	}
+	if untracked {
+		slog.Warn("ignoring an event for an untracked subscription",
+			"establishmentId", establishmentID, "subscriptionId", subscription.ID, "liveId", *existing.StripeSubscriptionID)
+		return nil
+	}
 
+	snapshot := s.billing.snapshot(subscription)
+	if err := s.repo.Upsert(ctx, establishmentID, snapshot.Upsert(subscription.CustomerID)); err != nil {
+		return err
+	}
+
+	s.publishSubscriptionChange(ctx, establishmentID, subscription, snapshot)
+	return nil
+}
+
+func (s *SubscriptionService) subscriptionOfStripe(ctx context.Context, subscription *domain.StripeSubscription) (*domain.EstablishmentSubscription, error) {
+	existing, err := s.repo.FindByStripeSubscriptionID(ctx, subscription.ID)
+	if err != nil || existing != nil {
+		return existing, err
+	}
+
+	return s.repo.FindByStripeCustomerID(ctx, subscription.CustomerID)
+}
+
+func (s *SubscriptionService) tracksAnotherLiveSubscription(ctx context.Context, existing *domain.EstablishmentSubscription, incomingID string) (bool, error) {
+	if !existing.HasStripeSubscription() || *existing.StripeSubscriptionID == incomingID {
+		return false, nil
+	}
+
+	tracked, err := s.payments.RetrieveSubscription(ctx, *existing.StripeSubscriptionID)
+	if err != nil {
+		return false, err
+	}
+
+	return tracked != nil && tracked.IsLive(), nil
+}
+
+func (s *SubscriptionService) publishSubscriptionChange(ctx context.Context, establishmentID string, subscription *domain.StripeSubscription, snapshot domain.SubscriptionSnapshot) {
 	if snapshot.IsCancellation {
 		s.events.Publish(ctx, domain.SubscriptionCancelledEvent{
 			EstablishmentID:      establishmentID,
 			StripeSubscriptionID: subscription.ID,
 			CanceledAt:           snapshot.Billing.CanceledAt,
 		})
-		return nil
+		return
 	}
 
 	if subscription.Status == domain.StripeStatusActive || subscription.Status == domain.StripeStatusTrialing {
@@ -214,8 +219,6 @@ func (s *SubscriptionService) subscriptionChanged(ctx context.Context, subscript
 			CurrentPeriodEnd:     snapshot.Billing.CurrentPeriodEnd,
 		})
 	}
-
-	return nil
 }
 
 func (s *SubscriptionService) invoicePaid(ctx context.Context, invoice *domain.StripeInvoice) error {
@@ -257,11 +260,7 @@ func (s *SubscriptionService) invoicePaymentFailed(ctx context.Context, invoice 
 		return err
 	}
 
-	customerID := invoice.CustomerID
-	if customerID == "" && existing.StripeCustomerID != nil {
-		customerID = *existing.StripeCustomerID
-	}
-
+	customerID := cmp.Or(invoice.CustomerID, existing.CustomerID())
 	s.events.Publish(ctx, domain.SubscriptionPaymentFailedEvent{EstablishmentID: existing.EstablishmentID, StripeCustomerID: customerID})
 	return nil
 }

@@ -1,6 +1,7 @@
 package service
 
 import (
+	"cmp"
 	"context"
 	"math"
 	"slices"
@@ -347,15 +348,30 @@ func (s *TimeEntryService) Workdays(ctx context.Context, establishmentID, from, 
 	if userID != "" {
 		shifts = slices.DeleteFunc(shifts, func(shift domain.Shift) bool { return shift.UserID != userID })
 	}
-	plannedKeys, planned := plannedByDay(shifts)
 
-	var dayKeys []string
+	plannedKeys, planned := plannedByDay(shifts)
+	dayKeys, days := workdayGroups(rows, plannedKeys, planned, from, to)
+
+	now := s.now()
+	workdays := make([]domain.Workday, 0, len(dayKeys))
+	for _, key := range dayKeys {
+		workdays = append(workdays, buildWorkday(days[key], planned[key], now))
+	}
+
+	slices.SortStableFunc(workdays, func(a, b domain.Workday) int {
+		return cmp.Or(strings.Compare(b.Date, a.Date), compareNames(a.UserName, b.UserName))
+	})
+	return workdays, nil
+}
+
+func workdayGroups(rows []domain.TimeEntryRow, plannedKeys []string, planned map[string]*plannedDay, from, to string) ([]string, map[string][]domain.TimeEntry) {
+	var keys []string
 	days := make(map[string][]domain.TimeEntry)
 
 	for _, entry := range domain.GroupByRoot(rows) {
 		key := entry.UserID + "|" + entry.WorkdayDate
 		if _, found := days[key]; !found {
-			dayKeys = append(dayKeys, key)
+			keys = append(keys, key)
 		}
 		days[key] = append(days[key], entry)
 	}
@@ -363,66 +379,45 @@ func (s *TimeEntryService) Workdays(ctx context.Context, establishmentID, from, 
 	for _, key := range plannedKeys {
 		shift := planned[key]
 		if _, found := days[key]; !found && shift.date >= from && shift.date <= to {
-			dayKeys = append(dayKeys, key)
+			keys = append(keys, key)
 			days[key] = []domain.TimeEntry{}
 		}
 	}
 
-	now := s.now()
-	workdays := make([]domain.Workday, 0, len(dayKeys))
-
-	for _, key := range dayKeys {
-		entries := days[key]
-		marks := domain.ToClockMarks(entries)
-		shift := planned[key]
-
-		totals, ok := domain.SummariseWorkday(marks, now)
-		if !ok {
-			totals = domain.WorkdayTotals{State: domain.ClockOut}
-		}
-
-		workday := domain.Workday{
-			State:         totals.State,
-			WorkedMinutes: totals.WorkedMinutes,
-			BreakMinutes:  totals.BreakMinutes,
-			Entries:       entries,
-		}
-
-		if len(entries) > 0 {
-			workday.Date = entries[0].WorkdayDate
-			workday.UserID = entries[0].UserID
-			workday.UserName = entries[0].UserName
-		} else {
-			workday.Date = shift.date
-			workday.UserID = shift.userID
-			workday.UserName = shift.userName
-		}
-
-		var plannedShift *domain.PlannedShift
-		if shift != nil {
-			plannedShift = &shift.PlannedShift
-			minutes := shift.Minutes
-			start := domain.NewTime(shift.StartsAt)
-			end := domain.NewTime(shift.EndsAt)
-			workday.PlannedMinutes = &minutes
-			workday.PlannedStart = &start
-			workday.PlannedEnd = &end
-		}
-
-		workday.Discrepancies = domain.FindDiscrepancies(marks, plannedShift, totals.WorkedMinutes)
-		workdays = append(workdays, workday)
-	}
-
-	slices.SortStableFunc(workdays, func(a, b domain.Workday) int {
-		if byDate := strings.Compare(b.Date, a.Date); byDate != 0 {
-			return byDate
-		}
-		return compareNames(a.UserName, b.UserName)
-	})
-
-	return workdays, nil
+	return keys, days
 }
 
+func buildWorkday(entries []domain.TimeEntry, shift *plannedDay, now time.Time) domain.Workday {
+	marks := domain.ToClockMarks(entries)
+	totals, ok := domain.SummariseWorkday(marks, now)
+	if !ok {
+		totals = domain.WorkdayTotals{State: domain.ClockOut}
+	}
+
+	workday := domain.Workday{
+		State:         totals.State,
+		WorkedMinutes: totals.WorkedMinutes,
+		BreakMinutes:  totals.BreakMinutes,
+		Entries:       entries,
+	}
+
+	if len(entries) > 0 {
+		workday.Date, workday.UserID, workday.UserName = entries[0].WorkdayDate, entries[0].UserID, entries[0].UserName
+	} else {
+		workday.Date, workday.UserID, workday.UserName = shift.date, shift.userID, shift.userName
+	}
+
+	var plannedShift *domain.PlannedShift
+	if shift != nil {
+		plannedShift = &shift.PlannedShift
+		workday.PlannedMinutes = new(shift.Minutes)
+		workday.PlannedStart = new(domain.NewTime(shift.StartsAt))
+		workday.PlannedEnd = new(domain.NewTime(shift.EndsAt))
+	}
+
+	workday.Discrepancies = domain.FindDiscrepancies(marks, plannedShift, totals.WorkedMinutes)
+	return workday
+}
 func compareNames(a, b string) int {
 	if byLower := strings.Compare(strings.ToLower(a), strings.ToLower(b)); byLower != 0 {
 		return byLower

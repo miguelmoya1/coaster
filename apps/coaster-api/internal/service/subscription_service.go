@@ -142,35 +142,8 @@ func (s *SubscriptionService) CreateCheckoutSession(ctx context.Context, establi
 	}
 
 	now := s.now()
-	hasStripeSubscription := existing.HasStripeSubscription()
-	isCanceled := existing != nil && existing.Status == domain.SubscriptionCanceled
-	isPendingCancellation := isCanceled && existing.CurrentPeriodEnd != nil && !now.After(*existing.CurrentPeriodEnd)
-	isTerminalCancellation := isCanceled && !isPendingCancellation
-
-	if hasStripeSubscription && !isTerminalCancellation {
-		remote, err := s.payments.RetrieveSubscription(ctx, *existing.StripeSubscriptionID)
-		if err != nil {
-			return domain.CheckoutSession{}, err
-		}
-
-		if remote != nil {
-			if isPendingCancellation {
-				slog.Warn("the establishment has a subscription pending cancellation", "establishmentId", establishmentID)
-				return domain.CheckoutSession{}, domain.BadRequest(domain.CodeStripeSubscriptionPendingCancellation)
-			}
-
-			slog.Warn("the establishment already has a Stripe subscription",
-				"establishmentId", establishmentID, "subscriptionId", *existing.StripeSubscriptionID)
-			return domain.CheckoutSession{}, domain.BadRequest(domain.CodeStripeSubscriptionAlreadyExists)
-		}
-
-		slog.Warn("ignoring a stale Stripe subscription reference",
-			"establishmentId", establishmentID, "subscriptionId", *existing.StripeSubscriptionID)
-	}
-
-	if isPendingCancellation && !hasStripeSubscription {
-		slog.Warn("the establishment has a subscription pending cancellation", "establishmentId", establishmentID)
-		return domain.CheckoutSession{}, domain.BadRequest(domain.CodeStripeSubscriptionPendingCancellation)
+	if err := s.checkCanCheckout(ctx, establishmentID, existing, now); err != nil {
+		return domain.CheckoutSession{}, err
 	}
 
 	priceID, err := s.billing.priceID(plan)
@@ -186,11 +159,6 @@ func (s *SubscriptionService) CreateCheckoutSession(ctx context.Context, establi
 	bucket := checkoutBucket(now)
 	idempotencyKey := fmt.Sprintf("checkout:%s:%s:%d:%d", establishmentID, plan, seats, bucket)
 
-	customerID := ""
-	if existing != nil && existing.StripeCustomerID != nil {
-		customerID = *existing.StripeCustomerID
-	}
-
 	session, err := s.payments.CreateCheckoutSession(ctx, domain.CheckoutRequest{
 		SuccessURL:            s.billing.checkoutSuccessURL(establishmentID),
 		CancelURL:             s.billing.checkoutCancelURL(establishmentID),
@@ -200,7 +168,7 @@ func (s *SubscriptionService) CreateCheckoutSession(ctx context.Context, establi
 		ExpiresAt:             checkoutExpiry(bucket),
 		IntegrationIdentifier: integrationIdentifier(idempotencyKey),
 		Metadata:              map[string]string{"establishmentId": establishmentID, "plan": string(plan)},
-		CustomerID:            customerID,
+		CustomerID:            existing.CustomerID(),
 		IdempotencyKey:        idempotencyKey,
 	})
 	if err != nil {
@@ -215,18 +183,56 @@ func (s *SubscriptionService) CreateCheckoutSession(ctx context.Context, establi
 	return domain.CheckoutSession{ID: session.ID, URL: session.URL}, nil
 }
 
+func (s *SubscriptionService) checkCanCheckout(ctx context.Context, establishmentID string, existing *domain.EstablishmentSubscription, now time.Time) error {
+	pendingCancellation := existing.PendingCancellation(now)
+	if !existing.HasStripeSubscription() {
+		if pendingCancellation {
+			return pendingCancellationError(establishmentID)
+		}
+		return nil
+	}
+
+	if existing.Status == domain.SubscriptionCanceled && !pendingCancellation {
+		return nil
+	}
+
+	remote, err := s.payments.RetrieveSubscription(ctx, *existing.StripeSubscriptionID)
+	if err != nil {
+		return err
+	}
+
+	if remote == nil {
+		slog.Warn("ignoring a stale Stripe subscription reference",
+			"establishmentId", establishmentID, "subscriptionId", *existing.StripeSubscriptionID)
+		return nil
+	}
+
+	if pendingCancellation {
+		return pendingCancellationError(establishmentID)
+	}
+
+	slog.Warn("the establishment already has a Stripe subscription",
+		"establishmentId", establishmentID, "subscriptionId", *existing.StripeSubscriptionID)
+	return domain.BadRequest(domain.CodeStripeSubscriptionAlreadyExists)
+}
+
+func pendingCancellationError(establishmentID string) error {
+	slog.Warn("the establishment has a subscription pending cancellation", "establishmentId", establishmentID)
+	return domain.BadRequest(domain.CodeStripeSubscriptionPendingCancellation)
+}
+
 func (s *SubscriptionService) CreateCustomerPortalSession(ctx context.Context, establishmentID string) (domain.PortalSession, error) {
 	subscription, err := s.repo.FindByEstablishmentID(ctx, establishmentID)
 	if err != nil {
 		return domain.PortalSession{}, err
 	}
 
-	if subscription == nil || subscription.StripeCustomerID == nil || *subscription.StripeCustomerID == "" {
+	storedCustomerID := subscription.CustomerID()
+	if storedCustomerID == "" {
 		slog.Warn("no Stripe customer for the customer portal", "establishmentId", establishmentID)
 		return domain.PortalSession{}, domain.BadRequest(domain.CodeStripeCustomerNotFound)
 	}
 
-	storedCustomerID := *subscription.StripeCustomerID
 	returnURL := s.billing.dashboardURL(establishmentID)
 
 	url, err := s.payments.CreateBillingPortalSession(ctx, storedCustomerID, returnURL)
@@ -237,15 +243,9 @@ func (s *SubscriptionService) CreateCustomerPortalSession(ctx context.Context, e
 		return domain.PortalSession{URL: url}, nil
 	}
 
-	remoteCustomerID := ""
-	if subscription.HasStripeSubscription() {
-		remote, err := s.payments.RetrieveSubscription(ctx, *subscription.StripeSubscriptionID)
-		if err != nil {
-			return domain.PortalSession{}, err
-		}
-		if remote != nil {
-			remoteCustomerID = remote.CustomerID
-		}
+	remoteCustomerID, err := s.remoteCustomerID(ctx, subscription)
+	if err != nil {
+		return domain.PortalSession{}, err
 	}
 
 	if remoteCustomerID != "" && remoteCustomerID != storedCustomerID {
@@ -260,6 +260,19 @@ func (s *SubscriptionService) CreateCustomerPortalSession(ctx context.Context, e
 
 	slog.Warn("the Stripe customer is no longer available", "establishmentId", establishmentID, "customerId", storedCustomerID)
 	return domain.PortalSession{}, domain.BadRequest(domain.CodeStripeCustomerNotFound)
+}
+
+func (s *SubscriptionService) remoteCustomerID(ctx context.Context, subscription *domain.EstablishmentSubscription) (string, error) {
+	if !subscription.HasStripeSubscription() {
+		return "", nil
+	}
+
+	remote, err := s.payments.RetrieveSubscription(ctx, *subscription.StripeSubscriptionID)
+	if err != nil || remote == nil {
+		return "", err
+	}
+
+	return remote.CustomerID, nil
 }
 
 func (s *SubscriptionService) SyncSeats(ctx context.Context, establishmentID string) error {

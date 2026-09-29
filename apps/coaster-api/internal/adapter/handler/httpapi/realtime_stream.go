@@ -56,18 +56,26 @@ func (s *realtimeStream) Close() {
 func (s *realtimeStream) run(ctx context.Context, w io.Writer, flush func() error, missed func() []domain.RealtimeFrame) {
 	defer s.Close()
 
-	if !s.write(w, flush, ": open\n\n") {
+	if !s.write(w, flush, ": open\n\n") || !s.replay(w, flush, missed) {
 		return
 	}
+	s.relay(ctx, w, flush)
+}
 
-	if missed != nil {
-		for _, frame := range missed() {
-			if !s.write(w, flush, frameText(frame)) {
-				return
-			}
-		}
+func (s *realtimeStream) replay(w io.Writer, flush func() error, missed func() []domain.RealtimeFrame) bool {
+	if missed == nil {
+		return true
 	}
 
+	for _, frame := range missed() {
+		if !s.write(w, flush, frameText(frame)) {
+			return false
+		}
+	}
+	return true
+}
+
+func (s *realtimeStream) relay(ctx context.Context, w io.Writer, flush func() error) {
 	heartbeat := time.NewTicker(s.heartbeat)
 	defer heartbeat.Stop()
 	lifetime := time.NewTimer(s.lifetime)

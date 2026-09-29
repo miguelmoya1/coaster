@@ -7,6 +7,8 @@ import (
 	"io"
 	"mime"
 	"net/http"
+	"net/url"
+	"slices"
 )
 
 const maxBodyBytes = 1 << 20
@@ -99,4 +101,22 @@ func readJSON(r *http.Request) ([]byte, any, error) {
 	}
 
 	return body, raw, nil
+}
+
+func unknownParams(values url.Values, known ...string) []string {
+	var messages []string
+	for key := range values {
+		if !slices.Contains(known, key) {
+			messages = append(messages, "property "+key+" should not exist")
+		}
+	}
+	slices.Sort(messages)
+	return messages
+}
+
+func singleParam(values url.Values, name string) (string, bool) {
+	if len(values[name]) != 1 {
+		return "", false
+	}
+	return values[name][0], true
 }

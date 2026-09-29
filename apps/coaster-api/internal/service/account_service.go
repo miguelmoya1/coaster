@@ -1,6 +1,7 @@
 package service
 
 import (
+	"cmp"
 	"context"
 	"log/slog"
 	"slices"
@@ -170,55 +171,41 @@ func (s *AccountService) Sessions(ctx context.Context, userID, currentSessionID 
 }
 
 func summarizeFamily(family []domain.AuthSession, currentSessionID string) domain.AccountSession {
-	head := family[0]
-	for _, session := range family {
-		if session.RotatedAt == nil {
-			head = session
-			break
-		}
+	head := familyHead(family)
+
+	userAgent, ip := head.UserAgent, head.IP
+	if i := slices.IndexFunc(family, knowsTheDevice); i >= 0 {
+		userAgent = cmp.Or(userAgent, family[i].UserAgent)
+		ip = cmp.Or(ip, family[i].IP)
 	}
 
-	var known *domain.AuthSession
-	for i, session := range family {
-		if session.UserAgent != nil || session.IP != nil {
-			known = &family[i]
-			break
-		}
-	}
-
-	userAgent := head.UserAgent
-	ip := head.IP
-	if userAgent == nil && known != nil {
-		userAgent = known.UserAgent
-	}
-	if ip == nil && known != nil {
-		ip = known.IP
-	}
-
-	createdAt := head.CreatedAt
-	lastUsedAt := head.LastUsedAt
-	current := false
-	for _, session := range family {
-		if session.CreatedAt.Before(createdAt) {
-			createdAt = session.CreatedAt
-		}
-		if session.LastUsedAt.After(lastUsedAt) {
-			lastUsedAt = session.LastUsedAt
-		}
-		if currentSessionID != "" && session.ID == currentSessionID {
-			current = true
-		}
-	}
+	first := slices.MinFunc(family, func(a, b domain.AuthSession) int { return a.CreatedAt.Compare(b.CreatedAt) })
+	last := slices.MaxFunc(family, func(a, b domain.AuthSession) int { return a.LastUsedAt.Compare(b.LastUsedAt) })
+	current := currentSessionID != "" && slices.ContainsFunc(family, func(session domain.AuthSession) bool {
+		return session.ID == currentSessionID
+	})
 
 	return domain.AccountSession{
 		ID:         head.ID,
 		Current:    current,
 		UserAgent:  userAgent,
 		IP:         ip,
-		CreatedAt:  domain.NewTime(createdAt),
-		LastUsedAt: domain.NewTime(lastUsedAt),
+		CreatedAt:  domain.NewTime(first.CreatedAt),
+		LastUsedAt: domain.NewTime(last.LastUsedAt),
 		ExpiresAt:  domain.NewTime(head.ExpiresAt),
 	}
+}
+
+func familyHead(family []domain.AuthSession) domain.AuthSession {
+	i := slices.IndexFunc(family, func(session domain.AuthSession) bool { return session.RotatedAt == nil })
+	if i < 0 {
+		return family[0]
+	}
+	return family[i]
+}
+
+func knowsTheDevice(session domain.AuthSession) bool {
+	return session.UserAgent != nil || session.IP != nil
 }
 
 func (s *AccountService) CloseOtherSessions(ctx context.Context, userID, currentSessionID string) error {

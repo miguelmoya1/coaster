@@ -206,47 +206,57 @@ func (s *AuthService) LoginWithGoogle(ctx context.Context, credential string, or
 	if err != nil {
 		return domain.IssuedSession{}, err
 	}
-
 	if linked != nil {
-		if !linked.Active {
-			s.googleRefused(ctx, origin, linked.ID, identity.Email, "inactive")
-			return domain.IssuedSession{}, domain.Unauthorized(domain.CodeInvalidCredentials)
-		}
-
-		if err := s.identities.Touch(ctx, domain.AuthProviderGoogle, identity.Subject); err != nil {
-			return domain.IssuedSession{}, err
-		}
-
-		return s.googleSignedIn(ctx, *linked, identity.Email, origin)
+		return s.googleReturned(ctx, *linked, *identity, origin)
 	}
 
 	byEmail, err := s.users.FindByEmail(ctx, identity.Email)
 	if err != nil {
 		return domain.IssuedSession{}, err
 	}
-
 	if byEmail != nil {
-		if !byEmail.Active {
-			s.googleRefused(ctx, origin, byEmail.ID, identity.Email, "inactive")
-			return domain.IssuedSession{}, domain.Unauthorized(domain.CodeInvalidCredentials)
-		}
-
-		claimed, err := s.claimForGoogle(ctx, *byEmail, *identity)
-		if err != nil {
-			return domain.IssuedSession{}, err
-		}
-
-		s.events.Publish(ctx, domain.AuthEvent{
-			Type:     domain.AuthEventIdentityLinked,
-			UserID:   claimed.ID,
-			Email:    identity.Email,
-			Origin:   origin,
-			Metadata: map[string]any{"provider": string(domain.AuthProviderGoogle)},
-		})
-
-		return s.googleSignedIn(ctx, *claimed, identity.Email, origin)
+		return s.googleClaimed(ctx, *byEmail, *identity, origin)
 	}
 
+	return s.googleRegistered(ctx, *identity, origin)
+}
+
+func (s *AuthService) googleReturned(ctx context.Context, user domain.AuthUser, identity domain.GoogleIdentity, origin domain.SessionOrigin) (domain.IssuedSession, error) {
+	if !user.Active {
+		s.googleRefused(ctx, origin, user.ID, identity.Email, "inactive")
+		return domain.IssuedSession{}, domain.Unauthorized(domain.CodeInvalidCredentials)
+	}
+
+	if err := s.identities.Touch(ctx, domain.AuthProviderGoogle, identity.Subject); err != nil {
+		return domain.IssuedSession{}, err
+	}
+
+	return s.googleSignedIn(ctx, user, identity.Email, origin)
+}
+
+func (s *AuthService) googleClaimed(ctx context.Context, user domain.AuthUser, identity domain.GoogleIdentity, origin domain.SessionOrigin) (domain.IssuedSession, error) {
+	if !user.Active {
+		s.googleRefused(ctx, origin, user.ID, identity.Email, "inactive")
+		return domain.IssuedSession{}, domain.Unauthorized(domain.CodeInvalidCredentials)
+	}
+
+	claimed, err := s.claimForGoogle(ctx, user, identity)
+	if err != nil {
+		return domain.IssuedSession{}, err
+	}
+
+	s.events.Publish(ctx, domain.AuthEvent{
+		Type:     domain.AuthEventIdentityLinked,
+		UserID:   claimed.ID,
+		Email:    identity.Email,
+		Origin:   origin,
+		Metadata: map[string]any{"provider": string(domain.AuthProviderGoogle)},
+	})
+
+	return s.googleSignedIn(ctx, *claimed, identity.Email, origin)
+}
+
+func (s *AuthService) googleRegistered(ctx context.Context, identity domain.GoogleIdentity, origin domain.SessionOrigin) (domain.IssuedSession, error) {
 	outside, err := s.outsideBeta(ctx, identity.Email)
 	if err != nil {
 		return domain.IssuedSession{}, err

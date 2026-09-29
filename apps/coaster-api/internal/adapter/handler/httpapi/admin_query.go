@@ -19,21 +19,8 @@ type adminListQuery struct {
 }
 
 func newAdminListQuery(values url.Values, known ...string) *adminListQuery {
-	var unknown []string
-	for key := range values {
-		if !slices.Contains(known, key) {
-			unknown = append(unknown, key)
-		}
-	}
-	slices.Sort(unknown)
-
-	query := &adminListQuery{values: values}
-	for _, key := range unknown {
-		query.messages = append(query.messages, "property "+key+" should not exist")
-	}
-	return query
+	return &adminListQuery{values: values, messages: unknownParams(values, known...)}
 }
-
 func (q *adminListQuery) value(name string) (string, bool) {
 	values, ok := q.values[name]
 	return strings.Join(values, ","), ok

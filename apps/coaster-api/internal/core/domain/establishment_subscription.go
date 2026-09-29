@@ -27,6 +27,17 @@ func (s *EstablishmentSubscription) HasStripeSubscription() bool {
 	return s != nil && s.StripeSubscriptionID != nil && *s.StripeSubscriptionID != ""
 }
 
+func (s *EstablishmentSubscription) CustomerID() string {
+	if s == nil || s.StripeCustomerID == nil {
+		return ""
+	}
+	return *s.StripeCustomerID
+}
+
+func (s *EstablishmentSubscription) PendingCancellation(now time.Time) bool {
+	return s != nil && s.Status == SubscriptionCanceled && s.CurrentPeriodEnd != nil && !now.After(*s.CurrentPeriodEnd)
+}
+
 func (s *EstablishmentSubscription) State() *SubscriptionState {
 	return &SubscriptionState{
 		Status:               s.Status,
@@ -171,6 +182,16 @@ type SubscriptionSnapshot struct {
 	Billing              SubscriptionBilling
 
 	IsCancellation bool
+}
+
+func (s SubscriptionSnapshot) Upsert(customerID string) SubscriptionUpsert {
+	return SubscriptionUpsert{
+		Plan:                 s.Plan,
+		Status:               s.Status,
+		StripeCustomerID:     customerID,
+		StripeSubscriptionID: s.StripeSubscriptionID,
+		Billing:              &s.Billing,
+	}
 }
 
 type SubscriptionUpsert struct {

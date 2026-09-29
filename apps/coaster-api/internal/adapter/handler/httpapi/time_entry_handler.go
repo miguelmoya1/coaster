@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"net/url"
 	"regexp"
-	"slices"
 	"strings"
 
 	"coaster-api/internal/adapter/handler/middleware"
@@ -68,24 +67,14 @@ type timeSheetQuery struct {
 var isoDatePattern = regexp.MustCompile(`^\d{4}-\d{2}-\d{2}$`)
 
 func parseTimeSheetQuery(values url.Values) (timeSheetQuery, error) {
-	known := []string{"userId", "from", "to"}
-	var unknown, messages []string
-
-	for key := range values {
-		if !slices.Contains(known, key) {
-			unknown = append(unknown, "property "+key+" should not exist")
-		}
-	}
-	slices.Sort(unknown)
-
 	var query timeSheetQuery
+	messages := unknownParams(values, "userId", "from", "to")
 
 	if values.Has("userId") {
-		userID := values["userId"]
-		if len(userID) != 1 || validate.Var(userID[0], "uuid4") != nil {
-			messages = append(messages, domain.CodeInvalidType)
+		if userID, ok := singleParam(values, "userId"); ok && validate.Var(userID, "uuid4") == nil {
+			query.userID = userID
 		} else {
-			query.userID = userID[0]
+			messages = append(messages, domain.CodeInvalidType)
 		}
 	}
 
@@ -96,22 +85,18 @@ func parseTimeSheetQuery(values url.Values) (timeSheetQuery, error) {
 		if !values.Has(field.name) {
 			continue
 		}
-
-		value := values[field.name]
-		if len(value) != 1 || !isoDatePattern.MatchString(value[0]) {
+		if date, ok := singleParam(values, field.name); ok && isoDatePattern.MatchString(date) {
+			*field.dest = &date
+		} else {
 			messages = append(messages, domain.CodeInvalidDate)
-			continue
 		}
-		*field.dest = &value[0]
 	}
 
-	if len(unknown) > 0 || len(messages) > 0 {
-		return timeSheetQuery{}, validationFailed(append(unknown, messages...))
+	if len(messages) > 0 {
+		return timeSheetQuery{}, validationFailed(messages)
 	}
-
 	return query, nil
 }
-
 func (h *TimeEntryHandler) clock(w http.ResponseWriter, r *http.Request) {
 	var input clockRequest
 	if err := decodeJSON(r, &input); err != nil {
@@ -273,41 +258,41 @@ func csvField(value string) string {
 
 func timeSheetCSV(workdays []domain.Workday) string {
 	rows := []string{strings.Join(timeSheetHeaders, ";")}
-
 	for _, workday := range workdays {
 		for _, entry := range workday.Entries {
 			for _, revision := range entry.Revisions {
-				reason := ""
-				if revision.Reason != nil {
-					reason = *revision.Reason
-				}
-
-				author := revision.ActorID
-				if revision.ActorName != nil {
-					author = *revision.ActorName
-				}
-
-				fields := []string{
-					workday.Date,
-					entry.UserName,
-					string(revision.Type),
-					domain.FormatISO(revision.OccurredAt.Time),
-					string(revision.Source),
-					string(revision.Action),
-					reason,
-					author,
-					domain.FormatISO(revision.RecordedAt.Time),
-					revision.Hash,
-				}
-
-				quoted := make([]string, 0, len(fields))
-				for _, field := range fields {
-					quoted = append(quoted, csvField(field))
-				}
-				rows = append(rows, strings.Join(quoted, ";"))
+				rows = append(rows, timeSheetRow(workday.Date, entry.UserName, revision))
 			}
 		}
 	}
-
 	return strings.Join(rows, "\n")
+}
+
+func timeSheetRow(date, userName string, revision domain.TimeEntryRevision) string {
+	reason := ""
+	if revision.Reason != nil {
+		reason = *revision.Reason
+	}
+
+	author := revision.ActorID
+	if revision.ActorName != nil {
+		author = *revision.ActorName
+	}
+
+	fields := []string{
+		date,
+		userName,
+		string(revision.Type),
+		domain.FormatISO(revision.OccurredAt.Time),
+		string(revision.Source),
+		string(revision.Action),
+		reason,
+		author,
+		domain.FormatISO(revision.RecordedAt.Time),
+		revision.Hash,
+	}
+	for i, field := range fields {
+		fields[i] = csvField(field)
+	}
+	return strings.Join(fields, ";")
 }

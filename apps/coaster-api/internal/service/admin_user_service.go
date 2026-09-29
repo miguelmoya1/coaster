@@ -83,15 +83,8 @@ func (s *AdminUserService) Update(ctx context.Context, actorID, userID string, c
 		nextActive = *changes.Active
 	}
 
-	losesAdmin := user.Role == domain.RoleAdmin && (nextRole != domain.RoleAdmin || !nextActive)
-	if losesAdmin {
-		admins, err := s.users.CountActiveAdmins(ctx)
-		if err != nil {
-			return err
-		}
-		if admins <= 1 {
-			return domain.BadRequest(domain.CodeCannotDemoteLastAdmin)
-		}
+	if err := s.checkNotLastAdmin(ctx, user, nextRole, nextActive); err != nil {
+		return err
 	}
 
 	if nextRole == user.Role && nextActive == user.Active {
@@ -105,26 +98,39 @@ func (s *AdminUserService) Update(ctx context.Context, actorID, userID string, c
 	s.events.Publish(ctx, domain.UserUpdatedEvent{UserID: userID})
 
 	if changes.Role != nil && *changes.Role != user.Role {
-		s.events.Publish(ctx, domain.AdminActionEvent{Entry: domain.AdminAuditEntry{
-			ActorID:     actorID,
-			Action:      domain.AuditUserRoleChanged,
-			TargetType:  domain.AuditTargetUser,
-			TargetID:    userID,
-			TargetLabel: &user.Email,
-			Metadata:    adminRoleChange{From: user.Role, To: *changes.Role},
-		}})
+		s.auditUser(ctx, actorID, user, domain.AuditUserRoleChanged, adminRoleChange{From: user.Role, To: *changes.Role})
 	}
-
 	if changes.Active != nil && *changes.Active != user.Active {
-		s.events.Publish(ctx, domain.AdminActionEvent{Entry: domain.AdminAuditEntry{
-			ActorID:     actorID,
-			Action:      domain.AuditUserActivationChanged,
-			TargetType:  domain.AuditTargetUser,
-			TargetID:    userID,
-			TargetLabel: &user.Email,
-			Metadata:    adminActivationChange{Active: *changes.Active},
-		}})
+		s.auditUser(ctx, actorID, user, domain.AuditUserActivationChanged, adminActivationChange{Active: *changes.Active})
 	}
 
 	return nil
+}
+
+func (s *AdminUserService) checkNotLastAdmin(ctx context.Context, user *domain.AdminUserSummary, nextRole domain.Role, nextActive bool) error {
+	losesAdmin := user.Role == domain.RoleAdmin && (nextRole != domain.RoleAdmin || !nextActive)
+	if !losesAdmin {
+		return nil
+	}
+
+	admins, err := s.users.CountActiveAdmins(ctx)
+	if err != nil {
+		return err
+	}
+	if admins <= 1 {
+		return domain.BadRequest(domain.CodeCannotDemoteLastAdmin)
+	}
+
+	return nil
+}
+
+func (s *AdminUserService) auditUser(ctx context.Context, actorID string, user *domain.AdminUserSummary, action string, metadata any) {
+	s.events.Publish(ctx, domain.AdminActionEvent{Entry: domain.AdminAuditEntry{
+		ActorID:     actorID,
+		Action:      action,
+		TargetType:  domain.AuditTargetUser,
+		TargetID:    user.ID,
+		TargetLabel: &user.Email,
+		Metadata:    metadata,
+	}})
 }
