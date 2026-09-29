@@ -1,20 +1,21 @@
 # Domain models
 
-## What lives in `@coaster/common`
+## Where the contract lives
 
-Anything the API and the front end need to agree on lives in the shared package, never duplicated on
-both sides:
+What the API and the front end need to agree on lives in the web, next to the domain that owns it:
 
-- Domain interfaces and DTOs.
-- Enums and constants (`EstablishmentRole`, `Role`, `SubscriptionPlan`, `ErrorCodes`, ...).
-- `domain/permissions` — the permission table and `hasPermission`.
-- `domain/pricing` — the order pricing engine.
-- `utils/brands` — branded-type constructors (`asEstablishmentId`, `asEstablishmentRole`, ...).
-- `utils/stock` — stock status calculation.
+- Each domain's interfaces, DTOs and enums in `apps/web/src/app/<domain>/models/`, with their
+  branded-type constructors (`asOrderId`, `asOrderStatus`, ...) beside the type they build.
+- What every layer needs in `core/`: `ErrorCodes`, `Role`, the user and the session, `Language`,
+  `EstablishmentId` and the realtime event names.
+- `establishment-members/models/establishment-permissions.ts` — the permission table and
+  `hasPermission`.
+- `products/models/stock.util.ts` — stock status calculation.
 
-Rule: if the logic is identical on both sides, it goes here. Each `core` only keeps what belongs to
-its own environment (Prisma and Nest guards in the API; interceptors and session services in the
-web app).
+The Go API has its own types and must answer those shapes. Its tests compare the error codes, the
+permission table and the realtime event names with these files, so a change on one side without the
+other fails the build. NestJS keeps a frozen copy of the old shared package in `apps/api/src/common`
+until it is removed.
 
 `ErrorCodes` deserves a note: every value must have a translation in both `es.json` and `en.json`,
 and a test fails the build if one is missing. Adding an error code without a message would surface
@@ -82,9 +83,10 @@ product and history must survive the product being retired.
 
 ## Orders and pricing
 
-`OrderPricingEngine` in `@coaster/common` is the single calculator. It takes items, adjustments, the
-tip and what has been paid, and returns the line totals, the order total and what is still pending.
-Both sides use it, so a discount never renders differently from how it is charged.
+`CalculatePricing` in the Go API (`internal/core/domain/order_pricing.go`) is the single calculator.
+It takes items, adjustments, the tip and what has been paid, and returns the line totals, the order
+total and what is still pending. The web shows the totals the API returns and never recalculates
+them, so a discount never renders differently from how it is charged.
 
 Money is **always integer cents**. Only the AI assistant converts to euros, at its boundary, because
 it speaks to people.

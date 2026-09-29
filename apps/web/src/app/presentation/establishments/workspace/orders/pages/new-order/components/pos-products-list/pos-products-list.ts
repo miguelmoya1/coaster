@@ -1,8 +1,7 @@
 import { Component, input, output, signal } from '@angular/core';
 import { MatCard } from '@angular/material/card';
 import { MatIcon } from '@angular/material/icon';
-import { grossFromNet } from '@coaster/common';
-import { Product } from '@coaster/products';
+import { grossFromNet, Product } from '@coaster/products';
 import { TranslatePipe } from '@ngx-translate/core';
 import { PricePipe } from '../../../../../pipes/price/price';
 

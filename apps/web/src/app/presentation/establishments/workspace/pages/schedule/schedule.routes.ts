@@ -1,9 +1,13 @@
 import { computed } from '@angular/core';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { Routes, type ResourceContext } from '@angular/router';
-import { EstablishmentPermission } from '@coaster/common';
 import { establishmentIdOf, nonBlockingResources, queryParam } from '@coaster/core';
-import { membersResource, permissionGuard, permittedEstablishmentId } from '@coaster/establishment-members';
+import {
+  EstablishmentPermission,
+  membersResource,
+  permissionGuard,
+  permittedEstablishmentId,
+} from '@coaster/establishment-members';
 import { exchangesResource } from '@coaster/exchanges';
 import { scheduleDateOf, scheduleViewOf, shiftsRangeOf, timeSheetRangeOf } from '@coaster/schedule';
 import { shiftsResource } from '@coaster/shifts';

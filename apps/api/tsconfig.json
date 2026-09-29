@@ -33,6 +33,7 @@
       "@coaster/establishment-subscription": ["./src/establishment-subscription/index.ts"],
       "@coaster/establishments": ["./src/establishments/index.ts"],
       "@coaster/categories": ["./src/categories/index.ts"],
+      "@coaster/common": ["./src/common/index.ts"],
       "@coaster/core": ["./src/core/index.ts"],
       "@coaster/core/db": ["./src/core/db/index.ts"],
       "@coaster/email": ["./src/email/index.ts"],

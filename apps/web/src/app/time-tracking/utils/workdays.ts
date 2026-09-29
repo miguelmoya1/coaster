@@ -1,5 +1,5 @@
-import type { Workday } from '@coaster/common';
-import { ClockState } from '@coaster/common';
+import type { Workday } from '../models/time-entry.interface';
+import { ClockState } from '../models/time-entry.type';
 
 export const clockStateOf = (current: Workday | null | undefined): ClockState => current?.state ?? ClockState.OUT;
 

@@ -1,7 +1,6 @@
 import { httpResource } from '@angular/common/http';
 import { inject, type Signal } from '@angular/core';
-import type { EstablishmentId } from '@coaster/common';
-import { onRealtime, Realtime, removeById, updateLoaded } from '@coaster/core';
+import { onRealtime, Realtime, removeById, updateLoaded, type EstablishmentId } from '@coaster/core';
 import { MemberRepository } from '../data-access/member-repository';
 import { memberArrayMapper } from '../mappers/member.mapper';
 
@@ -17,9 +16,11 @@ export const membersResource = (establishmentId: Signal<EstablishmentId | undefi
     { parse: memberArrayMapper },
   );
 
-  onRealtime(realtime.memberRemoved, ({ id }) => updateLoaded(members, (list) => removeById(list, id)));
-  onRealtime(realtime.memberInvited, () => members.reload());
-  onRealtime(realtime.memberRoleChanged, () => members.reload());
+  onRealtime(realtime.on<{ id: string }>('memberRemoved'), ({ id }) =>
+    updateLoaded(members, (list) => removeById(list, id)),
+  );
+  onRealtime(realtime.on<{ id: string }>('memberInvited'), () => members.reload());
+  onRealtime(realtime.on<{ id: string; userId: string; role: string }>('memberRoleChanged'), () => members.reload());
 
   return members;
 };

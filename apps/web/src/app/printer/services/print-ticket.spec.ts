@@ -1,7 +1,8 @@
-import { asEstablishmentId, asOrderId, asOrderItemId, asProductId } from '@coaster/common';
+import { asEstablishmentId } from '@coaster/core';
+import { asOrderId, asOrderItemId, OrderStatus, PaymentMethod, type Order } from '@coaster/orders';
+import { asProductId } from '@coaster/products';
+import type { PrintTicketPayloadDto } from '../models/printer.interface';
 import { TestBed } from '@angular/core/testing';
-import type { Order, PrintTicketPayloadDto } from '@coaster/common';
-import { OrderStatus, PaymentMethod } from '@coaster/common';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { PrinterRepository } from '../data-access/printer.repository';

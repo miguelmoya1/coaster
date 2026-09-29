@@ -1,9 +1,9 @@
 # Stack
 
-- **Monorepo:** npm workspaces — `apps/{api,web,printer-service}` and `packages/common`, which holds
-  everything both sides must agree on (the permission table, the pricing engine, the error codes).
-  `apps/coaster-api` is the Go rewrite of the API, outside the workspaces — see
-  [coaster-api](../apps/coaster-api/README.md).
+- **Monorepo:** npm workspaces for the TypeScript applications, `apps/{api,web}`. The web holds the
+  API contract in each domain's `models/` (the permission table and the error codes included).
+  `apps/coaster-api` is the Go rewrite of the API and `apps/database` the schema, both outside the
+  workspaces — see [coaster-api](../apps/coaster-api/README.md) and [database](../apps/database.md).
 - **Backend:** NestJS 11 on Fastify, CQRS + Prisma 7 over PostgreSQL. See [backend](backend.md).
 - **Frontend:** Angular 22 — standalone, signals, zoneless — with Material and Tailwind CSS v4. See
   [frontend](frontend.md).

@@ -1,7 +1,6 @@
 import { Component, computed, input, linkedSignal, output } from '@angular/core';
 import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
-import { EstablishmentRole } from '@coaster/common';
-import type { EstablishmentRole as EstablishmentRoleType } from '@coaster/common';
+import { EstablishmentRole, type EstablishmentRole as EstablishmentRoleType } from '@coaster/establishments';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { TranslatePipe } from '@ngx-translate/core';
 

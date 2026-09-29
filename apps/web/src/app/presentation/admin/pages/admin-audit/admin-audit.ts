@@ -2,10 +2,17 @@ import { Component, computed, inject, input } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ADMIN_PAGE_SIZE, oneOf, pageOf, totalPagesOf } from '@coaster/admin';
-import type { AdminAuditAction, AdminAuditLogEntry, Paginated } from '@coaster/common';
+import {
+  ADMIN_PAGE_SIZE,
+  AdminAuditAction as AuditAction,
+  oneOf,
+  pageOf,
+  totalPagesOf,
+  type AdminAuditAction,
+  type AdminAuditLogEntry,
+  type Paginated,
+} from '@coaster/admin';
 import type { PageResource } from '@coaster/core';
-import { AdminAuditAction as AuditAction } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Loading } from '../../../components/loading/loading';
 import { PageHeader } from '../../../components/page-header/page-header';

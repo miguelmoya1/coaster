@@ -1,8 +1,8 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
-import { EstablishmentPermission, type EstablishmentId } from '@coaster/common';
-import { MyMemberStore } from '@coaster/establishment-members';
+import type { EstablishmentId } from '@coaster/core';
+import { EstablishmentPermission, MyMemberStore } from '@coaster/establishment-members';
 import { BillingAction, BillingEntryPoint, EstablishmentSubscriptionStore } from '@coaster/establishment-subscription';
 import { TranslatePipe } from '@ngx-translate/core';
 
@@ -69,12 +69,7 @@ import { TranslatePipe } from '@ngx-translate/core';
             }
           </span>
         </div>
-        <button
-          type="button"
-          mat-stroked-button
-          class="rounded-xl! text-xs! shrink-0"
-          (click)="openBilling()"
-        >
+        <button type="button" mat-stroked-button class="rounded-xl! text-xs! shrink-0" (click)="openBilling()">
           {{ 'billing.banner.view_plans' | translate }}
         </button>
       }

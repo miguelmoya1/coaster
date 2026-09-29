@@ -1,7 +1,15 @@
 import { httpResource } from '@angular/common/http';
 import { inject, type Signal } from '@angular/core';
-import type { EstablishmentId, Table } from '@coaster/common';
-import { onRealtime, patchById, Realtime, removeById, updateLoaded, upsertById } from '@coaster/core';
+import type { Table } from '../models/table.interface';
+import {
+  onRealtime,
+  patchById,
+  Realtime,
+  removeById,
+  updateLoaded,
+  upsertById,
+  type EstablishmentId,
+} from '@coaster/core';
 import { TableRepository } from '../data-access/table-repository';
 import { tableArrayMapper } from '../mappers/table.mapper';
 
@@ -19,22 +27,24 @@ export const tablesResource = (establishmentId: Signal<EstablishmentId | undefin
 
   const ours = (table: Table) => table.establishmentId === establishmentId();
 
-  onRealtime(realtime.tableStatusChanged, (change) => {
+  onRealtime(realtime.on<Partial<Table>>('tableStatusChanged'), (change) => {
     if (change.id) {
       updateLoaded(tables, (list) => patchById(list, change.id!, (table) => ({ ...table, ...change })));
     }
   });
-  onRealtime(realtime.tableCreated, (created) => {
+  onRealtime(realtime.on<Table>('tableCreated'), (created) => {
     if (ours(created)) {
       updateLoaded(tables, (list) => upsertById(list, created));
     }
   });
-  onRealtime(realtime.tableUpdated, (updated) => {
+  onRealtime(realtime.on<Table>('tableUpdated'), (updated) => {
     if (ours(updated)) {
       updateLoaded(tables, (list) => upsertById(list, updated));
     }
   });
-  onRealtime(realtime.tableDeleted, ({ id }) => updateLoaded(tables, (list) => removeById(list, id)));
+  onRealtime(realtime.on<{ id: string }>('tableDeleted'), ({ id }) =>
+    updateLoaded(tables, (list) => removeById(list, id)),
+  );
 
   return tables;
 };

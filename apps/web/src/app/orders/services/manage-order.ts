@@ -1,7 +1,7 @@
 import { inject, Service } from '@angular/core';
 import type {
+  AddOrderAdjustmentDto,
   AddOrderItemsDto,
-  EstablishmentId,
   BulkUpdateDto,
   CheckoutOrderDto,
   CreateOrderDto,
@@ -12,8 +12,8 @@ import type {
   UpdateOrderItemNotesDto,
   UpdateOrderNotesDto,
   UpdateOrderTipDto,
-  AddOrderAdjustmentDto,
-} from '@coaster/common';
+} from '../models/order.interface';
+import type { EstablishmentId } from '@coaster/core';
 import { OrderRepository } from '../data-access/order-repository';
 
 @Service()

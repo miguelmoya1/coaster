@@ -2,11 +2,23 @@ import { Component, computed, effect, inject, input, signal } from '@angular/cor
 import { form, FormField, FormRoot, maxLength, min, required } from '@angular/forms/signals';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
-import type { CashClose, CashClosePreview, EstablishmentId } from '@coaster/common';
-import { cashDifferenceOf, EstablishmentPermission, expectedCashOf } from '@coaster/common';
-import { cashCloseTicket, ManageCashCloses } from '@coaster/cash-close';
-import { ActionFeedback, DateFormatterService, handleErrorFormField, loadedOr, type PageResource } from '@coaster/core';
-import { MyMemberStore } from '@coaster/establishment-members';
+import {
+  cashCloseTicket,
+  cashDifferenceOf,
+  expectedCashOf,
+  ManageCashCloses,
+  type CashClose,
+  type CashClosePreview,
+} from '@coaster/cash-close';
+import {
+  ActionFeedback,
+  DateFormatterService,
+  handleErrorFormField,
+  loadedOr,
+  type EstablishmentId,
+  type PageResource,
+} from '@coaster/core';
+import { EstablishmentPermission, MyMemberStore } from '@coaster/establishment-members';
 import { RequireSubscriptionDirective } from '@coaster/establishment-subscription';
 import { CurrentEstablishmentStore } from '@coaster/establishments';
 import { PrintTicket } from '@coaster/printer';

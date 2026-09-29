@@ -5,16 +5,16 @@ import { MatIcon } from '@angular/material/icon';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { Router } from '@angular/router';
-import { ManagePlatform } from '@coaster/admin';
-import type { AdminEstablishmentDetail as Detail, EstablishmentId, EstablishmentMemberId } from '@coaster/common';
+import { ManagePlatform, type AdminEstablishmentDetail as Detail } from '@coaster/admin';
+import type { EstablishmentMemberId } from '@coaster/establishment-members';
 import {
   DEFAULT_ESTABLISHMENT_MODULES,
   EstablishmentModule,
   EstablishmentRole,
-  SubscriptionPlan,
   resolveModules,
-} from '@coaster/common';
-import { ActionFeedback, type PageResource } from '@coaster/core';
+} from '@coaster/establishments';
+import { SubscriptionPlan } from '@coaster/establishment-subscription';
+import { ActionFeedback, type EstablishmentId, type PageResource } from '@coaster/core';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { CoasterInput } from '../../../components/field/input.directive';
 import { PricePipe } from '../../../establishments/workspace/pipes/price/price';

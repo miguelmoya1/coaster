@@ -1,8 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { ClockState, Workday } from '@coaster/common';
 import { ActionFeedback } from '@coaster/core';
-import { ManageTimeEntries } from '@coaster/time-tracking';
+import { ClockState, ManageTimeEntries, Workday } from '@coaster/time-tracking';
 import { fakeResource } from '@coaster/testing';
 import { provideTranslateService } from '@ngx-translate/core';
 import { format } from 'date-fns';

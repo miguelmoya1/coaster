@@ -1,8 +1,8 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, RedirectCommand, Router } from '@angular/router';
-import { EstablishmentModule, EstablishmentPermission } from '@coaster/common';
+import { EstablishmentPermission } from '../models/establishment-permissions.type';
 import { establishmentIdIn } from '@coaster/core';
-import { ModulesStore } from '@coaster/establishments';
+import { EstablishmentModule, ModulesStore } from '@coaster/establishments';
 import { MyMemberStore } from '../store/my-member.store';
 
 const FALLBACKS: { permission: EstablishmentPermission; module?: EstablishmentModule; path: string }[] = [

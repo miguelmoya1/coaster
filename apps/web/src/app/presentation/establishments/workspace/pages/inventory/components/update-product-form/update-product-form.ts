@@ -1,10 +1,18 @@
 import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { form, FormField, FormRoot, max, maxLength, min, minLength, required } from '@angular/forms/signals';
 import { MatButton } from '@angular/material/button';
-import type { Category, EstablishmentId, UpdateProductDto } from '@coaster/common';
-import { ALLERGENS, asCategoryId, DEFAULT_TAX_RATE, grossFromNet, toBasisPoints, toPercentage } from '@coaster/common';
-import { handleErrorFormField } from '@coaster/core';
-import { ManageProducts, type Product } from '@coaster/products';
+import { asCategoryId, type Category } from '@coaster/categories';
+import { handleErrorFormField, type EstablishmentId } from '@coaster/core';
+import {
+  ALLERGENS,
+  DEFAULT_TAX_RATE,
+  grossFromNet,
+  ManageProducts,
+  toBasisPoints,
+  toPercentage,
+  type Product,
+  type UpdateProductDto,
+} from '@coaster/products';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ChipSelect } from '../../../../../../components/chip-select/chip-select';
 import { Field } from '../../../../../../components/field/field';

@@ -1,9 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import type { CashClose, CashClosePreview } from '@coaster/common';
-import { asCashCloseId, asEstablishmentId, asUserId, EstablishmentPermission } from '@coaster/common';
-import { ManageCashCloses } from '@coaster/cash-close';
+import { asEstablishmentId, asUserId } from '@coaster/core';
+import { asCashCloseId, ManageCashCloses, type CashClose, type CashClosePreview } from '@coaster/cash-close';
 import { fakeResource } from '@coaster/testing';
-import { MyMemberStore } from '@coaster/establishment-members';
+import { EstablishmentPermission, MyMemberStore } from '@coaster/establishment-members';
 import { CurrentEstablishmentStore } from '@coaster/establishments';
 import { PrintTicket } from '@coaster/printer';
 import { provideTranslateService } from '@ngx-translate/core';

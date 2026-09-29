@@ -1,9 +1,10 @@
 import { Component, computed, input } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
-import type { EstablishmentId, EstablishmentMember, Shift } from '@coaster/common';
-import { EstablishmentRole } from '@coaster/common';
-import { loadedOr, type PageResource } from '@coaster/core';
+import type { EstablishmentMember } from '@coaster/establishment-members';
+import type { Shift } from '@coaster/shifts';
+import { EstablishmentRole } from '@coaster/establishments';
+import { loadedOr, type EstablishmentId, type PageResource } from '@coaster/core';
 import { TranslatePipe } from '@ngx-translate/core';
 
 const ROLE_LABEL_KEYS: Record<EstablishmentRole, string> = {

@@ -7,9 +7,9 @@ import (
 	"testing"
 )
 
-const errorTypesPath = "../../../../../packages/common/src/constants/error.types.ts"
+const errorTypesPath = "../../../../../apps/web/src/app/core/errors/error.types.ts"
 
-func TestErrorCodesMatchCommon(t *testing.T) {
+func TestErrorCodesMatchTheWeb(t *testing.T) {
 	source, err := os.ReadFile(errorTypesPath)
 	if err != nil {
 		t.Fatalf("reading %s: %v", errorTypesPath, err)
@@ -37,9 +37,9 @@ func TestErrorCodesMatchCommon(t *testing.T) {
 		}
 		for _, code := range AllErrorCodes {
 			if !slices.Contains(want, code) {
-				t.Errorf("missing in @coaster/common: %s", code)
+				t.Errorf("missing in the web: %s", code)
 			}
 		}
-		t.Error("AllErrorCodes does not match ErrorCodes in @coaster/common")
+		t.Error("AllErrorCodes does not match ErrorCodes in the web")
 	}
 }

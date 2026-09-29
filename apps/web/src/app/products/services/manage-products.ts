@@ -1,11 +1,6 @@
 import { inject, Service } from '@angular/core';
-import type {
-  CreateProductDto,
-  EstablishmentId,
-  ProductId,
-  UpdateProductDto,
-  UpdateProductStockDto,
-} from '@coaster/common';
+import type { CreateProductDto, ProductId, UpdateProductDto, UpdateProductStockDto } from '../models/product.interface';
+import type { EstablishmentId } from '@coaster/core';
 import { ProductRepository } from '../data-access/product-repository';
 
 @Service()

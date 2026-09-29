@@ -1,8 +1,7 @@
 import { Component, input, model } from '@angular/core';
 import { DisabledReason, ValidationError, WithOptionalFieldTree } from '@angular/forms/signals';
 import { MatButtonToggle, MatButtonToggleGroup } from '@angular/material/button-toggle';
-import type { Language } from '@coaster/common';
-import { LANGUAGE_NAMES, LANGUAGES } from '@coaster/common';
+import { LANGUAGE_NAMES, LANGUAGES, type Language } from '@coaster/core';
 
 @Component({
   selector: 'coaster-language-select',

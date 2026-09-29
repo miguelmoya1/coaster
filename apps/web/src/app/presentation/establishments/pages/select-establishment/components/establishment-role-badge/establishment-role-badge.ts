@@ -1,5 +1,5 @@
 import { Component, computed, input } from '@angular/core';
-import { EstablishmentRole } from '@coaster/common';
+import { EstablishmentRole } from '@coaster/establishments';
 import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({

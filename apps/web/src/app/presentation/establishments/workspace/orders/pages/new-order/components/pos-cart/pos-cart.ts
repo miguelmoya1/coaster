@@ -1,7 +1,8 @@
 import { Component, computed, effect, ElementRef, input, output, signal, viewChild } from '@angular/core';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
-import { TableStatus, type EstablishmentId, type Table } from '@coaster/common';
+import { TableStatus, type Table } from '@coaster/tables';
+import type { EstablishmentId } from '@coaster/core';
 import { RequireSubscriptionDirective } from '@coaster/establishment-subscription';
 import { TranslatePipe } from '@ngx-translate/core';
 import { PricePipe } from '../../../../../pipes/price/price';

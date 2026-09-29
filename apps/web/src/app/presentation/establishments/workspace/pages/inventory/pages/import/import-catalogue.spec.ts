@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { ImportStarterCatalogue } from '@coaster/catalogue';
-import type { StarterCatalogueCategory } from '@coaster/common';
+import { ImportStarterCatalogue, type StarterCatalogueCategory } from '@coaster/catalogue';
 import { fakeResource } from '@coaster/testing';
 import { Toast } from '@coaster/core';
 import { provideTranslateService } from '@ngx-translate/core';

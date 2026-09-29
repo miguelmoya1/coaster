@@ -16,5 +16,5 @@ When working within `apps/web`, leverage your expert Angular developer skills, b
    - `features/`: Smart components (containers) that connect to the store/data-access and coordinate the UI components.
 3. **Standalone Components:** Ensure all new components, directives, and pipes are generated as standalone elements (`standalone: true`). Do not use `NgModules` unless integrating with legacy code.
 4. **Control Flow:** Prefer the new Angular control flow syntax (`@if`, `@for`, `@switch`) over structural directives (`*ngIf`, `*ngFor`).
-5. **Typing:** Never create local models or interfaces for API responses. Always import DTOs and Interfaces from `packages/common`.
+5. **Typing:** The shapes of API requests and responses live in each domain's `models/` folder (`apps/web/src/app/<domain>/models/`), or in `core/models/` when every layer needs them. Import them through the domain's `@coaster/<domain>` barrel and never redefine one.
 6. **Performance & Lazy Loading:** Ensure that routes are lazy-loaded. Use `OnPush` change detection strategy by default for all components to maximize performance with Signals.

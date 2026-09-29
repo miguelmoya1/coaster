@@ -1,11 +1,12 @@
-import { asOrderId, asProductId, asTableId } from '@coaster/common';
+import { asProductId } from '@coaster/products';
+import { asTableId, type Table, type TableId } from '@coaster/tables';
+import type { Category } from '@coaster/categories';
 import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { Router } from '@angular/router';
-import type { Category, EstablishmentId, Order, OrderId, Table, TableId } from '@coaster/common';
-import { ActionFeedback, loadedOr, type PageResource } from '@coaster/core';
-import { ManageOrder } from '@coaster/orders';
+import { ActionFeedback, loadedOr, type EstablishmentId, type PageResource } from '@coaster/core';
+import { asOrderId, ManageOrder, type Order, type OrderId } from '@coaster/orders';
 import type { Product } from '@coaster/products';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ResourceStatus } from '../../../../../components/resource-status/resource-status';

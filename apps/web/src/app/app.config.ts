@@ -15,16 +15,15 @@ import {
   withRouterResources,
   withViewTransitions,
 } from '@angular/router';
-import type { EstablishmentId } from '@coaster/common';
-import type { PaywallHandler } from '@coaster/core';
+import type { EstablishmentId, PaywallHandler } from '@coaster/core';
 import {
-  errorInterceptor,
   accessTokenInterceptor,
+  AppUpdate,
+  errorInterceptor,
   PAYWALL_HANDLER,
   unauthorizedInterceptor,
   urlInterceptor,
   VirtualKeyboard,
-  AppUpdate,
 } from '@coaster/core';
 import { provideServiceWorker } from '@angular/service-worker';
 import { provideTranslateService } from '@ngx-translate/core';

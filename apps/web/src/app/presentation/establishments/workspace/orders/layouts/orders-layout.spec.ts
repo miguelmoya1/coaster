@@ -1,7 +1,7 @@
-import { asEstablishmentId, EstablishmentPermission } from '@coaster/common';
+import { asEstablishmentId } from '@coaster/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { MyMemberStore } from '@coaster/establishment-members';
+import { EstablishmentPermission, MyMemberStore } from '@coaster/establishment-members';
 import { provideTranslateService } from '@ngx-translate/core';
 import { describe, beforeEach, it, expect, vi } from 'vitest';
 

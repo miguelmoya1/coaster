@@ -1,4 +1,4 @@
-import { EstablishmentRole } from '@coaster/common';
+import { EstablishmentRole } from '../../src/app/establishments/models/establishment-role.type';
 import { expect, test } from '@playwright/test';
 import { MenuPage } from '../pom/menu.page';
 import { mockApiResponse } from './utils/mock-api';

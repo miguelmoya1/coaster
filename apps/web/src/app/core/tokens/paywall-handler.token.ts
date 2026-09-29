@@ -1,5 +1,5 @@
 import { InjectionToken } from '@angular/core';
-import type { EstablishmentId } from '@coaster/common';
+import type { EstablishmentId } from '../models/establishment-id';
 
 export interface PaywallHandler {
   open(establishmentId: EstablishmentId): void;

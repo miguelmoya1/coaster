@@ -1,9 +1,8 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { Router } from '@angular/router';
-import type { Language, PublishedMenu } from '@coaster/common';
-import type { PageResource } from '@coaster/core';
-import { menuLanguageOf } from '@coaster/menu';
+import type { Language, PageResource } from '@coaster/core';
+import { menuLanguageOf, type PublishedMenu } from '@coaster/menu';
 import { TranslatePipe } from '@ngx-translate/core';
 import { LanguageSelect } from '../components/language-select/language-select';
 import { Loading } from '../components/loading/loading';

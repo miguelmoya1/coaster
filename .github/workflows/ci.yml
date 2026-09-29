@@ -37,9 +37,8 @@ jobs:
       - name: 🗄️ Generate Prisma Client
         run: npm run db:gen -w apps/api
 
-      - name: 🏗️ Build All (Common, API, Web)
+      - name: 🏗️ Build All (API, Web)
         run: |
-          npm run build -w @coaster/common
           npm run build -w @coaster/api
           npm run build -w @coaster/web
 
@@ -166,9 +165,6 @@ jobs:
 
       - name: 🗄️ Generate Prisma Client
         run: npm run db:gen -w apps/api
-
-      - name: 🏗️ Build Common
-        run: npm run build -w @coaster/common
 
       - name: 🧪 e2e contra Go
         run: apps/coaster-api/scripts/e2e-go.sh

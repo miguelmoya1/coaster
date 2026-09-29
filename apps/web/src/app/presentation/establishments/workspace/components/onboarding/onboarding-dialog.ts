@@ -1,9 +1,8 @@
 import { Component, inject, signal } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogContent, MatDialogTitle } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
-import type { EstablishmentId } from '@coaster/common';
-import { DEFAULT_ESTABLISHMENT_MODULES } from '@coaster/common';
-import { ModulesStore } from '@coaster/establishments';
+import type { EstablishmentId } from '@coaster/core';
+import { DEFAULT_ESTABLISHMENT_MODULES, ModulesStore } from '@coaster/establishments';
 import { ImportStarterCatalogue } from '@coaster/catalogue';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Spinner } from '../../../../components/spinner/spinner';

@@ -2,10 +2,9 @@ import { ChangeDetectionStrategy, Component, computed, inject, input, linkedSign
 import { form, FormField, FormRoot, maxLength, minLength, required } from '@angular/forms/signals';
 import { MatButton } from '@angular/material/button';
 import { MatTimepicker, MatTimepickerInput, MatTimepickerToggle } from '@angular/material/timepicker';
-import type { EstablishmentId, EstablishmentMember, TimeEntry } from '@coaster/common';
-import { asTimeEntryId, asUserId, TimeEntryType } from '@coaster/common';
-import { handleErrorFormField } from '@coaster/core';
-import { ManageTimeEntries } from '@coaster/time-tracking';
+import type { EstablishmentMember } from '@coaster/establishment-members';
+import { asUserId, handleErrorFormField, type EstablishmentId } from '@coaster/core';
+import { asTimeEntryId, ManageTimeEntries, TimeEntryType, type TimeEntry } from '@coaster/time-tracking';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Field } from '../../../../../../components/field/field';
 import { FormErrors } from '../../../../../../components/field/form-errors';

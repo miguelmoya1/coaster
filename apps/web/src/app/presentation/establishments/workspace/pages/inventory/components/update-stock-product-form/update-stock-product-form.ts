@@ -1,8 +1,7 @@
 import { Component, effect, inject, input, output, signal } from '@angular/core';
 import { form, FormField, FormRoot, min, required } from '@angular/forms/signals';
 import { MatButton } from '@angular/material/button';
-import { handleErrorFormField } from '@coaster/core';
-import type { EstablishmentId } from '@coaster/common';
+import { handleErrorFormField, type EstablishmentId } from '@coaster/core';
 import { ManageProducts, type Product } from '@coaster/products';
 import { TranslatePipe } from '@ngx-translate/core';
 import { FormErrors } from '../../../../../../components/field/form-errors';

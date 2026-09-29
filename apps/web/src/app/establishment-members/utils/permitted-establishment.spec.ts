@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import type { EstablishmentId } from '@coaster/common';
-import { asEstablishmentId, EstablishmentPermission } from '@coaster/common';
+import { asEstablishmentId, type EstablishmentId } from '@coaster/core';
+import { EstablishmentPermission } from '../models/establishment-permissions.type';
 import { describe, expect, it } from 'vitest';
 import { MyMemberStore } from '../store/my-member.store';
 import { permittedEstablishmentId } from './permitted-establishment';

@@ -1,7 +1,6 @@
 import { inject, Injector } from '@angular/core';
 import { CanActivateFn, RedirectCommand, Router } from '@angular/router';
-import { Role } from '@coaster/common';
-import { Auth, CurrentUser, until } from '@coaster/core';
+import { Auth, CurrentUser, Role, until } from '@coaster/core';
 
 export const adminGuard: CanActivateFn = async () => {
   const authService = inject(Auth);

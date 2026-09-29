@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
-import type { EstablishmentId, CreateShiftDto, Shift } from '@coaster/common';
+import type { EstablishmentId } from '@coaster/core';
+import type { CreateShiftDto, Shift } from '../models/shift.interface';
 import { firstValueFrom } from 'rxjs';
 
 @Service()

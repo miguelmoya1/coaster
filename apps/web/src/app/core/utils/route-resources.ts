@@ -1,6 +1,6 @@
 import { computed, type Resource, type Signal, type WritableResource } from '@angular/core';
 import { nonBlocking, type ActivatedRouteSnapshot, type ResourceContext, type ResourceResult } from '@angular/router';
-import { asEstablishmentId, type EstablishmentId } from '@coaster/common';
+import { asEstablishmentId, type EstablishmentId } from '../models/establishment-id';
 
 export type PageResource<T> = Resource<T | undefined> & Pick<WritableResource<T | undefined>, 'reload'>;
 

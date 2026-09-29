@@ -1,8 +1,9 @@
 import { httpResource } from '@angular/common/http';
 import { computed, effect, inject, Service, signal } from '@angular/core';
-import type { EstablishmentId, SubscriptionSeats as SubscriptionSeatsInfo } from '@coaster/common';
-import { SubscriptionPlan, SubscriptionStatus } from '@coaster/common';
-import { Realtime } from '@coaster/core';
+import type { SubscriptionSeats as SubscriptionSeatsInfo } from '../models/establishment-subscription.interface';
+import { SubscriptionPlan } from '../models/subscription-plan.type';
+import { SubscriptionStatus } from '../models/subscription-status.type';
+import { Realtime, type EstablishmentId } from '@coaster/core';
 import { establishmentSubscriptionMapper } from '../mappers/establishment-subscription.mapper';
 import { CreateCheckoutSession } from '../services/create-checkout-session';
 import { CreateCustomerPortalSession } from '../services/create-customer-portal-session';
@@ -165,7 +166,7 @@ export class EstablishmentSubscriptionStore {
 
   constructor() {
     effect(() => {
-      const event = this.#realtime.subscriptionUpdated();
+      const event = this.#realtime.on<{ establishmentId: string }>('subscriptionUpdated')();
       const currentEstablishmentId = this.#currentEstablishmentId();
       if (event && (!event.establishmentId || event.establishmentId === currentEstablishmentId)) {
         this.reloadSubscription();
@@ -173,7 +174,10 @@ export class EstablishmentSubscriptionStore {
     });
 
     effect(() => {
-      if (this.#realtime.memberInvited() || this.#realtime.memberRemoved()) {
+      if (
+        this.#realtime.on<{ id: string }>('memberInvited')() ||
+        this.#realtime.on<{ id: string }>('memberRemoved')()
+      ) {
         this.reloadSeats();
       }
     });

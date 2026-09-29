@@ -2,7 +2,7 @@ import { Component, computed, inject, input } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { Router, RouterLink } from '@angular/router';
-import type { Establishment } from '@coaster/common';
+import type { Establishment } from '@coaster/establishments';
 import { CurrentUser, type PageResource } from '@coaster/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ResourceStatus } from '../../../components/resource-status/resource-status';

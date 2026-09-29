@@ -13,25 +13,21 @@ import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { ActivatedRoute, createUrlTreeFromSnapshot, isActive, Router, RouterLink } from '@angular/router';
-import { MyMemberStore } from '@coaster/establishment-members';
+import { EstablishmentPermission, MyMemberStore, type EstablishmentMember } from '@coaster/establishment-members';
 import { RequireSubscriptionDirective } from '@coaster/establishment-subscription';
-import type {
-  EstablishmentId,
-  EstablishmentMember,
-  Shift,
-  ShiftExchange,
-  ShiftExchangeId,
-  ShiftId,
-  TimeEntry,
-  TimeEntryType,
-  Workday,
-} from '@coaster/common';
-import { EstablishmentPermission, EstablishmentRole } from '@coaster/common';
-import { ActionFeedback, DateFormatterService, loadedOr, type PageResource } from '@coaster/core';
+import { EstablishmentRole } from '@coaster/establishments';
+import { ActionFeedback, DateFormatterService, loadedOr, type EstablishmentId, type PageResource } from '@coaster/core';
 import { ManageExchanges } from '@coaster/exchanges';
 import { ScheduleStateService, scheduleDateOf, scheduleViewOf, type ScheduleView } from '@coaster/schedule';
-import { ManageShifts } from '@coaster/shifts';
-import { clockStateOf, ManageTimeEntries, workdayOn } from '@coaster/time-tracking';
+import { ManageShifts, type Shift, type ShiftExchange, type ShiftExchangeId, type ShiftId } from '@coaster/shifts';
+import {
+  clockStateOf,
+  ManageTimeEntries,
+  workdayOn,
+  type TimeEntry,
+  type TimeEntryType,
+  type Workday,
+} from '@coaster/time-tracking';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { addDays, endOfWeek, isSameDay, startOfWeek, subWeeks } from 'date-fns';
 import { ConfirmationDialog } from '../../../../components/confirm-dialog/confirmation-dialog.service';

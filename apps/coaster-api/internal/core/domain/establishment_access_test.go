@@ -8,11 +8,11 @@ import (
 )
 
 const (
-	permissionTypesPath = "../../../../../packages/common/src/constants/establishment-permissions.type.ts"
-	rolePermissionsPath = "../../../../../packages/common/src/domain/permissions/establishment-permissions.ts"
+	permissionTypesPath = "../../../../../apps/web/src/app/establishment-members/models/establishment-permissions.type.ts"
+	rolePermissionsPath = "../../../../../apps/web/src/app/establishment-members/models/establishment-permissions.ts"
 )
 
-func TestPermissionsMatchCommon(t *testing.T) {
+func TestPermissionsMatchTheWeb(t *testing.T) {
 	source, err := os.ReadFile(permissionTypesPath)
 	if err != nil {
 		t.Fatalf("reading %s: %v", permissionTypesPath, err)
@@ -29,11 +29,11 @@ func TestPermissionsMatchCommon(t *testing.T) {
 		t.Fatal("found no permissions in establishment-permissions.type.ts")
 	}
 	if !slices.Equal(AllEstablishmentPermissions, want) {
-		t.Errorf("AllEstablishmentPermissions does not match @coaster/common\ngot  %v\nwant %v", AllEstablishmentPermissions, want)
+		t.Errorf("AllEstablishmentPermissions does not match the web\ngot  %v\nwant %v", AllEstablishmentPermissions, want)
 	}
 }
 
-func TestRolePermissionsMatchCommon(t *testing.T) {
+func TestRolePermissionsMatchTheWeb(t *testing.T) {
 	source, err := os.ReadFile(rolePermissionsPath)
 	if err != nil {
 		t.Fatalf("reading %s: %v", rolePermissionsPath, err)

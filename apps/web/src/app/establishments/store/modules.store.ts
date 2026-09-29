@@ -1,8 +1,9 @@
 import { httpResource } from '@angular/common/http';
 import { computed, inject, Injector, Service, signal } from '@angular/core';
-import type { EstablishmentId, EstablishmentSettings, Language } from '@coaster/common';
-import { DEFAULT_ESTABLISHMENT_MODULES, DEFAULT_LANGUAGE, EstablishmentModule, resolveModules } from '@coaster/common';
-import { until } from '@coaster/core';
+import type { EstablishmentSettings } from '../models/establishment.interface';
+import { DEFAULT_ESTABLISHMENT_MODULES, EstablishmentModule } from '../models/establishment-module.type';
+import { resolveModules } from '../models/establishment-modules';
+import { DEFAULT_LANGUAGE, until, type EstablishmentId, type Language } from '@coaster/core';
 import { EstablishmentRepository } from '../data-access/establishment-repository';
 import { EstablishmentSettingsService } from '../services/establishment-settings';
 

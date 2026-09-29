@@ -2,9 +2,10 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import type { EstablishmentId, Table } from '@coaster/common';
-import { asEstablishmentId, asTableId, TableStatus } from '@coaster/common';
-import { Realtime } from '@coaster/core';
+import { asTableId, type Table } from '../models/table.interface';
+import { TableStatus } from '../models/table-status.type';
+import { asEstablishmentId, Realtime, type EstablishmentId } from '@coaster/core';
+import { fakeRealtime } from '@coaster/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { tableCounts } from '../utils/table-counts';
 import { tablesResource } from './tables.resource';
@@ -31,7 +32,11 @@ describe('tablesResource', () => {
     }
 
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting(), { provide: Realtime, useValue: realtime }],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        { provide: Realtime, useValue: fakeRealtime(realtime) },
+      ],
     });
 
     http = TestBed.inject(HttpTestingController);

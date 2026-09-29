@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import type { AccountSession, AccountSummary } from '@coaster/common';
-import { AccountRepository, Toast } from '@coaster/core';
+import { AccountRepository, Toast, type AccountSession, type AccountSummary } from '@coaster/core';
 import { fakeResource } from '@coaster/testing';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';

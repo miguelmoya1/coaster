@@ -1,11 +1,23 @@
 import { Component, computed, effect, inject, input, inputBinding, outputBinding, signal } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { ActivatedRoute, createUrlTreeFromSnapshot, isActive, Router, RouterLink } from '@angular/router';
-import { isOnlyOwner, ManageMembers, MyMemberStore } from '@coaster/establishment-members';
+import {
+  EstablishmentPermission,
+  isOnlyOwner,
+  ManageMembers,
+  MyMemberStore,
+  type EstablishmentMember,
+  type EstablishmentMemberId,
+} from '@coaster/establishment-members';
 import { EstablishmentSubscriptionStore, RequireSubscriptionDirective } from '@coaster/establishment-subscription';
-import type { EstablishmentId, EstablishmentMember, EstablishmentMemberId, EstablishmentRole } from '@coaster/common';
-import { EstablishmentPermission } from '@coaster/common';
-import { ActionFeedback, loadedOr, MoneyFormatterService, type PageResource } from '@coaster/core';
+import type { EstablishmentRole } from '@coaster/establishments';
+import {
+  ActionFeedback,
+  loadedOr,
+  MoneyFormatterService,
+  type EstablishmentId,
+  type PageResource,
+} from '@coaster/core';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ConfirmationDialog } from '../../../../components/confirm-dialog/confirmation-dialog.service';
 import { ResourceStatus } from '../../../../components/resource-status/resource-status';

@@ -1,10 +1,9 @@
 import { Component, inject, input, output, signal } from '@angular/core';
 import { form, FormField, FormRoot, max, maxLength, min, minLength, required } from '@angular/forms/signals';
 import { MatButton } from '@angular/material/button';
-import { ManageCategories } from '@coaster/categories';
-import type { CreateCategoryDto, EstablishmentId } from '@coaster/common';
-import { toBasisPoints } from '@coaster/common';
-import { handleErrorFormField } from '@coaster/core';
+import { ManageCategories, type CreateCategoryDto } from '@coaster/categories';
+import { toBasisPoints } from '@coaster/products';
+import { handleErrorFormField, type EstablishmentId } from '@coaster/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Field } from '../../../../../../components/field/field';
 import { FormErrors } from '../../../../../../components/field/form-errors';

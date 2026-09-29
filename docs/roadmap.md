@@ -22,8 +22,8 @@ See [Stripe integration](saas/stripe-integration.md).
 - Manual PRO grants without going through Stripe, with expiry and reason, in columns a webhook
   cannot clobber.
 - Every admin action recorded through one event and one writer.
-- Single permission table in `@coaster/common`, with the OWNER / MANAGER / STAFF hierarchy covered
-  by tests.
+- Single permission table, now in the web's `establishment-members` models and compared by a test
+  with the Go API's, with the OWNER / MANAGER / STAFF hierarchy covered by tests.
 
 See [backoffice](admin/backoffice.md) and [access model](architecture/permissions.md).
 

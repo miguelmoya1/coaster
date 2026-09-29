@@ -1,14 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
-import type {
-  EstablishmentId,
-  EstablishmentMemberId,
-  EstablishmentRole,
-  DeleteResponse,
-  InviteEstablishmentMemberDto,
-} from '@coaster/common';
+import type { EstablishmentMemberId, InviteEstablishmentMemberDto } from '../models/establishment-member.interface';
+import type { EstablishmentRole } from '@coaster/establishments';
 import { firstValueFrom, map } from 'rxjs';
-import { deleteResponseMapper } from '@coaster/core';
+import { deleteResponseMapper, type DeleteResponse, type EstablishmentId } from '@coaster/core';
 
 @Service()
 export class MemberRepository {

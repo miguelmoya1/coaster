@@ -67,13 +67,6 @@
         },
         "serve": {
           "builder": "@angular/build:dev-server",
-          "options": {
-            "prebundle": {
-              "exclude": [
-                "@coaster/common"
-              ]
-            }
-          },
           "configurations": {
             "production": {
               "buildTarget": "coaster:build:production"

@@ -201,8 +201,8 @@ Lo que Go hace distinto de Nest a propósito o porque no se ha podido copiar.
 ## Riesgos
 
 - **El contrato de la API tiene que ser idéntico**: rutas (`/api/v1/...`), forma del JSON,
-  cuerpo de los errores de Nest (`statusCode`, `message`, `error`), los `ErrorCodes` de
-  `@coaster/common`, los errores de validación y las cookies. Si algo cambia, se rompe `apps/web`.
+  cuerpo de los errores de Nest (`statusCode`, `message`, `error`), los `ErrorCodes` de la web,
+  los errores de validación y las cookies. Si algo cambia, se rompe `apps/web`.
 - **Contraseñas**: argon2 en Go tiene que verificar los hashes existentes.
 - **Tokens**: mismos claims y mismo secreto, para que nadie tenga que volver a iniciar
   sesión al hacer el cambio.
@@ -210,8 +210,9 @@ Lo que Go hace distinto de Nest a propósito o porque no se ha podido copiar.
   «Base de datos» en [convenciones](convenciones.md)). Los triggers de `TimeEntry` y el índice
   parcial de `ShiftExchange` están en las migraciones SQL, así que no se pierden.
   La tabla `_prisma_migrations` deja de usarse.
-- **Tipos compartidos** (`@coaster/common`): siguen en TypeScript y hay que mantenerlos a
-  mano o generarlos desde OpenAPI.
+- **Tipos compartidos**: están en los `models/` de cada dominio de la web y se mantienen a mano.
+  Los tests de `domain/` comparan los códigos de error, los permisos y los eventos de realtime
+  con esos ficheros; el resto de formas solo lo comprueban los e2e.
 - **IA**: queda por confirmar que el AI Gateway lee los modelos de respaldo que Go le manda por su API
   compatible con OpenAI (`providerOptions.gateway.models`).
 

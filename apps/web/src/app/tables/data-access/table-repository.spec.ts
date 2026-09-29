@@ -1,4 +1,5 @@
-import { asEstablishmentId, asTableId } from '@coaster/common';
+import { asEstablishmentId } from '@coaster/core';
+import { asTableId } from '../models/table.interface';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';

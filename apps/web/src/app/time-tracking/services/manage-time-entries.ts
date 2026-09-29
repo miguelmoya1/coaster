@@ -2,11 +2,11 @@ import { inject, Service } from '@angular/core';
 import type {
   AmendTimeEntryDto,
   CreateTimeEntryDto,
-  EstablishmentId,
   TimeEntryId,
-  TimeEntryType,
   VoidTimeEntryDto,
-} from '@coaster/common';
+} from '../models/time-entry.interface';
+import type { EstablishmentId } from '@coaster/core';
+import type { TimeEntryType } from '../models/time-entry.type';
 import { TimeEntryRepository } from '../data-access/time-entry-repository';
 
 @Service()

@@ -28,17 +28,17 @@ oficial en local, sin certificado y sin red**. Cuando el certificado llegue solo
 
 Antes de escribir nada, lo que no hay que inventar:
 
-| Necesidad                                                         | Ya existe en                                                                                                                             |
-| ----------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| Necesidad                                                         | Ya existe en                                                                                                                                   |
+| ----------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
 | Cadena de huellas SHA-256, genesis, cadena canónica, verificación | [`time-entry-chain.ts`](../../apps/api/src/time-tracking/domain/time-entry-chain.ts)                                                           |
 | Correlativo sin huecos bajo concurrencia                          | `pg_advisory_xact_lock` en [`time-entries.write.repository.ts`](../../apps/api/src/time-tracking/data-access/time-entries.write.repository.ts) |
-| Corrección inmutable (registro nuevo que referencia al viejo)     | `supersedesId` / `rootId` en `DbTimeEntry`                                                                                               |
-| Cálculo de totales, descuentos y pagos                            | `OrderPricingEngine` en [`order-pricing.engine.ts`](../../packages/common/src/domain/pricing/order-pricing.engine.ts)                          |
-| Cobro parcial y división de cuenta                                | `paidQuantityCash` / `paidQuantityCard` por línea                                                                                        |
-| Cola de impresión y bridge en el local                            | módulo `printer` + `apps/printer-service` (Go)                                                                                           |
-| Renderizado de QR                                                 | `coaster-qr-code` en web (`qrcode-generator`)                                                                                            |
-| Interruptor por establecimiento                                   | `DbEstablishmentSettings` + `resolveModules`                                                                                             |
-| Registro de acciones sensibles                                    | `DbAdminAuditLog` (patrón, no la tabla)                                                                                                  |
+| Corrección inmutable (registro nuevo que referencia al viejo)     | `supersedesId` / `rootId` en `DbTimeEntry`                                                                                                     |
+| Cálculo de totales, descuentos y pagos                            | `CalculatePricing` en [`order_pricing.go`](../../apps/coaster-api/internal/core/domain/order_pricing.go)                                       |
+| Cobro parcial y división de cuenta                                | `paidQuantityCash` / `paidQuantityCard` por línea                                                                                              |
+| Cola de impresión y bridge en el local                            | módulo `printer` + `apps/printer-service` (Go)                                                                                                 |
+| Renderizado de QR                                                 | `coaster-qr-code` en web (`qrcode-generator`)                                                                                                  |
+| Interruptor por establecimiento                                   | `DbEstablishmentSettings` + `resolveModules`                                                                                                   |
+| Registro de acciones sensibles                                    | `DbAdminAuditLog` (patrón, no la tabla)                                                                                                        |
 
 La sección 4 es, en la práctica, copiar el primer bloque cambiando el ámbito del lock. No se escribe
 un algoritmo nuevo.
@@ -746,17 +746,17 @@ ticket  F1+canje    PDF          │
                               ← bloqueado por certificado
 ```
 
-| #   | Paquete                                                                     | Depende de       | Notas                                         |
-| --- | --------------------------------------------------------------------------- | ---------------- | --------------------------------------------- |
-| W2  | Cadena de huellas y correlativo por serie                                   | —                | Sección 4. Calca `time-entry-chain`.          |
-| W3  | Construcción del ticket en la API                                           | W2               | Sección 7.A.                                  |
+| #   | Paquete                                                                     | Depende de       | Notas                                          |
+| --- | --------------------------------------------------------------------------- | ---------------- | ---------------------------------------------- |
+| W2  | Cadena de huellas y correlativo por serie                                   | —                | Sección 4. Calca `time-entry-chain`.           |
+| W3  | Construcción del ticket en la API                                           | W2               | Sección 7.A.                                   |
 | W4  | `GS ( k` en el renderer Go                                                  | —                | Sección 7.C. Otro lenguaje, aislado del resto. |
-| W5  | Anulación de comandas: PIN, motivo, auditoría                               | —                | Sección 9.                                    |
-| W6  | Cierre de caja                                                              | —                | Sección 10.                                   |
-| W7  | F1 directa, canje, rectificativas, anulación fiscal                         | W2               | Sección 6.                                    |
-| W8  | PDF desde `DbInvoice`                                                       | W2               | Sección 7.D.                                  |
-| W9  | Constructor de XML validado contra XSD y contra las validaciones publicadas | W2               | Secciones 2.G, 8.B y 15. **Sin certificado.** |
-| W10 | Transporte SOAP, mTLS, despacho y reintentos                                | W9 + certificado | Sección 8.C y 8.D.                            |
+| W5  | Anulación de comandas: PIN, motivo, auditoría                               | —                | Sección 9.                                     |
+| W6  | Cierre de caja                                                              | —                | Sección 10.                                    |
+| W7  | F1 directa, canje, rectificativas, anulación fiscal                         | W2               | Sección 6.                                     |
+| W8  | PDF desde `DbInvoice`                                                       | W2               | Sección 7.D.                                   |
+| W9  | Constructor de XML validado contra XSD y contra las validaciones publicadas | W2               | Secciones 2.G, 8.B y 15. **Sin certificado.**  |
+| W10 | Transporte SOAP, mTLS, despacho y reintentos                                | W9 + certificado | Sección 8.C y 8.D.                             |
 
 W2, W4, W5 y W6 arrancan a la vez. No comparten ficheros.
 

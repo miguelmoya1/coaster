@@ -2,9 +2,9 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import type { EstablishmentId, Shift } from '@coaster/common';
-import { asEstablishmentId } from '@coaster/common';
-import { Realtime } from '@coaster/core';
+import type { Shift } from '../models/shift.interface';
+import { asEstablishmentId, Realtime, type EstablishmentId } from '@coaster/core';
+import { fakeRealtime } from '@coaster/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { shiftsResource } from './shifts.resource';
 
@@ -34,7 +34,11 @@ describe('shiftsResource', () => {
     realtime.shiftDeleted.set(null);
 
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting(), { provide: Realtime, useValue: realtime }],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        { provide: Realtime, useValue: fakeRealtime(realtime) },
+      ],
     });
 
     http = TestBed.inject(HttpTestingController);

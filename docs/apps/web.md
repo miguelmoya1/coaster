@@ -60,7 +60,7 @@ reason.
 | Command              | What it does                                                 |
 | -------------------- | ------------------------------------------------------------ |
 | `npm run dev`        | `ng serve` on `0.0.0.0:4200`                                 |
-| `npm run build`      | Builds `@coaster/common` first, then `ng build`              |
+| `npm run build`      | `ng build`, after writing `environment.ts`                   |
 | `npm test`           | Unit tests. Better than raw `tsc`: it compiles templates too |
 | `npm run test:watch` | The same, watching                                           |
 | `npm run e2e`        | Playwright                                                   |
@@ -74,19 +74,17 @@ reason.
 npx tsc --noEmit -p tsconfig.app.json
 ```
 
-## After touching `packages/common`
+## The API contract
 
-Rebuild it and restart the API — both applications consume its `dist`, not its source, and nothing
-watches it in development:
+The shapes the API answers and receives live in each domain's `models/` folder
+(`src/app/<domain>/models/`), exported from its `index.ts`; the ones every layer needs (user,
+session, error codes, ids, languages, realtime event names) are in `core/models/` and
+`core/errors/`. A domain reads another's through its `@coaster/<domain>` barrel. The Go API's tests
+read the error codes, the permission table and the realtime event names straight from these files.
 
-```bash
-npm run build -w @coaster/common && docker compose restart api
-```
-
-`angular.json` excludes `@coaster/common` from the dev server's `prebundle`, so a changed export is
-normally picked up on the spot. If the browser still reports `does not provide an export named
-'...'`, it is Vite's pre-bundle cache in the named `web_angular_cache` volume. Clear it **from inside
-the container** — deleting it from the host detaches the bind mount:
+If the browser reports `does not provide an export named '...'`, it is Vite's pre-bundle cache in
+the named `web_angular_cache` volume. Clear it **from inside the container** — deleting it from the
+host detaches the bind mount:
 
 ```bash
 docker compose exec web rm -rf /app/apps/web/.angular/cache && docker compose restart web

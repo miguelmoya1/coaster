@@ -1,10 +1,9 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { MyMemberStore } from '@coaster/establishment-members';
-import { EstablishmentRole } from '@coaster/common';
+import { MyMemberStore, type EstablishmentMember } from '@coaster/establishment-members';
+import { EstablishmentRole } from '@coaster/establishments';
 import { ManageMembers } from '@coaster/establishment-members';
-import type { EstablishmentMember } from '@coaster/common';
 import { fakeResource } from '@coaster/testing';
 import { EstablishmentSubscriptionStore } from '@coaster/establishment-subscription';
 

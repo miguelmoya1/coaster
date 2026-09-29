@@ -2,8 +2,7 @@
 
 La API de Coaster en Go, en `apps/coaster-api`. Sustituye a `apps/api` (NestJS + Prisma): hasta el
 cambio (P5 en la [migración](migracion.md)), `apps/api` sigue en producción y es la referencia de
-comportamiento. El contrato HTTP (rutas, JSON, errores, códigos de `@coaster/common` y cookies) es
-el mismo.
+comportamiento. El contrato HTTP (rutas, JSON, errores, códigos de error de la web y cookies) es el mismo.
 
 ## Arrancar
 

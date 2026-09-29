@@ -1,5 +1,5 @@
-import type { Table } from '@coaster/common';
-import { TableStatus } from '@coaster/common';
+import type { Table } from '../models/table.interface';
+import { TableStatus } from '../models/table-status.type';
 
 export const tableCounts = (tables: Table[]) => ({
   total: tables.length,

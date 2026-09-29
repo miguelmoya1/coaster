@@ -87,8 +87,9 @@ func (h *OrderHandler) RegisterRoutes(mux *http.ServeMux, guard *middleware.Guar
 **Errores**
 - Los servicios devuelven `domain.NotFound(domain.CodeX)`, `domain.Forbidden(…)`, etc.
   (`domain/errors.go`), o un texto suelto de `domain.Message*` cuando Nest lo manda sin código.
-  Los códigos están en `domain/error_codes.go` y un test comprueba que coinciden con
-  `@coaster/common`: uno nuevo allí se añade aquí.
+  Los códigos están en `domain/error_codes.go` y un test comprueba que coinciden con los de la
+  web (`apps/web/src/app/core/errors/error.types.ts`): uno nuevo allí se añade aquí. Lo mismo
+  pasa con los permisos y con los eventos de realtime.
 - El handler hace `writeError(w, err)`. Un `domain.Error` sale con el cuerpo de Nest y su
   estado; cualquier otro se registra con `slog` y sale como el 500 genérico.
 - `domain.TooManyRequests` sale sin `error`, como el `HttpException` con un texto de Nest, y

@@ -2,8 +2,15 @@ import { Component, computed, debounced, effect, inject, input, linkedSignal, si
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ADMIN_PAGE_SIZE, ManagePlatform, pageOf, searchOf, totalPagesOf } from '@coaster/admin';
-import type { AdminBetaTesters as BetaTestersPage, BetaTester } from '@coaster/common';
+import {
+  ADMIN_PAGE_SIZE,
+  ManagePlatform,
+  pageOf,
+  searchOf,
+  totalPagesOf,
+  type AdminBetaTesters as BetaTestersPage,
+  type BetaTester,
+} from '@coaster/admin';
 import { ActionFeedback, type PageResource } from '@coaster/core';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { DatePipe } from '@angular/common';

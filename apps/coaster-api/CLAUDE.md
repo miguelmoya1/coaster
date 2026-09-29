@@ -23,9 +23,9 @@ La documentación está en `docs/apps/coaster-api/`:
   cargado con `//go:embed` en una variable por consulta. Consultas simples, sin anidar
   relaciones: si hace falta, dos consultas y se juntan en Go.
 - **Solo librerías marcadas ✅ en `librerias.md`.** Si hace falta una que no lo está, preguntar antes.
-- **El contrato de la API no cambia**: rutas, JSON, formato de errores, `ErrorCodes` de
-  `@coaster/common` y cookies tienen que ser idénticos a `apps/api`. Ante la duda, leer el
-  código de `apps/api` y copiar su comportamiento.
+- **El contrato de la API no cambia**: rutas, JSON, formato de errores, `ErrorCodes` (los de
+  `apps/web/src/app/core/errors/error.types.ts`) y cookies tienen que ser idénticos a `apps/api`.
+  Ante la duda, leer el código de `apps/api` y copiar su comportamiento.
 - **No tocar `apps/api`**, salvo para adaptar los e2e y lanzarlos contra Go (paquete P4).
 - **Miguel está aprendiendo Go**: código idiomático y directo, sin trucos. Las decisiones se
   explican en el chat. **Sin comentarios en el código Go**, ni doc comments; solo directivas como `//go:embed`.

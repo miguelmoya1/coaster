@@ -1,5 +1,5 @@
-import type { CashClose } from '@coaster/common';
-import { asCashCloseId, asEstablishmentId, asUserId } from '@coaster/common';
+import { asCashCloseId, type CashClose } from '../models/cash-close.interface';
+import { asEstablishmentId, asUserId } from '@coaster/core';
 import { describe, expect, it } from 'vitest';
 import type { CashCloseTicketText } from './cash-close-ticket';
 import { cashCloseTicket } from './cash-close-ticket';

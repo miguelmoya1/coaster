@@ -5,6 +5,7 @@ import { CurrentEstablishmentStore } from '@coaster/establishments';
 import { MyMemberStore } from '@coaster/establishment-members';
 import { EstablishmentSubscriptionStore } from '@coaster/establishment-subscription';
 import { Auth, CurrentUser, Realtime } from '@coaster/core';
+import { fakeRealtime } from '@coaster/testing';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import WorkspaceLayout from './workspace-layout';
@@ -73,7 +74,7 @@ describe('WorkspaceLayout', () => {
         { provide: CurrentEstablishmentStore, useValue: currentEstablishmentStoreMock },
         { provide: EstablishmentSubscriptionStore, useValue: establishmentSubscriptionStoreMock },
         { provide: MyMemberStore, useValue: myMemberStoreMock },
-        { provide: Realtime, useValue: realtimeMock },
+        { provide: Realtime, useValue: fakeRealtime(realtimeMock) },
         { provide: Auth, useValue: authMock },
       ],
     }).compileComponents();

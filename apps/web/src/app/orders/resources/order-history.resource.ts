@@ -1,8 +1,16 @@
 import { httpResource } from '@angular/common/http';
 import { inject, type Signal } from '@angular/core';
-import type { EstablishmentId, Order } from '@coaster/common';
-import { OrderStatus } from '@coaster/common';
-import { onRealtime, patchById, Realtime, removeById, updateLoaded, upsertById } from '@coaster/core';
+import type { Order } from '../models/order.interface';
+import { OrderStatus } from '../models/order-status.type';
+import {
+  onRealtime,
+  patchById,
+  Realtime,
+  removeById,
+  updateLoaded,
+  upsertById,
+  type EstablishmentId,
+} from '@coaster/core';
 import { OrderRepository } from '../data-access/order-repository';
 import { orderArrayMapper } from '../mappers/order.mapper';
 
@@ -28,14 +36,16 @@ export const orderHistoryResource = (establishmentId: Signal<EstablishmentId | u
     }
   };
 
-  onRealtime(realtime.orderCreated, place);
-  onRealtime(realtime.orderUpdated, place);
-  onRealtime(realtime.orderItemAdded, place);
-  onRealtime(realtime.orderClosed, place);
-  onRealtime(realtime.orderCancelled, ({ id }) =>
+  onRealtime(realtime.on<Order>('orderCreated'), place);
+  onRealtime(realtime.on<Order>('orderUpdated'), place);
+  onRealtime(realtime.on<Order>('orderItemAdded'), place);
+  onRealtime(realtime.on<Order>('orderClosed'), place);
+  onRealtime(realtime.on<{ id: string } | Order>('orderCancelled'), ({ id }) =>
     updateLoaded(history, (orders) => patchById(orders, id, (order) => ({ ...order, status: OrderStatus.CANCELLED }))),
   );
-  onRealtime(realtime.orderDeleted, ({ id }) => updateLoaded(history, (orders) => removeById(orders, id)));
+  onRealtime(realtime.on<{ id: string }>('orderDeleted'), ({ id }) =>
+    updateLoaded(history, (orders) => removeById(orders, id)),
+  );
 
   return history;
 };

@@ -1,6 +1,7 @@
 import { inject, Service } from '@angular/core';
-import type { Order, OrderItem, PrintJobDto, PrintTicketItemDto, PrintTicketPayloadDto } from '@coaster/common';
-import { ErrorCodes } from '@coaster/common';
+import type { Order, OrderItem } from '@coaster/orders';
+import type { PrintJobDto, PrintTicketItemDto, PrintTicketPayloadDto } from '../models/printer.interface';
+import { ErrorCodes } from '@coaster/core';
 import { PrinterRepository } from '../data-access/printer.repository';
 
 const RESULT_TIMEOUT_MS = 30_000;

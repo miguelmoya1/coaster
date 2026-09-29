@@ -1,9 +1,8 @@
 import { signal } from '@angular/core';
 import { Routes } from '@angular/router';
-import { EstablishmentModule, EstablishmentPermission } from '@coaster/common';
 import { establishmentIdOf, nonBlockingResources } from '@coaster/core';
-import { membersResource, permissionGuard } from '@coaster/establishment-members';
-import { moduleGuard } from '@coaster/establishments';
+import { EstablishmentPermission, membersResource, permissionGuard } from '@coaster/establishment-members';
+import { EstablishmentModule, moduleGuard } from '@coaster/establishments';
 import { productsResource } from '@coaster/products';
 import { dayRangeOf, timeSheetRangeOf } from '@coaster/schedule';
 import { shiftsResource } from '@coaster/shifts';

@@ -1,6 +1,6 @@
 import { httpResource } from '@angular/common/http';
 import { inject, Service, signal } from '@angular/core';
-import type { EstablishmentId } from '@coaster/common';
+import type { EstablishmentId } from '@coaster/core';
 import { establishmentMapper } from '../mappers/establishment.mapper';
 import { CurrentEstablishment } from '../services/current-establishment';
 

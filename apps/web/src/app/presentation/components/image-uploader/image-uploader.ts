@@ -1,7 +1,6 @@
 import { Component, computed, DestroyRef, inject, input, model, signal } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
-import type { EstablishmentId } from '@coaster/common';
-import { ActionFeedback } from '@coaster/core';
+import { ActionFeedback, type EstablishmentId } from '@coaster/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { MediaRepository } from '../../../core/data-access/media-repository';
 import { Spinner } from '../spinner/spinner';

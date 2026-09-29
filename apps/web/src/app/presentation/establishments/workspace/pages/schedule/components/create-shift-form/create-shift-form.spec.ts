@@ -1,10 +1,9 @@
-import { asEstablishmentId, asEstablishmentMemberId, asUserId } from '@coaster/common';
+import { asEstablishmentMemberId, type EstablishmentMember } from '@coaster/establishment-members';
+import { EstablishmentRole } from '@coaster/establishments';
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideNativeDateAdapter } from '@angular/material/core';
-import type { EstablishmentMember } from '@coaster/common';
-import { EstablishmentRole } from '@coaster/common';
-import { DateFormatterService } from '@coaster/core';
+import { asEstablishmentId, asUserId, DateFormatterService } from '@coaster/core';
 import { ScheduleStateService } from '@coaster/schedule';
 import { ManageShifts } from '@coaster/shifts';
 import { provideTranslateService } from '@ngx-translate/core';

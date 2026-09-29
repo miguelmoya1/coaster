@@ -1,6 +1,7 @@
 import { httpResource } from '@angular/common/http';
 import { inject, type Signal } from '@angular/core';
-import type { EstablishmentId, StarterCatalogueCategory } from '@coaster/common';
+import type { EstablishmentId } from '@coaster/core';
+import type { StarterCatalogueCategory } from '../models/catalogue.interface';
 import { CatalogueRepository } from '../data-access/catalogue-repository';
 
 export const starterCatalogueResource = (establishmentId: Signal<EstablishmentId | undefined>) => {

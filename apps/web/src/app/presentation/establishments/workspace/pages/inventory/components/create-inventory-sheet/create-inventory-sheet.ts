@@ -1,6 +1,7 @@
 import { Component, computed, inject, input, output, signal } from '@angular/core';
 import { MatChipListbox, MatChipListboxChange, MatChipOption } from '@angular/material/chips';
-import type { Category, EstablishmentId } from '@coaster/common';
+import type { Category } from '@coaster/categories';
+import type { EstablishmentId } from '@coaster/core';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { CreateCategoryForm } from '../create-category-form/create-category-form';
 import { CreateProductForm } from '../create-product-form/create-product-form';

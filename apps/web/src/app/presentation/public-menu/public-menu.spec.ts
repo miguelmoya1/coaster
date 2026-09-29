@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import type { PublishedMenu } from '@coaster/common';
+import type { PublishedMenu } from '@coaster/menu';
 import { provideRouter, Router } from '@angular/router';
 import { fakeResource } from '@coaster/testing';
 import { provideTranslateService } from '@ngx-translate/core';

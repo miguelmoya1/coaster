@@ -2,15 +2,19 @@ import { Component, computed, debounced, effect, inject, input, linkedSignal, un
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ADMIN_PAGE_SIZE, oneOf, pageOf, searchOf, totalPagesOf } from '@coaster/admin';
-import type {
-  AdminEstablishmentSummary,
-  EstablishmentBillingSource,
-  EstablishmentId,
-  Paginated,
-} from '@coaster/common';
-import { EstablishmentBillingSource as BillingSource, SubscriptionStatus } from '@coaster/common';
-import type { PageResource } from '@coaster/core';
+import {
+  ADMIN_PAGE_SIZE,
+  EstablishmentBillingSource as BillingSource,
+  oneOf,
+  pageOf,
+  searchOf,
+  totalPagesOf,
+  type AdminEstablishmentSummary,
+  type EstablishmentBillingSource,
+  type Paginated,
+} from '@coaster/admin';
+import { SubscriptionStatus } from '@coaster/establishment-subscription';
+import type { EstablishmentId, PageResource } from '@coaster/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { CoasterInput } from '../../../components/field/input.directive';
 import { Loading } from '../../../components/loading/loading';

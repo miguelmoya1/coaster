@@ -1,5 +1,5 @@
 import { inject, Service } from '@angular/core';
-import type { CreateEstablishmentDto } from '@coaster/common';
+import type { CreateEstablishmentDto } from '../models/establishment.interface';
 import { EstablishmentRepository } from '../data-access/establishment-repository';
 
 @Service()

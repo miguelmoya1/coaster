@@ -1,5 +1,6 @@
 import { inject, Service } from '@angular/core';
-import type { CreateTableDto, EstablishmentId, TableId, UpdateTableDto } from '@coaster/common';
+import type { CreateTableDto, TableId, UpdateTableDto } from '../models/table.interface';
+import type { EstablishmentId } from '@coaster/core';
 import { TableRepository } from '../data-access/table-repository';
 
 @Service()

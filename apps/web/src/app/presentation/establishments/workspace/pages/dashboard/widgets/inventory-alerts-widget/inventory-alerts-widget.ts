@@ -1,8 +1,7 @@
 import { Component, computed, input } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
-import type { EstablishmentId } from '@coaster/common';
-import { loadedOr, type PageResource } from '@coaster/core';
+import { loadedOr, type EstablishmentId, type PageResource } from '@coaster/core';
 import type { Product } from '@coaster/products';
 import { TranslatePipe } from '@ngx-translate/core';
 import { InventoryItemCard } from '../../../../components/inventory-item-card/inventory-item-card';

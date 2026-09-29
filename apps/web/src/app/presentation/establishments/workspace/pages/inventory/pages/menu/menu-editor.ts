@@ -1,19 +1,18 @@
 import { Component, computed, effect, inject, input, linkedSignal, signal, untracked, viewChild } from '@angular/core';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
-import type {
-  Category,
-  EstablishmentId,
-  Language,
-  MenuDraft,
-  MenuItemDraft,
-  MenuSectionDraft,
-  ProductId,
-} from '@coaster/common';
-import { LANGUAGE_NAMES, LANGUAGES } from '@coaster/common';
-import { ActionFeedback, loadedOr, type PageResource } from '@coaster/core';
-import { ManageMenu } from '@coaster/menu';
-import type { Product } from '@coaster/products';
+import type { Category } from '@coaster/categories';
+import {
+  ActionFeedback,
+  LANGUAGE_NAMES,
+  LANGUAGES,
+  loadedOr,
+  type EstablishmentId,
+  type Language,
+  type PageResource,
+} from '@coaster/core';
+import { ManageMenu, type MenuDraft, type MenuItemDraft, type MenuSectionDraft } from '@coaster/menu';
+import type { Product, ProductId } from '@coaster/products';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { LanguageSelect } from '../../../../../../components/language-select/language-select';
 import { ResourceStatus } from '../../../../../../components/resource-status/resource-status';

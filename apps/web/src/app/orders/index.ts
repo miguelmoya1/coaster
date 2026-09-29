@@ -4,3 +4,10 @@ export { orderHistoryResource, todayIso } from './resources/order-history.resour
 export { orderResource } from './resources/order.resource';
 export { ManageOrder } from './services/manage-order';
 export { orderHistorySummary, type OrderHistorySummary } from './utils/order-history-summary';
+export * from './models/adjustment-target.type';
+export * from './models/adjustment-type.type';
+export * from './models/delivery-status.type';
+export * from './models/order-status.type';
+export * from './models/order.interface';
+export * from './models/payment-method.type';
+export * from './models/payment-status.type';

@@ -1,6 +1,6 @@
 import { httpResource } from '@angular/common/http';
 import { inject, type Signal } from '@angular/core';
-import type { EstablishmentId } from '@coaster/common';
+import type { EstablishmentId } from '@coaster/core';
 import { ExchangeRepository } from '../data-access/exchange-repository';
 import { exchangeArrayMapper } from '../mappers/exchange.mapper';
 

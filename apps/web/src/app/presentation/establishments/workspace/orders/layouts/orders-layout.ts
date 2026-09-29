@@ -1,8 +1,7 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import type { EstablishmentId } from '@coaster/common';
-import { EstablishmentPermission } from '@coaster/common';
-import { MyMemberStore } from '@coaster/establishment-members';
+import type { EstablishmentId } from '@coaster/core';
+import { EstablishmentPermission, MyMemberStore } from '@coaster/establishment-members';
 import { TranslatePipe } from '@ngx-translate/core';
 import { PageContainer } from '../../../../components/page-container/page-container';
 import { PageHeader } from '../../../../components/page-header/page-header';

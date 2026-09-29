@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
-import type { EstablishmentId, GenerateUploadUrlsDto, MediaUploadResponse } from '@coaster/common';
+import type { EstablishmentId } from '../models/establishment-id';
+import type { GenerateUploadUrlsDto, MediaUploadResponse } from '../models/media.interface';
 import { firstValueFrom } from 'rxjs';
 
 @Service()

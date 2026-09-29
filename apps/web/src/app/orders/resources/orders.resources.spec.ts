@@ -2,9 +2,10 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import type { EstablishmentId, Order, OrderId } from '@coaster/common';
-import { asEstablishmentId, asOrderId, OrderStatus } from '@coaster/common';
-import { Realtime } from '@coaster/core';
+import { asOrderId, type Order, type OrderId } from '../models/order.interface';
+import { OrderStatus } from '../models/order-status.type';
+import { asEstablishmentId, Realtime, type EstablishmentId } from '@coaster/core';
+import { fakeRealtime } from '@coaster/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { openOrdersResource } from './open-orders.resource';
 import { orderHistoryResource } from './order-history.resource';
@@ -46,7 +47,11 @@ describe('order resources', () => {
     }
 
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting(), { provide: Realtime, useValue: realtime }],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        { provide: Realtime, useValue: fakeRealtime(realtime) },
+      ],
     });
 
     http = TestBed.inject(HttpTestingController);

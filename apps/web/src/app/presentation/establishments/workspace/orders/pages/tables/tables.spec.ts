@@ -1,10 +1,10 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import type { Order, Table } from '@coaster/common';
-import { asEstablishmentId, asOrderId, asTableId, OrderStatus, TableStatus } from '@coaster/common';
+import { asOrderId, OrderStatus, type Order } from '@coaster/orders';
+import { asEstablishmentId } from '@coaster/core';
 import { MyMemberStore } from '@coaster/establishment-members';
-import { ManageTables } from '@coaster/tables';
+import { asTableId, ManageTables, TableStatus, type Table } from '@coaster/tables';
 import { fakeResource } from '@coaster/testing';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';

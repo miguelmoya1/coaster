@@ -2,10 +2,10 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
 import type {
   CreateEstablishmentDto,
-  EstablishmentId,
   EstablishmentSettings,
   UpdateEstablishmentSettingsDto,
-} from '@coaster/common';
+} from '../models/establishment.interface';
+import type { EstablishmentId } from '@coaster/core';
 import { firstValueFrom } from 'rxjs';
 
 @Service()

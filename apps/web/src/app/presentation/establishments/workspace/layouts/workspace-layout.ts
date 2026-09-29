@@ -1,8 +1,7 @@
 import { Component, computed, effect, inject, input, untracked } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { RouterOutlet } from '@angular/router';
-import type { EstablishmentId } from '@coaster/common';
-import { CurrentUser, Realtime } from '@coaster/core';
+import { CurrentUser, Realtime, type EstablishmentId } from '@coaster/core';
 import { MyMemberStore } from '@coaster/establishment-members';
 import { EstablishmentSubscriptionStore } from '@coaster/establishment-subscription';
 import { CurrentEstablishmentStore, ModulesStore } from '@coaster/establishments';

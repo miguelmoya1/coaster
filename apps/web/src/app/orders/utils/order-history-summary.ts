@@ -1,5 +1,5 @@
-import type { Order } from '@coaster/common';
-import { OrderStatus } from '@coaster/common';
+import type { Order } from '../models/order.interface';
+import { OrderStatus } from '../models/order-status.type';
 
 export interface OrderHistorySummary {
   closed: number;

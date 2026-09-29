@@ -50,7 +50,10 @@ describe('Realtime', () => {
     vi.stubGlobal('fetch', fetchMock);
 
     TestBed.configureTestingModule({
-      providers: [provideZonelessChangeDetection(), { provide: Auth, useValue: { accessToken: accessToken.asReadonly() } }],
+      providers: [
+        provideZonelessChangeDetection(),
+        { provide: Auth, useValue: { accessToken: accessToken.asReadonly() } },
+      ],
     });
 
     service = TestBed.inject(Realtime);
@@ -101,7 +104,7 @@ describe('Realtime', () => {
     stream.push('event: orderCreated\ndata: {"id":"order-1"}\n\n');
     await settle();
 
-    expect(service.orderCreated()).toEqual({ id: 'order-1' });
+    expect(service.on('orderCreated')()).toEqual({ id: 'order-1' });
   });
 
   it('should ignore a comment, so a heartbeat never reaches a signal', async () => {
@@ -115,7 +118,7 @@ describe('Realtime', () => {
     stream.push(': ping\n\n');
     await settle();
 
-    expect(service.orderCreated()).toBeNull();
+    expect(service.on('orderCreated')()).toBeNull();
     expect(service.connected()).toBe(true);
   });
 
@@ -130,7 +133,7 @@ describe('Realtime', () => {
     expect(() => stream.push('event: somethingElse\ndata: {}\n\n')).not.toThrow();
     await settle();
 
-    expect(service.orderCreated()).toBeNull();
+    expect(service.on('orderCreated')()).toBeNull();
   });
 
   it('should ask for what it missed when it comes back', async () => {

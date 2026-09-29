@@ -1,6 +1,7 @@
 import { httpResource } from '@angular/common/http';
 import { inject, type Signal } from '@angular/core';
-import type { EstablishmentId, Language, MenuDraft, PublishedMenu } from '@coaster/common';
+import type { EstablishmentId, Language } from '@coaster/core';
+import type { MenuDraft, PublishedMenu } from '../models/menu.interface';
 import { MenuRepository } from '../data-access/menu-repository';
 
 export const menuDraftResource = (establishmentId: Signal<EstablishmentId | undefined>) => {

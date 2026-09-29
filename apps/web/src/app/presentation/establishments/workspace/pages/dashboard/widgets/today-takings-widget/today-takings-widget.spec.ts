@@ -1,8 +1,8 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CurrentEstablishmentStore } from '@coaster/establishments';
-import { EstablishmentId } from '@coaster/common';
-import type { EstablishmentStats } from '@coaster/common';
+import { EstablishmentId } from '@coaster/core';
+import type { EstablishmentStats } from '@coaster/stats';
 import { fakeResource } from '@coaster/testing';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it } from 'vitest';

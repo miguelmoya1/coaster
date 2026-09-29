@@ -1,4 +1,6 @@
-import { EstablishmentRole, TimeEntryType, workdayDateOf } from '@coaster/common';
+import { EstablishmentRole } from '../../src/app/establishments/models/establishment-role.type';
+import { TimeEntryType } from '../../src/app/time-tracking/models/time-entry.type';
+import { workdayDateOf } from '../../src/app/time-tracking/models/workday';
 import { expect, Page, test } from '@playwright/test';
 import { mockApiResponse, mockMyMemberRole } from './utils/mock-api';
 import { loginAsTestUser } from './utils/mock-auth';

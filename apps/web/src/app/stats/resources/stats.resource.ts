@@ -1,8 +1,9 @@
 import { httpResource } from '@angular/common/http';
 import { inject, type Signal } from '@angular/core';
-import type { EstablishmentId, EstablishmentStats } from '@coaster/common';
-import { onRealtime, Realtime } from '@coaster/core';
+import type { EstablishmentStats } from '../models/stats.interface';
+import { onRealtime, Realtime, type EstablishmentId } from '@coaster/core';
 import { StatsRepository } from '../data-access/stats-repository';
+import type { Order } from '@coaster/orders';
 
 export const statsResource = (establishmentId: Signal<EstablishmentId | undefined>) => {
   const repository = inject(StatsRepository);
@@ -13,7 +14,11 @@ export const statsResource = (establishmentId: Signal<EstablishmentId | undefine
     return id ? repository.routes.get(id) : undefined;
   });
 
-  for (const event of [realtime.orderClosed, realtime.orderCancelled, realtime.orderDeleted]) {
+  for (const event of [
+    realtime.on<Order>('orderClosed'),
+    realtime.on<{ id: string } | Order>('orderCancelled'),
+    realtime.on<{ id: string }>('orderDeleted'),
+  ]) {
     onRealtime<unknown>(event, () => stats.reload());
   }
 

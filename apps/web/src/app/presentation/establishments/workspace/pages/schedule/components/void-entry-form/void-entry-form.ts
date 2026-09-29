@@ -1,10 +1,8 @@
 import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
 import { form, FormField, FormRoot, maxLength, minLength, required } from '@angular/forms/signals';
 import { MatButton } from '@angular/material/button';
-import type { EstablishmentId, TimeEntry } from '@coaster/common';
-import { asTimeEntryId } from '@coaster/common';
-import { handleErrorFormField } from '@coaster/core';
-import { ManageTimeEntries } from '@coaster/time-tracking';
+import { handleErrorFormField, type EstablishmentId } from '@coaster/core';
+import { asTimeEntryId, ManageTimeEntries, type TimeEntry } from '@coaster/time-tracking';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Field } from '../../../../../../components/field/field';
 import { FormErrors } from '../../../../../../components/field/form-errors';

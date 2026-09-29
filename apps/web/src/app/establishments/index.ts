@@ -7,3 +7,7 @@ export { EstablishmentSettingsService } from './services/establishment-settings'
 export { CurrentEstablishmentStore } from './store/current-establishment.store';
 export { ModulesStore } from './store/modules.store';
 export { myEstablishmentsResource } from './resources/my-establishments.resource';
+export * from './models/establishment-module.type';
+export * from './models/establishment-modules';
+export * from './models/establishment-role.type';
+export * from './models/establishment.interface';

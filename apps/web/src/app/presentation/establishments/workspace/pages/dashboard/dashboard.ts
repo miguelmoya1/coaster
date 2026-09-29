@@ -1,8 +1,10 @@
 import { NgComponentOutlet } from '@angular/common';
 import { Component, computed, inject, input, Type } from '@angular/core';
-import type { EstablishmentId, EstablishmentMember, EstablishmentStats, Shift, Workday } from '@coaster/common';
-import type { PageResource } from '@coaster/core';
-import { MyMemberStore } from '@coaster/establishment-members';
+import type { EstablishmentStats } from '@coaster/stats';
+import type { Shift } from '@coaster/shifts';
+import type { Workday } from '@coaster/time-tracking';
+import type { EstablishmentId, PageResource } from '@coaster/core';
+import { MyMemberStore, type EstablishmentMember } from '@coaster/establishment-members';
 import { ModulesStore } from '@coaster/establishments';
 import type { Product } from '@coaster/products';
 import { TranslatePipe } from '@ngx-translate/core';

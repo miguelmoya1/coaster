@@ -1,4 +1,4 @@
-import { asEstablishmentId } from '@coaster/common';
+import { asEstablishmentId } from '@coaster/core';
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { EstablishmentSubscriptionStore, BillingEntryPoint } from '@coaster/establishment-subscription';

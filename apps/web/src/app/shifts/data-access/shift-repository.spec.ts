@@ -1,8 +1,8 @@
-import { asEstablishmentId, asUserId } from '@coaster/common';
+import { asEstablishmentId, asUserId } from '@coaster/core';
+import type { CreateShiftDto } from '../models/shift.interface';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import type { CreateShiftDto } from '@coaster/common';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ShiftRepository } from './shift-repository';
 

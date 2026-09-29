@@ -1,8 +1,13 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import type { TimeEntry } from '@coaster/common';
-import { asEstablishmentId, asTimeEntryId, asUserId, TimeEntrySource, TimeEntryType } from '@coaster/common';
-import { ManageTimeEntries } from '@coaster/time-tracking';
+import { asEstablishmentId, asUserId } from '@coaster/core';
+import {
+  asTimeEntryId,
+  ManageTimeEntries,
+  TimeEntrySource,
+  TimeEntryType,
+  type TimeEntry,
+} from '@coaster/time-tracking';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { VoidEntryForm } from './void-entry-form';

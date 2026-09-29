@@ -1,4 +1,4 @@
-import type { Table } from '@coaster/common';
+import type { Table } from '../models/table.interface';
 
 export const checkIsTable = (table: unknown): table is Table => {
   const t = table as Record<string, unknown>;

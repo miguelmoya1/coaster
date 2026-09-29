@@ -2,16 +2,13 @@ import { inject, Service } from '@angular/core';
 import type {
   AddBetaTesterDto,
   BetaTesterId,
-  EstablishmentId,
-  EstablishmentMemberId,
-  EstablishmentModule,
-  EstablishmentRole,
   GrantEstablishmentPlanDto,
   RevokeEstablishmentPlanDto,
   UpdateAdminUserDto,
-  UserId,
-} from '@coaster/common';
-import { ManageMembers } from '@coaster/establishment-members';
+} from '../models/admin.interface';
+import type { EstablishmentId, UserId } from '@coaster/core';
+import type { EstablishmentModule, EstablishmentRole } from '@coaster/establishments';
+import { ManageMembers, type EstablishmentMemberId } from '@coaster/establishment-members';
 import { AdminRepository } from '../data-access/admin-repository';
 
 @Service()

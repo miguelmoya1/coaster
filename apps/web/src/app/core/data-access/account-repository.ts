@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
-import type { AccountSession, AccountSummary, AuthProvider } from '@coaster/common';
+import type { AccountSession, AccountSummary, AuthProvider } from '../models/auth.interface';
 import { firstValueFrom } from 'rxjs';
 
 @Service()

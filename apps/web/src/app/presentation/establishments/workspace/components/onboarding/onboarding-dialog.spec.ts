@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { DEFAULT_ESTABLISHMENT_MODULES } from '@coaster/common';
-import { ModulesStore } from '@coaster/establishments';
+import { DEFAULT_ESTABLISHMENT_MODULES, ModulesStore } from '@coaster/establishments';
 import { ImportStarterCatalogue } from '@coaster/catalogue';
 import { provideChildTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';

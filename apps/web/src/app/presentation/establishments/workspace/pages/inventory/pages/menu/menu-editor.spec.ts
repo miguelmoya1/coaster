@@ -1,9 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import type { MenuDraft } from '@coaster/common';
+import type { Category } from '@coaster/categories';
 import { ActionFeedback } from '@coaster/core';
-import type { Category } from '@coaster/common';
-import { ManageMenu } from '@coaster/menu';
+import { ManageMenu, type MenuDraft } from '@coaster/menu';
 import type { Product } from '@coaster/products';
 import { fakeResource } from '@coaster/testing';
 import { provideTranslateService } from '@ngx-translate/core';

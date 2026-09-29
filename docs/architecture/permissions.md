@@ -16,13 +16,13 @@ not run.
 
 ## The permission table
 
-`packages/common/src/domain/permissions/establishment-permissions.ts` is the **only** source of truth. Both
-the API and the web app import it **directly from `@coaster/common`**; nothing re-exports it from a
-`core`, so there is no second route to reach it.
+`apps/web/src/app/establishment-members/models/establishment-permissions.ts` is the **only** source of
+truth. The web imports it through `@coaster/establishment-members`, and the Go API keeps its own table
+in `internal/core/domain`, which a test compares with this file list by list.
 
 It used to be duplicated on both sides and drifted: the web copy was missing `establishment:view-printer` and
-`establishment:manage-printer`, so the UI hid actions the API happily allowed. That is why it lives in
-`common` now.
+`establishment:manage-printer`, so the UI hid actions the API happily allowed. That is why there is one
+table, and a test instead of a second copy.
 
 The table is **three lists composed into one**, and nothing reads it with a branch:
 

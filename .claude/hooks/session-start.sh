@@ -49,8 +49,8 @@ fi
 {
   npm install --no-audit --no-fund
   npm run db:gen -w apps/api
-  npm run build -w @coaster/common
   (cd apps/coaster-api && go mod download)
+  (cd apps/database && go mod download)
   docker pull -q postgres:18-alpine
   docker pull -q postgres:16-alpine
 } >> "$log" 2>&1 || { echo "Falló la preparación de la sesión: mira $log"; exit 1; }

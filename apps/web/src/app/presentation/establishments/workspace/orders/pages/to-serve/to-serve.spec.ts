@@ -1,9 +1,18 @@
-import { asEstablishmentId, asOrderId, asOrderItemId, asProductId } from '@coaster/common';
+import { asEstablishmentId } from '@coaster/core';
+import { asProductId } from '@coaster/products';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import type { Order, OrderItem } from '@coaster/common';
-import { DeliveryStatus, OrderStatus, PaymentMethod, PaymentStatus } from '@coaster/common';
-import { ManageOrder } from '@coaster/orders';
+import {
+  asOrderId,
+  asOrderItemId,
+  DeliveryStatus,
+  ManageOrder,
+  OrderStatus,
+  PaymentMethod,
+  PaymentStatus,
+  type Order,
+  type OrderItem,
+} from '@coaster/orders';
 import { fakeResource } from '@coaster/testing';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';

@@ -1,7 +1,7 @@
 import { httpResource } from '@angular/common/http';
 import { inject, type Signal } from '@angular/core';
-import type { Category, EstablishmentId } from '@coaster/common';
-import { onRealtime, Realtime, removeById, updateLoaded, upsertById } from '@coaster/core';
+import type { Category } from '../models/category.interface';
+import { onRealtime, Realtime, removeById, updateLoaded, upsertById, type EstablishmentId } from '@coaster/core';
 import { CategoryRepository } from '../data-access/category-repository';
 import { categoryArrayMapper, categoryMapper } from '../mappers/category.mapper';
 
@@ -19,10 +19,12 @@ export const categoriesResource = (establishmentId: Signal<EstablishmentId | und
 
   const place = (payload: Category) => updateLoaded(categories, (list) => upsertById(list, categoryMapper(payload)));
 
-  onRealtime(realtime.categoryCreated, place);
-  onRealtime(realtime.categoryUpdated, place);
-  onRealtime(realtime.categoryDeleted, ({ id }) => updateLoaded(categories, (list) => removeById(list, id)));
-  onRealtime(realtime.catalogueImported, () => categories.reload());
+  onRealtime(realtime.on<Category>('categoryCreated'), place);
+  onRealtime(realtime.on<Category>('categoryUpdated'), place);
+  onRealtime(realtime.on<{ id: string }>('categoryDeleted'), ({ id }) =>
+    updateLoaded(categories, (list) => removeById(list, id)),
+  );
+  onRealtime(realtime.on<{ establishmentId: string }>('catalogueImported'), () => categories.reload());
 
   return categories;
 };

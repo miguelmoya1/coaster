@@ -1,12 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { MyMemberStore } from '@coaster/establishment-members';
-import type { EstablishmentMember, Shift, ShiftExchange, Workday } from '@coaster/common';
-import { ClockState, TimeEntryType } from '@coaster/common';
-import { ManageTimeEntries } from '@coaster/time-tracking';
+import { MyMemberStore, type EstablishmentMember } from '@coaster/establishment-members';
+import { ClockState, ManageTimeEntries, TimeEntryType, type Workday } from '@coaster/time-tracking';
 import { ManageExchanges } from '@coaster/exchanges';
-import { ManageShifts } from '@coaster/shifts';
+import { ManageShifts, type Shift, type ShiftExchange } from '@coaster/shifts';
 import { fakeResource } from '@coaster/testing';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';

@@ -1,10 +1,16 @@
-import { asOrderId, asOrderItemId } from '@coaster/common';
 import { Component, computed, inject, input, signal } from '@angular/core';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
-import type { EstablishmentId, BulkUpdateItemDto, Order, OrderItem } from '@coaster/common';
-import { ActionFeedback, loadedOr, type PageResource } from '@coaster/core';
-import { ManageOrder, OrderTitlePipe } from '@coaster/orders';
+import { ActionFeedback, loadedOr, type EstablishmentId, type PageResource } from '@coaster/core';
+import {
+  asOrderId,
+  asOrderItemId,
+  ManageOrder,
+  OrderTitlePipe,
+  type BulkUpdateItemDto,
+  type Order,
+  type OrderItem,
+} from '@coaster/orders';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ResourceStatus } from '../../../../../components/resource-status/resource-status';
 

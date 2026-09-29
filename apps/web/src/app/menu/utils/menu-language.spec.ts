@@ -1,4 +1,4 @@
-import { DEFAULT_LANGUAGE } from '@coaster/common';
+import { DEFAULT_LANGUAGE } from '@coaster/core';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { menuLanguageOf } from './menu-language';
 

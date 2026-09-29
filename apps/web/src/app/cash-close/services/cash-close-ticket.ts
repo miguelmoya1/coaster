@@ -1,4 +1,4 @@
-import type { CashClose } from '@coaster/common';
+import type { CashClose } from '../models/cash-close.interface';
 
 const WIDTH = 32;
 

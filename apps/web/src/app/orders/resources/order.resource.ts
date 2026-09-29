@@ -1,8 +1,8 @@
 import { httpResource } from '@angular/common/http';
 import { inject, type Signal } from '@angular/core';
-import type { EstablishmentId, Order, OrderId } from '@coaster/common';
-import { OrderStatus } from '@coaster/common';
-import { onRealtime, Realtime, updateLoaded } from '@coaster/core';
+import type { Order, OrderAdjustment, OrderId } from '../models/order.interface';
+import { OrderStatus } from '../models/order-status.type';
+import { onRealtime, Realtime, updateLoaded, type EstablishmentId } from '@coaster/core';
 import { OrderRepository } from '../data-access/order-repository';
 import { orderMapper } from '../mappers/order.mapper';
 import { withTip } from './order-events';
@@ -29,26 +29,29 @@ export const orderResource = (
     }
   };
 
-  onRealtime(realtime.orderCreated, replace);
-  onRealtime(realtime.orderUpdated, replace);
-  onRealtime(realtime.orderItemAdded, replace);
-  onRealtime(realtime.orderClosed, replace);
-  onRealtime(realtime.orderCancelled, (cancelled) => {
+  onRealtime(realtime.on<Order>('orderCreated'), replace);
+  onRealtime(realtime.on<Order>('orderUpdated'), replace);
+  onRealtime(realtime.on<Order>('orderItemAdded'), replace);
+  onRealtime(realtime.on<Order>('orderClosed'), replace);
+  onRealtime(realtime.on<{ id: string } | Order>('orderCancelled'), (cancelled) => {
     if (cancelled.id === orderId()) {
       updateLoaded(order, (current) => ({ ...current, status: OrderStatus.CANCELLED }));
     }
   });
-  onRealtime(realtime.orderTipUpdated, ({ orderId: id, tipAmount }) => {
+  onRealtime(realtime.on<{ orderId: string; tipAmount: number }>('orderTipUpdated'), ({ orderId: id, tipAmount }) => {
     if (id === orderId()) {
       updateLoaded(order, withTip(tipAmount));
     }
   });
-  onRealtime(realtime.orderAdjustmentsUpdated, ({ orderId: id }) => {
-    if (id === orderId()) {
-      order.reload();
-    }
-  });
-  onRealtime(realtime.orderDeleted, ({ id }) => {
+  onRealtime(
+    realtime.on<{ orderId: string; adjustments: OrderAdjustment[] }>('orderAdjustmentsUpdated'),
+    ({ orderId: id }) => {
+      if (id === orderId()) {
+        order.reload();
+      }
+    },
+  );
+  onRealtime(realtime.on<{ id: string }>('orderDeleted'), ({ id }) => {
     if (id === orderId()) {
       order.reload();
     }

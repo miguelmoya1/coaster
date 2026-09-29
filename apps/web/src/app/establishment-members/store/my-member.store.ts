@@ -1,8 +1,9 @@
 import { httpResource } from '@angular/common/http';
 import { computed, effect, inject, Injector, Service, signal } from '@angular/core';
-import type { EstablishmentId } from '@coaster/common';
-import { EstablishmentPermission, EstablishmentRole, hasPermission } from '@coaster/common';
-import { Realtime, until } from '@coaster/core';
+import { EstablishmentPermission } from '../models/establishment-permissions.type';
+import { EstablishmentRole } from '@coaster/establishments';
+import { hasPermission } from '../models/establishment-permissions';
+import { Realtime, until, type EstablishmentId } from '@coaster/core';
 import { memberMapper } from '../mappers/member.mapper';
 import { MyMember } from '../services/my-member';
 
@@ -19,7 +20,7 @@ export class MyMemberStore {
 
   constructor() {
     effect(() => {
-      const roleChanged = this.#realtime.memberRoleChanged();
+      const roleChanged = this.#realtime.on<{ id: string; userId: string; role: string }>('memberRoleChanged')();
       const mine = this.myMember.hasValue() ? this.myMember.value() : undefined;
 
       if (roleChanged && mine && roleChanged.userId === mine.userId) {

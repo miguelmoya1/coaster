@@ -2,7 +2,7 @@ import { Component, computed, inject, input } from '@angular/core';
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { RequireSubscriptionDirective } from '@coaster/establishment-subscription';
-import type { EstablishmentId } from '@coaster/common';
+import type { EstablishmentId } from '@coaster/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { AiVoiceService } from './ai-voice.service';
 

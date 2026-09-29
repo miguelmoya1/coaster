@@ -1,9 +1,8 @@
 import { Routes } from '@angular/router';
 import { starterCatalogueResource } from '@coaster/catalogue';
 import { categoriesResource } from '@coaster/categories';
-import { EstablishmentPermission } from '@coaster/common';
 import { establishmentIdOf, nonBlockingResources } from '@coaster/core';
-import { permissionGuard } from '@coaster/establishment-members';
+import { EstablishmentPermission, permissionGuard } from '@coaster/establishment-members';
 import { menuDraftResource } from '@coaster/menu';
 import { productsResource } from '@coaster/products';
 

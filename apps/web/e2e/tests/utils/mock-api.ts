@@ -1,4 +1,7 @@
-import { EstablishmentRole, Role, SubscriptionPlan, SubscriptionStatus } from '@coaster/common';
+import { EstablishmentRole } from '../../../src/app/establishments/models/establishment-role.type';
+import { Role } from '../../../src/app/core/models/role.type';
+import { SubscriptionPlan } from '../../../src/app/establishment-subscription/models/subscription-plan.type';
+import { SubscriptionStatus } from '../../../src/app/establishment-subscription/models/subscription-status.type';
 import { Page, Route } from '@playwright/test';
 
 // Base API url to mock

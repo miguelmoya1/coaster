@@ -4,7 +4,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { MatIconButton } from '@angular/material/button';
 import { CdkTextareaAutosize } from '@angular/cdk/text-field';
 import { MatIcon } from '@angular/material/icon';
-import type { EstablishmentId } from '@coaster/common';
+import type { EstablishmentId } from '@coaster/core';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { map } from 'rxjs';
 import { AiVoiceService, type AiSheetSnap } from './ai-voice.service';

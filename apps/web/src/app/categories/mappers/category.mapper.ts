@@ -1,4 +1,4 @@
-import type { Category } from '@coaster/common';
+import type { Category } from '../models/category.interface';
 
 export const checkIsCategory = (category: unknown): category is Category => {
   return typeof category === 'object' && category !== null && 'id' in category && 'name' in category;

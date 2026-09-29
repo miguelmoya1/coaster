@@ -1,5 +1,6 @@
 import { inject, Service } from '@angular/core';
-import type { CategoryId, CreateCategoryDto, EstablishmentId, UpdateCategoryDto } from '@coaster/common';
+import type { CategoryId, CreateCategoryDto, UpdateCategoryDto } from '../models/category.interface';
+import type { EstablishmentId } from '@coaster/core';
 import { CategoryRepository } from '../data-access/category-repository';
 
 @Service()

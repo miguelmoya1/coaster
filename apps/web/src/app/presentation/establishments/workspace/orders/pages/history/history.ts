@@ -1,4 +1,3 @@
-import { asOrderId } from '@coaster/common';
 import { Component, computed, inject, input } from '@angular/core';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatDatepicker, MatDatepickerInput, MatDatepickerToggle } from '@angular/material/datepicker';
@@ -6,10 +5,8 @@ import { MatIcon } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { MyMemberStore } from '@coaster/establishment-members';
 import { RequireSubscriptionDirective } from '@coaster/establishment-subscription';
-import type { EstablishmentId, Order } from '@coaster/common';
-import { OrderStatus } from '@coaster/common';
-import { ActionFeedback, loadedOr, type PageResource } from '@coaster/core';
-import { ManageOrder, orderHistorySummary, todayIso } from '@coaster/orders';
+import { ActionFeedback, loadedOr, type EstablishmentId, type PageResource } from '@coaster/core';
+import { asOrderId, ManageOrder, orderHistorySummary, OrderStatus, todayIso, type Order } from '@coaster/orders';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ConfirmationDialog } from '../../../../../components/confirm-dialog/confirmation-dialog.service';
 import { ResourceStatus } from '../../../../../components/resource-status/resource-status';

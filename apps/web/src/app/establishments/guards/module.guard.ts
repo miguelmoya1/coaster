@@ -1,6 +1,6 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, RedirectCommand, Router } from '@angular/router';
-import { EstablishmentModule } from '@coaster/common';
+import { EstablishmentModule } from '../models/establishment-module.type';
 import { establishmentIdIn } from '@coaster/core';
 import { ModulesStore } from '../store/modules.store';
 

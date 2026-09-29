@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import type { Category, Order, Table } from '@coaster/common';
-import { asOrderId } from '@coaster/common';
-import { ManageOrder } from '@coaster/orders';
+import type { Category } from '@coaster/categories';
+import type { Table } from '@coaster/tables';
+import { asOrderId, ManageOrder, type Order } from '@coaster/orders';
 import type { Product } from '@coaster/products';
 import { fakeResource } from '@coaster/testing';
 import { provideTranslateService } from '@ngx-translate/core';

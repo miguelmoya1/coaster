@@ -1,5 +1,6 @@
-import type { EstablishmentMember } from '@coaster/common';
-import { asEstablishmentId, asEstablishmentMemberId, asUserId, EstablishmentRole } from '@coaster/common';
+import { asEstablishmentMemberId, type EstablishmentMember } from '../models/establishment-member.interface';
+import { asEstablishmentId, asUserId } from '@coaster/core';
+import { EstablishmentRole } from '@coaster/establishments';
 import { describe, expect, it } from 'vitest';
 import { checkIsMember, memberArrayMapper, memberMapper } from './member.mapper';
 

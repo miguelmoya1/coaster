@@ -3,15 +3,16 @@ import { form, FormField, FormRoot, maxLength, minLength, required } from '@angu
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
-import type { AccountSession, AccountSummary } from '@coaster/common';
 import {
   AccountRepository,
   DateFormatterService,
   describeUserAgent,
   getErrorMessage,
   handleErrorFormField,
-  type PageResource,
   Toast,
+  type AccountSession,
+  type AccountSummary,
+  type PageResource,
 } from '@coaster/core';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ConfirmationDialog } from '../components/confirm-dialog/confirmation-dialog.service';

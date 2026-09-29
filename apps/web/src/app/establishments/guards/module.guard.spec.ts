@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRouteSnapshot, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
-import { EstablishmentModule } from '@coaster/common';
+import { EstablishmentModule } from '../models/establishment-module.type';
 import { redirectOf } from '@coaster/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ModulesStore } from '../store/modules.store';

@@ -2,9 +2,9 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import type { Category, EstablishmentId } from '@coaster/common';
-import { asCategoryId, asEstablishmentId } from '@coaster/common';
-import { Realtime } from '@coaster/core';
+import { asCategoryId, type Category } from '../models/category.interface';
+import { asEstablishmentId, Realtime, type EstablishmentId } from '@coaster/core';
+import { fakeRealtime } from '@coaster/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { categoriesResource } from './categories.resource';
 
@@ -27,7 +27,11 @@ describe('categoriesResource', () => {
     }
 
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting(), { provide: Realtime, useValue: realtime }],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        { provide: Realtime, useValue: fakeRealtime(realtime) },
+      ],
     });
   });
 

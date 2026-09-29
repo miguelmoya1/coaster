@@ -1,6 +1,6 @@
 import { httpResource } from '@angular/common/http';
 import { inject, type Signal } from '@angular/core';
-import type { EstablishmentId } from '@coaster/common';
+import type { EstablishmentId } from '@coaster/core';
 import { TimeEntryRepository } from '../data-access/time-entry-repository';
 import { workdayArrayMapper, workdayMapper } from '../mappers/workday.mapper';
 

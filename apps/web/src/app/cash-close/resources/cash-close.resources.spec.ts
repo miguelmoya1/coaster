@@ -2,9 +2,9 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import type { EstablishmentId, Order } from '@coaster/common';
-import { asEstablishmentId } from '@coaster/common';
-import { Realtime } from '@coaster/core';
+import type { Order } from '@coaster/orders';
+import { asEstablishmentId, Realtime, type EstablishmentId } from '@coaster/core';
+import { fakeRealtime } from '@coaster/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { cashClosePreviewResource } from './cash-close.resources';
 
@@ -26,7 +26,11 @@ describe('cashClosePreviewResource', () => {
     }
 
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting(), { provide: Realtime, useValue: realtime }],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        { provide: Realtime, useValue: fakeRealtime(realtime) },
+      ],
     });
   });
 

@@ -273,26 +273,9 @@ Two things are deliberately lazy:
 - `PAYWALL_HANDLER` resolves `PlanDialogService` through a dynamic `import()`, so the plan dialog and
   `MatDialog` stay out of the initial bundle.
 
-`@coaster/common` ships in both formats (CommonJS for the API, ESM for the bundler) through the
-`exports` map in its `package.json`. Emitting only CommonJS makes Angular warn that it cannot
-optimise the module.
-
 ## Working with the containers
 
-**After touching `packages/common`, rebuild it and restart the API**, because both applications
-consume its `dist`, not its source:
-
-```bash
-npm run build -w @coaster/common && docker compose restart api
-```
-
-Nothing watches that package in development: the API container mounts the repo but runs
-`nest start -b swc -w`, which only watches `apps/api/src`. Without rebuilding, the API keeps the old
-version in its module cache; without restarting, it does not reload either. The symptom is
-misleading: whatever was added to the package arrives as `undefined` and blows up far from the
-change.
-
-Three more container traps, all of which look like "my change did not apply":
+Three container traps, all of which look like "my change did not apply":
 
 - **Adding an npm dependency.** `node_modules` are anonymous volumes, so the host install is
   invisible inside the container. Run `docker compose exec api npm install` (or `web`).
@@ -304,13 +287,9 @@ Three more container traps, all of which look like "my change did not apply":
   docker compose build web && docker compose up -d --force-recreate --renew-anon-volumes web
   ```
 
-- **Adding or removing an export in `@coaster/common`.** Vite pre-bundles dependencies into
-  `.angular/cache`, which `compose.yaml` keeps in a **named** volume that survives restarts, so the
-  browser reported `does not provide an export named '...'` for a symbol that plainly existed. This
-  one is fixed at the root: `angular.json` now lists `@coaster/common` under the dev server's
-  `prebundle.exclude`, so it is compiled with the application and picks changes up on the spot.
-
-  If it ever comes back, the cache is stale. Delete it **from inside the container** — removing it
+- **`does not provide an export named '...'`.** Vite pre-bundles dependencies into `.angular/cache`,
+  which `compose.yaml` keeps in a **named** volume that survives restarts, so a stale pre-bundle can
+  report a symbol that plainly exists. Delete it **from inside the container** — removing it
   from the host while the container holds it open detaches the bind mount, and everything you do
   afterwards on the host is silently ignored:
 

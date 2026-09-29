@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import type { StockStatus } from '@coaster/common';
+import type { StockStatus } from '../models/stock-status.type';
 
 export type BadgeVariant = 'success' | 'warning' | 'error' | 'neutral';
 

@@ -1,10 +1,9 @@
 import { Component, input, output, signal } from '@angular/core';
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
-import type { EstablishmentId } from '@coaster/common';
-import { StockStatus } from '@coaster/common';
+import type { EstablishmentId } from '@coaster/core';
 import { RequireSubscriptionDirective } from '@coaster/establishment-subscription';
-import { StockStatusPipe } from '@coaster/products';
+import { StockStatus, StockStatusPipe } from '@coaster/products';
 import { TranslatePipe } from '@ngx-translate/core';
 import { PricePipe } from '../../pipes/price/price';
 import { StatusBadge } from '../status-badge/status-badge';

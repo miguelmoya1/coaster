@@ -2,6 +2,7 @@ import { computed } from '@angular/core';
 import { Routes } from '@angular/router';
 import {
   ADMIN_PAGE_SIZE,
+  AdminAuditAction,
   adminAuditResource,
   adminBetaTestersResource,
   adminEstablishmentDetailResource,
@@ -9,13 +10,14 @@ import {
   adminMetricsResource,
   adminRecentActivityResource,
   adminUsersResource,
+  EstablishmentBillingSource,
   flagOf,
   oneOf,
   pageOf,
   searchOf,
 } from '@coaster/admin';
-import { AdminAuditAction, EstablishmentBillingSource, Role, SubscriptionStatus } from '@coaster/common';
-import { establishmentIdOf, nonBlockingResources } from '@coaster/core';
+import { SubscriptionStatus } from '@coaster/establishment-subscription';
+import { establishmentIdOf, nonBlockingResources, Role } from '@coaster/core';
 
 const adminRoutes: Routes = [
   {

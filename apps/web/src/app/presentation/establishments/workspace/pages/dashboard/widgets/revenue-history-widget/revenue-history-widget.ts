@@ -1,7 +1,7 @@
 import { Component, computed, input } from '@angular/core';
 import { MatCard, MatCardContent, MatCardHeader, MatCardSubtitle, MatCardTitle } from '@angular/material/card';
 import { MatIcon } from '@angular/material/icon';
-import type { EstablishmentStats } from '@coaster/common';
+import type { EstablishmentStats } from '@coaster/stats';
 import type { PageResource } from '@coaster/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Loading } from '../../../../../../components/loading/loading';

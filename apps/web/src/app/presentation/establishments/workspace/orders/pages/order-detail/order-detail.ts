@@ -1,13 +1,22 @@
-import { asOrderId, asOrderItemId, asTableId } from '@coaster/common';
+import { asTableId, type Table } from '@coaster/tables';
 import { Component, computed, inject, input, inputBinding, linkedSignal, outputBinding, signal } from '@angular/core';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { Router } from '@angular/router';
-import type { EstablishmentId, BulkUpdateItemDto, Order, OrderItem, Table } from '@coaster/common';
-import { AdjustmentTarget, OrderStatus, PaymentMethod } from '@coaster/common';
-import { ActionFeedback, loadedOr, type PageResource } from '@coaster/core';
-import { ManageOrder, OrderTitlePipe } from '@coaster/orders';
+import { ActionFeedback, loadedOr, type EstablishmentId, type PageResource } from '@coaster/core';
+import {
+  AdjustmentTarget,
+  asOrderId,
+  asOrderItemId,
+  ManageOrder,
+  OrderStatus,
+  OrderTitlePipe,
+  PaymentMethod,
+  type BulkUpdateItemDto,
+  type Order,
+  type OrderItem,
+} from '@coaster/orders';
 import { PrintTicket } from '@coaster/printer';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ConfirmationDialog } from '../../../../../components/confirm-dialog/confirmation-dialog.service';

@@ -1,8 +1,7 @@
-import { asEstablishmentId, asCategoryId } from '@coaster/common';
+import { asEstablishmentId } from '@coaster/core';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ManageCategories } from '@coaster/categories';
-import type { Category } from '@coaster/common';
+import { asCategoryId, ManageCategories, type Category } from '@coaster/categories';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { EditCategoryForm } from './edit-category-form';

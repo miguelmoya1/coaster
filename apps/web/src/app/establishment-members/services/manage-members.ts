@@ -1,10 +1,7 @@
 import { inject, Service } from '@angular/core';
-import type {
-  EstablishmentId,
-  EstablishmentMemberId,
-  EstablishmentRole,
-  InviteEstablishmentMemberDto,
-} from '@coaster/common';
+import type { EstablishmentId } from '@coaster/core';
+import type { EstablishmentMemberId, InviteEstablishmentMemberDto } from '../models/establishment-member.interface';
+import type { EstablishmentRole } from '@coaster/establishments';
 import { MemberRepository } from '../data-access/member-repository';
 
 @Service()

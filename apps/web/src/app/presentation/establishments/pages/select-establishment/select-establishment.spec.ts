@@ -1,10 +1,8 @@
-import { asEstablishmentId } from '@coaster/common';
+import type { Establishment } from '@coaster/establishments';
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import type { Establishment } from '@coaster/common';
-import { Role } from '@coaster/common';
-import { CurrentUser } from '@coaster/core';
+import { asEstablishmentId, CurrentUser, Role } from '@coaster/core';
 import { fakeResource } from '@coaster/testing';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';

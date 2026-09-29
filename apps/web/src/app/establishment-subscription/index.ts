@@ -15,3 +15,6 @@ export {
   BillingAction,
   type BillingAction as BillingActionType,
 } from './store/establishment-subscription.store';
+export * from './models/establishment-subscription.interface';
+export * from './models/subscription-plan.type';
+export * from './models/subscription-status.type';

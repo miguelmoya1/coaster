@@ -2,9 +2,8 @@ import { Component, computed, inject, input, output, signal } from '@angular/cor
 import { FormField, FormRoot, form, required } from '@angular/forms/signals';
 import { MatButton } from '@angular/material/button';
 import { MatTimepicker, MatTimepickerInput, MatTimepickerToggle } from '@angular/material/timepicker';
-import type { EstablishmentId, EstablishmentMember } from '@coaster/common';
-import { asUserId } from '@coaster/common';
-import { DateFormatterService, handleErrorFormField } from '@coaster/core';
+import type { EstablishmentMember } from '@coaster/establishment-members';
+import { asUserId, DateFormatterService, handleErrorFormField, type EstablishmentId } from '@coaster/core';
 import { ScheduleStateService } from '@coaster/schedule';
 import { ManageShifts } from '@coaster/shifts';
 import { TranslatePipe } from '@ngx-translate/core';

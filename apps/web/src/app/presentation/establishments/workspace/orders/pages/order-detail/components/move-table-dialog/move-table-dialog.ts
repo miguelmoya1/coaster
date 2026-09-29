@@ -1,8 +1,7 @@
 import { Component, computed, input, output } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatDialogActions, MatDialogContent, MatDialogTitle } from '@angular/material/dialog';
-import type { Table } from '@coaster/common';
-import { TableStatus } from '@coaster/common';
+import { TableStatus, type Table } from '@coaster/tables';
 import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({

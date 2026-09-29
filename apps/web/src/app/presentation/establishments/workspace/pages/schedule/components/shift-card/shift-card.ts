@@ -2,7 +2,7 @@ import { Component, input, output } from '@angular/core';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatTooltip } from '@angular/material/tooltip';
-import { EstablishmentRole } from '@coaster/common';
+import { EstablishmentRole } from '@coaster/establishments';
 import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({

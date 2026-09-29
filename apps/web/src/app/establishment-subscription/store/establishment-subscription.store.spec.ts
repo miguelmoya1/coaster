@@ -2,9 +2,10 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideZonelessChangeDetection, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import type { EstablishmentId } from '@coaster/common';
-import { SubscriptionPlan, SubscriptionStatus } from '@coaster/common';
-import { Realtime } from '@coaster/core';
+import { SubscriptionPlan } from '../models/subscription-plan.type';
+import { SubscriptionStatus } from '../models/subscription-status.type';
+import { Realtime, type EstablishmentId } from '@coaster/core';
+import { fakeRealtime } from '@coaster/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { EstablishmentSubscription } from '../services/establishment-subscription';
 import { SubscriptionSeats } from '../services/subscription-seats';
@@ -68,11 +69,11 @@ describe('EstablishmentSubscriptionStore', () => {
         { provide: CreateCheckoutSession, useValue: { execute: vi.fn() } },
         {
           provide: Realtime,
-          useValue: {
+          useValue: fakeRealtime({
             subscriptionUpdated: realtimeSignal,
             memberInvited: memberInvitedSignal,
             memberRemoved: memberRemovedSignal,
-          },
+          }),
         },
       ],
     });

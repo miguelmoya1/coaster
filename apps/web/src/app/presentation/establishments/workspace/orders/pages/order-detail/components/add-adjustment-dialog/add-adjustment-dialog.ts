@@ -3,7 +3,7 @@ import { form, FormField, FormRoot, max, min, required } from '@angular/forms/si
 import { MatButton as MatBtn } from '@angular/material/button';
 import { MatButtonToggle, MatButtonToggleGroup } from '@angular/material/button-toggle';
 import { MatDialogActions, MatDialogContent, MatDialogTitle } from '@angular/material/dialog';
-import { AdjustmentType } from '@coaster/common';
+import { AdjustmentType } from '@coaster/orders';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Field } from '../../../../../../../components/field/field';
 import { CoasterInput } from '../../../../../../../components/field/input.directive';

@@ -5,20 +5,18 @@ description: Standard workflow to implement a complete full-stack feature across
 # Workflow: Create Full-Stack Feature
 Execute the following steps sequentially to build a new feature. Do not proceed to the next step until the current one is fully implemented and correct.
 
-## Step 1: Design Phase & Contracts (`packages/common`)
+## Step 1: Design Phase & Contracts (`apps/web/src/app/<domain>/models`)
 - Understand the user requirements and determine the data flow.
 - Identify the data models required for the feature.
-- Create or update Interfaces, DTOs, and Enums inside `packages/common/src/`.
-- Ensure everything is correctly exported in the corresponding `index.ts`.
+- Create or update Interfaces, DTOs, and Enums in the domain's `models/` folder of the web (or `core/models/` if every layer needs them).
+- Ensure everything is correctly exported in the domain's `index.ts`.
 - Ask the user to validate the contracts if there are ambiguous business rules.
 
-## Step 2: Implement Backend (`apps/api`)
-- If database changes are needed, update the Prisma schema and create the necessary migration.
-- Create the specific `Command` or `Query` class and its associated `Handler`.
-- Implement the business logic within the Handler, utilizing the `data-access` layer.
-- Create or update the `Controller` endpoint to expose the functionality, ensuring strict validation with the shared DTOs.
-- Validate that the Handler successfully processes the logic and returns the types defined in Step 1.
-- Write unit tests for the Handler to cover both success and failure cases.
+## Step 2: Implement Backend (`apps/coaster-api`, Go)
+- Follow `apps/coaster-api/CLAUDE.md` and `docs/apps/coaster-api/convenciones.md`.
+- If database changes are needed, add a goose migration in `apps/database/migrations/` and regenerate `schema.sql` (see `docs/apps/database.md`).
+- Add the use case as a method of the entity's service, its SQL in `repository/queries/`, and the route in its handler, answering the shapes defined in Step 1.
+- Write unit tests for the service and the handler, covering both success and failure cases.
 
 ## Step 3: Implement Frontend (`apps/web`)
 - Create or update the HTTP call inside the appropriate `data-access/` service using Angular's `HttpClient`.

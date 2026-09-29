@@ -7,3 +7,6 @@ export { MyMember } from './services/my-member';
 export { MyMemberStore } from './store/my-member.store';
 export { isOnlyOwner } from './utils/owners';
 export { permittedEstablishmentId } from './utils/permitted-establishment';
+export * from './models/establishment-member.interface';
+export * from './models/establishment-permissions';
+export * from './models/establishment-permissions.type';

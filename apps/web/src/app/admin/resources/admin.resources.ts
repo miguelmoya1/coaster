@@ -5,8 +5,8 @@ import type {
   AdminBetaTestersQuery,
   AdminEstablishmentsQuery,
   AdminUsersQuery,
-  EstablishmentId,
-} from '@coaster/common';
+} from '../models/admin.interface';
+import type { EstablishmentId } from '@coaster/core';
 import { AdminRepository } from '../data-access/admin-repository';
 import {
   adminAuditMapper,

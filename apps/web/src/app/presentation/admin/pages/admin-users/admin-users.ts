@@ -3,10 +3,18 @@ import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ADMIN_PAGE_SIZE, flagOf, ManagePlatform, oneOf, pageOf, searchOf, totalPagesOf } from '@coaster/admin';
-import type { AdminUserSummary, Paginated, Role } from '@coaster/common';
-import { Role as UserRole } from '@coaster/common';
-import { ActionFeedback, type PageResource } from '@coaster/core';
+import {
+  ADMIN_PAGE_SIZE,
+  flagOf,
+  ManagePlatform,
+  oneOf,
+  pageOf,
+  searchOf,
+  totalPagesOf,
+  type AdminUserSummary,
+  type Paginated,
+} from '@coaster/admin';
+import { ActionFeedback, Role as UserRole, type PageResource, type Role } from '@coaster/core';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { CoasterInput } from '../../../components/field/input.directive';
 import { ConfirmationDialog } from '../../../components/confirm-dialog/confirmation-dialog.service';

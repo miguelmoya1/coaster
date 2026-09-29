@@ -1,8 +1,7 @@
 import { computed, inject, type Signal } from '@angular/core';
-import type { EstablishmentId } from '@coaster/common';
-import { EstablishmentModule, EstablishmentPermission } from '@coaster/common';
-import { MyMemberStore } from '@coaster/establishment-members';
-import { ModulesStore } from '@coaster/establishments';
+import type { EstablishmentId } from '@coaster/core';
+import { EstablishmentPermission, MyMemberStore } from '@coaster/establishment-members';
+import { EstablishmentModule, ModulesStore } from '@coaster/establishments';
 
 export interface DashboardAccess {
   permission: EstablishmentPermission;

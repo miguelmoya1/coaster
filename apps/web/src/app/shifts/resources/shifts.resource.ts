@@ -1,9 +1,9 @@
 import { httpResource } from '@angular/common/http';
 import { inject, type Signal } from '@angular/core';
-import type { EstablishmentId } from '@coaster/common';
-import { onRealtime, Realtime, removeById, updateLoaded } from '@coaster/core';
+import { onRealtime, Realtime, removeById, updateLoaded, type EstablishmentId } from '@coaster/core';
 import { ShiftRepository } from '../data-access/shift-repository';
 import { shiftArrayMapper } from '../mappers/shift.mapper';
+import type { Shift } from '../models/shift.interface';
 
 export interface ShiftRange {
   startIso: string;
@@ -23,8 +23,10 @@ export const shiftsResource = (establishmentId: Signal<EstablishmentId | undefin
     { parse: shiftArrayMapper },
   );
 
-  onRealtime(realtime.shiftCreated, () => shifts.reload());
-  onRealtime(realtime.shiftDeleted, ({ id }) => updateLoaded(shifts, (list) => removeById(list, id)));
+  onRealtime(realtime.on<Shift>('shiftCreated'), () => shifts.reload());
+  onRealtime(realtime.on<{ id: string }>('shiftDeleted'), ({ id }) =>
+    updateLoaded(shifts, (list) => removeById(list, id)),
+  );
 
   return shifts;
 };

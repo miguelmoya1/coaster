@@ -1,7 +1,8 @@
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import type { EstablishmentMember } from '@coaster/common';
-import { asEstablishmentId, asEstablishmentMemberId, asUserId, EstablishmentRole } from '@coaster/common';
+import { asEstablishmentMemberId, type EstablishmentMember } from '../models/establishment-member.interface';
+import { asEstablishmentId, asUserId } from '@coaster/core';
+import { EstablishmentRole } from '@coaster/establishments';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { MemberRepository } from './member-repository';
 

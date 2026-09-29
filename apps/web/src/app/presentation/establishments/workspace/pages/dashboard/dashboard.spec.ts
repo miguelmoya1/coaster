@@ -1,18 +1,18 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { ModulesStore, CurrentEstablishmentStore } from '@coaster/establishments';
-import { MyMemberStore } from '@coaster/establishment-members';
-import { EstablishmentSubscriptionStore, BillingEntryPoint } from '@coaster/establishment-subscription';
-import type { EstablishmentMember, EstablishmentStats, Shift, Workday } from '@coaster/common';
+import { CurrentEstablishmentStore, EstablishmentRole, ModulesStore } from '@coaster/establishments';
 import {
-  asEstablishmentId,
-  EstablishmentId,
   EstablishmentPermission,
-  EstablishmentRole,
   hasPermission,
-} from '@coaster/common';
-import { ActionFeedback } from '@coaster/core';
+  MyMemberStore,
+  type EstablishmentMember,
+} from '@coaster/establishment-members';
+import { EstablishmentSubscriptionStore, BillingEntryPoint } from '@coaster/establishment-subscription';
+import type { EstablishmentStats } from '@coaster/stats';
+import type { Shift } from '@coaster/shifts';
+import type { Workday } from '@coaster/time-tracking';
+import { ActionFeedback, asEstablishmentId, EstablishmentId } from '@coaster/core';
 import type { Product } from '@coaster/products';
 import { fakeResource } from '@coaster/testing';
 import { provideTranslateService } from '@ngx-translate/core';

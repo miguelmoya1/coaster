@@ -1,14 +1,14 @@
 import { Component, computed, inject, input, output, signal } from '@angular/core';
 import { email, form, FormField, FormRoot, maxLength, minLength, required } from '@angular/forms/signals';
 import { MatButton } from '@angular/material/button';
-import type {
-  EstablishmentId,
-  EstablishmentRole as EstablishmentRoleType,
-  InviteEstablishmentMemberDto,
-} from '@coaster/common';
-import { EstablishmentPermission, EstablishmentRole } from '@coaster/common';
-import { handleErrorFormField } from '@coaster/core';
-import { ManageMembers, MyMemberStore } from '@coaster/establishment-members';
+import { EstablishmentRole, type EstablishmentRole as EstablishmentRoleType } from '@coaster/establishments';
+import { handleErrorFormField, type EstablishmentId } from '@coaster/core';
+import {
+  EstablishmentPermission,
+  ManageMembers,
+  MyMemberStore,
+  type InviteEstablishmentMemberDto,
+} from '@coaster/establishment-members';
 import { EstablishmentSubscriptionStore } from '@coaster/establishment-subscription';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Field } from '../../../../../../components/field/field';

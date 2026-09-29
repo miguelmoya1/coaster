@@ -1,4 +1,5 @@
-import { EstablishmentRole, TableStatus } from '@coaster/common';
+import { EstablishmentRole } from '../../src/app/establishments/models/establishment-role.type';
+import { TableStatus } from '../../src/app/tables/models/table-status.type';
 import { expect, test } from '@playwright/test';
 import { mockApiResponse, mockMyMemberRole } from './utils/mock-api';
 import { loginAsTestUser } from './utils/mock-auth';

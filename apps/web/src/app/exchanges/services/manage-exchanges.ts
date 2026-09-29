@@ -1,5 +1,6 @@
 import { inject, Service } from '@angular/core';
-import type { CreateShiftExchangeDto, EstablishmentId, ShiftExchangeId, ShiftId } from '@coaster/common';
+import type { CreateShiftExchangeDto, ShiftExchangeId, ShiftId } from '@coaster/shifts';
+import type { EstablishmentId } from '@coaster/core';
 import { ExchangeRepository } from '../data-access/exchange-repository';
 
 @Service()

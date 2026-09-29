@@ -8,9 +8,9 @@ import (
 	"testing"
 )
 
-const realtimeEventsPath = "../../../../../packages/common/src/constants/realtime-events.type.ts"
+const realtimeEventsPath = "../../../../../apps/web/src/app/core/models/realtime-events.type.ts"
 
-func TestRealtimeEventsMatchCommon(t *testing.T) {
+func TestRealtimeEventsMatchTheWeb(t *testing.T) {
 	source, err := os.ReadFile(realtimeEventsPath)
 	if err != nil {
 		t.Fatalf("reading %s: %v", realtimeEventsPath, err)

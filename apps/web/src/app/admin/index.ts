@@ -12,3 +12,5 @@ export {
 } from './resources/admin.resources';
 export { ManagePlatform } from './services/manage-platform';
 export { flagOf, oneOf, pageOf, searchOf, totalPagesOf } from './utils/list-query';
+export * from './models/admin-audit-action.type';
+export * from './models/admin.interface';
