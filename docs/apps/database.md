@@ -35,7 +35,15 @@ y, mientras exista, Nest.
   `docker compose run --rm migrate` (o `npm run db:migrate`), o en el anfitrión
   `DATABASE_URL=postgres://admin:admin@localhost:5432/coaster go run ./cmd/migrate`.
 - **Al desplegar**, el CI construye la imagen de esta aplicación y corre el job de Cloud Run
-  (`api-migrate-beta` o `api-migrate`) antes de la revisión nueva de la API.
+  (`api-migrate-beta` o `api-migrate`) antes de la revisión nueva de la API. El despliegue espera
+  al job `database` del CI, así que una migración no llega a beta ni a producción sin que pasen
+  sus tests.
+
+Mientras migra, `migrate` bloquea con una fila de la tabla `goose_lock`, que renueva cada 5 s y se
+suelta sola a los 30 s si el proceso muere. No usa el bloqueo de sesión de Postgres a propósito:
+la `DATABASE_URL` de Neon pasa por su pooler, que reparte las consultas de una misma sesión entre
+conexiones distintas, y un bloqueo de sesión podría no soltarse. Solo bloquea si hay migraciones
+pendientes.
 
 Se aplican en un job y no al arrancar la API por cuatro motivos. Con varias instancias arrancando no
 compiten por migrar. Una migración larga no choca con el tiempo de arranque que da Cloud Run. Si

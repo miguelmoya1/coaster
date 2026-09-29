@@ -38,7 +38,7 @@ func dumpSchema(t *testing.T, databaseName string) string {
 	code, output, err := testContainer.Exec(context.Background(), []string{
 		"pg_dump", "--username=admin", "--dbname=" + databaseName,
 		"--schema-only", "--no-owner", "--no-privileges",
-		"--exclude-table=goose_db_version*", "--exclude-table=_prisma_migrations",
+		"--exclude-table=goose_*", "--exclude-table=_prisma_migrations",
 	}, tcexec.Multiplexed())
 	if err != nil {
 		t.Fatal(err)

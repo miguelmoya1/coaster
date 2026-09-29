@@ -169,9 +169,10 @@ jobs:
       - name: 🧪 e2e contra Go
         run: apps/coaster-api/scripts/e2e-go.sh
 
+  # database is here so no migration reaches beta or production before its tests pass.
   deploy-backend:
     name: 🚀 Deploy Backend & Migrate DB
-    needs: build-and-test
+    needs: [build-and-test, database]
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     environment: ${{ github.ref_name == 'main' && 'api-production' || 'api-beta' }}

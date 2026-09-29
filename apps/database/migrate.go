@@ -67,12 +67,12 @@ func newMigrationProvider(db *sql.DB) (*goose.Provider, goosedb.Store, error) {
 		return nil, nil, err
 	}
 
-	locker, err := lock.NewPostgresSessionLocker()
+	locker, err := lock.NewPostgresTableLocker()
 	if err != nil {
 		return nil, nil, err
 	}
 
-	provider, err := goose.NewProvider(goose.DialectCustom, db, migrations, goose.WithStore(store), goose.WithSessionLocker(locker))
+	provider, err := goose.NewProvider(goose.DialectCustom, db, migrations, goose.WithStore(store), goose.WithLocker(locker))
 	if err != nil {
 		return nil, nil, fmt.Errorf("reading the migrations: %w", err)
 	}
