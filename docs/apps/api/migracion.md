@@ -70,8 +70,10 @@ Producción está preparada (ver el paso 3) y solo espera al merge.
      Command `npm run build`, Output Directory `dist/coaster/browser` e Install Command automático.
    - Renombrar lo que en los tests de Go todavía nombra a Nest (`…LikeNest`,
      `nest_ai_answers.json`, `nest_ai_tools.json`).
-   - Pasar lo que siga valiendo de las «Diferencias conocidas» a [convenciones](convenciones.md),
-     apuntar el cambio en el [roadmap](../../roadmap.md) y borrar esta página.
+   - Pasar lo que siga valiendo de las «Diferencias conocidas» a [convenciones](convenciones.md) y
+     quitar de [convenciones](convenciones.md) y [librerías](librerias.md) las comparaciones con
+     Nest, que hasta entonces explican por qué la API responde como responde.
+   - Apuntar el cambio en el [roadmap](../../roadmap.md) y borrar esta página.
 
 ## Diferencias conocidas
 
