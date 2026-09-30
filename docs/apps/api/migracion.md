@@ -1,116 +1,82 @@
 # Migración de la API de NestJS a Go
 
-Por qué y cómo se reescribió la API de coaster en Go, en qué punto está y en qué se diferencia
-de Nest, que sigue en producción hasta el merge a `main`. Cómo se hace cada cosa está en [convenciones](convenciones.md); las carpetas, en [estructura](estructura.md).
+La API de Coaster se reescribió en Go, en `apps/api`. Beta la corre desde el 30 de septiembre de
+2026; producción sigue con la de NestJS, desde `main`, hasta el merge. Esta página cuenta por qué,
+qué falta para producción y qué cambiará allí. Cómo está hecha la API: [estructura](estructura.md),
+[convenciones](convenciones.md) y [librerías](librerias.md).
 
-## Objetivos
+## Por qué
 
 1. **Aprender Go** con un proyecto real.
-2. **Ahorrar costes** en Cloud Run: menos instancias gracias a más concurrencia y al uso de
-   varios núcleos, arranques en frío casi instantáneos y posibilidad de funcionar sin Redis
-   mientras baste con una sola instancia.
+2. **Ahorrar en Cloud Run**, donde el 90–95 % del precio de una instancia es CPU: lo que ahorra es
+   tener menos instancias, no usar menos RAM. Go usa todos los vCPU de la instancia (Node, uno),
+   arranca en frío en menos de 200 ms (así que `min-instances 0` vale) y con una sola instancia no
+   necesita Redis ([la caché compartida](../../operations/redis.md)). Hoy cada stream de realtime
+   ocupa uno de los 80 huecos de concurrencia, así que sale una instancia nueva cada ~8 locales;
+   con concurrencia a 1000 o más, una aguanta unos 100. Falta calcular el ahorro real con la
+   factura desglosada.
 
-El rendimiento **no** es el motivo. Casi toda la latencia de la API viene de Postgres.
+El rendimiento **no** es el motivo: casi toda la latencia viene de Postgres.
 
-## Decisiones tomadas
+## Decisiones
 
-- **Sin CQRS.** Un servicio por entidad y un método por caso de uso. Los command/query
-  handlers de Nest se convierten en métodos del servicio.
-- **Los efectos secundarios van por eventos.** Hablamos del realtime, la auditoría y la
-  invalidación de caché. Hay una interfaz `EventPublisher` en `ports/` y cada suscriptor se
-  ejecuta en su goroutine. Solo se publica después de guardar en la base de datos.
-- **Interfaces en `core/ports`**: repositorios, servicios externos, `EventPublisher` y
-  también los servicios. Cada servicio tiene su interfaz en `ports` con su mismo nombre
-  (`ports.OrderService`, `ports.AuthService`…) y los métodos que usan los handlers y
-  middlewares; los handlers y middlewares reciben esas y nunca declaran interfaces en su
-  archivo. `main.go` les pasa el `*service.XService` de siempre. Los inputs de los servicios
-  están en `domain`.
-- **Las transacciones viven dentro del repositorio**, igual que en Nest, donde los 14
-  archivos que usan `$transaction` son repositorios. No hay `TxManager` ni `UnitOfWork`.
-- **SQL a mano, un archivo `.sql` por consulta**, incrustado con `go:embed` (ver
-  [estructura](estructura.md)). Sin ORM y sin sqlc por ahora.
-- **El esquema lo lleva goose desde el 29 de septiembre de 2026**, también mientras Nest sirve.
-  Las 47 migraciones de Prisma están copiadas tal cual, una de goose por cada una y con la misma
-  fecha como versión, en lugar de una migración base: producción va por detrás de dev, y así
-  cada entorno aplica lo que le falte. En una base que migró Prisma, la primera vez que corre
-  `migrate` apunta lo que Prisma ya aplicó y aplica el resto.
-- **El esquema es una aplicación aparte, `apps/database`** ([database](../database.md)), con su
-  imagen y su job de Cloud Run. No depende de qué API lo use, y la imagen del job no lleva la API.
-- **Las migraciones se aplican en un job de Cloud Run, no al arrancar la API.** El job corre en
-  cada despliegue, antes de la revisión nueva. Así varias instancias no compiten por migrar, una
-  migración larga no choca con el tiempo de arranque que da Cloud Run, y volver a una revisión
-  anterior no toca el esquema. El job corre `migrate` de `apps/database` aunque el servicio siga
-  siendo Nest.
-- **Sin log de peticiones ni ruta de salud.** Cloud Run ya registra cada petición y comprueba
-  el puerto, y Nest no tiene ninguna de las dos. `slog` se usa para errores.
-- **Validación casi idéntica.** Mismo formato (`message: string[]`), mismos textos y los
-  campos desconocidos primero. class-validator devuelve todas las reglas que fallan en cada
-  campo y validator solo la primera, así que el orden del array puede cambiar. Los e2e no
-  comprueban esos textos.
-- **Consultas simples.** La API actual casi no anida relaciones: son includes de un solo
-  nivel, como `preferences`, `adjustments` o `items` con `product`. Cuando haga falta, se
-  hacen dos consultas y se juntan en Go.
-- **El código lo escribe la IA** y se revisa fase a fase.
-
-## Cómo encaja la API actual
-
-```
-internal/
-├── core/domain/        order.go, product.go, … (~20 archivos, uno por módulo de Nest)
-├── core/ports/         repositorios, servicios externos y events.go
-├── service/            order_service.go, …
-└── adapter/
-    ├── handler/httpapi/  order_handler.go, … + realtime_handler.go
-    ├── handler/respond/  respuestas JSON y errores con el formato de Nest
-    ├── handler/middleware/  auth, permisos, módulos, suscripción, admin, rate limit, CORS…
-    ├── repository/     *_repository.go + queries/<entidad>/*.sql
-    ├── cache/          Redis (caché, bus de realtime, replay, rate limit)
-    ├── payment/        Stripe
-    ├── email/          Resend + plantillas
-    ├── storage/        GCS (URLs firmadas)
-    ├── ai/             AI Gateway + herramientas
-    └── nodejson/       JSON como lo escribe JSON.stringify (respuestas HTTP e IA)
-```
-
-| En Nest | En Go |
-|---|---|
-| Módulo (`src/orders/`) | Un archivo en cada capa: `domain/order.go`, `ports/order.go`, `service/order_service.go`, `repository/order_repository.go`, `handler/httpapi/order_handler.go` |
-| Controller | Handler HTTP |
-| Command/Query handler | Método del servicio |
-| Event handler | Entrada de la tabla `EventHandlers()` del servicio |
-| Guard | Middleware |
-| DTO con class-validator | Struct con tags de `validator` |
-| Repositorio de Prisma | Repositorio con pgx y archivos `.sql` |
-| `core/security` | `handler/middleware/` + `service/` (tokens y sesiones) |
+- **Sin CQRS.** Un servicio por entidad y un método por caso de uso; los command y query handlers
+  de Nest son métodos del servicio y sus event handlers, entradas de `EventHandlers()`.
+- **Los efectos secundarios van por eventos** (realtime, auditoría, invalidar la caché), con el
+  `EventPublisher` de `ports/`, cada suscriptor en su goroutine y siempre después de guardar.
+- **Las transacciones viven dentro del repositorio**, como en Nest. No hay `TxManager` ni
+  `UnitOfWork`.
+- **SQL a mano, un `.sql` por consulta**, con `go:embed`. Sin ORM y sin sqlc por ahora. Consultas
+  simples: si hacen falta relaciones, dos consultas que se juntan en Go.
+- **El esquema es su propia aplicación**, [`apps/database`](../database.md), con goose desde el 29
+  de septiembre de 2026. Las migraciones de Prisma están copiadas tal cual, una por una y con su
+  fecha como versión, porque producción va por detrás y así cada entorno aplica lo que le falte.
+- **Las migraciones se aplican en un job de Cloud Run antes de cada despliegue**, no al arrancar la
+  API: varias instancias no compiten por migrar, una migración larga no choca con el arranque y
+  volver a una revisión anterior no toca el esquema.
+- **Sin log de peticiones ni ruta de salud**: Cloud Run ya registra cada petición y comprueba el
+  puerto. `slog` es para errores.
+- **El código lo escribe la IA** y Miguel lo revisa.
 
 ## Estado
 
-Beta corre Go desde el 29 de septiembre de 2026: `deploy-backend` construye
-`apps/api/Dockerfile` y despliega en el servicio de siempre, con la misma URL, los mismos
-secretos y el mismo webhook de Stripe. Nest ya no está en el repositorio; producción sigue con su
-imagen hasta el merge a `main`. Go responde las 124 rutas de Nest con los mismos permisos, códigos
-y cuerpos, y lo que hace distinto está en «Diferencias conocidas». Aquí solo se apunta lo que
-falta; lo hecho queda en git.
+Go responde las mismas rutas que respondía Nest, con los mismos permisos, códigos de error y
+cuerpos; los e2e de Nest pasaron contra Go antes de borrarlos, y Go tiene los suyos en `e2e/`.
+Beta la despliega en el servicio de siempre (`api-beta`), con la misma URL, los mismos secretos y el
+mismo webhook de Stripe, y las sesiones abiertas siguen valiendo: mismo secreto, mismos claims.
+Producción está preparada (ver el paso 3) y solo espera al merge.
 
 ## Siguiente paso
 
-1. **Probar beta con Go**: iniciar sesión con la contraseña de siempre, el asistente, un cobro con
-   Stripe, la impresora y el realtime entre dos dispositivos.
+1. **Probar beta con Go**: seguir con la sesión abierta, iniciar sesión con la contraseña de
+   siempre, el asistente, un cobro con Stripe, la impresora y el realtime entre dos dispositivos.
 2. **Confirmar los modelos de respaldo del AI Gateway** con la clave de verdad (Miguel): cómo
    probarlo está en «IA» de [convenciones](convenciones.md).
-3. **Producción**: merge de `dev` a `main`. La primera vez, el job de migraciones de producción
-   apunta lo que Prisma ya aplicó y aplica el resto, como hizo en beta. Antes, repasar
-   «Diferencias conocidas»: es lo que notarán los usuarios de producción. El mismo día, el
-   proyecto `coaster` de Vercel pasa a la configuración que ya tiene `coaster-beta`: Root Directory
-   `apps/web`, Build Command `npm run build` y Output Directory `dist/coaster/browser` (sin
-   `package.json` en la raíz, la de hoy no construye).
-4. **Con producción en Go**: juntar las migraciones en una, quitar `_prisma_migrations` y el código
-   de `apps/database` que la adopta, y la regla de que una migración no puede romper Nest. Esta
-   tabla de diferencias deja de serlo: se queda como lo que hace la API.
+3. **Producción: el merge de `dev` a `main`.** Antes, repasar las «Diferencias conocidas». Lo demás
+   pasa solo, y estaba comprobado el 30 de septiembre de 2026:
+   - `deploy-backend` construye la imagen de Go y la despliega en `api-new`, que ya tiene todas
+     las variables y los ocho secretos `coaster-prod-*` que lee Go.
+   - El job `api-migrate` pasa de `prisma migrate deploy` a `migrate` de goose. La primera vez apunta
+     las 45 migraciones que Prisma aplicó en producción (todas están en goose con el mismo nombre)
+     y aplica las 3 que faltan: `auth_events`, `cash_close` y `void_cash_close`.
+   - El proyecto `coaster` de Vercel ya tiene comandos que valen para las dos estructuras: si hay
+     `package.json` en la raíz instalan y construyen el workspace de antes, y si no, solo
+     `apps/web`. Probado con Node 24 contra `main` y contra `dev`.
+4. **Limpiar cuando producción corra Go**:
+   - Juntar las migraciones en una y quitar `_prisma_migrations`, el código de `apps/database` que
+     la adopta y la regla de que una migración no puede romper Nest (`apps/database/CLAUDE.md` y
+     [database](../database.md)).
+   - Dejar el proyecto `coaster` de Vercel como `coaster-beta`: Root Directory `apps/web`, Build
+     Command `npm run build`, Output Directory `dist/coaster/browser` e Install Command automático.
+   - Renombrar lo que en los tests de Go todavía nombra a Nest (`…LikeNest`,
+     `nest_ai_answers.json`, `nest_ai_tools.json`).
+   - Pasar lo que siga valiendo de las «Diferencias conocidas» a [convenciones](convenciones.md),
+     apuntar el cambio en el [roadmap](../../roadmap.md) y borrar esta página.
 
 ## Diferencias conocidas
 
-Lo que Go hace distinto de Nest a propósito o porque no se ha podido copiar.
+Lo que Go hace distinto de Nest, a propósito o porque no se pudo copiar. Beta ya lo hace así; es lo
+que notarán los usuarios de producción después del merge.
 
 | Paquete | Diferencia | Por qué |
 |---|---|---|
@@ -204,36 +170,4 @@ Lo que Go hace distinto de Nest a propósito o porque no se ha podido copiar.
 | P3 | En `POST ai/stream`, un rechazo con código (`AI_QUOTA_EXCEEDED`, `MEMBER_NOT_FOUND`) llega en el `done` como `{"text":código,"isError":true,"errorKey":código}`, que `apps/web` traduce; los demás errores siguen siendo `ai_gateway_failed` | Arreglado en Go; Nest sigue con el bug |
 | P3 | El mensaje se reserva antes de llamar al modelo con un solo `INSERT … ON CONFLICT … WHERE messages < cuota`, así que varios a la vez no pasan la cuota; si el modelo no responde, se devuelve. Un fallo de la base de datos al reservar es un 500 antes de ejecutar nada | Arreglado en Go; Nest sigue con el bug |
 | P3 | `createOrder` y `addOrderItems` fallan sin tocar nada si algún producto no está en la carta y dicen cuáles; `getOrdersByDate` suma el `orderTotal` de los pedidos cerrados (lo que enseña cada pedido); `updateProduct` rechaza un precio negativo | Arreglado en Go; Nest sigue con el bug |
-| Después de P5 | Cualquier miembro puede cerrar la caja: `establishment:close-cash` pasa de MANAGER a STAFF y el historial (`GET …/cash-closes`) pide ese permiso en vez de `view-financials`. `POST …/cash-closes/{id}/void` deshace el último cierre que cuenta: sus pedidos vuelven a la caja abierta y el cierre se queda en el historial con `voidedAt`, `voidedById` y `voidedByName` (400 `CASH_CLOSE_NOT_LAST` si no es el último, `CASH_CLOSE_ALREADY_VOIDED` si ya estaba deshecho; 404 `CASH_CLOSE_NOT_FOUND`). `GET …/cash-closes?date=AAAA-MM-DD` da todos los cierres de ese día natural en `Europe/Madrid` (400 `INVALID_DATE` si no es un día); sin `date` siguen siendo los 60 últimos | Función nueva, solo en Go |
-
-## Riesgos
-
-- **El contrato de la API tiene que ser idéntico**: rutas (`/api/v1/...`), forma del JSON,
-  cuerpo de los errores de Nest (`statusCode`, `message`, `error`), los `ErrorCodes` de la web,
-  los errores de validación y las cookies. Si algo cambia, se rompe `apps/web`.
-- **Contraseñas**: argon2 en Go tiene que verificar los hashes existentes.
-- **Tokens**: mismos claims y mismo secreto, para que nadie tenga que volver a iniciar
-  sesión al hacer el cambio.
-- **Migraciones**: mientras producción siga con Nest, las de goose no pueden romperlo (ver
-  «Base de datos» en [convenciones](convenciones.md)). Los triggers de `TimeEntry` y el índice
-  parcial de `ShiftExchange` están en las migraciones SQL, así que no se pierden.
-  La tabla `_prisma_migrations` deja de usarse.
-- **Tipos compartidos**: están en los `models/` de cada dominio de la web y se mantienen a mano.
-  Los tests de `domain/` comparan los códigos de error, los permisos y los eventos de realtime
-  con esos ficheros; el resto de formas solo lo comprueban los e2e.
-- **IA**: queda por confirmar que el AI Gateway lee los modelos de respaldo que Go le manda por su API
-  compatible con OpenAI (`providerOptions.gateway.models`).
-
-## Costes en Cloud Run
-
-- Alrededor del 90–95 % del precio de una instancia es **CPU**, así que usar menos RAM
-  ahorra poco. Lo que ahorra es **tener menos instancias**.
-- Hoy cada stream SSE ocupa 1 de los **80 huecos de concurrencia**, así que sale una
-  instancia nueva cada ~8 locales. Con concurrencia a 1000 o más, una instancia aguanta
-  unos 100. Esto también se puede hacer en Nest.
-- Go usa todos los vCPU de la instancia; Node solo uno.
-- Con **una sola instancia** no hace falta Redis (ver `docs/operations/redis.md`), y Go
-  hace que esa instancia dé para mucho más.
-- Arranque en frío de menos de 200 ms, así que `min-instances 0` es aceptable.
-- Pendiente: calcular el ahorro real con la factura de GCP desglosada (Cloud Run, base de
-  datos, Redis e IA).
+| Nuevo | Cualquier miembro puede cerrar la caja: `establishment:close-cash` pasa de MANAGER a STAFF y el historial (`GET …/cash-closes`) pide ese permiso en vez de `view-financials`. `POST …/cash-closes/{id}/void` deshace el último cierre que cuenta: sus pedidos vuelven a la caja abierta y el cierre se queda en el historial con `voidedAt`, `voidedById` y `voidedByName` (400 `CASH_CLOSE_NOT_LAST` si no es el último, `CASH_CLOSE_ALREADY_VOIDED` si ya estaba deshecho; 404 `CASH_CLOSE_NOT_FOUND`). `GET …/cash-closes?date=AAAA-MM-DD` da todos los cierres de ese día natural en `Europe/Madrid` (400 `INVALID_DATE` si no es un día); sin `date` siguen siendo los 60 últimos | Función nueva, solo en Go |

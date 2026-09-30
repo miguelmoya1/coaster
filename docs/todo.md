@@ -62,10 +62,10 @@ cadena de hashes del registro horario (`time_entry_chain.go` y `lock_chain.sql`)
 
 ## Producción va por detrás de `dev`
 
-`main` se actualizó por última vez el 14 de septiembre de 2026 y `dev` le lleva unos 190 commits,
-entre ellos el cambio de la API a Go: producción sigue con Nest y con las migraciones de Prisma
-hasta el merge, y la primera vez el job de migraciones adopta el historial de Prisma, como hizo en
-beta. Qué falta antes y después está en «Siguiente paso» de la
+`main` se actualizó por última vez el 14 de septiembre de 2026 y `dev` le lleva unos 200 commits,
+entre ellos la API en Go. Producción está preparada para el merge: el despliegue, el job de
+migraciones y el proyecto de Vercel valen para la estructura de antes y para la de ahora. Qué
+comprobar ese día y qué limpiar después está en «Siguiente paso» de la
 [migración](apps/api/migracion.md).
 
 El 4 de septiembre producción tenía **0 fichajes**: el registro horario está probado por e2e y

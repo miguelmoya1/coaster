@@ -51,7 +51,6 @@ fi
   (cd apps/api && go mod download)
   (cd apps/database && go mod download)
   docker pull -q postgres:18-alpine
-  docker pull -q postgres:16-alpine
 } >> "$log" 2>&1 || { echo "Falló la preparación de la sesión: mira $log"; exit 1; }
 
 echo "Entorno listo: Docker, Node $(node --version), $(go version | cut -d' ' -f3). Log en $log."

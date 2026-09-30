@@ -8,6 +8,7 @@ duplicated, and the things that **must** be duplicated are listed below with the
 | ------------------ | ----------------------------------- | ------------------------------------------------ |
 | Branch             | `main`                              | `dev`                                            |
 | Web                | `www.coaster.business` (Vercel)     | `beta.coaster.business` (its own Vercel project) |
+| Vercel project     | `coaster`                           | `coaster-beta`                                   |
 | API                | `api.coaster.business`              | `api.beta.coaster.business`                      |
 | Cloud Run service  | `api-new` · `europe-west1`          | `api-beta` · `europe-west1`                      |
 | Migration job      | `api-migrate` · `europe-southwest1` | `api-migrate-beta` · `europe-southwest1`         |
@@ -258,9 +259,11 @@ preview of the existing one: preview deployments are behind Vercel Authenticatio
 `beta.coaster.business` currently answers with a redirect to `vercel.com/sso-api` instead of the
 app. Turning that off would expose every pull-request preview too.
 
-Copy the existing project's Root Directory (`apps/web`), Build Command (`npm run build`), Output
-Directory (`dist/coaster/browser`), Install Command and Node version exactly — a project configured
-differently will build something subtly different. Then set, in its **Production** environment:
+Root Directory `apps/web`, Build Command `npm run build`, Output Directory `dist/coaster/browser`,
+Install Command automatic (npm, from `apps/web/package-lock.json`) and the same Node version as
+production. Until `dev` is merged into `main`, the production project builds from the repository
+root instead, with commands that pick the old workspace or `apps/web` depending on whether there is
+a `package.json` at the root — see [migration](../apps/api/migracion.md). Then set, in its **Production** environment:
 
 | Variable           | Value                               |
 | ------------------ | ----------------------------------- |

@@ -110,8 +110,8 @@ See [production and beta](operations/environments.md) and [closed beta](saas/clo
 ### The API in Go
 
 - The NestJS API rewritten in Go: the same 124 routes, permissions, error codes and bodies, hexagonal,
-  with hand-written SQL over pgx. Beta runs it since 29 September 2026; production follows with the
-  merge of `dev` into `main`.
+  with hand-written SQL over pgx. Beta runs it since 30 September 2026; production follows with the
+  merge of `dev` into `main`, which is already prepared.
 - The schema as its own application, `apps/database`: goose migrations applied by a Cloud Run job
   before each deploy, which took over the Prisma history on its first run.
 - Its own e2e suite, the real binary against a real Postgres, gating the deploy.
