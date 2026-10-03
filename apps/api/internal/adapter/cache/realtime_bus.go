@@ -148,7 +148,7 @@ func (b *RealtimeBus) Replay(ctx context.Context, establishmentID string, sinceI
 		return nil
 	}
 
-	stored, err := b.client.ZRangeByScore(ctx, replayKey(establishmentID), &redis.ZRangeBy{Min: sinceID, Max: "+inf"}).Result()
+	stored, err := b.client.ZRangeArgs(ctx, redis.ZRangeArgs{Key: replayKey(establishmentID), Start: sinceID, Stop: "+inf", ByScore: true}).Result()
 	if err != nil {
 		b.drop("the replay buffer", err)
 		return nil
