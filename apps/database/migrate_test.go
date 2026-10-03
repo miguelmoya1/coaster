@@ -160,3 +160,9 @@ func mustExec(t *testing.T, pool *pgxpool.Pool, sql string, args ...any) {
 		t.Fatal(err)
 	}
 }
+
+func TestMigrateAcceptsThePoolSizeOfTheAPI(t *testing.T) {
+	if err := Migrate(context.Background(), testDatabaseURL+"&pool_max_conns=20"); err != nil {
+		t.Errorf("migrating with pool_max_conns in the URL: %v", err)
+	}
+}

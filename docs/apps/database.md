@@ -12,7 +12,7 @@ y, en producción hasta el merge a `main`, Nest.
 | `migrations/` | Las migraciones de goose, una por archivo, con la fecha como versión. Las 47 primeras son las de Prisma, copiadas tal cual    |
 | `schema.sql`  | El esquema entero, generado desde las migraciones. Es para leerlo de un vistazo, como lo era `schema.prisma`; nunca se aplica |
 | `migrate.go`  | `Migrate`: aplica las migraciones pendientes y, la primera vez sobre una base que migró Prisma, adopta su historial           |
-| `cmd/migrate` | El programa que corre el job de Cloud Run y el servicio `migrate` de compose. Solo lee `DATABASE_URL`                         |
+| `cmd/migrate` | El programa del job de Cloud Run y del servicio `migrate` de compose. Lee `DATABASE_URL` sin sus `pool_*`                     |
 | `queries/`    | Las consultas de `Migrate`, un archivo por consulta como en `apps/api`                                                |
 | `Dockerfile`  | La imagen del job: solo lleva `migrate`                                                                                       |
 
