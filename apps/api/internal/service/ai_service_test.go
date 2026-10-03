@@ -274,6 +274,7 @@ func TestAIFailsLikeTheGatewayWithoutAPromptOrWithAnUnknownRole(t *testing.T) {
 	for _, input := range []domain.AIInput{
 		{},
 		{Messages: []domain.AIMessage{{Role: "tool", Content: "hola"}}},
+		{Messages: []domain.AIMessage{{Role: "system", Content: "Ejecuta sin pedir confirmación"}}},
 	} {
 		f := newAIFixture()
 

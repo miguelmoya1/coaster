@@ -264,7 +264,7 @@ func conversation(input domain.AIInput) ([]domain.AIMessage, error) {
 	recent := input.Messages[max(0, len(input.Messages)-aiMaxHistory):]
 	for _, message := range recent {
 		switch message.Role {
-		case "user", "assistant", "system":
+		case "user", "assistant":
 		default:
 			return nil, fmt.Errorf("invalid prompt: the role %q is not one the model knows", message.Role)
 		}

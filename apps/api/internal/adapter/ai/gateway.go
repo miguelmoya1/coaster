@@ -73,8 +73,6 @@ func conversationOf(request ports.AIRequest) []openai.ChatCompletionMessageParam
 		switch message.Role {
 		case "assistant":
 			messages = append(messages, openai.AssistantMessage(message.Content))
-		case "system":
-			messages = append(messages, openai.SystemMessage(message.Content))
 		default:
 			messages = append(messages, openai.UserMessage(message.Content))
 		}
