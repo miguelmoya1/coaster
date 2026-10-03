@@ -21,7 +21,7 @@ func TestPrinterReleaseServiceLatest(t *testing.T) {
 		t.Fatal(err)
 	}
 	want := domain.PrinterRelease{
-		Version: "1.2.0",
+		Version: "1.2.1",
 		URL:     "https://api.example.com/public/downloads/printer-service-linux",
 		SHA256:  hex.EncodeToString(sum[:]),
 	}

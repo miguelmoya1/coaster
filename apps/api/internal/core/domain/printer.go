@@ -90,7 +90,7 @@ func PairingCodeFromFilename(filename string) string {
 	return strings.ToUpper(match[1])
 }
 
-const PrinterBridgeVersion = "1.2.0"
+const PrinterBridgeVersion = "1.2.1"
 
 var printerBinaries = map[string]string{
 	"windows": "printer-service-windows.exe",

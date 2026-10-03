@@ -222,7 +222,7 @@ func TestPrinterBridgeRoutes(t *testing.T) {
 		want    string
 	}{
 		{name: "latest release", server: server, route: "GET /api/v1/printer/check-version?os=linux", status: 200,
-			want: `{"version":"1.2.0","url":"https://api.example.com/public/downloads/printer-service-linux","sha256":"d67472a67f43ec39badd5f107eebbdb41b3fd99453e952517700a841a87c88d9"}`},
+			want: `{"version":"1.2.1","url":"https://api.example.com/public/downloads/printer-service-linux","sha256":"d67472a67f43ec39badd5f107eebbdb41b3fd99453e952517700a841a87c88d9"}`},
 		{name: "an OS without a binary", server: server, route: "GET /api/v1/printer/check-version?os=windows", status: 404,
 			want: `{"message":"No bridge binary is published for this OS yet","error":"Not Found","statusCode":404}`},
 		{name: "an OS that is not supported", server: server, route: "GET /api/v1/printer/check-version?os=mac", status: 400,
