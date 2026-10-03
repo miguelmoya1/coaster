@@ -29,7 +29,6 @@ project/
 │   │       ├── cache/               # Redis: caché, bus de eventos, rate limit
 │   │       ├── payment/             # Pasarela de pagos (Stripe…)
 │   │       ├── email/               # Envío de emails (Resend…)
-│   │       ├── storage/             # Almacenamiento de archivos (GCS, S3…)
 │   │       └── ai/                  # Proveedor de IA
 │   ├── scripts/                     # Scripts auxiliares
 │   ├── go.mod
@@ -84,7 +83,7 @@ librería externa.
   modificarlas y los errores de negocio (`ErrNotFound`, `ErrInvalidPayload`…).
 - **`ports/`**: las **interfaces** (contratos) del núcleo.
   - `XxxRepository`: lo que el negocio necesita de la persistencia.
-  - Una interfaz por cada servicio externo (`PaymentGateway`, `Mailer`, `FileStorage`…).
+  - Una interfaz por cada servicio externo (`PaymentGateway`, `Mailer`, `AIModel`…).
   - `EventPublisher`: para avisar de que algo ha pasado (ver más abajo).
   - `XxxService`: lo que los handlers y middlewares usan de cada servicio (`OrderService`,
     `AuthService`…).
@@ -127,7 +126,7 @@ Las **implementaciones concretas** que conectan el núcleo con el mundo exterior
     Nest. Así los servicios no necesitan saber nada de transacciones.
   - `queries/` guarda el SQL, un archivo por consulta (ver más abajo). Las migraciones no están
     aquí: el esquema es su propia aplicación, `apps/database`.
-- **`cache/`, `payment/`, `email/`, `storage/`, `ai/`**: un adaptador por servicio externo.
+- **`cache/`, `payment/`, `email/`, `ai/`**: un adaptador por servicio externo.
   Cada uno implementa su interfaz de `ports`, así que se puede cambiar de proveedor sin tocar
   los servicios.
 

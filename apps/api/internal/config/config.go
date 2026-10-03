@@ -55,8 +55,6 @@ type Config struct {
 	ResendAPIKey string
 	EmailFrom    string
 
-	MediaBucket string
-
 	AIGatewayAPIKey        string
 	AIMonthlyMessages      int
 	AITrialMonthlyMessages int
@@ -98,8 +96,6 @@ func Load() (Config, error) {
 
 		ResendAPIKey: os.Getenv("RESEND_API_KEY"),
 		EmailFrom:    withDefault(os.Getenv("EMAIL_FROM"), defaultEmailFrom),
-
-		MediaBucket: os.Getenv("MEDIA_BUCKET"),
 
 		AIGatewayAPIKey:        os.Getenv("AI_GATEWAY_API_KEY"),
 		AIMonthlyMessages:      intOr(os.Getenv("AI_MONTHLY_MESSAGES"), defaultAIMonthlyMessages),

@@ -31,9 +31,9 @@ in its logs on the way up.
 
 ## What is deliberately not in there
 
-`PUBLIC_URL`, `FRONTEND_URL`, `CORS_ORIGINS`, `MEDIA_BUCKET`, `TRUST_PROXY_HOPS`,
-`BETA_ALLOWLIST_ENABLED`, `EMAIL_FROM`, the `PRO_*` prices and the AI quotas are configuration. You
-want to read them at a glance in the console, and knowing them buys an attacker nothing.
+`PUBLIC_URL`, `FRONTEND_URL`, `CORS_ORIGINS`, `TRUST_PROXY_HOPS`, `BETA_ALLOWLIST_ENABLED`,
+`EMAIL_FROM`, the `PRO_*` prices and the AI quotas are configuration. You want to read them at a
+glance in the console, and knowing them buys an attacker nothing.
 
 Two look like credentials and are not:
 
@@ -173,10 +173,9 @@ that lets you list. It gives away nothing the workflow file does not already spe
 bootstrap script grants it.
 
 One caveat worth knowing rather than discovering: **beta and production currently run as the same
-service account**, because beta was built to copy production's shape and inherit its Cloud Storage
-bindings. Per-secret grants are still right — they are what keeps a future third environment out —
-but they are not, today, a wall between beta and production. Giving beta its own service account is
-a worthwhile afternoon and needs its own bucket bindings; it is not done.
+service account**, because beta was built to copy production's shape. Per-secret grants are still
+right — they are what keeps a future third environment out — but they are not, today, a wall between
+beta and production. Giving beta its own service account is a worthwhile afternoon; it is not done.
 
 ## When a deploy fails on this
 

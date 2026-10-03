@@ -41,7 +41,7 @@ environment that was never configured cannot half-deploy anything.
 | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------- |
 | `GCP_SERVICE_NAME`, `GCP_JOB_NAME`, `PUBLIC_URL`                                                                                                           | GitHub environment **variables**            | CI needs them to know what it is deploying, and which set of credentials to wire      |
 | `DATABASE_URL`, `AUTH_JWT_SECRET`, `PRINTER_JWT_SECRET`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `RESEND_API_KEY`, `AI_GATEWAY_API_KEY`, `REDIS_URL` | **Secret Manager**, one set per environment | Credentials. CI passes their names and never their values — see [secrets](secrets.md) |
-| `FRONTEND_URL`, `CORS_ORIGINS`, `MEDIA_BUCKET`, `STRIPE_PRICE_*`, `EMAIL_FROM`, `GOOGLE_CLIENT_ID`, `BETA_ALLOWLIST_ENABLED` …                             | The Cloud Run service                       | Runtime configuration, never needed to build or release                               |
+| `FRONTEND_URL`, `CORS_ORIGINS`, `STRIPE_PRICE_*`, `EMAIL_FROM`, `GOOGLE_CLIENT_ID`, `BETA_ALLOWLIST_ENABLED` …                                             | The Cloud Run service                       | Runtime configuration, never needed to build or release                               |
 | `PRODUCTION`, `API_URL`, `GOOGLE_CLIENT_ID`, `ALLOW_INDEXING`                                                                                              | Vercel project                              | Baked into the bundle at build time by `set-env.ts`                                   |
 
 ## What the two environments must never share
@@ -156,9 +156,8 @@ Migrations run themselves on every deploy, in a Cloud Run job with the image of 
 
 ### 4. The Cloud Run service and its migration job
 
-Beta copies production's shape — same service account, so signed upload URLs and Cloud Storage work
-without a single new IAM binding — and starts on production's current image, which the first `dev`
-push replaces.
+Beta copies production's shape — same service account, so the secrets need no new IAM binding — and
+starts on production's current image, which the first `dev` push replaces.
 
 ```sh
 REGION=europe-west1
@@ -179,7 +178,6 @@ FRONTEND_URL: 'https://beta.coaster.business'
 PUBLIC_URL: 'https://api.beta.coaster.business'
 STRIPE_PRICE_PRO: 'price_…'
 CORS_ORIGINS: 'https://beta.coaster.business'
-MEDIA_BUCKET: 'coaster-media-beta'
 ```
 
 ```sh
@@ -222,18 +220,6 @@ gcloud run jobs create api-migrate-beta \
 Create it as the same account the API runs as, which CI is already allowed to act as. Skip this and
 the first beta deploy has to create the job itself, which fails unless `github-actions@` also holds
 `roles/iam.serviceAccountUser` on the default compute account.
-
-`MEDIA_BUCKET` is the one piece of the file that needs something to exist first. Beta can point at
-production's bucket — uploads are namespaced by establishment id, so nothing collides — but test
-images then live in it forever. Its own bucket costs three lines:
-
-```sh
-gcloud storage buckets create gs://coaster-media-beta --location=$REGION --uniform-bucket-level-access
-gcloud storage buckets add-iam-policy-binding gs://coaster-media-beta --member=allUsers --role=roles/storage.objectViewer
-gcloud storage buckets add-iam-policy-binding gs://coaster-media-beta --member="serviceAccount:$SA" --role=roles/storage.objectAdmin
-```
-
-The public read matters: uploaded images are served straight from `storage.googleapis.com`.
 
 ### 5. The domain
 

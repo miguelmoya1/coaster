@@ -6,26 +6,12 @@ import (
 	"reflect"
 	"strings"
 	"testing"
-	"time"
 
 	"coaster-api/internal/adapter/handler/respond"
 	"coaster-api/internal/core/domain"
 	"coaster-api/internal/core/ports"
 	"coaster-api/internal/service"
 )
-
-type catalogStorage struct {
-	contentType string
-}
-
-func (s *catalogStorage) SignUploadURL(_ context.Context, _ string, contentType string, _ map[string]string, _ time.Time) (string, error) {
-	s.contentType = contentType
-	return "https://signed.example/upload", nil
-}
-
-func (s *catalogStorage) PublicURL(objectPath string) string {
-	return "https://storage.example/" + objectPath
-}
 
 type catalogMenus struct {
 	ports.MenuRepository
@@ -35,19 +21,18 @@ func (catalogMenus) FindPublishedBySlug(context.Context, string) (*domain.Publis
 	return nil, nil
 }
 
-func newCatalogServer(modules []domain.EstablishmentModule, storage *catalogStorage) http.Handler {
+func newCatalogServer(modules []domain.EstablishmentModule) http.Handler {
 	guard := testGuard(fakeAccess{platformRole: domain.RoleAdmin, modules: modules})
 	mux := http.NewServeMux()
 	NewCategoryHandler(service.NewCategoryService(nil, nil)).RegisterRoutes(mux, guard)
 	NewProductHandler(service.NewProductService(nil, nil)).RegisterRoutes(mux, guard)
 	NewCatalogueHandler(service.NewCatalogueService(nil, nil)).RegisterRoutes(mux, guard)
 	NewMenuHandler(service.NewMenuService(catalogMenus{})).RegisterRoutes(mux, guard)
-	NewMediaHandler(service.NewMediaService(storage)).RegisterRoutes(mux, guard)
 	return mux
 }
 
 func TestCatalogRoutesNeedTheInventoryModule(t *testing.T) {
-	server := newCatalogServer([]domain.EstablishmentModule{domain.ModuleTimeTracking}, &catalogStorage{})
+	server := newCatalogServer([]domain.EstablishmentModule{domain.ModuleTimeTracking})
 	signedIn := map[string]string{"Authorization": "Bearer good"}
 
 	routes := []string{
@@ -84,7 +69,7 @@ func TestCatalogRoutesNeedTheInventoryModule(t *testing.T) {
 }
 
 func TestCatalogValidation(t *testing.T) {
-	server := newCatalogServer(domain.AllEstablishmentModules, &catalogStorage{})
+	server := newCatalogServer(domain.AllEstablishmentModules)
 	signedIn := map[string]string{"Authorization": "Bearer good"}
 
 	tests := []struct {
@@ -122,14 +107,6 @@ func TestCatalogValidation(t *testing.T) {
 		{name: "menu section without translations", route: "PUT /api/v1/establishments/e1/menu",
 			body: `{"name":"Carta","languages":["es"],"sections":[{"items":[]}]}`,
 			want: `{"message":["sections.0.translations must be an object"],"error":"Bad Request","statusCode":400}`},
-		{name: "no files to upload", route: "POST /api/v1/establishments/e1/media/upload-urls", body: `{"entityType":"products","files":[]}`,
-			want: `{"message":["REQUIRED"],"error":"Bad Request","statusCode":400}`},
-		{name: "an upload that is not an image", route: "POST /api/v1/establishments/e1/media/upload-urls",
-			body: `{"entityType":"products","files":[{"filename":"a.pdf","contentType":"application/pdf"}]}`,
-			want: `{"message":["files.0.INVALID_TYPE"],"error":"Bad Request","statusCode":400}`},
-		{name: "an unknown folder", route: "POST /api/v1/establishments/e1/media/upload-urls",
-			body: `{"entityType":"secrets","files":[{"filename":"a.png","contentType":"image/png"}]}`,
-			want: `{"message":["INVALID_TYPE"],"error":"Bad Request","statusCode":400}`},
 	}
 
 	for _, tt := range tests {
@@ -144,28 +121,8 @@ func TestCatalogValidation(t *testing.T) {
 	}
 }
 
-func TestMediaHandlerNormalisesTheContentType(t *testing.T) {
-	storage := &catalogStorage{}
-	server := newCatalogServer(nil, storage)
-
-	response := send(server, "POST", "/api/v1/establishments/e1/media/upload-urls",
-		`{"entityType":"products","files":[{"filename":"beer.PNG","contentType":" IMAGE/PNG "}]}`,
-		map[string]string{"Authorization": "Bearer good"})
-
-	if response.Code != http.StatusCreated {
-		t.Fatalf("status = %d %s", response.Code, response.Body)
-	}
-	if storage.contentType != "image/png" {
-		t.Errorf("signed for %q, want image/png", storage.contentType)
-	}
-	if !strings.Contains(response.Body.String(), `"uploadUrl":"https://signed.example/upload"`) ||
-		!strings.Contains(response.Body.String(), `"uploadHeaders":{"x-goog-content-length-range":"0,5242880"}`) {
-		t.Errorf("body = %s", response.Body)
-	}
-}
-
 func TestPublicMenuRouteIsOpenAndThrottled(t *testing.T) {
-	server := newCatalogServer(nil, &catalogStorage{})
+	server := newCatalogServer(nil)
 
 	for i := range 60 {
 		response := send(server, "GET", "/api/v1/menus/bar-pepe?lang=en", "", nil)
@@ -226,8 +183,6 @@ func TestCatalogRequestListsMatchTheDomain(t *testing.T) {
 	}{
 		{"create allergens", oneOf(reflect.TypeFor[createProductRequest](), "Allergens", "oneof"), domain.Allergens},
 		{"update allergens", oneOf(reflect.TypeFor[updateProductRequest](), "Allergens", "oneof"), domain.Allergens},
-		{"media folders", oneOf(reflect.TypeFor[uploadURLsRequest](), "EntityType", "oneof"), domain.MediaEntityTypes},
-		{"media types", oneOf(reflect.TypeFor[mediaFileRequest](), "ContentType", "oneofci"), domain.MediaImageTypes},
 		{"menu languages", oneOf(reflect.TypeFor[saveMenuDraftRequest](), "Languages", "oneof"), domain.Languages},
 	}
 

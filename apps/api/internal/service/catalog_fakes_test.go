@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"slices"
-	"time"
 
 	"coaster-api/internal/core/domain"
 )
@@ -276,24 +275,6 @@ func (r *fakeMenuRepo) FindPublishedBySlug(context.Context, string) (*domain.Pub
 
 func (r *fakeMenuRepo) SoldOutAmong(context.Context, []string) (map[string]bool, error) {
 	return r.soldOut, nil
-}
-
-type fakeFileStorage struct {
-	paths       []string
-	contentType string
-	headers     map[string]string
-	expires     time.Time
-	err         error
-}
-
-func (s *fakeFileStorage) SignUploadURL(_ context.Context, objectPath, contentType string, headers map[string]string, expires time.Time) (string, error) {
-	s.paths = append(s.paths, objectPath)
-	s.contentType, s.headers, s.expires = contentType, headers, expires
-	return "https://signed.example/upload", s.err
-}
-
-func (s *fakeFileStorage) PublicURL(objectPath string) string {
-	return "https://storage.googleapis.com/imagenes-clientes-app/" + objectPath
 }
 
 func catalogIntOr(value *int, fallback int) int {

@@ -25,9 +25,8 @@ know `PlanDialogService`; it depends on `PAYWALL_HANDLER`, which `app.config.ts`
 The interceptor chain is `[urlInterceptor, accessTokenInterceptor, errorInterceptor,
 unauthorizedInterceptor]`, and the order matters. `urlInterceptor` turns relative URLs into absolute
 API URLs first; `accessTokenInterceptor` then attaches the access token **only** to relative URLs or
-URLs under `environment.apiUrl`. That condition is not decorative: image uploads `PUT` straight to
-`storage.googleapis.com` through the same `HttpClient`, and without it the user's token was being
-sent to a third-party host on every upload.
+URLs under `environment.apiUrl`. That condition is not decorative: the translation files load
+through the same `HttpClient`, and without it any other host it reaches would get the user's token.
 
 `unauthorizedInterceptor` sits last, so it sees a 401 before `errorInterceptor` turns it into an
 `ApiError`. On one it asks `Auth.refresh()` for a new token and replays the request; only if that

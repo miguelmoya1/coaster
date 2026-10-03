@@ -36,7 +36,6 @@ export * from './models/brand.type';
 export * from './models/common.interface';
 export * from './models/establishment-id';
 export * from './models/language.type';
-export * from './models/media.interface';
 export * from './models/realtime-events.type';
 export * from './models/role.type';
 export * from './models/user.interface';

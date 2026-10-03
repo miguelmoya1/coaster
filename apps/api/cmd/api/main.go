@@ -22,7 +22,6 @@ import (
 	"coaster-api/internal/adapter/payment"
 	"coaster-api/internal/adapter/pwned"
 	"coaster-api/internal/adapter/repository"
-	"coaster-api/internal/adapter/storage"
 	"coaster-api/internal/config"
 	"coaster-api/internal/core/ports"
 	"coaster-api/internal/service"
@@ -68,9 +67,6 @@ func run() error {
 		defer redisClient.Close()
 	}
 	valueCache := cache.NewCache(redisClient)
-
-	mediaStorage := storage.NewGCS(cfg.MediaBucket)
-	defer mediaStorage.Close()
 
 	bus := event.NewBus()
 	defer bus.Wait()
@@ -158,7 +154,6 @@ func run() error {
 	productService := service.NewProductService(repository.NewProductRepository(pool), bus)
 	catalogueService := service.NewCatalogueService(repository.NewCatalogueRepository(pool), bus)
 	menuService := service.NewMenuService(repository.NewMenuRepository(pool))
-	mediaService := service.NewMediaService(mediaStorage)
 	catalogRealtime := service.NewCatalogRealtime(realtimeService)
 
 	shiftService := service.NewShiftService(shiftRepository, securityService, bus, realtimeService)
@@ -224,7 +219,6 @@ func run() error {
 		httpapi.NewProductHandler(productService),
 		httpapi.NewCatalogueHandler(catalogueService),
 		httpapi.NewMenuHandler(menuService),
-		httpapi.NewMediaHandler(mediaService),
 		httpapi.NewShiftHandler(shiftService),
 		httpapi.NewShiftExchangeHandler(shiftExchangeService),
 		httpapi.NewTimeEntryHandler(timeEntryService),

@@ -19,8 +19,8 @@ es apagarlo, en este orden y no antes de que beta lleve unos días entrando sin 
 
 **`coaster-437f2` no es «el proyecto de Firebase», es el proyecto de GCP, y no se borra en ningún
 paso.** Ahí viven el Artifact Registry, los dos servicios de Cloud Run, los jobs de migración, la
-service account de GitHub Actions, el workload identity pool y los buckets de imágenes. Borrarlo
-desde la consola de Firebase borra todo eso.
+service account de GitHub Actions y el workload identity pool. Borrarlo desde la consola de Firebase
+borra todo eso.
 
 ## Sesiones
 
@@ -34,13 +34,6 @@ deja la mía» de la página de cuenta, que es justo lo que hace `sid`. Para rev
 verdad hay que comprobar la sesión en cada petición: cachear `sesión {sid} viva` y olvidarla al
 revocar. Con Redis es barato; sin Redis es una consulta a Postgres por petición. Es una decisión con
 coste, no un apaño de cinco líneas.
-
-## `MEDIA_BUCKET` en beta
-
-No está puesta en `api-beta`, así que cae al respaldo del código (`imagenes-clientes-app`), **que es
-el bucket de producción**: las imágenes que subas en beta acaban ahí. Se arregla creando el bucket
-de beta (las órdenes están en [producción y beta](operations/environments.md)) o poniendo la variable
-explícitamente.
 
 ## Rotar lo que pasó por el chat
 

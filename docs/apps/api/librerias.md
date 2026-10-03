@@ -46,7 +46,6 @@ Estado: ⬜ sin revisar · ✅ aprobada · ❌ descartada
 |---|---|---|---|
 | `stripe` | `github.com/stripe/stripe-go/v86` | Oficial. Incluye la verificación de firma de los webhooks. | ✅ |
 | `resend` | `github.com/resend/resend-go/v3` | Oficial. | ✅ |
-| `@google-cloud/storage` | `cloud.google.com/go/storage` | Oficial. URLs firmadas para subir imágenes. | ✅ |
 | `ioredis` | `github.com/redis/go-redis/v9` | Caché, pub/sub del realtime y buffer de replay (sorted sets). | ✅ |
 | Plantillas de email (strings en TS) | `html/template` (estándar) + `go:embed` | Escapa el HTML automáticamente. | ✅ |
 | `@fastify/compress` | `github.com/klauspost/compress/gzhttp` | Nest comprime con gzip y deflate, y Cloud Run no comprime por su cuenta. Sin comprimir `text/event-stream`. | ✅ |
