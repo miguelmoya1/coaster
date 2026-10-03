@@ -25,7 +25,13 @@ import { StatusBadge } from '../status-badge/status-badge';
     <div class="p-4 flex items-center justify-center">
       <div class="rounded-full overflow-hidden bg-surface-container-highest">
         @if (imageUrl() && !imageError()) {
-          <img [src]="imageUrl()" alt="" class="w-full h-full object-cover" (error)="imageError.set(true)" />
+          <img
+            [src]="imageUrl()"
+            alt=""
+            loading="lazy"
+            class="w-full h-full object-cover"
+            (error)="imageError.set(true)"
+          />
         } @else {
           <mat-icon class="text-xl sm:text-2xl opacity-75" [class]="statusLevel() | stockStatus: 'text-color'">
             {{ icon() }}

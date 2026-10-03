@@ -27,6 +27,7 @@ import { PricePipe } from '../../../../../pipes/price/price';
                 <img
                   [src]="product.imageUrl"
                   alt="product image"
+                  loading="lazy"
                   class="w-full h-full object-cover"
                   (error)="handleImageError(product.id)"
                 />
