@@ -3,7 +3,6 @@ import { MoneyFormatterService } from '@coaster/core';
 
 @Pipe({
   name: 'price',
-  standalone: true,
 })
 export class PricePipe implements PipeTransform {
   readonly #money = inject(MoneyFormatterService);

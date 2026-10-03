@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
+import { Component, computed, inject, input, output } from '@angular/core';
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatTooltip } from '@angular/material/tooltip';
@@ -22,7 +22,6 @@ export interface WorkdayEntryItem {
 
 @Component({
   selector: 'coaster-workday-card',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatIcon, MatIconButton, MatTooltip, TranslatePipe],
   host: { class: 'block' },
   template: `

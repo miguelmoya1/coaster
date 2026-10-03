@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, linkedSignal, output } from '@angular/core';
+import { Component, computed, inject, input, linkedSignal, output } from '@angular/core';
 import { form, FormField, FormRoot, maxLength, minLength, required } from '@angular/forms/signals';
 import { MatButton } from '@angular/material/button';
 import { MatTimepicker, MatTimepickerInput, MatTimepickerToggle } from '@angular/material/timepicker';
@@ -14,7 +14,6 @@ const REASON_MIN_LENGTH = 5;
 
 @Component({
   selector: 'coaster-time-entry-form',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormRoot,
     FormField,

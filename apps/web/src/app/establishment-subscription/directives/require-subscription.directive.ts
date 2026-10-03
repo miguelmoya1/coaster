@@ -6,7 +6,6 @@ import type { EstablishmentId } from '@coaster/core';
 
 @Directive({
   selector: '[coasterRequireSubscription]',
-  standalone: true,
 })
 export class RequireSubscriptionDirective {
   readonly #subStore = inject(EstablishmentSubscriptionStore, { optional: true });

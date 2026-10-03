@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
+import { Component, computed, inject, input, output } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { ClockState, TimeEntryType } from '@coaster/time-tracking';
@@ -7,7 +7,6 @@ import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'coaster-clock-card',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatButton, MatIcon, TranslatePipe],
   host: { class: 'block' },
   template: `

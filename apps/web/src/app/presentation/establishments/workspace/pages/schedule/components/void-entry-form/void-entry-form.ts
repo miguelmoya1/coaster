@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
+import { Component, inject, input, output, signal } from '@angular/core';
 import { form, FormField, FormRoot, maxLength, minLength, required } from '@angular/forms/signals';
 import { MatButton } from '@angular/material/button';
 import { handleErrorFormField, type EstablishmentId } from '@coaster/core';
@@ -10,7 +10,6 @@ import { CoasterInput } from '../../../../../../components/field/input.directive
 
 @Component({
   selector: 'coaster-void-entry-form',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormRoot, FormField, MatButton, TranslatePipe, Field, CoasterInput, FormErrors],
   template: `
     <div class="mb-4 pb-4 border-b border-outline-variant/15 select-none">

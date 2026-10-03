@@ -5,7 +5,6 @@ export type BadgeVariant = 'success' | 'warning' | 'error' | 'neutral';
 
 @Pipe({
   name: 'stockStatus',
-  standalone: true,
 })
 export class StockStatusPipe implements PipeTransform {
   transform(status: StockStatus, type: 'badge-variant'): BadgeVariant;
