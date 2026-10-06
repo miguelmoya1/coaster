@@ -45,6 +45,7 @@ export const tablesResource = (establishmentId: Signal<EstablishmentId | undefin
   onRealtime(realtime.on<{ id: string }>('tableDeleted'), ({ id }) =>
     updateLoaded(tables, (list) => removeById(list, id)),
   );
+  onRealtime(realtime.reconnected, () => tables.reload());
 
   return tables;
 };

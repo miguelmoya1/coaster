@@ -20,6 +20,7 @@ export const cashClosePreviewResource = (establishmentId: Signal<EstablishmentId
     realtime.on<Order>('orderClosed'),
     realtime.on<{ id: string } | Order>('orderCancelled'),
     realtime.on<{ id: string }>('orderDeleted'),
+    realtime.reconnected,
   ]) {
     onRealtime<unknown>(event, () => preview.reload());
   }

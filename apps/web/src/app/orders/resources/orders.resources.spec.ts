@@ -40,6 +40,7 @@ describe('order resources', () => {
     orderTipUpdated: signal<{ orderId: string; tipAmount: number } | null>(null),
     orderAdjustmentsUpdated: signal<{ orderId: string; adjustments: unknown[] } | null>(null),
   };
+  const reconnected = signal(0);
 
   beforeEach(() => {
     for (const event of Object.values(realtime)) {
@@ -50,7 +51,7 @@ describe('order resources', () => {
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
-        { provide: Realtime, useValue: fakeRealtime(realtime) },
+        { provide: Realtime, useValue: fakeRealtime({ ...realtime, reconnected }) },
       ],
     });
 
@@ -117,6 +118,17 @@ describe('order resources', () => {
 
       expect(orders.value()?.[0]).toMatchObject({ tipAmount: 200, payableTotal: 1300 });
     });
+
+    it('should ask for the open orders again when the stream comes back, in case it missed one', async () => {
+      const orders = create();
+      await loaded(orders, url, [order('a')]);
+
+      reconnected.update((count) => count + 1);
+      TestBed.tick();
+      http.expectOne(url).flush([order('a'), order('b')]);
+
+      await vi.waitFor(() => expect(orders.value()?.map((o) => o.id)).toEqual(['a', 'b']));
+    });
   });
 
   describe('orderResource', () => {
@@ -163,6 +175,16 @@ describe('order resources', () => {
 
       http.expectOne(url);
     });
+
+    it('should fetch itself again when the stream comes back, in case it missed a change', async () => {
+      const current = create();
+      await loaded(current, url, order('a'));
+
+      reconnected.update((count) => count + 1);
+      TestBed.tick();
+
+      http.expectOne(url);
+    });
   });
 
   describe('orderHistoryResource', () => {
@@ -183,6 +205,16 @@ describe('order resources', () => {
       TestBed.tick();
 
       expect(history.value()?.map((o) => o.id)).toEqual(['today']);
+    });
+
+    it('should ask for the day again when the stream comes back, in case it missed an order', async () => {
+      const history = create();
+      await loaded(history, url, []);
+
+      reconnected.update((count) => count + 1);
+      TestBed.tick();
+
+      http.expectOne(url);
     });
   });
 });

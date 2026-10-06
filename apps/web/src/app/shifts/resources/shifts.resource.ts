@@ -27,6 +27,7 @@ export const shiftsResource = (establishmentId: Signal<EstablishmentId | undefin
   onRealtime(realtime.on<{ id: string }>('shiftDeleted'), ({ id }) =>
     updateLoaded(shifts, (list) => removeById(list, id)),
   );
+  onRealtime(realtime.reconnected, () => shifts.reload());
 
   return shifts;
 };

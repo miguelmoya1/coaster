@@ -70,7 +70,9 @@ delivered rather than lost. It can therefore reach the client ahead of an older 
 window of a millisecond or two, which is the price of never dropping one.
 
 Without a cache there is no buffer, `Replay` answers with nothing, and a reconnect starts from the
-present — which is what every reconnect did before this existed.
+present — which is what every reconnect did before this existed. The web does not depend on the
+buffer either way: every screen fed by the stream loads again when it comes back (see
+[frontend](../architecture/frontend.md)).
 
 ## Three rules it is built on
 

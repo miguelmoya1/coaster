@@ -38,6 +38,20 @@ describe('realtime resource helpers', () => {
       expect(pending.status()).toBe('loading');
     });
 
+    it('should leave a resource alone while it reloads, so the reload is not cancelled', async () => {
+      let finishReload!: (items: string[]) => void;
+      const answers = [Promise.resolve(['a']), new Promise<string[]>((resolve) => (finishReload = resolve))];
+      const reloading = TestBed.runInInjectionContext(() => resource({ loader: () => answers.shift()! }));
+      await vi.waitFor(() => expect(reloading.hasValue()).toBe(true));
+
+      reloading.reload();
+      TestBed.tick();
+      updateLoaded(reloading, (items) => [...items, 'x']);
+      finishReload(['a', 'b']);
+
+      await vi.waitFor(() => expect(reloading.value()).toEqual(['a', 'b']));
+    });
+
     it('should update a resource that already has a value', async () => {
       const loaded = TestBed.runInInjectionContext(() => resource({ loader: async () => ['a'] }));
       await vi.waitFor(() => expect(loaded.hasValue()).toBe(true));

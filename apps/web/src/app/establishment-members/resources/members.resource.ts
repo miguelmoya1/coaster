@@ -21,6 +21,7 @@ export const membersResource = (establishmentId: Signal<EstablishmentId | undefi
   );
   onRealtime(realtime.on<{ id: string }>('memberInvited'), () => members.reload());
   onRealtime(realtime.on<{ id: string; userId: string; role: string }>('memberRoleChanged'), () => members.reload());
+  onRealtime(realtime.reconnected, () => members.reload());
 
   return members;
 };

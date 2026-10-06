@@ -17,6 +17,7 @@ describe('statsResource', () => {
     orderCancelled: signal<{ id: string } | null>(null),
     orderDeleted: signal<{ id: string } | null>(null),
   };
+  const reconnected = signal(0);
 
   beforeEach(() => {
     for (const event of Object.values(realtime)) {
@@ -27,10 +28,21 @@ describe('statsResource', () => {
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
-        { provide: Realtime, useValue: fakeRealtime(realtime) },
+        { provide: Realtime, useValue: fakeRealtime({ ...realtime, reconnected }) },
       ],
     });
   });
+
+  const loaded = async () => {
+    const http = TestBed.inject(HttpTestingController);
+    const stats = TestBed.runInInjectionContext(() =>
+      statsResource(signal<EstablishmentId | undefined>(establishmentId)),
+    );
+    TestBed.tick();
+    http.expectOne(url).flush({ todayRevenue: 0 });
+    await vi.waitFor(() => expect(stats.hasValue()).toBe(true));
+    return http;
+  };
 
   it('should not ask for the takings of someone who cannot see them', () => {
     TestBed.runInInjectionContext(() => statsResource(signal<EstablishmentId | undefined>(undefined)));
@@ -40,15 +52,18 @@ describe('statsResource', () => {
   });
 
   it('should add the takings up again whenever an order is paid, cancelled or deleted', async () => {
-    const http = TestBed.inject(HttpTestingController);
-    const stats = TestBed.runInInjectionContext(() =>
-      statsResource(signal<EstablishmentId | undefined>(establishmentId)),
-    );
-    TestBed.tick();
-    http.expectOne(url).flush({ todayRevenue: 0 });
-    await vi.waitFor(() => expect(stats.hasValue()).toBe(true));
+    const http = await loaded();
 
     realtime.orderClosed.set({ id: 'order-1' } as Order);
+    TestBed.tick();
+
+    http.expectOne(url);
+  });
+
+  it('should add the takings up again when the stream comes back, in case it missed a payment', async () => {
+    const http = await loaded();
+
+    reconnected.update((count) => count + 1);
     TestBed.tick();
 
     http.expectOne(url);

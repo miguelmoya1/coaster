@@ -66,8 +66,8 @@ taken. See [backoffice](admin/backoffice.md).
 
 Live updates over Server-Sent Events: orders, tables, stock, members and subscription changes
 propagate to everyone watching the venue. One authenticated `GET` per client, the same guards as
-every other endpoint. A reconnect replays a two-minute buffer, so nothing is missed across a tunnel
-or a screen lock.
+every other endpoint. A reconnect replays a two-minute buffer, and every screen fed by the stream
+loads again when it comes back, so nothing is missed across a tunnel or a screen lock.
 
 ## One product, three modules
 

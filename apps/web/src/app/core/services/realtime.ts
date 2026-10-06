@@ -26,6 +26,8 @@ export class Realtime implements OnDestroy {
   readonly #establishmentId = signal<string | null>(null);
   readonly #connected = signal(false);
   readonly connected = this.#connected.asReadonly();
+  readonly #reconnected = signal(0);
+  readonly reconnected = this.#reconnected.asReadonly();
 
   readonly #inbox = Object.fromEntries(
     Object.values(RealtimeEvents).map((event) => [event, signal<unknown>(null)]),
@@ -37,6 +39,7 @@ export class Realtime implements OnDestroy {
 
   #abort: AbortController | null = null;
   #lastEventId: string | null = null;
+  #connectedBefore = false;
   #generation = 0;
 
   constructor() {
@@ -100,6 +103,11 @@ export class Realtime implements OnDestroy {
         signal: abort.signal,
       });
 
+      if (response.status === 401) {
+        await this.#auth.refresh();
+        return false;
+      }
+
       if (response.status === 403) {
         console.error(`No longer allowed to watch establishment ${establishmentId}`);
         return true;
@@ -109,6 +117,11 @@ export class Realtime implements OnDestroy {
         return false;
       }
 
+      if (this.#connectedBefore) {
+        this.#reconnected.update((count) => count + 1);
+      }
+
+      this.#connectedBefore = true;
       this.#connected.set(true);
 
       for await (const frame of readSse(response.body)) {
@@ -141,6 +154,7 @@ export class Realtime implements OnDestroy {
     this.#abort?.abort();
     this.#abort = null;
     this.#lastEventId = null;
+    this.#connectedBefore = false;
     this.#connected.set(false);
   }
 

@@ -138,11 +138,19 @@ The rules that make it work:
 #### Realtime inside a resource
 
 Realtime events are signals holding **the last event received**. A resource created on every visit
-would process, on creation, an event from minutes ago, and an `update()` issued while the request is
-still in flight replaces the request. Both happened on the first attempt. So a factory always
-listens through `onRealtime(event, handler)`, which ignores the event already there when it starts,
-and changes its list through `updateLoaded(resource, updater)`, which does nothing until the resource
-has a value.
+would process, on creation, an event from minutes ago, and an `update()` issued while a request is
+still in flight replaces the request — a reload included. Both happened on the first attempt. So a
+factory always listens through `onRealtime(event, handler)`, which ignores the event already there
+when it starts, and changes its list through `updateLoaded(resource, updater)`, which does nothing
+while the resource is loading or reloading.
+
+A stream that comes back may have missed events: the server's replay covers two minutes, and only
+with Redis. So `Realtime.reconnected` counts every time a stream comes back, and every factory and
+store that follows events reloads on it with `onRealtime(realtime.reconnected, () => x.reload())`.
+The stream is a `fetch`, not an `HttpClient` call, so the interceptor never sees its 401: on one it
+asks `Auth.refresh()` itself before coming back. Before both, a tablet nobody touched stopped
+receiving events when the server closed its stream at thirty minutes, with a token already expired,
+and did not catch up when somebody finally did.
 
 Anything a realtime event does not cover — the starter catalogue import, for one — gets an event on
 the API (`catalogueImported`) rather than a manual reload from the component that caused it, so every

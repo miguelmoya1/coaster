@@ -57,6 +57,7 @@ export const openOrdersResource = (establishmentId: Signal<EstablishmentId | und
       }
     },
   );
+  onRealtime(realtime.reconnected, () => orders.reload());
 
   return orders;
 };

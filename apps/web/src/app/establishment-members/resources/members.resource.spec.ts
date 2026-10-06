@@ -24,6 +24,7 @@ describe('membersResource', () => {
     memberInvited: signal<{ id: string } | null>(null),
     memberRoleChanged: signal<{ id: string; userId: string; role: string } | null>(null),
   };
+  const reconnected = signal(0);
 
   beforeEach(() => {
     for (const event of Object.values(realtime)) {
@@ -34,7 +35,7 @@ describe('membersResource', () => {
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
-        { provide: Realtime, useValue: fakeRealtime(realtime) },
+        { provide: Realtime, useValue: fakeRealtime({ ...realtime, reconnected }) },
       ],
     });
 
@@ -64,6 +65,15 @@ describe('membersResource', () => {
     await loadedWith([member('a')]);
 
     realtime.memberInvited.set({ id: 'c' });
+    TestBed.tick();
+
+    http.expectOne(url);
+  });
+
+  it('should ask again when the stream comes back, in case it missed a change', async () => {
+    await loadedWith([member('a')]);
+
+    reconnected.update((count) => count + 1);
     TestBed.tick();
 
     http.expectOne(url);

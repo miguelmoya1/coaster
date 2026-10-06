@@ -3,7 +3,7 @@ import { computed, effect, inject, Service, signal } from '@angular/core';
 import type { SubscriptionSeats as SubscriptionSeatsInfo } from '../models/establishment-subscription.interface';
 import { SubscriptionPlan } from '../models/subscription-plan.type';
 import { SubscriptionStatus } from '../models/subscription-status.type';
-import { Realtime, type EstablishmentId } from '@coaster/core';
+import { onRealtime, Realtime, type EstablishmentId } from '@coaster/core';
 import { establishmentSubscriptionMapper } from '../mappers/establishment-subscription.mapper';
 import { CreateCheckoutSession } from '../services/create-checkout-session';
 import { CreateCustomerPortalSession } from '../services/create-customer-portal-session';
@@ -180,6 +180,11 @@ export class EstablishmentSubscriptionStore {
       ) {
         this.reloadSeats();
       }
+    });
+
+    onRealtime(this.#realtime.reconnected, () => {
+      this.reloadSubscription();
+      this.reloadSeats();
     });
   }
 

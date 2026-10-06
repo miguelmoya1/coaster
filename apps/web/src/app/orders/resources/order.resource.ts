@@ -56,6 +56,7 @@ export const orderResource = (
       order.reload();
     }
   });
+  onRealtime(realtime.reconnected, () => order.reload());
 
   return order;
 };

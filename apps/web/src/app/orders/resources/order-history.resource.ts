@@ -46,6 +46,7 @@ export const orderHistoryResource = (establishmentId: Signal<EstablishmentId | u
   onRealtime(realtime.on<{ id: string }>('orderDeleted'), ({ id }) =>
     updateLoaded(history, (orders) => removeById(orders, id)),
   );
+  onRealtime(realtime.reconnected, () => history.reload());
 
   return history;
 };

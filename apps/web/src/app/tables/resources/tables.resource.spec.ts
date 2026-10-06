@@ -25,6 +25,7 @@ describe('tablesResource', () => {
     tableUpdated: signal<Table | null>(null),
     tableDeleted: signal<{ id: string } | null>(null),
   };
+  const reconnected = signal(0);
 
   beforeEach(() => {
     for (const event of Object.values(realtime)) {
@@ -35,7 +36,7 @@ describe('tablesResource', () => {
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
-        { provide: Realtime, useValue: fakeRealtime(realtime) },
+        { provide: Realtime, useValue: fakeRealtime({ ...realtime, reconnected }) },
       ],
     });
 
@@ -70,6 +71,16 @@ describe('tablesResource', () => {
     TestBed.tick();
 
     expect(tables.value()?.map((t) => t.id)).toEqual(['2']);
+  });
+
+  it('should load the tables again when the stream comes back, in case it missed something', async () => {
+    const tables = await loadedWith([table('1')]);
+
+    reconnected.update((count) => count + 1);
+    TestBed.tick();
+    http.expectOne(url).flush([table('1', TableStatus.OCCUPIED)]);
+
+    await vi.waitFor(() => expect(tables.value()?.[0].status).toBe(TableStatus.OCCUPIED));
   });
 
   it('should count free and occupied tables', () => {

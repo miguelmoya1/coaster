@@ -19,6 +19,7 @@ describe('cashClosePreviewResource', () => {
     orderCancelled: signal<{ id: string } | null>(null),
     orderDeleted: signal<{ id: string } | null>(null),
   };
+  const reconnected = signal(0);
 
   beforeEach(() => {
     for (const event of Object.values(realtime)) {
@@ -29,13 +30,12 @@ describe('cashClosePreviewResource', () => {
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
-        { provide: Realtime, useValue: fakeRealtime(realtime) },
+        { provide: Realtime, useValue: fakeRealtime({ ...realtime, reconnected }) },
       ],
     });
   });
 
-  it('should ask again for what the till holds whenever an order is paid, and not for old news', async () => {
-    realtime.orderClosed.set({ id: 'before-opening' } as Order);
+  const loaded = async () => {
     const http = TestBed.inject(HttpTestingController);
     const preview = TestBed.runInInjectionContext(() =>
       cashClosePreviewResource(signal<EstablishmentId | undefined>(establishmentId)),
@@ -43,10 +43,25 @@ describe('cashClosePreviewResource', () => {
     TestBed.tick();
     http.expectOne(url).flush({ cashAmount: 0 });
     await vi.waitFor(() => expect(preview.hasValue()).toBe(true));
+    return http;
+  };
+
+  it('should ask again for what the till holds whenever an order is paid, and not for old news', async () => {
+    realtime.orderClosed.set({ id: 'before-opening' } as Order);
+    const http = await loaded();
     TestBed.tick();
     http.expectNone(url);
 
     realtime.orderClosed.set({ id: 'just-paid' } as Order);
+    TestBed.tick();
+
+    http.expectOne(url);
+  });
+
+  it('should ask again for what the till holds when the stream comes back, in case it missed a payment', async () => {
+    const http = await loaded();
+
+    reconnected.update((count) => count + 1);
     TestBed.tick();
 
     http.expectOne(url);

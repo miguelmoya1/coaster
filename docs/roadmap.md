@@ -65,6 +65,8 @@ See [catalogue and menu](architecture/catalogue-and-menu.md).
 - Shared across instances through Redis when `REDIS_URL` is set, and degrading to local-only —
   never to an outage — when it is not.
 - A two-minute replay buffer, so a reconnect does not lose what happened while the tunnel was down.
+- A stream that comes back renews an expired session itself and makes every screen it feeds load
+  again, so a tablet nobody touches never falls behind, however long it was away.
 
 See [the shared cache](operations/redis.md).
 

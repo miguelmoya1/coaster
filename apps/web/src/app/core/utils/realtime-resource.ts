@@ -15,7 +15,7 @@ export const onRealtime = <T>(event: Signal<T | null>, handler: (payload: T) => 
 export const updateLoaded = <T>(resource: WritableResource<T | undefined>, updater: (value: T) => T): void => {
   const loaded: WritableResource<T | undefined> = resource;
 
-  if (resource.hasValue()) {
+  if (resource.hasValue() && !resource.isLoading()) {
     loaded.set(updater(loaded.value() as T));
   }
 };

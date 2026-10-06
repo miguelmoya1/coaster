@@ -3,7 +3,7 @@ import { computed, effect, inject, Injector, Service, signal } from '@angular/co
 import { EstablishmentPermission } from '../models/establishment-permissions.type';
 import { EstablishmentRole } from '@coaster/establishments';
 import { hasPermission } from '../models/establishment-permissions';
-import { Realtime, until, type EstablishmentId } from '@coaster/core';
+import { onRealtime, Realtime, until, type EstablishmentId } from '@coaster/core';
 import { memberMapper } from '../mappers/member.mapper';
 import { MyMember } from '../services/my-member';
 
@@ -27,6 +27,8 @@ export class MyMemberStore {
         this.reloadMyMember();
       }
     });
+
+    onRealtime(this.#realtime.reconnected, () => this.reloadMyMember());
   }
 
   public readonly myMember = this.#myMemberResource.asReadonly();

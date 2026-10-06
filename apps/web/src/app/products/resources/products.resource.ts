@@ -27,6 +27,7 @@ export const productsResource = (establishmentId: Signal<EstablishmentId | undef
     updateLoaded(products, (list) => removeById(list, id)),
   );
   onRealtime(realtime.on<{ establishmentId: string }>('catalogueImported'), () => products.reload());
+  onRealtime(realtime.reconnected, () => products.reload());
 
   return products;
 };

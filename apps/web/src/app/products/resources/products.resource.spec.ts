@@ -30,6 +30,7 @@ describe('productsResource', () => {
     productDeleted: signal<{ id: string } | null>(null),
     catalogueImported: signal<{ establishmentId: string } | null>(null),
   };
+  const reconnected = signal(0);
 
   beforeEach(() => {
     for (const event of Object.values(realtime)) {
@@ -40,7 +41,7 @@ describe('productsResource', () => {
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
-        { provide: Realtime, useValue: fakeRealtime(realtime) },
+        { provide: Realtime, useValue: fakeRealtime({ ...realtime, reconnected }) },
       ],
     });
 
@@ -84,6 +85,16 @@ describe('productsResource', () => {
     TestBed.tick();
 
     http.expectOne(`/establishments/${establishmentId}/products`);
+  });
+
+  it('should fetch everything again when the stream comes back, in case it missed a sale', async () => {
+    const products = await loadedWith([product('1')]);
+
+    reconnected.update((count) => count + 1);
+    TestBed.tick();
+    http.expectOne(`/establishments/${establishmentId}/products`).flush([product('1', 4)]);
+
+    await vi.waitFor(() => expect(products.value()?.[0].currentStock).toBe(4));
   });
 
   it('should count products by how much stock they have left', () => {

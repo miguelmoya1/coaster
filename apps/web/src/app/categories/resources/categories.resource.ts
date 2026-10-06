@@ -25,6 +25,7 @@ export const categoriesResource = (establishmentId: Signal<EstablishmentId | und
     updateLoaded(categories, (list) => removeById(list, id)),
   );
   onRealtime(realtime.on<{ establishmentId: string }>('catalogueImported'), () => categories.reload());
+  onRealtime(realtime.reconnected, () => categories.reload());
 
   return categories;
 };
