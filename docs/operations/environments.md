@@ -187,12 +187,14 @@ gcloud run deploy api-beta \
   --service-account "$SA" \
   --env-vars-file /tmp/api-beta.env.yaml \
   --min-instances 0 \
+  --concurrency 1000 \
   --timeout 3600 \
   --allow-unauthenticated
 ```
 
 `--min-instances 0` is the difference between beta costing a cold start and beta costing money all
-month.
+month. `--concurrency 1000` because every open realtime stream takes a slot and beta has no Redis:
+past the limit a second instance appears, and the venues on one stop seeing the events of the other.
 
 Now the eight credentials, in a file outside the repository because beta's are its own — all eight,
 for the reasons above. `REDIS_URL` and `AI_GATEWAY_API_KEY` may simply be absent; the other six are

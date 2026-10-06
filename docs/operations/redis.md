@@ -213,8 +213,9 @@ gcloud run services describe api-new --region europe-west1
   anything above that would do; 3600 is the maximum and leaves the timeout out of the picture.
 - **Session affinity is not needed.** A stream is one plain `GET` with no handshake and no state
   behind it, so whichever instance answers is the right one.
-- **Concurrency.** Each open stream occupies one of the 80 concurrent slots an instance has. That is
-  the number that decides when a second instance appears.
+- **Concurrency.** Each open stream occupies one of the concurrent slots an instance has, and that
+  number decides when a second instance appears. Beta runs 1000 since 6 October 2026, which one Go
+  instance holds; production stays at 80 while it runs Nest, whose Node uses a single vCPU.
 - **`--max-instances` is bounded by the connection budget, not by traffic.** An instance that cannot
   get a connection keeps serving, but it loses the shared bus with it — and an instance whose clients
   are isolated is the exact failure this whole thing exists to prevent. Keep `max-instances` times

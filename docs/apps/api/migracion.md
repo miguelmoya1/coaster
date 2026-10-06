@@ -11,10 +11,10 @@ qué falta para producción y qué cambiará allí. Cómo está hecha la API: [e
 2. **Ahorrar en Cloud Run**, donde el 90–95 % del precio de una instancia es CPU: lo que ahorra es
    tener menos instancias, no usar menos RAM. Go usa todos los vCPU de la instancia (Node, uno),
    arranca en frío en menos de 200 ms (así que `min-instances 0` vale) y con una sola instancia no
-   necesita Redis ([la caché compartida](../../operations/redis.md)). Hoy cada stream de realtime
-   ocupa uno de los 80 huecos de concurrencia, así que sale una instancia nueva cada ~8 locales;
-   con concurrencia a 1000 o más, una aguanta unos 100. Falta calcular el ahorro real con la
-   factura desglosada.
+   necesita Redis ([la caché compartida](../../operations/redis.md)). Cada stream de realtime
+   ocupa un hueco de concurrencia: con los 80 de producción sale una instancia nueva cada ~8
+   locales, y con los 1000 que tiene beta desde el 6 de octubre de 2026, una aguanta unos 100.
+   Falta calcular el ahorro real con la factura desglosada.
 
 El rendimiento **no** es el motivo: casi toda la latencia viene de Postgres.
 
@@ -62,6 +62,9 @@ Producción está preparada (ver el paso 3) y solo espera al merge.
    - El proyecto `coaster` de Vercel ya tiene comandos que valen para las dos estructuras: si hay
      `package.json` en la raíz instalan y construyen el workspace de antes, y si no, solo
      `apps/web`. Probado con Node 24 contra `main` y contra `dev`.
+
+   Lo único a mano, cuando el despliegue de Go termine (con Nest no, que usa un solo vCPU):
+   `gcloud run services update api-new --region europe-west1 --concurrency 1000`, como beta.
 4. **Limpiar cuando producción corra Go**:
    - Juntar las migraciones en una y quitar `_prisma_migrations`, el código de `apps/database` que
      la adopta y la regla de que una migración no puede romper Nest (`apps/database/CLAUDE.md` y
