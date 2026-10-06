@@ -116,10 +116,10 @@ gh variable set GCP_JOB_NAME      --env api-beta --body api-migrate-beta
 gh variable set PUBLIC_URL        --env api-beta --body https://api.beta.coaster.business
 ```
 
-No GitHub secrets: the database URL the migration job needs comes from Secret Manager, so this
-pipeline keeps nothing worth stealing on GitHub's side. If an environment or the repository still
-carries a `DATABASE_URL` secret from before that change, delete it — nothing reads it, and a
-credential nobody reads is a credential nobody rotates.
+No GitHub secrets, in the repository or in either environment: the database URL the migration job
+needs comes from Secret Manager, so this pipeline keeps nothing worth stealing on GitHub's side.
+Don't add one back — no workflow reads them, and a credential nobody reads is a credential nobody
+rotates.
 
 Optionally pin each environment to its branch, so a run from the wrong branch cannot reach the wrong
 database:
@@ -148,8 +148,8 @@ branches.
 ### 3. The database
 
 A new Neon project — not a branch of production: beta has no business holding customer data. Copy
-its pooled connection string; that is the `DATABASE_URL` for both the GitHub environment and the
-Cloud Run service.
+its pooled connection string; that is the `DATABASE_URL` that goes into Secret Manager in step 4,
+for both the Cloud Run service and the migration job.
 
 Migrations run themselves on every deploy, in a Cloud Run job with the image of `apps/database`
 (`/app/migrate`), before the new revision takes traffic — see [database](../apps/database.md).

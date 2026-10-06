@@ -97,13 +97,10 @@ scripts/secrets-bootstrap.sh beta ./new-values.env
 
 ### After both environments are on it
 
-Delete the `DATABASE_URL` secret from both GitHub environments. It is the database password, and the
-old workflow copied it into a runner's environment on every single push; nothing reads it now.
-
-```sh
-gh secret delete DATABASE_URL --env api-beta
-gh secret delete DATABASE_URL --env api-production
-```
+The `DATABASE_URL` secrets of both GitHub environments were deleted on 6 October 2026, together
+with the repository's leftovers (`PRINTER_JWT_SECRET` and the three `VERCEL_*`). It was the database
+password, and the old workflow copied it into a runner's environment on every single push. GitHub
+now holds no secrets at all, and no workflow reads any.
 
 ### Why the plaintext copies go
 
