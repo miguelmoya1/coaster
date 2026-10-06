@@ -1,14 +1,14 @@
 import type {
   AdminAuditLogEntry,
+  AdminBetaTesters,
   AdminEstablishmentDetail,
   AdminEstablishmentSummary,
   AdminPlatformMetrics,
   AdminUserDetail,
-  AdminBetaTesters,
   AdminUserSummary,
   BetaTester,
   Paginated,
-} from '@coaster/common';
+} from '../models/admin.interface';
 
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null;
 

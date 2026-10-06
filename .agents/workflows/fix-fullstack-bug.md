@@ -8,17 +8,17 @@ Execute these steps to systematically track down and fix a bug that involves bot
 ## Step 1: Reproduce and Analyze
 - Ask the user for the exact steps to reproduce the bug, or the specific error messages they are seeing.
 - Check the frontend network requests (payload and response). Identify if the issue is originating from an incorrect UI state, an invalid payload being sent, or a malformed backend response.
-- Analyze the relevant backend logs, database state, and Prisma queries.
+- Analyze the relevant backend logs, database state, and SQL queries.
 
-## Step 2: Contract Verification (`packages/common`)
-- Verify that the types, DTOs, and interfaces in `packages/common` perfectly match the expected shapes for both the API response and the frontend consumer.
+## Step 2: Contract Verification (the web's `models/`)
+- Verify that the types, DTOs, and interfaces in the web's `models/` folders perfectly match what the API answers and what the frontend consumes.
 - Check if any enum values or required/optional fields have been modified recently causing a mismatch.
 - Fix any discrepancies in the shared contracts FIRST before touching the app logic.
 
-## Step 3: Backend Fix (`apps/api`)
-- If the bug resides in the API layer, write a failing unit test in the relevant Command/Query Handler that reproduces the issue perfectly.
-- Fix the business logic in the handler or the database query in the data-access layer.
-- Ensure the unit test now passes, and the Controller properly returns the updated/fixed DTO.
+## Step 3: Backend Fix (`apps/api`, Go)
+- If the bug resides in the API layer, write a failing test in the relevant service or handler that reproduces the issue perfectly.
+- Fix the business logic in the service or the query in `repository/queries/`.
+- Ensure the test now passes and the handler returns the fixed shape.
 
 ## Step 4: Frontend Fix (`apps/web`)
 - If the bug affects the UI layer, verify the Angular Signals state in the `store/` or `services/` using console logs or the Angular DevTools approach.

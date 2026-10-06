@@ -38,6 +38,11 @@ describe('DateFormatterService', () => {
     expect(formatter.formatMonthYear(august15)).toBe('AUGUST 2026');
   });
 
+  it('should write a moment as day, month, year and a 24-hour time in the worker language', () => {
+    expect(formatterSpeaking('es').formatDateTime(august15.toISOString())).toBe('15 ago 2026, 10:00');
+    expect(formatterSpeaking('en').formatDateTime(august15.toISOString())).toBe('15 Aug 2026, 10:00');
+  });
+
   it('should fall back to Spanish rather than English when no language has been chosen', () => {
     const formatter = formatterSpeaking();
 

@@ -1,4 +1,4 @@
-import { TableStatus } from '@coaster/common';
+import { TableStatus } from '../models/table-status.type';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { TableStatusPipe } from './table-status';
 

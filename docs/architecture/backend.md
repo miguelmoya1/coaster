@@ -1,63 +1,19 @@
-# Backend architecture (NestJS)
+# Backend architecture
 
-The API is a NestJS application on Fastify, using CQRS (`@nestjs/cqrs`) and Prisma over PostgreSQL.
-Each business capability is a module under `apps/api/src`.
-
-## Modules and their public API
-
-Every folder in `apps/api/src` is a module and declares its **public API** in its `index.ts`.
-Anything not exported there is internal: repositories, handlers, DTOs and utilities are never
-imported from outside the module.
-
-Those `index.ts` files re-export straight from the file that declares each symbol
-(`export { CreateOrderCommand } from './commands/impl/create-order.command';`) instead of
-re-exporting the `./commands` barrel. That keeps the load graph from dragging in the handlers, which
-are the files with dependencies and the ones that create cycles at `require` time.
-
-## Aliases
-
-One alias per module, declared **only** in `tsconfig.json`:
-
-```text
-@coaster/<module>   ->  ./src/<module>/index.ts
-@coaster/core/db    ->  ./src/core/db/index.ts
-```
-
-`core/db` has its own entry point because it is the persistence layer (the generated Prisma client)
-and should not travel inside the general `core` barrel.
-
-There are no wildcard aliases (`@establishments/*`). They were a way to bypass `index.ts` and reach into
-another module's internals.
-
-Rule: **crossing modules goes through the alias; inside a module, use relative paths.**
-
-## Layers
-
-`core` is the base layer and **cannot import any business module**; lint enforces it. It holds the
-Prisma client, the security guards, shared mappers and the token verifier.
-
-If `core` ever needs something from above, invert the dependency with a port rather than importing
-upwards.
-
-## How it is enforced
-
-`apps/api/eslint.config.mjs` generates its rules by reading the directories under `src`, so a new
-module is covered without touching the configuration:
-
-- error if a file in `core/` imports a business module;
-- warning if a file reaches another module with a relative path instead of `@coaster/<module>`.
-
-The second is a warning while legacy relative imports are still being migrated. Once they are gone
-it becomes an error.
+The API is a Go service in `apps/api`: hexagonal (`core/domain`, `core/ports`, `service`,
+`adapter`), one service per entity and one method per use case, hand-written SQL over pgx. How it is
+laid out and how each thing is done live next to it: [API](../apps/api/README.md),
+[structure](../apps/api/estructura.md) and [conventions](../apps/api/convenciones.md).
+This page keeps the reasoning behind the cross-cutting concerns, which does not depend on the
+language it is written in.
 
 ## Cross-cutting concerns
 
 ### Authentication
 
-`AccessTokenService` (in `core/security`) is the single place that verifies an access token and
-loads the matching local user. `AuthGuard` (HTTP) and `SubscriptionActiveGuard` both go through it,
-and each keeps its own post-conditions — active user, platform role. Before it existed, the same
-verify-and-look-up pair was written out in four places.
+`service.AccessTokenService` is the single place that verifies an access token and loads the
+matching local user. The guard's authentication step and its subscription step both go through it,
+and each keeps its own post-conditions — active user, platform role.
 
 The access token is a JWT of our own, signed with `AUTH_JWT_SECRET`, alive for fifteen minutes and
 carrying the user id and the session id. Nobody is asked to sign in again when it expires: the
@@ -75,12 +31,12 @@ before it ever looks at the grace window. That is why `AuthSession` carries `rot
 
 ### Signing in with Google
 
-`GoogleTokenService` verifies the identity token the browser gets from Google Identity Services:
+`adapter/google` verifies the identity token the browser gets from Google Identity Services:
 `RS256` against Google's published keys, `aud` equal to `GOOGLE_CLIENT_ID`, a Google issuer, an
 expiry in the future and an address Google says it verified. Anything else is refused. The keys are
-read once and kept in memory, and a token naming a key Google does not publish cannot make the API
-fetch them again more than once a minute — otherwise a stream of forged `kid`s would be a way to
-make us hammer Google.
+kept for as long as Google's response says, and a token naming a key Google does not publish is
+refused without fetching them again — otherwise a stream of forged `kid`s would be a way to make us
+hammer Google.
 
 There is no `GOOGLE_CLIENT_ID` in development by default, and that is not a failure: the API answers
 `503 GOOGLE_SIGN_IN_UNAVAILABLE` and the web app renders no button at all, rather than offering
@@ -125,10 +81,9 @@ every session **but the one doing it** — that is what the `sid` claim in the a
 
 ### What email failures do, and do not, take down
 
-Sending goes through `AUTH_MAILER`, a token declared in `core` and implemented by the email module.
-The direction matters: `email` may depend on `auth`, never the reverse, or the two barrels form a
-require-time cycle. It also lets the e2e suite swap in a mailbox and follow the links it captures,
-which is how the recovery flows are tested end to end without sending anything.
+Sending goes through `ports.Mailer`, implemented by `adapter/email`. The e2e suite points
+`TEST_MAILBOX_URL` at a mailbox of its own and follows the links it captures, which is how the
+recovery flows are tested end to end without sending anything.
 
 Where the person is waiting on the email, a failure to send is an error they see: `forgot-password`
 and the verification request both fail loudly rather than answering 204 to somebody who will then
@@ -136,20 +91,19 @@ wait forever for a message that never left. Where the email is a **notice** — 
 password changed — the send is best-effort and only logged, because the password has already
 changed and refusing to say so would not undo it.
 
-The realtime stream adds nothing to this. It is a `GET` like any other, so `AuthGuard` and
-`EstablishmentPermissionsGuard` decide who may open it; there is no second authentication path to
-keep in step with this one.
+The realtime stream adds nothing to this. It is a `GET` like any other, so the same authentication
+and membership steps decide who may open it; there is no second authentication path to keep in step
+with this one.
 
-The full authorisation picture — five guards, in the order Nest runs them — is in
+The full authorisation picture — the five steps of `middleware.Guard`, in the order they run — is in
 [access model](permissions.md).
 
 ### What is reachable without a token
 
 Three surfaces, and each one is deliberate:
 
-- `GET /menus/:slug` — the published menu a customer scans. Outside every guard, and throttled on
-  its own at 60/minute because it is the first thing a stranger can reach. A spec asserts it carries
-  no guards, so it cannot acquire one by accident either.
+- `GET /menus/:slug` — the published menu a customer scans. Registered with no authentication rule,
+  and throttled on its own at 60/minute because it is the first thing a stranger can reach.
 - The printer bridge's routes, which authenticate per device with `X-Device-Key` rather than per
   user — see [printing bridge](printing-bridge.md).
 - `POST /stripe/webhook`, where the signature is the gate.
@@ -157,29 +111,30 @@ Three surfaces, and each one is deliberate:
 ### The shared cache
 
 Two things used to live in the memory of one process and therefore broke the moment Cloud Run ran
-more than one instance: the set of clients watching a venue, and the throttler's counter — the guards
-were merely slow. Both now go through `core/cache`, and the full picture, including what is cached
+more than one instance: the set of clients watching a venue, and the rate limit's counter — the guard
+was merely slow. Both now go through `adapter/cache`, and the full picture, including what is cached
 and what deletes it, is in [the shared cache](../operations/redis.md).
 
-Two things are worth knowing before reading any guard:
+Two things are worth knowing before reading the guard:
 
 - **`REDIS_URL` unset means no cache at all**, and the application behaves exactly as it did before.
-  Every read falls back to Postgres, rooms stay local, the throttler counts in memory. The e2e suite
+  Every read falls back to Postgres, rooms stay local, the rate limit counts in memory. The e2e suite
   runs this way.
-- **`SecurityRepository` is the only place that caches.** Every read on the authenticated preamble —
+- **`SecurityService` is the only place that caches.** Every read on the authenticated preamble —
   role, membership, module list, subscription row — is a `remember` there, and
-  `AccessTokenService` caches the user lookup behind `CurrentUser`. Nothing else in the codebase
+  `AccessTokenService` caches the user lookup behind the current user. Nothing else in the codebase
   touches the cache to read; a handful of event handlers touch it to `forget`.
 
 ### Rate limiting
 
-`@nestjs/throttler` is registered globally at **300 requests/minute**, counted in the shared cache so
-the limit is the whole service rather than 300 per instance. If the cache is unreachable it falls
-back to counting in memory rather than answering 500. Two exceptions:
+Every route is limited to **300 requests/minute** unless it says otherwise, counted in the shared
+cache so the limit is the whole service rather than 300 per instance. If the cache is unreachable it
+falls back to counting in memory rather than answering 500. The sign-in routes carry tighter limits
+of their own, and two other exceptions stand out:
 
 - `POST /establishments/:establishmentId/ai` is capped at **20/minute** — it calls a paid LLM gateway, and without a
   tighter limit any member could burn the budget in a loop.
-- The Stripe webhook and the printer bridge long-poll are exempt with `@SkipThrottle()`. Stripe
+- The Stripe webhook and the printer bridge long-poll are exempt with `middleware.SkipThrottle()`. Stripe
   retries on failure and the bridge holds a request open for 25 seconds by design.
 
 ### Cross-origin requests
@@ -190,13 +145,19 @@ hold of, and — once the realtime stream arrived — hold a stream open too.
 
 It **fails closed in production**. An unset variable resolves to an empty list, every cross-origin
 request is refused, and the boot logs an error naming the variable. That is deliberate and follows
-the same lesson as `AdminGuard`: a security control that falls back to permissive when
+the same lesson as the admin rule: a security control that falls back to permissive when
 misconfigured protects nothing, and the failure is invisible precisely when it matters. Outside
 production it falls back to `http://localhost:4200`, so a fresh checkout and CI need no
 configuration.
 
 Set it **before** deploying the change, not after — the variable is ignored by any revision that
 predates it, so there is no window where the two disagree.
+
+Every call the web makes carries `Authorization`, so the browser sends a preflight `OPTIONS` first.
+Its answer carries `Access-Control-Max-Age: 7200`, the most Chrome keeps: without it the browser
+forgets the answer after five seconds, and in beta, in early October 2026, 169 preflights went out
+for 220 requests. The cache is per URL, so a list asked for again is free and each new order still
+pays one.
 
 Its value contains commas, which is exactly what `gcloud`'s env-var flags use to separate one
 variable from the next. Passed plainly, `CORS_ORIGINS=https://a,https://b` silently becomes two
@@ -221,16 +182,12 @@ The printer bridge is not affected — it is a Go process, not a browser, and au
 `TRUST_PROXY_HOPS` says how many proxies sit in front. It defaults to **1**, which is what Cloud Run
 adds, so nothing needs declaring there; `compose.yaml` drops it to `0` locally.
 
-The number matters because `req.ip` derives from it, and the rate-limit bucket derives from
-`req.ip`. Fastify walks `X-Forwarded-For` from right to left, skipping the trusted hops, so with the
-right number it lands on the address the proxy appended. Trusting more hops than exist — or all of
-them, with `trustProxy: true` — hands it the leftmost entry, which the caller writes themselves:
-rotating that header per request makes the rate limit disappear entirely.
-
-Fastify 5.12 stopped accepting a number here: a hop count cannot validate the immediate peer, so it
-answers "trust nobody" and `req.ip` becomes the proxy — one shared rate-limit bucket for everybody.
-The count is expressed as a function instead, `(_address, hop) => hop < hops`, which walks the same
-way on 5.11 and on 5.12. Do not put a number back.
+The number matters because the client address derives from it, and the rate-limit bucket derives
+from the client address. `middleware.clientIP` walks `X-Forwarded-For` from right to left, skipping
+the trusted hops, so with the right number it lands on the address the proxy appended. Trusting more
+hops than exist hands it an entry the caller writes themselves: rotating that header per request
+makes the rate limit disappear entirely. Trusting fewer turns the proxy into the client — one shared
+bucket for everybody.
 
 To check the number is right against a deployed API, hammer it with a rotating header and look for
 `429`. If every response is identical, there is one more hop than you think:
@@ -239,40 +196,21 @@ To check the number is right against a deployed API, hammer it with a rotating h
 for i in $(seq 1 310); do curl -s -o /dev/null -w "%{http_code}\n" -H "X-Forwarded-For: 10.0.0.$i" https://your-api/api/v1/establishments; done | sort | uniq -c
 ```
 
-### API docs
-
-Swagger is mounted at `/api/docs` **only outside production**. It is a complete map of the API and
-there is no reason to publish it.
-
 ## Runtime
 
-TypeScript aliases are compile-time only. Nest's SWC builder resolves them at build time: there is
-no unresolved `require("@coaster/...")` left in `dist`, so `node dist/main` runs without
-`tsconfig-paths` or any extra loader.
-
-The production image runs as the `node` user and expects migrations to have been applied separately
-(`prisma migrate deploy`).
+The production image is a static binary on `distroless/static`, running as a non-root user, with the
+printer bridge binaries it serves in `/app/public`. It expects migrations to have been applied
+separately: the deploy runs goose's `migrate` from `apps/database` in a Cloud Run job first (see
+[database](../apps/database.md)).
 
 ## Tests
 
-`vitest.config.ts` and `vitest.config.e2e.ts` read the `paths` from `tsconfig.json` and build their
-aliases from there. There is no second list to keep in sync.
+Repository tests and the e2e suite run against a real Postgres (testcontainers) built from the same
+goose migrations the deploy applies, never from a schema dump: the schema on its own leaves out
+everything written in raw SQL — the append-only triggers on `TimeEntry`, the partial unique index on
+`ShiftExchange` — and those are exactly the invariants worth being able to lean on in a test.
 
-The e2e suite (`npm run test:e2e -w @coaster/api`) runs in CI and brings the database up with
-`prisma migrate deploy`, not `db push`: the schema on its own leaves out everything written in raw
-SQL — the append-only triggers on `TimeEntry`, the partial unique index on `ShiftExchange` — and
-those are exactly the invariants worth being able to lean on in a test.
-
-This distinction is not academic. Unit tests mock Prisma, so `$executeRaw` is a `vi.fn()` and a type
-error inside raw SQL is invisible to them. A `WHERE id = $1::uuid` against a `text` column passed
-every unit test and only failed against a real database.
-
-To exercise something between two people, `E2eTestSetup.actAs(user)` returns the `x-e2e-user-id`
-header the mocked guard uses to impersonate; without it everything runs as `mockUser`. Test establishments are
-created with `E2eTestSetup.createEstablishment()`, which mirrors `EstablishmentWriteRepository.create`: establishment, owner
-membership and a 14-day trial subscription. Creating establishments with a bare `prisma.dbEstablishment.create` leaves
-them without a subscription and `SubscriptionActiveGuard` answers 402 to every write.
-
-The realtime stream is tested over real HTTP in `test/realtime`: the suite opens the endpoint with
-`fetch`, reads the frames off the body and checks that a non-member is refused, that an event never
-crosses to another establishment, and that revoking access closes the stream.
+This distinction is not academic. A fake cannot run SQL, so a type error inside a query is invisible
+to a service test. A `WHERE id = $1::uuid` against a `text` column once passed every unit test and
+only failed against a real database. How each kind of test is written is in
+[conventions](../apps/api/convenciones.md).

@@ -1,4 +1,5 @@
-import { ClockState, isOpen, replayClockState, TimeEntryType, workdayDateOf } from '@coaster/common';
+import { ClockState, TimeEntryType } from '../../../src/app/time-tracking/models/time-entry.type';
+import { isOpen, replayClockState, workdayDateOf } from '../../../src/app/time-tracking/models/workday';
 import { Page } from '@playwright/test';
 
 const API_BASE = 'http://localhost:3000/api/v1';

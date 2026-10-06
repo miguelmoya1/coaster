@@ -1,9 +1,14 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
+import { Component, computed, inject, input, output } from '@angular/core';
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatTooltip } from '@angular/material/tooltip';
-import type { TimeEntry, Workday } from '@coaster/common';
-import { TimeEntryAction, TimeEntrySource, WorkdayDiscrepancy } from '@coaster/common';
+import {
+  TimeEntryAction,
+  TimeEntrySource,
+  WorkdayDiscrepancy,
+  type TimeEntry,
+  type Workday,
+} from '@coaster/time-tracking';
 import { DateFormatterService } from '@coaster/core';
 import { TranslatePipe } from '@ngx-translate/core';
 
@@ -17,7 +22,6 @@ export interface WorkdayEntryItem {
 
 @Component({
   selector: 'coaster-workday-card',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatIcon, MatIconButton, MatTooltip, TranslatePipe],
   host: { class: 'block' },
   template: `

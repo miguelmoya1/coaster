@@ -1,10 +1,9 @@
-import type { AiUsage } from '@coaster/common';
-import { asEstablishmentId } from '@coaster/common';
+import type { AiUsage } from './ai.interface';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { EstablishmentSubscriptionStore, BillingEntryPoint } from '@coaster/establishment-subscription';
-import { CurrentUser } from '@coaster/core';
+import { asEstablishmentId, CurrentUser } from '@coaster/core';
 import { provideTranslateService } from '@ngx-translate/core';
 import { BehaviorSubject } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';

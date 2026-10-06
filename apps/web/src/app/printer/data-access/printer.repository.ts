@@ -5,7 +5,7 @@ import type {
   PrinterPairingCodeResponse,
   PrintJobDto,
   PrintTicketPayloadDto,
-} from '@coaster/common';
+} from '../models/printer.interface';
 import { firstValueFrom } from 'rxjs';
 
 @Service()

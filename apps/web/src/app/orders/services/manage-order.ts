@@ -1,7 +1,7 @@
 import { inject, Service } from '@angular/core';
 import type {
+  AddOrderAdjustmentDto,
   AddOrderItemsDto,
-  EstablishmentId,
   BulkUpdateDto,
   CheckoutOrderDto,
   CreateOrderDto,
@@ -12,8 +12,8 @@ import type {
   UpdateOrderItemNotesDto,
   UpdateOrderNotesDto,
   UpdateOrderTipDto,
-  AddOrderAdjustmentDto,
-} from '@coaster/common';
+} from '../models/order.interface';
+import type { EstablishmentId } from '@coaster/core';
 import { OrderRepository } from '../data-access/order-repository';
 
 @Service()
@@ -83,6 +83,10 @@ export class ManageOrder {
     dto: AddOrderAdjustmentDto,
   ): Promise<void> {
     await this.#orderRepository.addAdjustment(establishmentId, orderId, dto);
+  }
+
+  public async delete(establishmentId: EstablishmentId, orderId: OrderId): Promise<void> {
+    await this.#orderRepository.deleteOrder(establishmentId, orderId);
   }
 
   public async removeAdjustment(

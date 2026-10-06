@@ -1,6 +1,6 @@
 import { Component, input } from '@angular/core';
 import { MatCard, MatCardAvatar, MatCardHeader, MatCardSubtitle, MatCardTitle } from '@angular/material/card';
-import type { Establishment } from '@coaster/common';
+import type { Establishment } from '@coaster/establishments';
 
 import { EstablishmentRoleBadge } from '../establishment-role-badge/establishment-role-badge';
 

@@ -2,9 +2,8 @@ import { Toolbar, ToolbarWidget } from '@angular/aria/toolbar';
 import { Component, computed, inject, input } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { MyMemberStore } from '@coaster/establishment-members';
-import { EstablishmentModule, EstablishmentPermission, EstablishmentPermissionType } from '@coaster/common';
-import { ModulesStore } from '@coaster/establishments';
+import { EstablishmentPermission, EstablishmentPermissionType, MyMemberStore } from '@coaster/establishment-members';
+import { EstablishmentModule, ModulesStore } from '@coaster/establishments';
 import { TranslatePipe } from '@ngx-translate/core';
 import { BottomBar } from '../bottom-bar/bottom-bar';
 
@@ -32,7 +31,6 @@ interface NavItem {
       @for (item of visibleNavItems(); track item.value) {
         <a
           ngToolbarWidget
-          [value]="item.value"
           [routerLink]="item.link"
           [attr.aria-label]="item.labelKey | translate"
           [title]="item.labelKey | translate"

@@ -3,9 +3,7 @@ import { MatButton } from '@angular/material/button';
 import { MatCard } from '@angular/material/card';
 import { MatChip } from '@angular/material/chips';
 import { MatIcon } from '@angular/material/icon';
-import type { Table } from '@coaster/common';
-import { TableStatus } from '@coaster/common';
-import { TableStatusPipe } from '@coaster/tables';
+import { TableStatus, TableStatusPipe, type Table } from '@coaster/tables';
 import { TranslatePipe } from '@ngx-translate/core';
 import { PricePipe } from '../../../../../pipes/price/price';
 

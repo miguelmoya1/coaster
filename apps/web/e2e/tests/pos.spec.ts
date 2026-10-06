@@ -1,4 +1,6 @@
-import { EstablishmentRole, OrderStatus, TableStatus } from '@coaster/common';
+import { EstablishmentRole } from '../../src/app/establishments/models/establishment-role.type';
+import { OrderStatus } from '../../src/app/orders/models/order-status.type';
+import { TableStatus } from '../../src/app/tables/models/table-status.type';
 import { expect, test } from '@playwright/test';
 import { mockApiResponse } from './utils/mock-api';
 import { loginAsTestUser } from './utils/mock-auth';
@@ -18,7 +20,6 @@ test.describe('POS Flow', () => {
       userId: 'test-user-123',
       establishmentId,
       role: EstablishmentRole.OWNER,
-      permissions: [],
       active: true,
       userName: 'Test User',
       userImage: '',

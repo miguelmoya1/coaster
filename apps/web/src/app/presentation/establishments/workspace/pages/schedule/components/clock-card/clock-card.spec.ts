@@ -1,6 +1,6 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ClockState, TimeEntryType } from '@coaster/common';
+import { ClockState, TimeEntryType } from '@coaster/time-tracking';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { ClockCard } from './clock-card';

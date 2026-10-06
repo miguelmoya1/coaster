@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
-import type { EstablishmentId, MenuDraft, SaveMenuDraftDto } from '@coaster/common';
+import type { EstablishmentId } from '@coaster/core';
+import type { MenuDraft, SaveMenuDraftDto } from '../models/menu.interface';
 import { firstValueFrom } from 'rxjs';
 
 @Service()

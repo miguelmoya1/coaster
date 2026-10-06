@@ -1,11 +1,9 @@
 import { computed, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { MyMemberStore } from '@coaster/establishment-members';
+import { EstablishmentPermission, MyMemberStore } from '@coaster/establishment-members';
 import { EstablishmentSubscriptionStore } from '@coaster/establishment-subscription';
-import { EstablishmentPermission } from '@coaster/common';
-import type { EstablishmentId } from '@coaster/common';
-import { Auth, CurrentUser } from '@coaster/core';
+import { Auth, CurrentUser, type EstablishmentId } from '@coaster/core';
 import { provideTranslateService, TranslateService } from '@ngx-translate/core';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AiVoiceService } from '../ai-assistant/ai-voice.service';

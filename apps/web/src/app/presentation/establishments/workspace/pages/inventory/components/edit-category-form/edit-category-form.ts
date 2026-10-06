@@ -1,10 +1,9 @@
 import { Component, inject, input, linkedSignal, output } from '@angular/core';
 import { form, FormField, FormRoot, max, maxLength, min, minLength, required } from '@angular/forms/signals';
 import { MatButton } from '@angular/material/button';
-import { CategoriesStore } from '@coaster/categories';
-import type { Category } from '@coaster/common';
-import { toBasisPoints, toPercentage } from '@coaster/common';
-import { handleErrorFormField } from '@coaster/core';
+import { ManageCategories, type Category } from '@coaster/categories';
+import { toBasisPoints, toPercentage } from '@coaster/products';
+import { handleErrorFormField, type EstablishmentId } from '@coaster/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Field } from '../../../../../../components/field/field';
 import { FormErrors } from '../../../../../../components/field/form-errors';
@@ -76,8 +75,9 @@ import { IconPicker } from '../../../../../../components/icon-picker/icon-picker
   `,
 })
 export class EditCategoryForm {
-  readonly #categoryStore = inject(CategoriesStore);
+  readonly #manageCategories = inject(ManageCategories);
 
+  readonly establishmentId = input.required<EstablishmentId>();
   readonly category = input.required<Category>();
 
   readonly canceled = output<void>();
@@ -107,7 +107,7 @@ export class EditCategoryForm {
           const payload = { ...rest, taxRate: toBasisPoints(taxRatePercent) };
 
           try {
-            await this.#categoryStore.update(this.category().id, payload);
+            await this.#manageCategories.update(this.establishmentId(), this.category().id, payload);
             this.updated.emit();
             return null;
           } catch (error) {

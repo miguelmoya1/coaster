@@ -17,6 +17,7 @@
       "@coaster/establishment-members": ["./src/app/establishment-members/index.ts"],
       "@coaster/establishment-subscription": ["./src/app/establishment-subscription/index.ts"],
       "@coaster/establishments": ["./src/app/establishments/index.ts"],
+      "@coaster/cash-close": ["./src/app/cash-close/index.ts"],
       "@coaster/categories": ["./src/app/categories/index.ts"],
       "@coaster/core": ["./src/app/core/index.ts"],
       "@coaster/env": ["./src/environments/environment.ts"],
@@ -30,6 +31,7 @@
       "@coaster/tables": ["./src/app/tables/index.ts"],
       "@coaster/catalogue": ["./src/app/catalogue/index.ts"],
       "@coaster/menu": ["./src/app/menu/index.ts"],
+      "@coaster/testing": ["./src/testing/index.ts"],
       "@coaster/time-tracking": ["./src/app/time-tracking/index.ts"]
     }
   },
@@ -37,7 +39,8 @@
     "enableI18nLegacyMessageIdFormat": false,
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true,
-    "strictTemplates": true
+    "strictTemplates": true,
+    "strictUnclaimedEventNames": true
   },
   "files": [],
   "references": [

@@ -31,11 +31,11 @@
         type="button"
         class="px-3 py-1.5 rounded-full text-sm border transition-colors"
         [class]="
-          billingSource() === source
+          selectedBillingSource() === source
             ? 'border-primary bg-primary/10 text-primary font-semibold'
             : 'border-outline-variant text-on-surface-variant hover:bg-surface-container'
         "
-        [attr.aria-pressed]="billingSource() === source"
+        [attr.aria-pressed]="selectedBillingSource() === source"
         (click)="selectBillingSource(source)"
       >
         {{ filterLabel(source) | translate }}
@@ -120,7 +120,7 @@
       @if (total() > pageSize) {
         <div class="px-4 pb-4">
           <coaster-admin-pagination
-            [page]="page()"
+            [page]="currentPage()"
             [pageSize]="pageSize"
             [total]="total()"
             [totalPages]="totalPages()"

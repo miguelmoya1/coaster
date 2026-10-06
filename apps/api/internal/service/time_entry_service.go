@@ -1,0 +1,521 @@
+package service
+
+import (
+	"cmp"
+	"context"
+	"math"
+	"slices"
+	"strings"
+	"time"
+
+	"coaster-api/internal/core/domain"
+	"coaster-api/internal/core/ports"
+)
+
+type TimeEntryService struct {
+	entries ports.TimeEntryRepository
+	shifts  *ShiftService
+	events  ports.EventPublisher
+	now     func() time.Time
+}
+
+func NewTimeEntryService(entries ports.TimeEntryRepository, shifts *ShiftService, events ports.EventPublisher) *TimeEntryService {
+	return &TimeEntryService{entries: entries, shifts: shifts, events: events, now: time.Now}
+}
+
+func (s *TimeEntryService) serverNow() time.Time {
+	return s.now().UTC().Truncate(time.Millisecond)
+}
+
+func (s *TimeEntryService) Clock(ctx context.Context, establishmentID string, actor *domain.User, input domain.ClockInput) (domain.TimeEntry, error) {
+	occurredAt := s.serverNow()
+
+	rows, err := s.entries.FindLatestWorkday(ctx, establishmentID, actor.ID)
+	if err != nil {
+		return domain.TimeEntry{}, err
+	}
+
+	workdayDate, ok := domain.PlanMark(input.Type, occurredAt, domain.ToClockMarks(domain.GroupByRoot(rows)))
+	if !ok {
+		return domain.TimeEntry{}, domain.BadRequest(domain.CodeInvalidClockSequence)
+	}
+
+	created, err := s.entries.Append(ctx, domain.AppendTimeEntry{
+		EstablishmentID: establishmentID,
+		UserID:          actor.ID,
+		UserSnapshot:    domain.TimeEntrySnapshot{Name: actor.Name, Email: actor.Email},
+		Type:            input.Type,
+		Action:          domain.TimeEntryRecordedAction,
+		OccurredAt:      occurredAt,
+		WorkdayDate:     workdayDate,
+		Source:          domain.TimeEntryFromEmployeeDevice,
+		ActorID:         actor.ID,
+		Latitude:        input.Latitude,
+		Longitude:       input.Longitude,
+	})
+	if err != nil {
+		return domain.TimeEntry{}, err
+	}
+
+	entry := domain.ToTimeEntry([]domain.TimeEntryRow{*created})
+	s.events.Publish(ctx, domain.TimeEntryRecordedEvent{
+		EstablishmentID: establishmentID,
+		Entry:           entry,
+		ActorID:         actor.ID,
+		ActorRole:       actor.Role,
+	})
+
+	return entry, nil
+}
+
+func (s *TimeEntryService) CreateManual(ctx context.Context, establishmentID string, actor *domain.User, input domain.ManualTimeEntryInput) (domain.TimeEntry, error) {
+	occurredAt, ok := domain.ParseDate(input.OccurredAt)
+	if !ok {
+		return domain.TimeEntry{}, domain.BadRequest(domain.CodeInvalidDate)
+	}
+
+	member, err := s.entries.FindActiveMember(ctx, establishmentID, input.UserID)
+	if err != nil {
+		return domain.TimeEntry{}, err
+	}
+	if member == nil {
+		return domain.TimeEntry{}, domain.NotFound(domain.CodeMemberNotFound)
+	}
+
+	natural := domain.ToWorkdayDate(occurredAt)
+	rows, err := s.entries.FindByWorkdayRange(ctx, establishmentID, domain.ShiftWorkdayDate(natural, -1), natural, input.UserID)
+	if err != nil {
+		return domain.TimeEntry{}, err
+	}
+
+	workdayDate, ok := domain.PlanMark(input.Type, occurredAt, domain.ToClockMarks(domain.GroupByRoot(rows)))
+	if !ok {
+		return domain.TimeEntry{}, domain.BadRequest(domain.CodeInvalidClockSequence)
+	}
+
+	reason := strings.TrimSpace(input.Reason)
+	created, err := s.entries.Append(ctx, domain.AppendTimeEntry{
+		EstablishmentID: establishmentID,
+		UserID:          input.UserID,
+		UserSnapshot:    domain.TimeEntrySnapshot{Name: member.Name, Email: member.Email},
+		Type:            input.Type,
+		Action:          domain.TimeEntryRecordedAction,
+		OccurredAt:      occurredAt,
+		WorkdayDate:     workdayDate,
+		Source:          domain.TimeEntryManual,
+		ActorID:         actor.ID,
+		Reason:          &reason,
+	})
+	if err != nil {
+		return domain.TimeEntry{}, err
+	}
+
+	entry := domain.ToTimeEntry([]domain.TimeEntryRow{*created})
+	s.events.Publish(ctx, domain.TimeEntryRecordedEvent{
+		EstablishmentID: establishmentID,
+		Entry:           entry,
+		ActorID:         actor.ID,
+		ActorRole:       actor.Role,
+		Reason:          &reason,
+	})
+
+	return entry, nil
+}
+
+func (s *TimeEntryService) currentRow(ctx context.Context, establishmentID, entryID string) (*domain.TimeEntryRow, error) {
+	current, err := s.entries.FindCurrentByID(ctx, establishmentID, entryID)
+	if err != nil {
+		return nil, err
+	}
+	if current == nil {
+		return nil, domain.NotFound(domain.CodeTimeEntryNotFound)
+	}
+	if current.SupersededByID != nil || current.Action == domain.TimeEntryVoidedAction {
+		return nil, domain.BadRequest(domain.CodeTimeEntryNotCurrent)
+	}
+	return current, nil
+}
+
+func (s *TimeEntryService) canManageOthers(ctx context.Context, establishmentID string, actor *domain.User) (bool, error) {
+	if actor.Role == domain.RoleAdmin {
+		return true, nil
+	}
+
+	member, err := s.entries.FindActiveMember(ctx, establishmentID, actor.ID)
+	if err != nil || member == nil {
+		return false, err
+	}
+
+	return domain.HasPermission(member.Role, domain.PermissionManageTimeEntries), nil
+}
+
+func (s *TimeEntryService) Amend(ctx context.Context, establishmentID, entryID string, actor *domain.User, input domain.AmendTimeEntryInput) (domain.TimeEntry, error) {
+	current, err := s.currentRow(ctx, establishmentID, entryID)
+	if err != nil {
+		return domain.TimeEntry{}, err
+	}
+
+	if current.UserID != actor.ID {
+		allowed, err := s.canManageOthers(ctx, establishmentID, actor)
+		if err != nil {
+			return domain.TimeEntry{}, err
+		}
+		if !allowed {
+			return domain.TimeEntry{}, domain.Forbidden(domain.CodeNotYourTimeEntry)
+		}
+	}
+
+	occurredAt, ok := domain.ParseDate(input.OccurredAt)
+	if !ok {
+		return domain.TimeEntry{}, domain.BadRequest(domain.CodeInvalidDate)
+	}
+
+	rows, err := s.entries.FindByWorkdayRange(ctx, establishmentID, current.WorkdayDate, current.WorkdayDate, current.UserID)
+	if err != nil {
+		return domain.TimeEntry{}, err
+	}
+
+	day := domain.GroupByRoot(rows)
+	for i := range day {
+		if day[i].RootID == current.RootID {
+			day[i].OccurredAt = domain.NewTime(occurredAt)
+		}
+	}
+
+	if !domain.IsValidSequence(domain.ToClockMarks(day)) {
+		return domain.TimeEntry{}, domain.BadRequest(domain.CodeInvalidClockSequence)
+	}
+
+	reason := strings.TrimSpace(input.Reason)
+	if _, err := s.entries.Append(ctx, s.revisionOf(current, actor, domain.TimeEntryAmendedAction, occurredAt, reason)); err != nil {
+		return domain.TimeEntry{}, err
+	}
+
+	entry, err := s.entryOfRoot(ctx, current.RootID)
+	if err != nil {
+		return domain.TimeEntry{}, err
+	}
+
+	s.events.Publish(ctx, domain.TimeEntryAmendedEvent{
+		EstablishmentID:    establishmentID,
+		Entry:              entry,
+		PreviousOccurredAt: domain.FormatISO(current.OccurredAt),
+		ActorID:            actor.ID,
+		ActorRole:          actor.Role,
+		Reason:             reason,
+	})
+
+	return entry, nil
+}
+
+func (s *TimeEntryService) Void(ctx context.Context, establishmentID, entryID string, actor *domain.User, reason string) (domain.TimeEntry, error) {
+	current, err := s.currentRow(ctx, establishmentID, entryID)
+	if err != nil {
+		return domain.TimeEntry{}, err
+	}
+
+	rows, err := s.entries.FindByWorkdayRange(ctx, establishmentID, current.WorkdayDate, current.WorkdayDate, current.UserID)
+	if err != nil {
+		return domain.TimeEntry{}, err
+	}
+
+	day := slices.DeleteFunc(domain.GroupByRoot(rows), func(entry domain.TimeEntry) bool { return entry.RootID == current.RootID })
+	if !domain.IsValidSequence(domain.ToClockMarks(day)) {
+		return domain.TimeEntry{}, domain.BadRequest(domain.CodeInvalidClockSequence)
+	}
+
+	reason = strings.TrimSpace(reason)
+	if _, err := s.entries.Append(ctx, s.revisionOf(current, actor, domain.TimeEntryVoidedAction, current.OccurredAt, reason)); err != nil {
+		return domain.TimeEntry{}, err
+	}
+
+	entry, err := s.entryOfRoot(ctx, current.RootID)
+	if err != nil {
+		return domain.TimeEntry{}, err
+	}
+
+	s.events.Publish(ctx, domain.TimeEntryVoidedEvent{
+		EstablishmentID: establishmentID,
+		Entry:           entry,
+		ActorID:         actor.ID,
+		ActorRole:       actor.Role,
+		Reason:          reason,
+	})
+
+	return entry, nil
+}
+
+func (s *TimeEntryService) revisionOf(current *domain.TimeEntryRow, actor *domain.User, action domain.TimeEntryAction, occurredAt time.Time, reason string) domain.AppendTimeEntry {
+	supersedes := current.ID
+	return domain.AppendTimeEntry{
+		EstablishmentID: current.EstablishmentID,
+		UserID:          current.UserID,
+		UserSnapshot:    current.UserSnapshot,
+		Type:            current.Type,
+		Action:          action,
+		OccurredAt:      occurredAt,
+		WorkdayDate:     current.WorkdayDate,
+		Source:          current.Source,
+		ActorID:         actor.ID,
+		RootID:          current.RootID,
+		SupersedesID:    &supersedes,
+		Reason:          &reason,
+	}
+}
+
+func (s *TimeEntryService) entryOfRoot(ctx context.Context, rootID string) (domain.TimeEntry, error) {
+	rows, err := s.entries.FindByRoots(ctx, []string{rootID})
+	if err != nil {
+		return domain.TimeEntry{}, err
+	}
+	return domain.ToTimeEntry(rows), nil
+}
+
+func (s *TimeEntryService) TimeSheet(ctx context.Context, establishmentID string, from, to *string, userID string) ([]domain.Workday, error) {
+	today := domain.WorkdayDateOf(s.now())
+
+	first := today
+	if from != nil {
+		first = *from
+	}
+
+	last := first
+	if to != nil {
+		last = *to
+	}
+
+	return s.Workdays(ctx, establishmentID, first, last, userID)
+}
+
+type plannedDay struct {
+	domain.PlannedShift
+	userID   string
+	userName string
+	date     string
+}
+
+func plannedByDay(shifts []domain.Shift) (keys []string, planned map[string]*plannedDay) {
+	planned = make(map[string]*plannedDay)
+
+	for _, shift := range shifts {
+		startsAt := shift.StartTime.Time
+		endsAt := shift.EndTime.Time
+		date := domain.WorkdayDateOf(startsAt)
+		key := shift.UserID + "|" + date
+		minutes := max(0, int(math.Floor(float64(endsAt.Sub(startsAt).Milliseconds())/60_000+0.5)))
+
+		current, found := planned[key]
+		if !found {
+			keys = append(keys, key)
+			planned[key] = &plannedDay{
+				PlannedShift: domain.PlannedShift{StartsAt: startsAt, EndsAt: endsAt, Minutes: minutes},
+				userID:       shift.UserID,
+				userName:     shift.UserName,
+				date:         date,
+			}
+			continue
+		}
+
+		current.userName = shift.UserName
+		if startsAt.Before(current.StartsAt) {
+			current.StartsAt = startsAt
+		}
+		if endsAt.After(current.EndsAt) {
+			current.EndsAt = endsAt
+		}
+		current.Minutes += minutes
+	}
+
+	return keys, planned
+}
+
+func (s *TimeEntryService) Workdays(ctx context.Context, establishmentID, from, to, userID string) ([]domain.Workday, error) {
+	fromDate, fromOK := domain.ParseWorkdayDate(from)
+	toDate, toOK := domain.ParseWorkdayDate(to)
+	if !fromOK || !toOK || fromDate.After(toDate) {
+		return nil, domain.BadRequest(domain.CodeInvalidDate)
+	}
+
+	rows, err := s.entries.FindByWorkdayRange(ctx, establishmentID, fromDate, toDate, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	shifts, err := s.shifts.ListBetween(ctx, establishmentID, fromDate, domain.ShiftWorkdayDate(toDate, 1))
+	if err != nil {
+		return nil, err
+	}
+	if userID != "" {
+		shifts = slices.DeleteFunc(shifts, func(shift domain.Shift) bool { return shift.UserID != userID })
+	}
+
+	plannedKeys, planned := plannedByDay(shifts)
+	dayKeys, days := workdayGroups(rows, plannedKeys, planned, from, to)
+
+	now := s.now()
+	workdays := make([]domain.Workday, 0, len(dayKeys))
+	for _, key := range dayKeys {
+		workdays = append(workdays, buildWorkday(days[key], planned[key], now))
+	}
+
+	slices.SortStableFunc(workdays, func(a, b domain.Workday) int {
+		return cmp.Or(strings.Compare(b.Date, a.Date), compareNames(a.UserName, b.UserName))
+	})
+	return workdays, nil
+}
+
+func workdayGroups(rows []domain.TimeEntryRow, plannedKeys []string, planned map[string]*plannedDay, from, to string) ([]string, map[string][]domain.TimeEntry) {
+	var keys []string
+	days := make(map[string][]domain.TimeEntry)
+
+	for _, entry := range domain.GroupByRoot(rows) {
+		key := entry.UserID + "|" + entry.WorkdayDate
+		if _, found := days[key]; !found {
+			keys = append(keys, key)
+		}
+		days[key] = append(days[key], entry)
+	}
+
+	for _, key := range plannedKeys {
+		shift := planned[key]
+		if _, found := days[key]; !found && shift.date >= from && shift.date <= to {
+			keys = append(keys, key)
+			days[key] = []domain.TimeEntry{}
+		}
+	}
+
+	return keys, days
+}
+
+func buildWorkday(entries []domain.TimeEntry, shift *plannedDay, now time.Time) domain.Workday {
+	marks := domain.ToClockMarks(entries)
+	totals, ok := domain.SummariseWorkday(marks, now)
+	if !ok {
+		totals = domain.WorkdayTotals{State: domain.ClockOut}
+	}
+
+	workday := domain.Workday{
+		State:         totals.State,
+		WorkedMinutes: totals.WorkedMinutes,
+		BreakMinutes:  totals.BreakMinutes,
+		Entries:       entries,
+	}
+
+	if len(entries) > 0 {
+		workday.Date, workday.UserID, workday.UserName = entries[0].WorkdayDate, entries[0].UserID, entries[0].UserName
+	} else {
+		workday.Date, workday.UserID, workday.UserName = shift.date, shift.userID, shift.userName
+	}
+
+	var plannedShift *domain.PlannedShift
+	if shift != nil {
+		plannedShift = &shift.PlannedShift
+		workday.PlannedMinutes = new(shift.Minutes)
+		workday.PlannedStart = new(domain.NewTime(shift.StartsAt))
+		workday.PlannedEnd = new(domain.NewTime(shift.EndsAt))
+	}
+
+	workday.Discrepancies = domain.FindDiscrepancies(marks, plannedShift, totals.WorkedMinutes)
+	return workday
+}
+func compareNames(a, b string) int {
+	if byLower := strings.Compare(strings.ToLower(a), strings.ToLower(b)); byLower != 0 {
+		return byLower
+	}
+	return strings.Compare(b, a)
+}
+
+func (s *TimeEntryService) CurrentWorkday(ctx context.Context, establishmentID, userID string) (*domain.Workday, error) {
+	rows, err := s.entries.FindLatestWorkday(ctx, establishmentID, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	latest := domain.GroupByRoot(rows)
+	date := domain.WorkdayDateOf(s.now())
+	if domain.IsDayOpen(domain.ToClockMarks(latest)) {
+		date = latest[0].WorkdayDate
+	}
+
+	workdays, err := s.Workdays(ctx, establishmentID, date, date, userID)
+	if err != nil || len(workdays) == 0 {
+		return nil, err
+	}
+
+	return &workdays[0], nil
+}
+
+func (s *TimeEntryService) Integrity(ctx context.Context, establishmentID string) (domain.TimeSheetIntegrity, error) {
+	rows, err := s.entries.FindChain(ctx, establishmentID)
+	if err != nil {
+		return domain.TimeSheetIntegrity{}, err
+	}
+
+	result := domain.VerifyChain(rows)
+
+	return domain.TimeSheetIntegrity{
+		EstablishmentID: establishmentID,
+		CheckedEntries:  result.Checked,
+		Valid:           result.Valid,
+		BrokenAt:        result.BrokenAt,
+	}, nil
+}
+
+type timeEntryChange struct {
+	establishmentID    string
+	entry              domain.TimeEntry
+	actorID            string
+	actorRole          domain.Role
+	action             string
+	reason             *string
+	previousOccurredAt *string
+}
+
+func (s *TimeEntryService) EventHandlers() []ports.EventHandler {
+	return []ports.EventHandler{
+		ports.On(func(ctx context.Context, event domain.TimeEntryRecordedEvent) {
+			if event.Entry.Source != domain.TimeEntryManual {
+				return
+			}
+			s.audit(ctx, timeEntryChange{
+				establishmentID: event.EstablishmentID, entry: event.Entry, actorID: event.ActorID, actorRole: event.ActorRole,
+				action: domain.AuditTimeEntryCreated, reason: event.Reason,
+			})
+		}),
+		ports.On(func(ctx context.Context, event domain.TimeEntryAmendedEvent) {
+			s.audit(ctx, timeEntryChange{
+				establishmentID: event.EstablishmentID, entry: event.Entry, actorID: event.ActorID, actorRole: event.ActorRole,
+				action: domain.AuditTimeEntryAmended, reason: &event.Reason, previousOccurredAt: &event.PreviousOccurredAt,
+			})
+		}),
+		ports.On(func(ctx context.Context, event domain.TimeEntryVoidedEvent) {
+			s.audit(ctx, timeEntryChange{
+				establishmentID: event.EstablishmentID, entry: event.Entry, actorID: event.ActorID, actorRole: event.ActorRole,
+				action: domain.AuditTimeEntryVoided, reason: &event.Reason,
+			})
+		}),
+	}
+}
+
+func (s *TimeEntryService) audit(ctx context.Context, change timeEntryChange) {
+	if change.actorRole != domain.RoleAdmin {
+		return
+	}
+
+	label := change.entry.UserName + " · " + change.entry.WorkdayDate
+	s.events.Publish(ctx, domain.AdminActionEvent{Entry: domain.AdminAuditEntry{
+		ActorID:     change.actorID,
+		Action:      change.action,
+		TargetType:  domain.AuditTargetTimeEntry,
+		TargetID:    change.entry.RootID,
+		TargetLabel: &label,
+		Reason:      change.reason,
+		Metadata: domain.TimeEntryAuditMetadata{
+			EstablishmentID:    change.establishmentID,
+			UserID:             change.entry.UserID,
+			Type:               change.entry.Type,
+			OccurredAt:         change.entry.OccurredAt,
+			PreviousOccurredAt: change.previousOccurredAt,
+		},
+	}})
+}

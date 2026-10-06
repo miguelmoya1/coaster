@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import type { EstablishmentId } from '@coaster/common';
-import { SubscriptionPlan } from '@coaster/common';
+import type { EstablishmentId } from '@coaster/core';
+import { SubscriptionPlan } from '../models/subscription-plan.type';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { EstablishmentSubscriptionRepository } from '../data-access/establishment-subscription-repository';
 import { CreateCheckoutSession } from './create-checkout-session';

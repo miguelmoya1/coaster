@@ -1,5 +1,5 @@
-import type { User } from '@coaster/common';
-import { asUserId, Role } from '@coaster/common';
+import { asUserId, type User } from '../models/user.interface';
+import { Role } from '../models/role.type';
 import { describe, expect, it } from 'vitest';
 import { checkIsUser, userMapper } from './user.mapper';
 

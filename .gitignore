@@ -1,71 +1,29 @@
-# See https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
-
-# compiled output
-dist
-tmp
-out-tsc
-
-# dependencies
+# Dependencies and build output, in any app
 node_modules
+dist
+coverage
+*.tsbuildinfo
 
-# IDEs and editors
+# Environment files are never committed; the examples are
+.env*
+!.env_example
+.vercel
+
+# apps/web installs with npm from its own package-lock.json; a stray pnpm/yarn
+# lockfile makes Vercel switch package manager
+pnpm-lock.yaml
+yarn.lock
+
+# Editors and OS
 /.idea
-.project
-.classpath
-.c9/
-*.launch
-.settings/
-*.sublime-workspace
-
-# IDE - VSCode
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
 !.vscode/mcp.json
-
-# the monorepo uses npm workspaces; a stray pnpm/yarn lockfile makes Vercel
-# switch package manager and skip the workspace install
-pnpm-lock.yaml
-yarn.lock
-
-# misc
-/.sass-cache
-/connect.lock
-/coverage
-/libpeerconnection.log
-npm-debug.log
-yarn-error.log
-testem.log
-/typings
-
-# System Files
 .DS_Store
 Thumbs.db
 
-.nx/cache
-.nx/workspace-data
-
-.angular
-
-__screenshots__/
-
-vitest.config.*.timestamp*
-/generated/prisma
-
-.env
-
-.nx/polygraph
-.nx/self-healing
-
-.firebase-data
-
-firebase-debug.log
-
-# TypeScript build cache
-*.tsbuildinfo
-.vercel
-.env*
-
-!.env_example
+# Worktrees que crea Claude Code para sus subagentes
+.claude/worktrees/

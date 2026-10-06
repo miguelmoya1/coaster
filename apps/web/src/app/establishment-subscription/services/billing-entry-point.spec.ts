@@ -1,10 +1,9 @@
 import { provideZonelessChangeDetection, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
-import type { EstablishmentId } from '@coaster/common';
 import { Subject } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { Toast } from '@coaster/core';
+import { Toast, type EstablishmentId } from '@coaster/core';
 import { MyMemberStore } from '@coaster/establishment-members';
 import { EstablishmentSubscriptionStore } from '../store/establishment-subscription.store';
 import { BillingEntryPoint } from './billing-entry-point';

@@ -59,4 +59,43 @@ describe('StaffMemberCard', () => {
       expect(link.classList.contains('pointer-events-none')).toBe(true);
     });
   });
+
+  describe('a pending invitation', () => {
+    it('should say nothing about it when the member already signed in', () => {
+      expect(fixture.nativeElement.textContent).not.toContain('members.pending_invite');
+      expect(fixture.nativeElement.querySelector('[title="members.resend_invite.action"]')).toBeNull();
+    });
+
+    it('should flag it and offer to send it again', () => {
+      fixture.componentRef.setInput('isPending', true);
+      fixture.componentRef.setInput('canResendInvite', true);
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.textContent).toContain('members.pending_invite');
+      expect(fixture.nativeElement.querySelector('[title="members.resend_invite.action"]')).toBeTruthy();
+    });
+
+    it('should emit resendInviteClicked when the button is pressed', () => {
+      fixture.componentRef.setInput('isPending', true);
+      fixture.componentRef.setInput('canResendInvite', true);
+      fixture.detectChanges();
+
+      let emitted = 0;
+      component.resendInviteClicked.subscribe(() => (emitted += 1));
+
+      fixture.nativeElement.querySelector('[title="members.resend_invite.action"]').click();
+
+      expect(emitted).toBe(1);
+    });
+
+    it('should hold the button while the invitation is on its way', () => {
+      fixture.componentRef.setInput('isPending', true);
+      fixture.componentRef.setInput('canResendInvite', true);
+      fixture.componentRef.setInput('resendingInvite', true);
+      fixture.detectChanges();
+
+      const button = fixture.nativeElement.querySelector('[title="members.resend_invite.action"]');
+      expect(button.disabled).toBe(true);
+    });
+  });
 });

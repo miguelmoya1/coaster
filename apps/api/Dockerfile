@@ -1,49 +1,22 @@
-FROM node:26-slim AS builder
-WORKDIR /app
+# Built from the repository root: docker build -f apps/api/Dockerfile .
+FROM golang:1.27-alpine AS builder
+WORKDIR /src
 
-COPY package.json package-lock.json ./
-COPY packages/common/package.json ./packages/common/
-COPY apps/api/package.json ./apps/api/
-RUN npm ci
+COPY apps/api/go.mod apps/api/go.sum ./
+RUN go mod download
 
-COPY packages/common ./packages/common
-COPY apps/api ./apps/api
+COPY apps/api ./
+RUN CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /api ./cmd/api
 
-RUN npm run db:gen -w apps/api
-RUN npm run build -w packages/common
-RUN npm run build -w apps/api
-
-FROM node:26-slim AS runner-deps
-WORKDIR /app
-
-COPY package.json package-lock.json ./
-COPY packages/common/package.json ./packages/common/
-COPY apps/api/package.json ./apps/api/
-
-RUN npm ci --omit=dev
-
-FROM node:26-slim AS runner
+FROM gcr.io/distroless/static:nonroot
 WORKDIR /app
 
 ENV NODE_ENV=production
 ENV PORT=8080
+ENV PUBLIC_DIR=/app/public
 
-RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
-
-COPY --from=runner-deps /app/node_modules ./node_modules
-
-COPY --from=builder /app/packages/common/dist ./packages/common/dist
-COPY --from=builder /app/packages/common/package.json ./packages/common/package.json
-
-COPY --from=builder /app/apps/api/dist ./apps/api/dist
-COPY --from=builder /app/apps/api/package.json ./apps/api/package.json
-COPY --from=builder /app/apps/api/prisma ./apps/api/prisma
-COPY --from=builder /app/apps/api/prisma.config.ts ./apps/api/prisma.config.ts
-
-COPY --from=builder /app/apps/api/public ./apps/api/public
-
-USER node
+COPY --from=builder /api /app/api
+COPY apps/api/public /app/public
 
 EXPOSE 8080
-
-CMD ["node", "apps/api/dist/main.js"]
+ENTRYPOINT ["/app/api"]

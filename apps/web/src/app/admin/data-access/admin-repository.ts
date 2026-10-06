@@ -6,16 +6,14 @@ import type {
   AdminBetaTestersQuery,
   AdminEstablishmentsQuery,
   AdminUsersQuery,
-  EstablishmentId,
+  BetaTesterId,
   GrantEstablishmentPlanDto,
   RenameEstablishmentDto,
   RevokeEstablishmentPlanDto,
-  BetaTesterId,
   UpdateAdminUserDto,
-  UserId,
-  EstablishmentSettings,
-  UpdateEstablishmentSettingsDto,
-} from '@coaster/common';
+} from '../models/admin.interface';
+import type { EstablishmentId, UserId } from '@coaster/core';
+import type { EstablishmentSettings, UpdateEstablishmentSettingsDto } from '@coaster/establishments';
 import { firstValueFrom } from 'rxjs';
 
 const toQueryString = (params: Record<string, string | number | boolean | undefined>): string => {

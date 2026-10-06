@@ -1,4 +1,4 @@
-import type { EstablishmentMember } from '@coaster/common';
+import type { EstablishmentMember } from '../models/establishment-member.interface';
 import { prepareDefaultProfileImage } from '@coaster/core';
 
 export const checkIsMember = (member: unknown): member is EstablishmentMember => {

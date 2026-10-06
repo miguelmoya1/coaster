@@ -1,7 +1,16 @@
-import { computed, effect, inject, OnDestroy, Service, signal, untracked } from '@angular/core';
-import type { Category, Order, OrderAdjustment, Product, Shift, Table } from '@coaster/common';
-import { RealtimeEvents } from '@coaster/common';
+import {
+  computed,
+  effect,
+  inject,
+  OnDestroy,
+  Service,
+  signal,
+  untracked,
+  type Signal,
+  type WritableSignal,
+} from '@angular/core';
 import { environment } from '@coaster/env';
+import { RealtimeEvents } from '../models/realtime-events.type';
 import { readSse, SseFrame } from '../utils/sse.utils';
 import { Auth } from './auth';
 
@@ -17,63 +26,20 @@ export class Realtime implements OnDestroy {
   readonly #establishmentId = signal<string | null>(null);
   readonly #connected = signal(false);
   readonly connected = this.#connected.asReadonly();
+  readonly #reconnected = signal(0);
+  readonly reconnected = this.#reconnected.asReadonly();
 
-  readonly orderCreated = signal<Order | null>(null);
-  readonly orderUpdated = signal<Order | null>(null);
-  readonly orderClosed = signal<Order | null>(null);
-  readonly orderCancelled = signal<{ id: string } | Order | null>(null);
-  readonly orderItemAdded = signal<Order | null>(null);
-  readonly orderTipUpdated = signal<{ orderId: string; tipAmount: number } | null>(null);
-  readonly orderAdjustmentsUpdated = signal<{ orderId: string; adjustments: OrderAdjustment[] } | null>(null);
-  readonly orderDeleted = signal<{ id: string } | null>(null);
-  readonly tableStatusChanged = signal<Partial<Table> | null>(null);
-  readonly tableCreated = signal<Table | null>(null);
-  readonly tableUpdated = signal<Table | null>(null);
-  readonly tableDeleted = signal<{ id: string } | null>(null);
-  readonly productCreated = signal<Product | null>(null);
-  readonly productUpdated = signal<Product | null>(null);
-  readonly productStockChanged = signal<Product | null>(null);
-  readonly productDeleted = signal<{ id: string } | null>(null);
-  readonly categoryCreated = signal<Category | null>(null);
-  readonly categoryUpdated = signal<Category | null>(null);
-  readonly categoryDeleted = signal<{ id: string } | null>(null);
-  readonly memberInvited = signal<{ id: string } | null>(null);
-  readonly memberRemoved = signal<{ id: string } | null>(null);
-  readonly memberRoleChanged = signal<{ id: string; userId: string; role: string } | null>(null);
-  readonly shiftCreated = signal<Shift | null>(null);
-  readonly shiftDeleted = signal<{ id: string } | null>(null);
-  readonly subscriptionUpdated = signal<{ establishmentId: string } | null>(null);
+  readonly #inbox = Object.fromEntries(
+    Object.values(RealtimeEvents).map((event) => [event, signal<unknown>(null)]),
+  ) as Record<RealtimeEvents, WritableSignal<unknown>>;
 
-  readonly #inbox: Record<RealtimeEvents, { set(value: unknown): void }> = {
-    orderCreated: this.orderCreated,
-    orderUpdated: this.orderUpdated,
-    orderClosed: this.orderClosed,
-    orderCancelled: this.orderCancelled,
-    orderItemAdded: this.orderItemAdded,
-    orderTipUpdated: this.orderTipUpdated,
-    orderAdjustmentsUpdated: this.orderAdjustmentsUpdated,
-    orderDeleted: this.orderDeleted,
-    tableStatusChanged: this.tableStatusChanged,
-    tableCreated: this.tableCreated,
-    tableUpdated: this.tableUpdated,
-    tableDeleted: this.tableDeleted,
-    productCreated: this.productCreated,
-    productUpdated: this.productUpdated,
-    productStockChanged: this.productStockChanged,
-    productDeleted: this.productDeleted,
-    categoryCreated: this.categoryCreated,
-    categoryUpdated: this.categoryUpdated,
-    categoryDeleted: this.categoryDeleted,
-    memberInvited: this.memberInvited,
-    memberRemoved: this.memberRemoved,
-    memberRoleChanged: this.memberRoleChanged,
-    shiftCreated: this.shiftCreated,
-    shiftDeleted: this.shiftDeleted,
-    subscriptionUpdated: this.subscriptionUpdated,
-  };
+  on<T>(event: RealtimeEvents): Signal<T | null> {
+    return this.#inbox[event] as Signal<T | null>;
+  }
 
   #abort: AbortController | null = null;
   #lastEventId: string | null = null;
+  #connectedBefore = false;
   #generation = 0;
 
   constructor() {
@@ -137,6 +103,11 @@ export class Realtime implements OnDestroy {
         signal: abort.signal,
       });
 
+      if (response.status === 401) {
+        await this.#auth.refresh();
+        return false;
+      }
+
       if (response.status === 403) {
         console.error(`No longer allowed to watch establishment ${establishmentId}`);
         return true;
@@ -146,6 +117,11 @@ export class Realtime implements OnDestroy {
         return false;
       }
 
+      if (this.#connectedBefore) {
+        this.#reconnected.update((count) => count + 1);
+      }
+
+      this.#connectedBefore = true;
       this.#connected.set(true);
 
       for await (const frame of readSse(response.body)) {
@@ -178,6 +154,7 @@ export class Realtime implements OnDestroy {
     this.#abort?.abort();
     this.#abort = null;
     this.#lastEventId = null;
+    this.#connectedBefore = false;
     this.#connected.set(false);
   }
 

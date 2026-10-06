@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
-import type { AuthSession, InviteSummary, PasswordResetSummary } from '@coaster/common';
+import type { AuthSession, InviteSummary, PasswordResetSummary } from '../models/auth.interface';
 import { firstValueFrom } from 'rxjs';
 
 export interface Credentials {
@@ -30,9 +30,7 @@ export class AuthRepository {
   };
 
   public register(registration: Registration): Promise<AuthSession> {
-    return firstValueFrom(
-      this.#http.post<AuthSession>(this.routes.register, registration, { withCredentials: true }),
-    );
+    return firstValueFrom(this.#http.post<AuthSession>(this.routes.register, registration, { withCredentials: true }));
   }
 
   public login(credentials: Credentials): Promise<AuthSession> {

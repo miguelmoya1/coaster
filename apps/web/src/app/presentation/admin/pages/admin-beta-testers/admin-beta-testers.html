@@ -126,7 +126,7 @@
       @if (total() > pageSize) {
         <div class="px-4 pb-4">
           <coaster-admin-pagination
-            [page]="page()"
+            [page]="currentPage()"
             [pageSize]="pageSize"
             [total]="total()"
             [totalPages]="totalPages()"

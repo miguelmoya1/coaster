@@ -1,6 +1,6 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { EstablishmentRole } from '@coaster/common';
+import { EstablishmentRole } from '@coaster/establishments';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { EstablishmentRoleBadge } from './establishment-role-badge';

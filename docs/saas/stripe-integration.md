@@ -1,30 +1,38 @@
 # Stripe integration
 
-## Module layout
+## Code layout
 
-The integration lives in two modules with a single direction of dependency:
-`establishment-subscription` → `stripe`.
+The integration sits on one port, `ports.PaymentGateway` (`core/ports/payment.go`), with a single
+direction of dependency: the service calls the port, and the adapter behind it never calls back.
 
-**`stripe/`** — infrastructure adapter. It knows nothing about establishments.
+**`adapter/payment/stripe.go`** — `StripeGateway`, the infrastructure adapter. It knows nothing
+about establishments.
 
-- `StripeClient`: lazy SDK instance.
-- `StripeApi`: the only place in the codebase that calls `stripe.*`. It normalises Stripe's errors
-  (`resource_missing` → `null`, everything else → application `ErrorCodes`).
-- `StripeWebhookGuard`: verifies the signature and attaches the event to the request.
+- It is the only place in the codebase that calls the Stripe SDK (`stripe-go`). Without
+  `STRIPE_SECRET_KEY` every call fails instead of reaching Stripe.
+- It normalises Stripe's errors: `resource_missing` becomes an empty answer (`nil`, `""` or
+  `false`), everything else a `domain.Error` with one of the `STRIPE_*` codes.
+- `ParseWebhook` verifies the signature and turns the payload into a `domain.StripeEvent`.
+- When Checkout fails because the stored customer no longer exists in Stripe, it retries once
+  without a customer.
 
-**`establishment-subscription/`** — the domain. It holds the business rules.
+**`service/subscription_service.go`, `subscription_webhook.go` and `billing.go`** —
+`SubscriptionService`, which holds the business rules.
 
-- `StripeWebhookController`: receives the already-verified event and routes it to the right command,
-  awaiting it.
-- Projection handlers that write the `EstablishmentSubscription` read model.
-- Use cases (`CreateCheckoutSessionCommand`, `CreateCustomerPortalSessionCommand`) that apply the
-  rules (existing subscription, pending cancellation, stale customer) and delegate to `StripeApi`.
+- `HandleWebhook` has the gateway verify the event, then a `switch` on its type calls the method
+  that writes the `EstablishmentSubscription` read model and returns that method's error.
+- `CreateCheckoutSession` and `CreateCustomerPortalSession` apply the rules (existing subscription,
+  pending cancellation, a customer Stripe no longer knows) and delegate to the gateway.
 
-Checkout and Portal sessions deliberately do **not** live in `stripe`: they need to read the establishment's
-local state, and moving them there would create a cycle between the two modules.
+**`adapter/handler/httpapi/stripe_webhook_handler.go`** — reads the raw body and the
+`Stripe-Signature` header and hands both to `HandleWebhook`. The other four routes are in
+`establishment_subscription_handler.go`.
 
-There is no dispatcher and no registered consumers between the controller and the handlers. That
-layer existed and was removed — it only forwarded events to a single place.
+Checkout and Portal sessions deliberately do **not** live in the gateway: they need to read the
+establishment's local state, and the adapter would then have to know about establishments.
+
+There is no dispatcher and no registered consumers between `HandleWebhook` and the methods that
+write. That layer existed and was removed — it only forwarded events to a single place.
 
 ## Base flow
 
@@ -44,11 +52,13 @@ layer existed and was removed — it only forwarded events to a single place.
 
 ## Webhook security and idempotency
 
-- Signature verified with `STRIPE_WEBHOOK_SECRET`.
-- Raw body read for the cryptographic check (`fastify-raw-body`, scoped to the webhook route).
-- Exempt from rate limiting: Stripe retries, and the signature is the real gate.
+- Signature verified with `STRIPE_WEBHOOK_SECRET` in `StripeGateway.ParseWebhook`.
+- The handler reads the raw body itself (`io.ReadAll`, capped at 1 MiB like every other body), so
+  nothing decodes it before the cryptographic check.
+- Exempt from rate limiting (`middleware.SkipThrottle()`): Stripe retries, and the signature is the
+  real gate.
 
-Idempotency is **by construction, not by ledger**. All four handlers set subscription state from the
+Idempotency is **by construction, not by ledger**. All four branches of `HandleWebhook` set subscription state from the
 event payload rather than accumulating, so receiving the same event twice lands on the same row:
 
 | Event                        | What repeating it does                                                  |
@@ -67,19 +77,21 @@ An event that cannot be mapped to an establishment is **acknowledged, not reject
 same Stripe account that is not a Coaster venue — created from the dashboard, from another product,
 or by `stripe trigger` — would otherwise 500 and be retried by Stripe for days.
 
-Delivery is **synchronous**: the webhook only answers 2xx once the projection has been applied. If a
-handler fails, the API answers 5xx and Stripe retries. Neither a saga nor the event bus is used here,
-precisely because neither of them waits for the handler.
+Delivery is **synchronous**: the webhook only answers 2xx once the projection has been applied. If
+the write fails, `HandleWebhook` returns the error, the API answers 5xx and Stripe retries. The
+projection is not written by a subscriber of the event bus precisely because `event.Bus` runs each
+subscriber on its own goroutine and never waits for it.
 
 ## Out-of-order and duplicate subscriptions
 
-Webhooks do not arrive in order. `HandleSubscriptionChangedHandler` reads the tracked subscription
-back from Stripe before letting an event for a different subscription id overwrite state, and
-ignores the event if the tracked one is still live.
+Webhooks do not arrive in order. `subscriptionChanged` (in `service/subscription_webhook.go`) reads
+the tracked subscription back from Stripe before letting an event for a different subscription id
+overwrite state, and ignores the event if the tracked one is still live.
 
-`HandleCheckoutCompletedHandler` handles the case of a venue that somehow checks out twice: if the
-establishment already tracks a live subscription, the incoming duplicate is cancelled in Stripe and
-`DuplicateSubscriptionDetectedEvent` is published.
+`checkoutCompleted` handles the case of a venue that somehow checks out twice: if the establishment
+already tracks a live subscription, `cancelIfDuplicate` cancels the incoming duplicate in Stripe and
+publishes `DuplicateSubscriptionDetectedEvent`, which `SubscriptionService` logs as a billing
+incident so that someone refunds the charge by hand if it went through.
 
 It also reads the subscription back from Stripe rather than waiting for `customer.subscription.*`.
 That event usually arrives, but "usually" here means a venue that paid and stays locked out until
@@ -105,22 +117,24 @@ no second line item and no per-seat price of our own.
 
 That means **`quantity` means something different on the current price than on any older one**. A
 legacy Pro price is flat and licensed: a quantity of 12 there charges twelve times the monthly fee.
-`StripeApi.updateSubscriptionSeats` therefore looks the item up by price id and refuses to touch a
-subscription that has no item on `STRIPE_PRICE_PRO`. Never widen that: seats are only ever pushed to
-the price they are billed at.
+`StripeGateway.UpdateSubscriptionSeats` therefore looks the item up by price id and refuses to touch
+a subscription that has no item on `STRIPE_PRICE_PRO`. Never widen that: seats are only ever pushed
+to the price they are billed at. With `STRIPE_PRICE_PRO` unset, `SyncSeats` logs an error and
+leaves the quantity alone.
 
-The count is `EstablishmentMember` rows that are `active` and not soft-deleted, owner included, with
-a floor of one. `SyncSubscriptionSeatsHandler` compares it against the `seats` column — the last
-quantity Stripe reported — and only calls Stripe when they differ. It runs on `MemberInvitedEvent`
-and `MemberRemovedEvent`, and the `seats` column itself is written from the webhook like every other
-column of that table.
+The count (`CountBillableSeats`) is `EstablishmentMember` rows that are `active` and not
+soft-deleted, owner included, with a floor of one. `SubscriptionService.SyncSeats` compares it
+against the `seats` column — the last quantity Stripe reported — and only calls Stripe when they
+differ. It runs on `MemberInvitedEvent` and `MemberRemovedEvent`, and the `seats` column itself is
+written from the webhook like every other column of that table.
 
 Changes are `create_prorations`: adding a seat mid-period does not charge anything now, it lands
 prorated on the next invoice. That is what the invite dialog tells the owner before they confirm.
 Nothing is ever blocked for being over the allowance.
 
-If the Stripe call fails, the handler logs an error and gives up rather than failing the invitation —
-the member already exists. Nothing retries it, so the venue keeps being billed the old number of
+If the Stripe call fails, the subscriber logs an error and gives up; the invitation has already been
+answered, since event subscribers run on their own goroutine — the member already exists. Nothing
+retries it, so the venue keeps being billed the old number of
 seats until the next staff change, and that log line is the only notice. `PRO_INCLUDED_SEATS` and
 `PRO_EXTRA_SEAT_PRICE_CENTS` mirror the Stripe tiers for the copy shown to the owner; the money
 itself comes from the tiers, so drift there is a wrong label, never a wrong charge.
@@ -133,11 +147,11 @@ is left alone deliberately: the legacy set is closed, and it is a label, not a c
 The tiers in Stripe are what charges. Three surfaces repeat them, and they are the places to change
 when the price moves:
 
-| Surface | Where the numbers come from |
-| :--- | :--- |
-| The plan dialog and the staff list, inside the app | `GET …/establishment-subscription/seats`, i.e. the three `PRO_*` variables |
-| The invite dialog's warning | the same endpoint |
-| The public landing at `/` | hardcoded — `BASE_PRICE_CENTS` and friends in `landing.ts`, plus `landing.pricing.*` in the i18n files |
+| Surface                                            | Where the numbers come from                                                                            |
+| :------------------------------------------------- | :----------------------------------------------------------------------------------------------------- |
+| The plan dialog and the staff list, inside the app | `GET …/establishment-subscription/seats`, i.e. the three `PRO_*` variables                             |
+| The invite dialog's warning                        | the same endpoint                                                                                      |
+| The public landing at `/`                          | hardcoded — `BASE_PRICE_CENTS` and friends in `landing.ts`, plus `landing.pricing.*` in the i18n files |
 
 The landing is static because it is served to people who have no establishment and no token, so
 there is nothing to ask the API about. It is the one that goes stale silently, and the one a
@@ -151,25 +165,31 @@ Stripe alone.
 that copy behind, and a copy that says "lapsed" locks a venue that is paying — the worst failure
 this system has, because the customer paid and cannot work.
 
-So `SubscriptionActiveGuard` does not take the copy as final. When it is about to answer 402 and the
-row still carries a `stripeSubscriptionId`, it asks Stripe through `SUBSCRIPTION_REFRESHER`, writes
-what comes back and decides again. An establishment that never subscribed has no id, so it never
-costs a Stripe call, and the check only runs on the path that was going to fail anyway.
+So the guard's subscription step does not take the copy as final. When
+`SecurityService.SubscriptionActive` is about to say no and the row still carries a
+`stripeSubscriptionId`, it asks Stripe through `ports.SubscriptionRefresher`, which is
+`SubscriptionService.Refresh`: it writes what comes back, forgets the cached state, and the guard
+decides again. An establishment that never subscribed has no id, so it never costs a Stripe call,
+and the check only runs on the path that was going to answer 402 anyway. If Stripe cannot be
+reached, the error is logged and the stored row decides.
 
-The refresher lives in `establishment-subscription`, not in `core`: the guard is base layer and may
-not import a feature module. `core` declares the token, the feature module provides it, and the
-guard resolves it through `ModuleRef` with `strict: false`. With nothing registered the guard simply
-behaves as it did before any of this existed.
+`SecurityService` only knows the interface, declared in `core/ports/security.go`; `cmd/api/main.go`
+hands it the `SubscriptionService`. With a nil refresher it simply answers from the stored row, as
+it did before any of this existed.
 
-That refresh is the one write to `EstablishmentSubscription` that does not come from a webhook. It
-is still Stripe's own answer being written — the same source, asked directly instead of waited for.
+`GET …/establishment-subscription` refreshes the same way when the row has a Stripe subscription
+whose `currentPeriodEnd` has already passed, so the workspace does not show a lapse only the copy
+believes in. Those two refreshes are the only writes to the Stripe columns of
+`EstablishmentSubscription` that do not come from a webhook. They still write Stripe's own answer — the same source, asked directly instead of
+waited for.
 
 ## A failed card does not lock the venue
 
 Stripe retries a failed payment for about two weeks before giving up. Cutting a bar's till off on
 day one over an expired card does far more damage than the fee is worth, and the venue churns.
 
-`PAST_DUE` therefore keeps full access, on both sides: the guard grants it and the web mirrors it in
+`PAST_DUE` therefore keeps full access, on both sides: the guard grants it
+(`domain.SubscriptionGrantsAccess`) and the web mirrors it in
 `isReadOnly`. What the owner gets is `paymentNeedsAttention` — a banner that says the charge failed
 and sends them to the portal to fix the card. Access is only cut when Stripe itself gives up and the
 subscription becomes `UNPAID`, or it is cancelled with no paid period left.

@@ -1,8 +1,8 @@
-import { asEstablishmentId } from '@coaster/common';
+import { asEstablishmentId } from '@coaster/core';
+import type { Establishment } from '@coaster/establishments';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import type { Establishment } from '@coaster/common';
 import { provideTranslateService } from '@ngx-translate/core';
 import { EstablishmentCard } from './establishment-card';
 

@@ -1,7 +1,7 @@
 import { Component, input, output } from '@angular/core';
 import { MatIconButton, MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
-import { Order, OrderStatus, AdjustmentTarget, AdjustmentType } from '@coaster/common';
+import { AdjustmentTarget, AdjustmentType, Order, OrderStatus } from '@coaster/orders';
 import { TranslatePipe } from '@ngx-translate/core';
 import { NoteEditor } from '../../../../../../../components/note-editor/note-editor';
 import { PricePipe } from '../../../../../pipes/price/price';

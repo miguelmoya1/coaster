@@ -7,17 +7,23 @@ import {
   provideBrowserGlobalErrorListeners,
   provideZonelessChangeDetection,
 } from '@angular/core';
-import { provideRouter, withComponentInputBinding, withRouterConfig, withViewTransitions } from '@angular/router';
-import type { EstablishmentId } from '@coaster/common';
-import type { PaywallHandler } from '@coaster/core';
 import {
-  errorInterceptor,
+  provideRouter,
+  withAutoCleanupInjectors,
+  withComponentInputBinding,
+  withRouterConfig,
+  withRouterResources,
+  withViewTransitions,
+} from '@angular/router';
+import type { EstablishmentId, PaywallHandler } from '@coaster/core';
+import {
   accessTokenInterceptor,
+  AppUpdate,
+  errorInterceptor,
   PAYWALL_HANDLER,
   unauthorizedInterceptor,
   urlInterceptor,
   VirtualKeyboard,
-  AppUpdate,
 } from '@coaster/core';
 import { provideServiceWorker } from '@angular/service-worker';
 import { provideTranslateService } from '@ngx-translate/core';
@@ -53,6 +59,8 @@ export const appConfig: ApplicationConfig = {
       appRoutes,
       withViewTransitions(),
       withComponentInputBinding(),
+      withRouterResources(),
+      withAutoCleanupInjectors(),
       withRouterConfig({ paramsInheritanceStrategy: 'always' }),
     ),
     provideTranslateService({

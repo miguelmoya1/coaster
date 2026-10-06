@@ -5,7 +5,7 @@ import { CurrentEstablishmentStore } from '@coaster/establishments';
 import { MyMemberStore } from '@coaster/establishment-members';
 import { EstablishmentSubscriptionStore } from '@coaster/establishment-subscription';
 import { Auth, CurrentUser, Realtime } from '@coaster/core';
-import { MembersStore } from '@coaster/establishment-members';
+import { fakeRealtime } from '@coaster/testing';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import WorkspaceLayout from './workspace-layout';
@@ -34,15 +34,6 @@ describe('WorkspaceLayout', () => {
   const myMemberStoreMock = {
     isOwner: signal(false),
     hasPermission: vi.fn().mockReturnValue(true),
-    setEstablishmentId: vi.fn(),
-  };
-
-  const membersStoreMock = {
-    list: {
-      value: vi.fn().mockReturnValue([]),
-      hasValue: vi.fn().mockReturnValue(true),
-      isLoading: vi.fn().mockReturnValue(false),
-    },
     setEstablishmentId: vi.fn(),
   };
 
@@ -83,8 +74,7 @@ describe('WorkspaceLayout', () => {
         { provide: CurrentEstablishmentStore, useValue: currentEstablishmentStoreMock },
         { provide: EstablishmentSubscriptionStore, useValue: establishmentSubscriptionStoreMock },
         { provide: MyMemberStore, useValue: myMemberStoreMock },
-        { provide: MembersStore, useValue: membersStoreMock },
-        { provide: Realtime, useValue: realtimeMock },
+        { provide: Realtime, useValue: fakeRealtime(realtimeMock) },
         { provide: Auth, useValue: authMock },
       ],
     }).compileComponents();
@@ -108,7 +98,6 @@ describe('WorkspaceLayout', () => {
 
     it('should feed the establishment id to every establishment-scoped store', () => {
       expect(currentEstablishmentStoreMock.setEstablishmentId).toHaveBeenCalledWith('establishment-1');
-      expect(membersStoreMock.setEstablishmentId).toHaveBeenCalledWith('establishment-1');
       expect(myMemberStoreMock.setEstablishmentId).toHaveBeenCalledWith('establishment-1');
       expect(establishmentSubscriptionStoreMock.setEstablishmentId).toHaveBeenCalledWith('establishment-1');
     });
@@ -117,7 +106,6 @@ describe('WorkspaceLayout', () => {
       fixture.destroy();
 
       expect(currentEstablishmentStoreMock.setEstablishmentId).toHaveBeenCalledWith(undefined);
-      expect(membersStoreMock.setEstablishmentId).toHaveBeenCalledWith(undefined);
       expect(myMemberStoreMock.setEstablishmentId).toHaveBeenCalledWith(undefined);
       expect(establishmentSubscriptionStoreMock.setEstablishmentId).toHaveBeenCalledWith(undefined);
     });

@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
-import type { AiMessage, AiResponse, EstablishmentId } from '@coaster/common';
-import { Auth, readSse } from '@coaster/core';
+import type { AiMessage, AiResponse } from './ai.interface';
+import { Auth, readSse, type EstablishmentId } from '@coaster/core';
 import { environment } from '@coaster/env';
 import { firstValueFrom } from 'rxjs';
 

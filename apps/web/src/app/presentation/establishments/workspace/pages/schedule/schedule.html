@@ -16,9 +16,9 @@
       {{ 'schedule.daily_assignments' | translate }}: {{ displaySelectedDate() }}
     </h2>
 
-    @if (shifts.isLoading()) {
-      <coaster-loading />
-    } @else {
+    <coaster-resource-status [resource]="shifts()" />
+
+    @if (shifts().hasValue()) {
       <div class="flex flex-col gap-3">
         @for (shift of dailyShifts(); track shift.id) {
           <coaster-shift-card
@@ -111,9 +111,9 @@
         {{ 'schedule.time_tracking.team_description' | translate }}
       </p>
 
-      @if (teamWorkdays.isLoading()) {
-        <coaster-loading />
-      } @else {
+      <coaster-resource-status [resource]="teamWorkdays()" />
+
+      @if (teamWorkdays().hasValue()) {
         <div class="flex flex-col gap-3">
           @for (workday of teamWorkdaysList(); track workday.userId + workday.date) {
             <coaster-workday-card
@@ -147,9 +147,9 @@
   }
 
   @if (viewMode() === 'month') {
-    @if (shifts.isLoading()) {
-      <coaster-loading />
-    } @else {
+    <coaster-resource-status [resource]="shifts()" />
+
+    @if (shifts().hasValue()) {
       <coaster-schedule-monthly-grid
         [calendarDays]="calendarMonthDaysWithShifts()"
         (daySelected)="handleDaySelected($event)"

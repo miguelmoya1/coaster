@@ -1,5 +1,5 @@
-import type { Category } from '@coaster/common';
-import { asEstablishmentId, asCategoryId } from '@coaster/common';
+import { asCategoryId, type Category } from '../models/category.interface';
+import { asEstablishmentId } from '@coaster/core';
 import { describe, expect, it } from 'vitest';
 import { categoryArrayMapper, categoryMapper, checkIsCategory } from './category.mapper';
 

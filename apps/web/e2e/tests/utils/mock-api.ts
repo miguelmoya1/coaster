@@ -1,4 +1,7 @@
-import { EstablishmentRole, Role, SubscriptionPlan, SubscriptionStatus } from '@coaster/common';
+import { EstablishmentRole } from '../../../src/app/establishments/models/establishment-role.type';
+import { Role } from '../../../src/app/core/models/role.type';
+import { SubscriptionPlan } from '../../../src/app/establishment-subscription/models/subscription-plan.type';
+import { SubscriptionStatus } from '../../../src/app/establishment-subscription/models/subscription-status.type';
 import { Page, Route } from '@playwright/test';
 
 // Base API url to mock
@@ -105,7 +108,6 @@ export async function setupMockApi(page: Page) {
           userId: 'test-user-123',
           establishmentId: 'establishment-123',
           role: EstablishmentRole.OWNER,
-          permissions: ['VIEW_DASHBOARD', 'VIEW_PRODUCTS', 'VIEW_SHIFTS', 'VIEW_MEMBERS', 'VIEW_ORDERS'],
           active: true,
           userName: 'Test User',
           userImage: '',

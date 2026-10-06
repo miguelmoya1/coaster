@@ -8,6 +8,7 @@ duplicated, and the things that **must** be duplicated are listed below with the
 | ------------------ | ----------------------------------- | ------------------------------------------------ |
 | Branch             | `main`                              | `dev`                                            |
 | Web                | `www.coaster.business` (Vercel)     | `beta.coaster.business` (its own Vercel project) |
+| Vercel project     | `coaster`                           | `coaster-beta`                                   |
 | API                | `api.coaster.business`              | `api.beta.coaster.business`                      |
 | Cloud Run service  | `api-new` · `europe-west1`          | `api-beta` · `europe-west1`                      |
 | Migration job      | `api-migrate` · `europe-southwest1` | `api-migrate-beta` · `europe-southwest1`         |
@@ -40,7 +41,7 @@ environment that was never configured cannot half-deploy anything.
 | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------- |
 | `GCP_SERVICE_NAME`, `GCP_JOB_NAME`, `PUBLIC_URL`                                                                                                           | GitHub environment **variables**            | CI needs them to know what it is deploying, and which set of credentials to wire      |
 | `DATABASE_URL`, `AUTH_JWT_SECRET`, `PRINTER_JWT_SECRET`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `RESEND_API_KEY`, `AI_GATEWAY_API_KEY`, `REDIS_URL` | **Secret Manager**, one set per environment | Credentials. CI passes their names and never their values — see [secrets](secrets.md) |
-| `FRONTEND_URL`, `CORS_ORIGINS`, `MEDIA_BUCKET`, `STRIPE_PRICE_*`, `EMAIL_FROM`, `GOOGLE_CLIENT_ID`, `BETA_ALLOWLIST_ENABLED` …                             | The Cloud Run service                       | Runtime configuration, never needed to build or release                               |
+| `FRONTEND_URL`, `CORS_ORIGINS`, `STRIPE_PRICE_*`, `EMAIL_FROM`, `GOOGLE_CLIENT_ID`, `BETA_ALLOWLIST_ENABLED` …                                             | The Cloud Run service                       | Runtime configuration, never needed to build or release                               |
 | `PRODUCTION`, `API_URL`, `GOOGLE_CLIENT_ID`, `ALLOW_INDEXING`                                                                                              | Vercel project                              | Baked into the bundle at build time by `set-env.ts`                                   |
 
 ## What the two environments must never share
@@ -115,10 +116,10 @@ gh variable set GCP_JOB_NAME      --env api-beta --body api-migrate-beta
 gh variable set PUBLIC_URL        --env api-beta --body https://api.beta.coaster.business
 ```
 
-No GitHub secrets: the database URL the migration job needs comes from Secret Manager, so this
-pipeline keeps nothing worth stealing on GitHub's side. If an environment or the repository still
-carries a `DATABASE_URL` secret from before that change, delete it — nothing reads it, and a
-credential nobody reads is a credential nobody rotates.
+No GitHub secrets, in the repository or in either environment: the database URL the migration job
+needs comes from Secret Manager, so this pipeline keeps nothing worth stealing on GitHub's side.
+Don't add one back — no workflow reads them, and a credential nobody reads is a credential nobody
+rotates.
 
 Optionally pin each environment to its branch, so a run from the wrong branch cannot reach the wrong
 database:
@@ -147,16 +148,16 @@ branches.
 ### 3. The database
 
 A new Neon project — not a branch of production: beta has no business holding customer data. Copy
-its pooled connection string; that is the `DATABASE_URL` for both the GitHub environment and the
-Cloud Run service.
+its pooled connection string; that is the `DATABASE_URL` that goes into Secret Manager in step 4,
+for both the Cloud Run service and the migration job.
 
-Migrations run themselves on every deploy, from the same image that is about to serve traffic.
+Migrations run themselves on every deploy, in a Cloud Run job with the image of `apps/database`
+(`/app/migrate`), before the new revision takes traffic — see [database](../apps/database.md).
 
 ### 4. The Cloud Run service and its migration job
 
-Beta copies production's shape — same service account, so signed upload URLs and Cloud Storage work
-without a single new IAM binding — and starts on production's current image, which the first `dev`
-push replaces.
+Beta copies production's shape — same service account, so the secrets need no new IAM binding — and
+starts on production's current image, which the first `dev` push replaces.
 
 ```sh
 REGION=europe-west1
@@ -177,7 +178,6 @@ FRONTEND_URL: 'https://beta.coaster.business'
 PUBLIC_URL: 'https://api.beta.coaster.business'
 STRIPE_PRICE_PRO: 'price_…'
 CORS_ORIGINS: 'https://beta.coaster.business'
-MEDIA_BUCKET: 'coaster-media-beta'
 ```
 
 ```sh
@@ -187,12 +187,14 @@ gcloud run deploy api-beta \
   --service-account "$SA" \
   --env-vars-file /tmp/api-beta.env.yaml \
   --min-instances 0 \
+  --concurrency 1000 \
   --timeout 3600 \
   --allow-unauthenticated
 ```
 
 `--min-instances 0` is the difference between beta costing a cold start and beta costing money all
-month.
+month. `--concurrency 1000` because every open realtime stream takes a slot and beta has no Redis:
+past the limit a second instance appears, and the venues on one stop seeing the events of the other.
 
 Now the eight credentials, in a file outside the repository because beta's are its own — all eight,
 for the reasons above. `REDIS_URL` and `AI_GATEWAY_API_KEY` may simply be absent; the other six are
@@ -214,24 +216,12 @@ gcloud run jobs create api-migrate-beta \
   --region europe-southwest1 \
   --image "$IMAGE" \
   --service-account "$SA" \
-  --command "npx,prisma,migrate,deploy,--config=apps/api/prisma.config.ts"
+  --command "/app/migrate"
 ```
 
 Create it as the same account the API runs as, which CI is already allowed to act as. Skip this and
 the first beta deploy has to create the job itself, which fails unless `github-actions@` also holds
 `roles/iam.serviceAccountUser` on the default compute account.
-
-`MEDIA_BUCKET` is the one piece of the file that needs something to exist first. Beta can point at
-production's bucket — uploads are namespaced by establishment id, so nothing collides — but test
-images then live in it forever. Its own bucket costs three lines:
-
-```sh
-gcloud storage buckets create gs://coaster-media-beta --location=$REGION --uniform-bucket-level-access
-gcloud storage buckets add-iam-policy-binding gs://coaster-media-beta --member=allUsers --role=roles/storage.objectViewer
-gcloud storage buckets add-iam-policy-binding gs://coaster-media-beta --member="serviceAccount:$SA" --role=roles/storage.objectAdmin
-```
-
-The public read matters: uploaded images are served straight from `storage.googleapis.com`.
 
 ### 5. The domain
 
@@ -257,9 +247,11 @@ preview of the existing one: preview deployments are behind Vercel Authenticatio
 `beta.coaster.business` currently answers with a redirect to `vercel.com/sso-api` instead of the
 app. Turning that off would expose every pull-request preview too.
 
-Copy the existing project's Root Directory, Build Command, Install Command and Node version exactly
-— the monorepo installs from the root through npm workspaces, and a project configured differently
-will build something subtly different. Then set, in its **Production** environment:
+Root Directory `apps/web`, Build Command `npm run build`, Output Directory `dist/coaster/browser`,
+Install Command automatic (npm, from `apps/web/package-lock.json`) and the same Node version as
+production. Until `dev` is merged into `main`, the production project builds from the repository
+root instead, with commands that pick the old workspace or `apps/web` depending on whether there is
+a `package.json` at the root — see [migration](../apps/api/migracion.md). Then set, in its **Production** environment:
 
 | Variable           | Value                               |
 | ------------------ | ----------------------------------- |
@@ -313,7 +305,7 @@ order, against beta's own database. Promoting is a merge into `main`.
 
 ## Checking it came up
 
-There is no health endpoint; a 404 from Nest is the proof, because only a booted application answers
+There is no health endpoint; a 404 from the API is the proof, because only a booted application answers
 in that shape:
 
 ```sh

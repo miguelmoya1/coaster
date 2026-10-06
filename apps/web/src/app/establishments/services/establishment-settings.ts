@@ -1,6 +1,5 @@
 import { inject, Service } from '@angular/core';
-import type { EstablishmentId } from '@coaster/common';
-import { Auth } from '@coaster/core';
+import { Auth, type EstablishmentId } from '@coaster/core';
 import { EstablishmentRepository } from '../data-access/establishment-repository';
 
 @Service()

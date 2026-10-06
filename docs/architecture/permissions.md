@@ -16,13 +16,13 @@ not run.
 
 ## The permission table
 
-`packages/common/src/domain/permissions/establishment-permissions.ts` is the **only** source of truth. Both
-the API and the web app import it **directly from `@coaster/common`**; nothing re-exports it from a
-`core`, so there is no second route to reach it.
+`apps/web/src/app/establishment-members/models/establishment-permissions.ts` is the **only** source of
+truth. The web imports it through `@coaster/establishment-members`, and the Go API keeps its own table
+in `internal/core/domain`, which a test compares with this file list by list.
 
 It used to be duplicated on both sides and drifted: the web copy was missing `establishment:view-printer` and
-`establishment:manage-printer`, so the UI hid actions the API happily allowed. That is why it lives in
-`common` now.
+`establishment:manage-printer`, so the UI hid actions the API happily allowed. That is why there is one
+table, and a test instead of a second copy.
 
 The table is **three lists composed into one**, and nothing reads it with a branch:
 
@@ -63,30 +63,32 @@ the same way they cannot remove anyone or touch billing.
 
 Inviting is the one place where that boundary needs help from a handler. `establishment:invite-member` is a
 manager permission, but the invite carries the role to grant — so on its own the guard would let a
-manager invite themselves back as an OWNER. `InviteMemberHandler` refuses to grant `OWNER` unless
+manager invite themselves back as an OWNER. `EstablishmentMemberService.Invite` refuses to grant `OWNER` unless
 the inviter is an owner of that establishment or a platform admin.
 
 Changing a role has **one route**: `PATCH /establishments/:establishmentId/members/:memberId`. The backoffice does not
-have its own: `EstablishmentPermissionsGuard` already lets an `ADMIN` through before checking membership, so
+have its own: the guard's membership step already lets an `ADMIN` through before checking membership, so
 an admin uses exactly the same endpoint an owner does.
 
-Auditing does not suffer for it: `UpdateMemberRoleCommand` publishes `MemberRoleChangedEvent`
-carrying the actor and their platform role, and the `admin` module listens and **records only when
+Auditing does not suffer for it: `EstablishmentMemberService.UpdateRole` publishes `MemberRoleChangedEvent`
+carrying the actor and their platform role, and the admin audit listens and **records only when
 the actor was `ADMIN`**. The "never leave an establishment without an OWNER" rule lives in one place, and the
 audit entry hangs off a fact rather than a parallel route.
 
-## The five guards
+## The five steps of the guard
 
-Order matters. Nest runs **global guards before** controller-scoped ones.
+Every route is registered through `middleware.Guard`, with the rules it needs (`RequireAuth()`,
+`Admin()`, `Permissions(...)`, `Modules(...)`, `SkipSubscriptionCheck()`). The guard runs five steps,
+always in this order, and the first to refuse answers.
 
-### 1. `SubscriptionActiveGuard` (global, `APP_GUARD`)
+### 1. Subscription — is the service live
 
 Decides whether the establishment's service is live. It lets through, in this order:
 
 1. `GET`, `HEAD` and `OPTIONS` **always**. This is deliberate: a venue that stops paying keeps read
    access to its own history, because it may be legally required to produce it. It only loses
    writes.
-2. Routes marked `@SkipSubscriptionCheck()`.
+2. Routes registered with `SkipSubscriptionCheck()`.
 3. The subscription-management routes themselves, or you could never pay to restore access.
 4. Requests with no `establishmentId`.
 5. A live manual grant (see below). **Checked before Stripe.**
@@ -97,50 +99,46 @@ Decides whether the establishment's service is live. It lets through, in this or
 If nothing applies it answers **402** with `SUBSCRIPTION_EXPIRED` and the front end opens the plan
 dialog.
 
-Because this guard runs before `AuthGuard`, at step 7 there is no `request.user` yet: it
+Because this step runs before authentication, at step 7 there is no current user yet: it
 resolves identity by reading the bearer token itself, through `AccessTokenService`. It only does
 so once it has already decided to reject, so a normal request never pays that cost.
 
-### 2. `AuthGuard` — identity
+### 2. Authentication — identity
 
 Verifies our own access token, finds the local user by id and **rejects when
 `user.active` is `false`**. That check is what makes the backoffice deactivate button real; without
-it a deactivated user kept full access. The realtime stream is a `GET` behind this same guard, so
+it a deactivated user kept full access. The realtime stream is a `GET` behind this same step, so
 the rule reaches it without a second implementation.
 
-### 3. `AdminGuard` — platform role
+### 3. Admin — platform role
 
-Requires `User.role === ADMIN`. It **fails closed**: a route that carries the guard but forgets
-`@Admin()` is still denied. Opting out is explicit and has to be written as `@Admin(false)`.
+A route registered with `Admin()` requires `User.role === ADMIN`, read from the database rather than
+the token, so a demotion takes effect on the next request. The rule is per route, which makes
+forgetting it the way to leave a backoffice route open: `TestAdminRoutesAreForPlatformAdmins`
+calls every route on its list as a plain user and fails unless each one is refused.
 
-It used to fail open — no decorator meant the guard returned `true` and protected nothing — which
-made every one of the backoffice routes depend on a decorator nobody could forget.
-`admin-controllers.security.spec.ts` still walks `AdminControllers` and fails if a controller loses
-its `@Admin()`, its guards, or their order.
-
-### 4. `EstablishmentPermissionsGuard` — membership and permission
+### 4. Membership and permission
 
 1. If the caller is a platform `ADMIN`, they pass **without a membership check**.
 2. Otherwise, an active membership in that establishment is required.
-3. If the route declares `@EstablishmentPermissions(...)`, every one of those permissions is required via
-   `hasPermission`.
+3. Every permission the route declares with `Permissions(...)` is required via `HasPermission`.
 
-A route with a `establishmentId` but no `@EstablishmentPermissions` only requires belonging to the establishment.
+A route registered with `Permissions()` and no permission only requires belonging to the establishment.
 
-Membership lookups filter `deletedAt: null`. Removing a member is a soft delete, so without that
+Membership lookups filter `"deletedAt" IS NULL`. Removing a member is a soft delete, so without that
 filter the guard kept honouring the membership of somebody who had been removed — they stayed out of
 the members list while keeping their full role. The same filter belongs in every path that answers
-"is this person still in this establishment": the HTTP guard, the AI handler and the establishment
+"is this person still in this establishment": the HTTP guard, the assistant and the establishment
 list.
 
 Removal also closes the member's open streams for that establishment, so they stop receiving
 real-time data before their next request is refused.
 
-### 5. `EstablishmentModulesGuard` — is this part of the product switched on
+### 5. Modules — is this part of the product switched on
 
 The last axis, and the only one the venue chooses for itself. `EstablishmentSettings.modules` holds
-which of `TIME_TRACKING`, `ORDERS` and `INVENTORY` an establishment runs, and a controller declares
-what it needs with `@RequiresModule(...)`:
+which of `TIME_TRACKING`, `ORDERS` and `INVENTORY` an establishment runs, and a route declares what
+it needs with `Modules(...)`:
 
 | Module          | Gates                                                 |
 | --------------- | ----------------------------------------------------- |
@@ -149,7 +147,7 @@ what it needs with `@RequiresModule(...)`:
 | `TIME_TRACKING` | nothing — it is the floor every establishment gets    |
 
 A module that is not enabled answers **403 `MODULE_NOT_ENABLED`**. Like the others it is a no-op on a
-route without an `establishmentId`, and it reads the module list through `SecurityRepository`, so it
+route without an `establishmentId`, and it reads the module list through `SecurityService`, so it
 is one cached lookup rather than a query per request.
 
 It is declarative rather than a permission because it is not about _who_ the caller is: a bar that
@@ -171,9 +169,9 @@ work and have to be read together:
 
 | Point                           | What it does                                                      |
 | ------------------------------- | ----------------------------------------------------------------- |
-| `EstablishmentPermissionsGuard` | Lets them through before checking membership                      |
-| `SubscriptionActiveGuard`       | Lets them write even when the establishment has not paid          |
-| `GetMemberMeHandler`            | Returns a synthetic `OWNER` membership when they are not a member |
+| The guard's membership step     | Lets them through before checking membership                      |
+| The guard's subscription step   | Lets them write even when the establishment has not paid          |
+| `EstablishmentMemberService.Me` | Returns a synthetic `OWNER` membership when they are not a member |
 
 The third is what makes the **UI** work: without it the API would allow everything while the front
 end hid the buttons, because `MyMemberStore` would have no role to derive permissions from.
@@ -194,19 +192,22 @@ manualGrantedAt       when
 Keeping them separate is what lets a later Stripe webhook update billing **without clobbering the
 grant**, and lets revoking it drop the establishment cleanly back to whatever Stripe says.
 
-`isManualGrantActive()` is the only function that decides whether a grant is still live, and the
-guard, the mapper and the backoffice all use it so they cannot disagree.
+`domain.IsManualGrantActive` is the only function that decides whether a grant is still live, and
+the guard (through `SubscriptionGrantsAccess`), the workspace view and the backoffice summary all use
+it so they cannot disagree.
 
 ### What is visible, and to whom
 
 `GET /establishments/:establishmentId/establishment-subscription` can be called by any member of the establishment. That is why the same
 data has two shapes:
 
-- `toDomain()` — workspace payload. Only `plan` and `expiresAt`: enough for the UI not to lock.
-- `toAdminDomain()` — backoffice only. Adds the reason, who granted it and when.
+- `EstablishmentSubscription.View` — workspace payload. Its `manualGrant` is only `plan` and
+  `expiresAt`: enough for the UI not to lock.
+- `AdminBilling.AdminView` — backoffice only. Adds the reason, who granted it and when.
 
-The admin's internal note must not reach the venue. `establishment-subscription.mapper.spec.ts` pins this by
-serialising the public payload and asserting it contains neither the reason nor the admin's name.
+The admin's internal note must not reach the venue. The `keeps the admin note away from the members`
+case in `e2e/admin_test.go` pins this by reading the public payload and asserting it does not contain
+the reason and that its `manualGrant` is exactly `plan` and `expiresAt`.
 
 ## Auditing
 

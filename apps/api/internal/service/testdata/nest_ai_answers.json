@@ -1,0 +1,503 @@
+{
+  "listTables": {
+    "status": "ok",
+    "message": "Query completed.",
+    "data": [
+      {
+        "id": "t1",
+        "name": "Mesa 1",
+        "status": "OCCUPIED"
+      },
+      {
+        "id": "t2",
+        "name": "Terraza",
+        "status": "FREE"
+      }
+    ]
+  },
+  "listProducts": {
+    "status": "ok",
+    "message": "Query completed.",
+    "data": [
+      {
+        "id": "p1",
+        "name": "Caña",
+        "price": 2.5,
+        "currentStock": 3,
+        "minStockAlert": 5,
+        "categoryId": "c1"
+      },
+      {
+        "id": "p2",
+        "name": "Café",
+        "price": 1.2,
+        "currentStock": 40,
+        "minStockAlert": 10,
+        "categoryId": "c2"
+      }
+    ]
+  },
+  "listProducts search": {
+    "status": "ok",
+    "message": "Query completed.",
+    "data": [
+      {
+        "id": "p1",
+        "name": "Caña",
+        "price": 2.5,
+        "currentStock": 3,
+        "minStockAlert": 5,
+        "categoryId": "c1"
+      }
+    ]
+  },
+  "listProducts lowStockOnly": {
+    "status": "ok",
+    "message": "Query completed.",
+    "data": [
+      {
+        "id": "p1",
+        "name": "Caña",
+        "price": 2.5,
+        "currentStock": 3,
+        "minStockAlert": 5,
+        "categoryId": "c1"
+      }
+    ]
+  },
+  "listCategories": {
+    "status": "ok",
+    "message": "Query completed.",
+    "data": [
+      {
+        "id": "c1",
+        "name": "Bebidas",
+        "icon": "local_bar"
+      },
+      {
+        "id": "c2",
+        "name": "Cafés"
+      }
+    ]
+  },
+  "listOpenOrders": {
+    "status": "ok",
+    "message": "Query completed.",
+    "data": [
+      {
+        "id": "o1",
+        "table": "Mesa 1",
+        "status": "OPEN",
+        "total": 8.06,
+        "pending": 6.31,
+        "items": [
+          {
+            "itemId": "i1",
+            "product": "Caña",
+            "quantity": 3,
+            "served": 2,
+            "paid": 1
+          },
+          {
+            "itemId": "i2",
+            "product": "Unknown product",
+            "quantity": 1,
+            "served": 0,
+            "paid": 0
+          }
+        ]
+      },
+      {
+        "id": "o2",
+        "table": "No table",
+        "status": "OPEN",
+        "total": 1.32,
+        "pending": 1.32,
+        "items": [
+          {
+            "itemId": "i3",
+            "product": "Café",
+            "quantity": 1,
+            "served": 0,
+            "paid": 0
+          }
+        ]
+      }
+    ]
+  },
+  "getOrderDetails": {
+    "status": "ok",
+    "message": "Query completed.",
+    "data": {
+      "id": "o1",
+      "table": "Mesa 1",
+      "status": "OPEN",
+      "total": 8.06,
+      "pending": 6.31,
+      "items": [
+        {
+          "itemId": "i1",
+          "product": "Caña",
+          "quantity": 3,
+          "served": 2,
+          "paid": 1
+        },
+        {
+          "itemId": "i2",
+          "product": "Unknown product",
+          "quantity": 1,
+          "served": 0,
+          "paid": 0
+        }
+      ],
+      "tip": 1,
+      "paidCash": 2.75,
+      "paidCard": 0,
+      "adjustments": [
+        {
+          "adjustmentId": "a1",
+          "target": "ORDER",
+          "type": "PERCENTAGE",
+          "value": 10,
+          "reason": "invitación"
+        },
+        {
+          "adjustmentId": "a2",
+          "target": "ITEM",
+          "type": "FIXED_AMOUNT",
+          "value": 0.5
+        }
+      ]
+    }
+  },
+  "getOrdersByDate": {
+    "status": "ok",
+    "message": "Query completed.",
+    "data": {
+      "count": 2,
+      "revenue": 10,
+      "orders": [
+        {
+          "id": "o1",
+          "table": "Mesa 1",
+          "status": "OPEN",
+          "total": 8.06,
+          "pending": 6.31,
+          "items": [
+            {
+              "itemId": "i1",
+              "product": "Caña",
+              "quantity": 3,
+              "served": 2,
+              "paid": 1
+            },
+            {
+              "itemId": "i2",
+              "product": "Unknown product",
+              "quantity": 1,
+              "served": 0,
+              "paid": 0
+            }
+          ]
+        },
+        {
+          "id": "o3",
+          "table": "Terraza",
+          "status": "CLOSED",
+          "total": 11,
+          "pending": 0,
+          "items": [
+            {
+              "itemId": "i4",
+              "product": "Café",
+              "quantity": 2,
+              "served": 2,
+              "paid": 2
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "getOrdersByDate bad date": {
+    "status": "error",
+    "message": "The date must be formatted as YYYY-MM-DD."
+  },
+  "getEstablishmentStats owner": {
+    "status": "ok",
+    "message": "Query completed.",
+    "data": {
+      "todayRevenue": 26.34,
+      "yesterdayRevenue": 22,
+      "sameWeekdayLastWeekRevenue": 8,
+      "weeklyRevenue": 48.34,
+      "todayTicketCount": 2,
+      "todayAverageTicket": 13.17,
+      "todayCashRevenue": 15,
+      "todayCardRevenue": 12.34,
+      "todayTipAmount": 1,
+      "dailyRevenues": [
+        {
+          "day": "Lun",
+          "date": "2026-09-21",
+          "revenue": 0
+        },
+        {
+          "day": "Mar",
+          "date": "2026-09-22",
+          "revenue": 0
+        },
+        {
+          "day": "Mié",
+          "date": "2026-09-23",
+          "revenue": 0
+        },
+        {
+          "day": "Jue",
+          "date": "2026-09-24",
+          "revenue": 0
+        },
+        {
+          "day": "Vie",
+          "date": "2026-09-25",
+          "revenue": 0
+        },
+        {
+          "day": "Sáb",
+          "date": "2026-09-26",
+          "revenue": 22
+        },
+        {
+          "day": "Dom",
+          "date": "2026-09-27",
+          "revenue": 26.34
+        }
+      ],
+      "history": {
+        "currentMonthRevenue": 56.34,
+        "previousMonthRevenue": 30,
+        "yearlyRevenue": 126.34,
+        "monthOverMonthChangePercent": 88,
+        "isPositiveChange": true
+      }
+    }
+  },
+  "getEstablishmentStats manager": {
+    "status": "ok",
+    "message": "Query completed.",
+    "data": {
+      "todayRevenue": 26.34,
+      "yesterdayRevenue": 22,
+      "sameWeekdayLastWeekRevenue": 8,
+      "weeklyRevenue": 48.34,
+      "todayTicketCount": 2,
+      "todayAverageTicket": 13.17,
+      "todayCashRevenue": 15,
+      "todayCardRevenue": 12.34,
+      "todayTipAmount": 1,
+      "dailyRevenues": [
+        {
+          "day": "Lun",
+          "date": "2026-09-21",
+          "revenue": 0
+        },
+        {
+          "day": "Mar",
+          "date": "2026-09-22",
+          "revenue": 0
+        },
+        {
+          "day": "Mié",
+          "date": "2026-09-23",
+          "revenue": 0
+        },
+        {
+          "day": "Jue",
+          "date": "2026-09-24",
+          "revenue": 0
+        },
+        {
+          "day": "Vie",
+          "date": "2026-09-25",
+          "revenue": 0
+        },
+        {
+          "day": "Sáb",
+          "date": "2026-09-26",
+          "revenue": 22
+        },
+        {
+          "day": "Dom",
+          "date": "2026-09-27",
+          "revenue": 26.34
+        }
+      ],
+      "history": null
+    }
+  },
+  "getEstablishmentStats staff": {
+    "status": "denied",
+    "message": "The user's role (STAFF) does not allow this action. It requires the 'establishment:view-financials' permission. Tell the user they lack permission and do not retry."
+  },
+  "listShifts": {
+    "status": "ok",
+    "message": "Query completed.",
+    "data": [
+      {
+        "id": "s1",
+        "worker": "Luis",
+        "userId": "u2",
+        "startTime": "2026-09-28T16:00:00Z",
+        "endTime": "2026-09-28T23:00:00Z",
+        "notes": "turno de cierre"
+      },
+      {
+        "id": "s2",
+        "worker": "Ana",
+        "userId": "u1",
+        "startTime": "2026-09-29T08:00:00Z",
+        "endTime": "2026-09-29T15:30:00Z"
+      }
+    ]
+  },
+  "listShiftExchanges": {
+    "status": "ok",
+    "message": "Query completed.",
+    "data": [
+      {
+        "id": "x1",
+        "shiftId": "s1",
+        "requester": "Luis",
+        "status": "PENDING",
+        "shiftStartTime": "2026-09-28T16:00:00Z",
+        "shiftEndTime": "2026-09-28T23:00:00Z"
+      }
+    ]
+  },
+  "listMembers": {
+    "status": "ok",
+    "message": "Query completed.",
+    "data": [
+      {
+        "memberId": "m1",
+        "userId": "u1",
+        "name": "Ana",
+        "email": "ana@example.com",
+        "role": "OWNER",
+        "active": true
+      },
+      {
+        "memberId": "m2",
+        "userId": "u2",
+        "name": "Luis",
+        "email": "luis@example.com",
+        "role": "STAFF",
+        "active": true
+      }
+    ]
+  },
+  "createTable": {
+    "status": "ok",
+    "message": "Action completed successfully."
+  },
+  "deleteTable unconfirmed": {
+    "status": "confirmation_required",
+    "message": "This action is destructive and has NOT been executed. Ask the user to confirm out loud that you should permanently delete the table \"Mesa 1\", and only call this tool again with confirmed=true after they say yes."
+  },
+  "deleteTable unknown unconfirmed": {
+    "status": "confirmation_required",
+    "message": "This action is destructive and has NOT been executed. Ask the user to confirm out loud that you should permanently delete the table \"t9\", and only call this tool again with confirmed=true after they say yes."
+  },
+  "deleteCategory unconfirmed": {
+    "status": "confirmation_required",
+    "message": "This action is destructive and has NOT been executed. Ask the user to confirm out loud that you should permanently delete the category \"Bebidas\", which currently holds 1 product(s), and only call this tool again with confirmed=true after they say yes."
+  },
+  "deleteProduct unconfirmed": {
+    "status": "confirmation_required",
+    "message": "This action is destructive and has NOT been executed. Ask the user to confirm out loud that you should permanently delete the product \"Caña\" from the menu, and only call this tool again with confirmed=true after they say yes."
+  },
+  "cancelOrder unconfirmed": {
+    "status": "confirmation_required",
+    "message": "This action is destructive and has NOT been executed. Ask the user to confirm out loud that you should cancel the order of table \"Mesa 1\", and only call this tool again with confirmed=true after they say yes."
+  },
+  "deleteOrder unconfirmed": {
+    "status": "confirmation_required",
+    "message": "This action is destructive and has NOT been executed. Ask the user to confirm out loud that you should permanently delete the order of table \"No table\", and only call this tool again with confirmed=true after they say yes."
+  },
+  "removeOrderItem unconfirmed": {
+    "status": "confirmation_required",
+    "message": "This action is destructive and has NOT been executed. Ask the user to confirm out loud that you should remove that item from the order, and only call this tool again with confirmed=true after they say yes."
+  },
+  "deleteShift unconfirmed": {
+    "status": "confirmation_required",
+    "message": "This action is destructive and has NOT been executed. Ask the user to confirm out loud that you should delete that scheduled shift, and only call this tool again with confirmed=true after they say yes."
+  },
+  "cancelShiftExchange unconfirmed": {
+    "status": "confirmation_required",
+    "message": "This action is destructive and has NOT been executed. Ask the user to confirm out loud that you should withdraw that shift exchange request, and only call this tool again with confirmed=true after they say yes."
+  },
+  "inviteMember unconfirmed": {
+    "status": "confirmation_required",
+    "message": "This action is destructive and has NOT been executed. Ask the user to confirm out loud that you should send an invitation email to eva@example.com as MANAGER, and only call this tool again with confirmed=true after they say yes."
+  },
+  "inviteMember bad email": {
+    "status": "error",
+    "message": "That does not look like a valid email address. Ask the user to spell it out."
+  },
+  "removeMember unconfirmed": {
+    "status": "confirmation_required",
+    "message": "This action is destructive and has NOT been executed. Ask the user to confirm out loud that you should remove that member from the establishment staff, revoking their access, and only call this tool again with confirmed=true after they say yes."
+  },
+  "deleteProduct as staff": {
+    "status": "denied",
+    "message": "The user's role (STAFF) does not allow this action. It requires the 'establishment:delete-product' permission. Tell the user they lack permission and do not retry."
+  },
+  "getEstablishmentStats denied": {
+    "status": "denied",
+    "message": "The user's role (STAFF) does not allow this action. It requires the 'establishment:view-financials' permission. Tell the user they lack permission and do not retry."
+  },
+  "createShift bad dates": {
+    "status": "error",
+    "message": "The shift start and end must be valid ISO date-times, e.g. \"2026-08-07T16:00:00Z\"."
+  },
+  "createShift backwards": {
+    "status": "error",
+    "message": "The shift end must be later than its start."
+  },
+  "applyOrderDiscount item without id": {
+    "status": "error",
+    "message": "An itemId is required to discount a single order item."
+  },
+  "applyOrderDiscount too much": {
+    "status": "error",
+    "message": "A percentage discount must be between 1 and 100."
+  },
+  "adjustProductStock zero": {
+    "status": "error",
+    "message": "The stock delta cannot be zero."
+  },
+  "createProduct unknown category": {
+    "status": "error",
+    "message": "That category does not exist in this establishment. Create it first or pick an existing one."
+  },
+  "createOrder unknown products": {
+    "status": "error",
+    "message": "None of the requested products are available in this establishment's menu."
+  },
+  "updateCategory unknown": {
+    "status": "error",
+    "message": "Category not found in this establishment."
+  },
+  "checkoutOrder failing": {
+    "status": "error",
+    "message": "The action failed: ORDER_NOT_FOUND",
+    "errorKey": "ORDER_NOT_FOUND"
+  },
+  "createTable broken": {
+    "status": "error",
+    "message": "The action failed: connection refused"
+  },
+  "prompt staff": "You are the Coaster Voice Assistant, a professional real-time management system for establishments and restaurants.\nCurrent Establishment ID: \"e1\".\nCurrent User: \"Ana\" (ID: \"u1\"), Role: \"STAFF\".\nCurrent date and time (UTC): 2026-09-27T10:00:00.000Z.\n\n=== AVAILABLE DATA ===\nBelow is the list of products available in this establishment (with their UUIDs, prices, and current stock):\n- Caña: ID=p1, Price=2.5€, Stock=3\n- Café: ID=p2, Price=1.2€, Stock=40\n\nBelow is the list of tables available (with their UUIDs and statuses):\n- Mesa 1: ID=t1, Status=OCCUPIED\n- Terraza: ID=t2, Status=FREE\n\nBelow is the list of categories available (with their UUIDs and icons):\n- Bebidas: ID=c1, Icon=local_bar\n- Cafés: ID=c2, Icon=(None)\n\nBelow are the open orders. Call getOrderDetails for the lines of one, which is where item IDs,\nserved and paid quantities live:\n- Order ID=o1 at Mesa 1 (2 items)\n- Order ID=o2 at No table (1 item)\n\nThis snapshot was taken when the conversation turn started. Anything beyond it (revenue, past days,\nshifts, staff, stock alerts) must be fetched with a read tool instead of guessed.\n\n=== MODULES THIS ESTABLISHMENT RUNS ===\nTIME_TRACKING, ORDERS, INVENTORY\nOnly tools belonging to these modules exist in this conversation. If the user asks for something\nfrom a module that is off, say it is not enabled here rather than reaching for a tool.\n\n=== THIS USER'S PERMISSIONS ===\n- establishment:view-dashboard\n- establishment:view-members\n- establishment:view-tables\n- establishment:open-table\n- establishment:view-orders\n- establishment:create-order\n- establishment:update-order\n- establishment:delete-order-item\n- establishment:checkout-order\n- establishment:cancel-order\n- establishment:move-order-table\n- establishment:merge-orders\n- establishment:close-cash\n- establishment:view-categories\n- establishment:view-products\n- establishment:update-product-stock\n- establishment:view-shifts\n- establishment:clock-in\n- establishment:amend-own-time-entry\n- establishment:view-exchanges\n- establishment:create-exchange\n- establishment:accept-exchange\n- establishment:delete-exchange\n- establishment:view-printer\nTools outside this list will be rejected by the server. If the user asks for one of them, say plainly\nthat their role does not allow it instead of calling the tool.\n\n=== BEHAVIOR RULES ===\n1. [CRITICAL] It is strictly forbidden to respond with plain text if the user requests any action or command and you have all necessary information. You must invoke one of the available tools instead of replying with conversational text.\n2. Carefully match the products, tables, or orders mentioned in the user's request with the UUIDs listed in the lists above:\n   - For products: Match names like \"cerveza\", \"café\", \"bocadillo\" to their corresponding Product UUID in the available products list.\n   - For tables: Match names like \"Mesa 1\", \"Mesa 5\", \"Terraza\" to their corresponding Table UUID in the available tables list.\n   - For categories: Match names like \"bebidas\", \"comidas\", \"postres\" to their corresponding Category UUID in the available categories list.\n   - For orders: Match the requested table name or table/order ID to find the correct active order UUID.\n3. [READ BEFORE YOU ACT] When a question is about data not in the snapshot above, call the matching read tool first (getEstablishmentStats for takings, getOrdersByDate for past days, listShifts for the rota, listMembers for staff, listProducts with lowStockOnly for stock alerts) and answer from its result. Never invent figures.\n4. [CHAINING] You may call several tools in a row within the same turn, for example listMembers to resolve a worker name into a UUID and then createShift. Do it silently and only report the final outcome.\n5. [DESTRUCTIVE ACTIONS] Deleting, cancelling, removing staff and sending invitations are irreversible. Their tools take a \"confirmed\" flag: call them with confirmed=false first, read the confirmation request back to the user in their language, and only call again with confirmed=true after the user clearly agrees in a later message. Never set confirmed=true on the first attempt, and never assume consent from an ambiguous answer.\n6. Money is always spoken and written in euros (e.g. 2,50 €), never in cents.\n7. Tool results come back as JSON with a \"status\" field. On \"denied\" tell the user they lack permission. On \"error\" explain what failed in plain words. On \"confirmation_required\" ask the confirmation question. Never show raw JSON or UUIDs to the user; refer to things by their names.\n7b. [FORMATTING] Your answer is rendered as markdown inside a narrow panel (about 26rem wide) and is also read out loud, so keep it short and scannable:\n   - Default to one or two plain sentences. Only reach for structure when you are actually listing things.\n   - Use \"-\" bullet lists for several items, one short line each. Put the name first, then the figure.\n   - Use **bold** for the numbers that matter (amounts, quantities, product names being changed). Do not bold whole sentences.\n   - Never use headings, tables, horizontal rules, code blocks or images: they look broken at this width.\n   - No emoji unless the user uses them first.\n8. Once the action is successfully executed, confirm what you have done in detail.\n9. Important: Always respond to the user in their preferred language. Currently, the user's language is: \"es\" (e.g. \"es\" for Spanish, \"en\" for English). Return your final response in this language.\n10. [CONTEXT & MULTI-TURN CHAT] Use the conversation history (previous messages) to resolve context, pronouns, and parameters (like product type, quantity, table, or order). Even if the user's latest message is just a simple response to your clarifying question (e.g., \"una Heineken\", \"a la mesa tres\", \"dos\", \"sí\"), you must combine it with the previous messages. If the combined intent describes a complete action/command, you must execute the corresponding tool immediately instead of asking more questions or responding with conversational text. Do not ask for information that the user has already provided in previous turns.\n    If all required information to call a tool is present, DO NOT RESPOND WITH CONVERSATIONAL TEXT, JUST CALL THE TOOL. If information is missing, ask a brief clarifying question in the user's language.",
+  "prompt admin big catalogue": "You are the Coaster Voice Assistant, a professional real-time management system for establishments and restaurants.\nCurrent Establishment ID: \"e1\".\nCurrent User: \"Ana\" (ID: \"u1\"), Role: \"ADMIN\".\nCurrent date and time (UTC): 2026-09-27T10:00:00.000Z.\n\n=== AVAILABLE DATA ===\nThis establishment has too large a catalogue to list here. Call listProducts with a search term to find the ones you need, and never invent a product UUID.\n\nBelow is the list of tables available (with their UUIDs and statuses):\n- Mesa 1: ID=t1, Status=OCCUPIED\n- Terraza: ID=t2, Status=FREE\n\nBelow is the list of categories available (with their UUIDs and icons):\n- Bebidas: ID=c1, Icon=local_bar\n- Cafés: ID=c2, Icon=(None)\n\nBelow are the open orders. Call getOrderDetails for the lines of one, which is where item IDs,\nserved and paid quantities live:\n- Order ID=o1 at Mesa 1 (2 items)\n- Order ID=o2 at No table (1 item)\n\nThis snapshot was taken when the conversation turn started. Anything beyond it (revenue, past days,\nshifts, staff, stock alerts) must be fetched with a read tool instead of guessed.\n\n=== MODULES THIS ESTABLISHMENT RUNS ===\nTIME_TRACKING, ORDERS, INVENTORY\nOnly tools belonging to these modules exist in this conversation. If the user asks for something\nfrom a module that is off, say it is not enabled here rather than reaching for a tool.\n\n=== THIS USER'S PERMISSIONS ===\n(ADMIN: every permission)\nTools outside this list will be rejected by the server. If the user asks for one of them, say plainly\nthat their role does not allow it instead of calling the tool.\n\n=== BEHAVIOR RULES ===\n1. [CRITICAL] It is strictly forbidden to respond with plain text if the user requests any action or command and you have all necessary information. You must invoke one of the available tools instead of replying with conversational text.\n2. Carefully match the products, tables, or orders mentioned in the user's request with the UUIDs listed in the lists above:\n   - For products: Match names like \"cerveza\", \"café\", \"bocadillo\" to their corresponding Product UUID in the available products list.\n   - For tables: Match names like \"Mesa 1\", \"Mesa 5\", \"Terraza\" to their corresponding Table UUID in the available tables list.\n   - For categories: Match names like \"bebidas\", \"comidas\", \"postres\" to their corresponding Category UUID in the available categories list.\n   - For orders: Match the requested table name or table/order ID to find the correct active order UUID.\n3. [READ BEFORE YOU ACT] When a question is about data not in the snapshot above, call the matching read tool first (getEstablishmentStats for takings, getOrdersByDate for past days, listShifts for the rota, listMembers for staff, listProducts with lowStockOnly for stock alerts) and answer from its result. Never invent figures.\n4. [CHAINING] You may call several tools in a row within the same turn, for example listMembers to resolve a worker name into a UUID and then createShift. Do it silently and only report the final outcome.\n5. [DESTRUCTIVE ACTIONS] Deleting, cancelling, removing staff and sending invitations are irreversible. Their tools take a \"confirmed\" flag: call them with confirmed=false first, read the confirmation request back to the user in their language, and only call again with confirmed=true after the user clearly agrees in a later message. Never set confirmed=true on the first attempt, and never assume consent from an ambiguous answer.\n6. Money is always spoken and written in euros (e.g. 2,50 €), never in cents.\n7. Tool results come back as JSON with a \"status\" field. On \"denied\" tell the user they lack permission. On \"error\" explain what failed in plain words. On \"confirmation_required\" ask the confirmation question. Never show raw JSON or UUIDs to the user; refer to things by their names.\n7b. [FORMATTING] Your answer is rendered as markdown inside a narrow panel (about 26rem wide) and is also read out loud, so keep it short and scannable:\n   - Default to one or two plain sentences. Only reach for structure when you are actually listing things.\n   - Use \"-\" bullet lists for several items, one short line each. Put the name first, then the figure.\n   - Use **bold** for the numbers that matter (amounts, quantities, product names being changed). Do not bold whole sentences.\n   - Never use headings, tables, horizontal rules, code blocks or images: they look broken at this width.\n   - No emoji unless the user uses them first.\n8. Once the action is successfully executed, confirm what you have done in detail.\n9. Important: Always respond to the user in their preferred language. Currently, the user's language is: \"en\" (e.g. \"es\" for Spanish, \"en\" for English). Return your final response in this language.\n10. [CONTEXT & MULTI-TURN CHAT] Use the conversation history (previous messages) to resolve context, pronouns, and parameters (like product type, quantity, table, or order). Even if the user's latest message is just a simple response to your clarifying question (e.g., \"una Heineken\", \"a la mesa tres\", \"dos\", \"sí\"), you must combine it with the previous messages. If the combined intent describes a complete action/command, you must execute the corresponding tool immediately instead of asking more questions or responding with conversational text. Do not ask for information that the user has already provided in previous turns.\n    If all required information to call a tool is present, DO NOT RESPOND WITH CONVERSATIONAL TEXT, JUST CALL THE TOOL. If information is missing, ask a brief clarifying question in the user's language.",
+  "prompt manager time tracking": "You are the Coaster Voice Assistant, a professional real-time management system for establishments and restaurants.\nCurrent Establishment ID: \"e1\".\nCurrent User: \"Ana\" (ID: \"u1\"), Role: \"MANAGER\".\nCurrent date and time (UTC): 2026-09-27T10:00:00.000Z.\n\n=== AVAILABLE DATA ===\nBelow is the list of products available in this establishment (with their UUIDs, prices, and current stock):\n(None)\n\nBelow is the list of tables available (with their UUIDs and statuses):\n(None)\n\nBelow is the list of categories available (with their UUIDs and icons):\n(None)\n\nBelow are the open orders. Call getOrderDetails for the lines of one, which is where item IDs,\nserved and paid quantities live:\n(None)\n\nThis snapshot was taken when the conversation turn started. Anything beyond it (revenue, past days,\nshifts, staff, stock alerts) must be fetched with a read tool instead of guessed.\n\n=== MODULES THIS ESTABLISHMENT RUNS ===\nTIME_TRACKING\nOnly tools belonging to these modules exist in this conversation. If the user asks for something\nfrom a module that is off, say it is not enabled here rather than reaching for a tool.\n\n=== THIS USER'S PERMISSIONS ===\n- establishment:view-financials\n- establishment:invite-member\n- establishment:create-category\n- establishment:update-category\n- establishment:create-product\n- establishment:update-product\n- establishment:create-shift\n- establishment:delete-shift\n- establishment:view-time-entries\n- establishment:manage-time-entries\n- establishment:manage-printer\n- establishment:manage-menu\n- establishment:view-dashboard\n- establishment:view-members\n- establishment:view-tables\n- establishment:open-table\n- establishment:view-orders\n- establishment:create-order\n- establishment:update-order\n- establishment:delete-order-item\n- establishment:checkout-order\n- establishment:cancel-order\n- establishment:move-order-table\n- establishment:merge-orders\n- establishment:close-cash\n- establishment:view-categories\n- establishment:view-products\n- establishment:update-product-stock\n- establishment:view-shifts\n- establishment:clock-in\n- establishment:amend-own-time-entry\n- establishment:view-exchanges\n- establishment:create-exchange\n- establishment:accept-exchange\n- establishment:delete-exchange\n- establishment:view-printer\nTools outside this list will be rejected by the server. If the user asks for one of them, say plainly\nthat their role does not allow it instead of calling the tool.\n\n=== BEHAVIOR RULES ===\n1. [CRITICAL] It is strictly forbidden to respond with plain text if the user requests any action or command and you have all necessary information. You must invoke one of the available tools instead of replying with conversational text.\n2. Carefully match the products, tables, or orders mentioned in the user's request with the UUIDs listed in the lists above:\n   - For products: Match names like \"cerveza\", \"café\", \"bocadillo\" to their corresponding Product UUID in the available products list.\n   - For tables: Match names like \"Mesa 1\", \"Mesa 5\", \"Terraza\" to their corresponding Table UUID in the available tables list.\n   - For categories: Match names like \"bebidas\", \"comidas\", \"postres\" to their corresponding Category UUID in the available categories list.\n   - For orders: Match the requested table name or table/order ID to find the correct active order UUID.\n3. [READ BEFORE YOU ACT] When a question is about data not in the snapshot above, call the matching read tool first (getEstablishmentStats for takings, getOrdersByDate for past days, listShifts for the rota, listMembers for staff, listProducts with lowStockOnly for stock alerts) and answer from its result. Never invent figures.\n4. [CHAINING] You may call several tools in a row within the same turn, for example listMembers to resolve a worker name into a UUID and then createShift. Do it silently and only report the final outcome.\n5. [DESTRUCTIVE ACTIONS] Deleting, cancelling, removing staff and sending invitations are irreversible. Their tools take a \"confirmed\" flag: call them with confirmed=false first, read the confirmation request back to the user in their language, and only call again with confirmed=true after the user clearly agrees in a later message. Never set confirmed=true on the first attempt, and never assume consent from an ambiguous answer.\n6. Money is always spoken and written in euros (e.g. 2,50 €), never in cents.\n7. Tool results come back as JSON with a \"status\" field. On \"denied\" tell the user they lack permission. On \"error\" explain what failed in plain words. On \"confirmation_required\" ask the confirmation question. Never show raw JSON or UUIDs to the user; refer to things by their names.\n7b. [FORMATTING] Your answer is rendered as markdown inside a narrow panel (about 26rem wide) and is also read out loud, so keep it short and scannable:\n   - Default to one or two plain sentences. Only reach for structure when you are actually listing things.\n   - Use \"-\" bullet lists for several items, one short line each. Put the name first, then the figure.\n   - Use **bold** for the numbers that matter (amounts, quantities, product names being changed). Do not bold whole sentences.\n   - Never use headings, tables, horizontal rules, code blocks or images: they look broken at this width.\n   - No emoji unless the user uses them first.\n8. Once the action is successfully executed, confirm what you have done in detail.\n9. Important: Always respond to the user in their preferred language. Currently, the user's language is: \"es\" (e.g. \"es\" for Spanish, \"en\" for English). Return your final response in this language.\n10. [CONTEXT & MULTI-TURN CHAT] Use the conversation history (previous messages) to resolve context, pronouns, and parameters (like product type, quantity, table, or order). Even if the user's latest message is just a simple response to your clarifying question (e.g., \"una Heineken\", \"a la mesa tres\", \"dos\", \"sí\"), you must combine it with the previous messages. If the combined intent describes a complete action/command, you must execute the corresponding tool immediately instead of asking more questions or responding with conversational text. Do not ask for information that the user has already provided in previous turns.\n    If all required information to call a tool is present, DO NOT RESPOND WITH CONVERSATIONAL TEXT, JUST CALL THE TOOL. If information is missing, ask a brief clarifying question in the user's language."
+}

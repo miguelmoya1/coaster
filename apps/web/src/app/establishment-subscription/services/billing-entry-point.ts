@@ -1,8 +1,8 @@
 import { inject, inputBinding, outputBinding, Service, signal } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { ErrorCodes, EstablishmentId, EstablishmentPermission, SubscriptionPlan } from '@coaster/common';
-import { ApiError, Toast } from '@coaster/core';
-import { MyMemberStore } from '@coaster/establishment-members';
+import { SubscriptionPlan } from '../models/subscription-plan.type';
+import { ApiError, ErrorCodes, EstablishmentId, Toast } from '@coaster/core';
+import { EstablishmentPermission, MyMemberStore } from '@coaster/establishment-members';
 import { SelectPlanDialog } from '../dialogs/select-plan-dialog/select-plan-dialog';
 import { BillingAction, EstablishmentSubscriptionStore } from '../store/establishment-subscription.store';
 

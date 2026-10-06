@@ -1,10 +1,9 @@
-import { Component, inject, output, signal } from '@angular/core';
+import { Component, inject, input, output, signal } from '@angular/core';
 import { form, FormField, FormRoot, max, maxLength, min, minLength, required } from '@angular/forms/signals';
 import { MatButton } from '@angular/material/button';
-import { CategoriesStore } from '@coaster/categories';
-import type { CreateCategoryDto } from '@coaster/common';
-import { toBasisPoints } from '@coaster/common';
-import { handleErrorFormField } from '@coaster/core';
+import { ManageCategories, type CreateCategoryDto } from '@coaster/categories';
+import { toBasisPoints } from '@coaster/products';
+import { handleErrorFormField, type EstablishmentId } from '@coaster/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Field } from '../../../../../../components/field/field';
 import { FormErrors } from '../../../../../../components/field/form-errors';
@@ -68,7 +67,8 @@ import { IconPicker } from '../../../../../../components/icon-picker/icon-picker
   `,
 })
 export class CreateCategoryForm {
-  readonly #categoryStore = inject(CategoriesStore);
+  readonly establishmentId = input.required<EstablishmentId>();
+  readonly #manageCategories = inject(ManageCategories);
   readonly canceled = output<void>();
   readonly created = output<void>();
 
@@ -95,7 +95,7 @@ export class CreateCategoryForm {
           const payload = { ...rest, taxRate: toBasisPoints(taxRatePercent) };
 
           try {
-            await this.#categoryStore.create(payload);
+            await this.#manageCategories.create(this.establishmentId(), payload);
             this.created.emit();
             return null;
           } catch (error) {

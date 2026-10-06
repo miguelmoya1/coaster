@@ -1,6 +1,6 @@
-import { asCategoryId, asProductId } from '@coaster/common';
+import { asCategoryId } from '@coaster/categories';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Product } from '@coaster/products';
+import { asProductId, Product } from '@coaster/products';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { PosProductsList } from './pos-products-list';

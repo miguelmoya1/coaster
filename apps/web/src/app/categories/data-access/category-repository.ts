@@ -1,14 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
-import type {
-  EstablishmentId,
-  CategoryId,
-  CreateCategoryDto,
-  DeleteResponse,
-  UpdateCategoryDto,
-} from '@coaster/common';
+import type { CategoryId, CreateCategoryDto, UpdateCategoryDto } from '../models/category.interface';
 import { firstValueFrom, map } from 'rxjs';
-import { deleteResponseMapper } from '@coaster/core';
+import { deleteResponseMapper, type DeleteResponse, type EstablishmentId } from '@coaster/core';
 
 @Service()
 export class CategoryRepository {

@@ -1,4 +1,4 @@
-import type { DeleteResponse } from '@coaster/common';
+import type { DeleteResponse } from '../models/common.interface';
 
 export const deleteResponseMapper = (dto: { success: boolean }): DeleteResponse => {
   return {

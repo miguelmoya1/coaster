@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { EstablishmentListStore } from '@coaster/establishments';
+import { CreateEstablishment as CreateEstablishmentService } from '@coaster/establishments';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -10,8 +10,8 @@ describe('CreateEstablishmentForm', () => {
   let component: CreateEstablishmentForm;
   let fixture: ComponentFixture<CreateEstablishmentForm>;
 
-  const establishmentListStoreMock = {
-    create: vi.fn(),
+  const createEstablishmentMock = {
+    execute: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -20,7 +20,7 @@ describe('CreateEstablishmentForm', () => {
       providers: [
         provideTranslateService(),
         provideRouter([]),
-        { provide: EstablishmentListStore, useValue: establishmentListStoreMock },
+        { provide: CreateEstablishmentService, useValue: createEstablishmentMock },
       ],
     }).compileComponents();
 
@@ -100,7 +100,7 @@ describe('CreateEstablishmentForm', () => {
 
       await fixture.whenStable();
 
-      expect(establishmentListStoreMock.create).toHaveBeenCalledWith({ name: 'My New Establishment' });
+      expect(createEstablishmentMock.execute).toHaveBeenCalledWith({ name: 'My New Establishment' });
       expect(submitSpy).toHaveBeenCalled();
     });
   });

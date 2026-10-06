@@ -1,0 +1,1 @@
+SELECT EXISTS (SELECT 1 FROM "Order" WHERE id = $1 AND status = 'OPEN')

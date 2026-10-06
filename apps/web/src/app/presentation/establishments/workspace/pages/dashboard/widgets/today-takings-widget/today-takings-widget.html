@@ -6,11 +6,11 @@
     </h2>
   </header>
 
-  @if (stats.isLoading()) {
+  @if (stats().status() === 'loading') {
     <coaster-loading
       containerClasses="min-h-[220px] bg-surface-container rounded-2xl border border-outline-variant/30"
     />
-  } @else if (stats.hasValue()) {
+  } @else if (value(); as value) {
     <mat-card class="p-5 flex flex-col gap-5 border border-outline-variant/30! relative overflow-hidden">
       <div class="absolute -right-20 -top-20 w-40 h-40 rounded-full bg-primary/10 blur-3xl pointer-events-none"></div>
 
@@ -19,7 +19,7 @@
           {{ 'dashboard.financials.today' | translate }}
         </span>
         <span class="text-4xl font-black text-on-surface tracking-tight leading-none">
-          {{ stats.value().todayRevenue | price }}
+          {{ value.todayRevenue | price }}
         </span>
 
         <div class="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1">
@@ -66,14 +66,14 @@
           <span class="text-xxs font-bold text-on-surface-variant tracking-widest uppercase">
             {{ 'dashboard.financials.tickets' | translate }}
           </span>
-          <span class="text-xl font-black text-on-surface tracking-tight">{{ stats.value().todayTicketCount }}</span>
+          <span class="text-xl font-black text-on-surface tracking-tight">{{ value.todayTicketCount }}</span>
         </div>
         <div class="flex flex-col gap-0.5 p-3 rounded-xl bg-surface-container-high/50 border border-outline-variant/20">
           <span class="text-xxs font-bold text-on-surface-variant tracking-widest uppercase">
             {{ 'dashboard.financials.average_ticket' | translate }}
           </span>
           <span class="text-xl font-black text-on-surface tracking-tight">
-            {{ stats.value().todayAverageTicket | price }}
+            {{ value.todayAverageTicket | price }}
           </span>
         </div>
       </div>
@@ -88,21 +88,21 @@
               <mat-icon class="text-sm">euro</mat-icon>
               {{ 'dashboard.financials.cash' | translate }}
             </span>
-            <span class="text-sm font-black text-on-surface">{{ stats.value().todayCashRevenue | price }}</span>
+            <span class="text-sm font-black text-on-surface">{{ value.todayCashRevenue | price }}</span>
           </div>
           <div class="flex flex-col gap-0.5">
             <span class="text-xxs text-on-surface-variant flex items-center gap-1">
               <mat-icon class="text-sm">credit_card</mat-icon>
               {{ 'dashboard.financials.card' | translate }}
             </span>
-            <span class="text-sm font-black text-on-surface">{{ stats.value().todayCardRevenue | price }}</span>
+            <span class="text-sm font-black text-on-surface">{{ value.todayCardRevenue | price }}</span>
           </div>
           <div class="flex flex-col gap-0.5">
             <span class="text-xxs text-on-surface-variant flex items-center gap-1">
               <mat-icon class="text-sm">volunteer_activism</mat-icon>
               {{ 'dashboard.financials.tips' | translate }}
             </span>
-            <span class="text-sm font-black text-on-surface">{{ stats.value().todayTipAmount | price }}</span>
+            <span class="text-sm font-black text-on-surface">{{ value.todayTipAmount | price }}</span>
           </div>
         </div>
         <span class="text-xxs text-on-surface-variant/70">
@@ -117,7 +117,7 @@
           {{ 'dashboard.financials.yesterday' | translate }}
         </span>
         <span class="text-lg font-black text-on-surface tracking-tight">
-          {{ stats.value().yesterdayRevenue | price }}
+          {{ value.yesterdayRevenue | price }}
         </span>
       </mat-card>
       <mat-card class="p-4 flex flex-col gap-1 border-l-4! border-primary">
@@ -125,7 +125,7 @@
           {{ 'dashboard.financials.weekly' | translate }}
         </span>
         <span class="text-lg font-black text-on-surface tracking-tight">
-          {{ stats.value().weeklyRevenue | price }}
+          {{ value.weeklyRevenue | price }}
         </span>
       </mat-card>
     </div>

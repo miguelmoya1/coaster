@@ -1,4 +1,4 @@
-import type { Establishment } from '@coaster/common';
+import type { Establishment } from '../models/establishment.interface';
 
 export const checkIsEstablishment = (establishment: unknown): establishment is Establishment => {
   return (

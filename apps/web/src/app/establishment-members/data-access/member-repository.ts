@@ -1,14 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
-import type {
-  EstablishmentId,
-  EstablishmentMemberId,
-  EstablishmentRole,
-  DeleteResponse,
-  InviteEstablishmentMemberDto,
-} from '@coaster/common';
+import type { EstablishmentMemberId, InviteEstablishmentMemberDto } from '../models/establishment-member.interface';
+import type { EstablishmentRole } from '@coaster/establishments';
 import { firstValueFrom, map } from 'rxjs';
-import { deleteResponseMapper } from '@coaster/core';
+import { deleteResponseMapper, type DeleteResponse, type EstablishmentId } from '@coaster/core';
 
 @Service()
 export class MemberRepository {
@@ -20,10 +15,16 @@ export class MemberRepository {
     me: (establishmentId: EstablishmentId) => `/establishments/${establishmentId}/members/me`,
     member: (establishmentId: EstablishmentId, memberId: string) =>
       `/establishments/${establishmentId}/members/${memberId}`,
+    resendInvite: (establishmentId: EstablishmentId, memberId: string) =>
+      `/establishments/${establishmentId}/members/${memberId}/invite`,
   };
 
   public async invite(establishmentId: EstablishmentId, dto: InviteEstablishmentMemberDto) {
     return firstValueFrom(this.#http.post<void>(this.routes.invite(establishmentId), dto));
+  }
+
+  public async resendInvite(establishmentId: EstablishmentId, memberId: EstablishmentMemberId) {
+    return firstValueFrom(this.#http.post<void>(this.routes.resendInvite(establishmentId, memberId), {}));
   }
 
   public async updateRole(establishmentId: EstablishmentId, memberId: EstablishmentMemberId, role: EstablishmentRole) {

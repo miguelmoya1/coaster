@@ -1,11 +1,8 @@
 FROM node:26-alpine
-WORKDIR /app
-
-COPY . .
-RUN npm install
-RUN npm install -g @angular/cli
-
 WORKDIR /app/apps/web
+
+COPY apps/web/package.json apps/web/package-lock.json ./
+RUN npm ci
 
 EXPOSE 4200
 
