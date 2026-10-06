@@ -236,10 +236,11 @@ func (h *AuthHandler) respond(w http.ResponseWriter, status int, issued domain.I
 
 func clearRefreshCookie(w http.ResponseWriter) {
 	http.SetCookie(w, &http.Cookie{
-		Name:    refreshCookieName,
-		Value:   "",
-		Path:    refreshCookiePath,
-		Expires: time.Unix(0, 0),
+		Name:     refreshCookieName,
+		Value:    "",
+		Path:     refreshCookiePath,
+		Expires:  time.Unix(0, 0),
+		HttpOnly: true,
 	})
 }
 
