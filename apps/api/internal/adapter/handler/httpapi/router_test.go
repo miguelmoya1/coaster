@@ -299,6 +299,9 @@ func TestCORS(t *testing.T) {
 				if got := rec.Header().Get("Access-Control-Allow-Headers"); got != "Content-Type, Authorization, Last-Event-ID" {
 					t.Errorf("Access-Control-Allow-Headers = %q", got)
 				}
+				if got := rec.Header().Get("Access-Control-Max-Age"); got != "7200" {
+					t.Errorf("Access-Control-Max-Age = %q, want 7200", got)
+				}
 			}
 			if tt.wantBody != "" && rec.Body.String() != tt.wantBody {
 				t.Errorf("body = %q, want %q", rec.Body.String(), tt.wantBody)

@@ -153,6 +153,12 @@ configuration.
 Set it **before** deploying the change, not after — the variable is ignored by any revision that
 predates it, so there is no window where the two disagree.
 
+Every call the web makes carries `Authorization`, so the browser sends a preflight `OPTIONS` first.
+Its answer carries `Access-Control-Max-Age: 7200`, the most Chrome keeps: without it the browser
+forgets the answer after five seconds, and in beta, in early October 2026, 169 preflights went out
+for 220 requests. The cache is per URL, so a list asked for again is free and each new order still
+pays one.
+
 Its value contains commas, which is exactly what `gcloud`'s env-var flags use to separate one
 variable from the next. Passed plainly, `CORS_ORIGINS=https://a,https://b` silently becomes two
 variables and the allowlist ends up holding one origin. Declare another delimiter with the `^d^`

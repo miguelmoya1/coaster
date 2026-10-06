@@ -8,6 +8,7 @@ import (
 const (
 	corsAllowedMethods = "GET, POST, PUT, PATCH, DELETE, OPTIONS"
 	corsAllowedHeaders = "Content-Type, Authorization, Last-Event-ID"
+	corsMaxAge         = "7200"
 )
 
 func CORS(allowedOrigins []string) func(http.Handler) http.Handler {
@@ -36,6 +37,7 @@ func CORS(allowedOrigins []string) func(http.Handler) http.Handler {
 
 			header.Set("Access-Control-Allow-Methods", corsAllowedMethods)
 			header.Set("Access-Control-Allow-Headers", corsAllowedHeaders)
+			header.Set("Access-Control-Max-Age", corsMaxAge)
 			header.Set("Content-Length", "0")
 			w.WriteHeader(http.StatusNoContent)
 		})
