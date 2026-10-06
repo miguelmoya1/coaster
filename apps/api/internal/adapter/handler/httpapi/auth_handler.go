@@ -241,6 +241,7 @@ func clearRefreshCookie(w http.ResponseWriter) {
 		Path:     refreshCookiePath,
 		Expires:  time.Unix(0, 0),
 		HttpOnly: true,
+		Secure:   true,
 	})
 }
 
