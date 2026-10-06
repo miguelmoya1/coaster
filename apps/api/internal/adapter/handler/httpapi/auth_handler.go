@@ -195,7 +195,7 @@ func (h *AuthHandler) logout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	clearRefreshCookie(w)
+	h.setRefreshCookie(w, "", time.Unix(0, 0))
 	w.WriteHeader(http.StatusNoContent)
 }
 
@@ -207,7 +207,7 @@ func (h *AuthHandler) logoutEverywhere(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	clearRefreshCookie(w)
+	h.setRefreshCookie(w, "", time.Unix(0, 0))
 	w.WriteHeader(http.StatusNoContent)
 }
 
@@ -217,15 +217,7 @@ func (h *AuthHandler) respond(w http.ResponseWriter, status int, issued domain.I
 		return
 	}
 
-	http.SetCookie(w, &http.Cookie{
-		Name:     refreshCookieName,
-		Value:    issued.RefreshToken,
-		Path:     refreshCookiePath,
-		Expires:  issued.RefreshExpiresAt,
-		HttpOnly: true,
-		Secure:   h.secureCookie,
-		SameSite: http.SameSiteLaxMode,
-	})
+	h.setRefreshCookie(w, issued.RefreshToken, issued.RefreshExpiresAt)
 
 	respond.JSON(w, status, authSessionResponse{
 		User:        issued.User,
@@ -234,14 +226,15 @@ func (h *AuthHandler) respond(w http.ResponseWriter, status int, issued domain.I
 	})
 }
 
-func clearRefreshCookie(w http.ResponseWriter) {
+func (h *AuthHandler) setRefreshCookie(w http.ResponseWriter, value string, expires time.Time) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     refreshCookieName,
-		Value:    "",
+		Value:    value,
 		Path:     refreshCookiePath,
-		Expires:  time.Unix(0, 0),
+		Expires:  expires,
 		HttpOnly: true,
-		Secure:   true,
+		Secure:   h.secureCookie,
+		SameSite: http.SameSiteLaxMode,
 	})
 }
 

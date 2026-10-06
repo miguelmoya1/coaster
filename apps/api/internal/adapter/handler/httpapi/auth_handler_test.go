@@ -157,7 +157,7 @@ func TestAuthHandlerCookie(t *testing.T) {
 	}
 
 	response = send(server, "POST", "/api/v1/auth/logout", "", map[string]string{"Cookie": "coaster_session=old"})
-	wantCleared := "coaster_session=; Path=/api/v1/auth; Expires=Thu, 01 Jan 1970 00:00:00 GMT"
+	wantCleared := "coaster_session=; Path=/api/v1/auth; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=Lax"
 	if response.Code != http.StatusNoContent || response.Header().Get("Set-Cookie") != wantCleared {
 		t.Fatalf("logout = %d, cookie %s", response.Code, response.Header().Get("Set-Cookie"))
 	}
