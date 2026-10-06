@@ -76,8 +76,9 @@ Every application runs its own commands from its own folder; there is nothing to
 
 - Web: `cd apps/web && npm ci`, then `npm run build`, `npm test` and `npm run lint` (the layering
   rules included)
-- API tests, e2e included: `cd apps/api && go test ./...` — brings up Postgres with
-  testcontainers
+- API tests, e2e included: `cd apps/api && go test -count=1 ./...` — brings up Postgres with
+  testcontainers. `-count=1` because the e2e build the API in another process, which the test cache
+  cannot see
 - Web e2e tests: `cd apps/web && npx playwright test`
 - Printer bridge tests: `cd apps/printer-service && go test ./...`
 - Database tests, `schema.sql` included: `cd apps/database && go test ./...`

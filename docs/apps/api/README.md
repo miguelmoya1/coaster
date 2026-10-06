@@ -22,12 +22,16 @@ Qué variables lee Go está en `apps/api/.env_example`; las obligatorias son `DA
 
 ## Probar
 
-- `go vet ./...` y `go test ./...`, desde `apps/api`. Los tests de `repository/` levantan
-  `postgres:18-alpine` con testcontainers, así que necesitan Docker.
-- Los e2e están en `e2e/` y entran en `go test ./...`: compilan la API y la lanzan contra un
-  Postgres de testcontainers. Uno suelto: `go test ./e2e/ -run 'TestOrders/checks'`.
-- En el CI, el job `api` pasa `gofmt`, `go vet` y `go test` (los e2e incluidos), y el
-  despliegue lo espera.
+- `go vet ./...` y `go test -count=1 ./...`, desde `apps/api`. Los tests de `repository/`
+  levantan `postgres:18-alpine` con testcontainers, así que necesitan Docker.
+- Los e2e están en `e2e/` y entran en `go test ./...`: compilan la API con `go build` en otro
+  proceso y la lanzan contra un Postgres de testcontainers. La caché de `go test` solo ve el
+  paquete `e2e` y lo que importa, no la API que compila, así que sin `-count=1` da por pasados
+  unos e2e que no ha vuelto a correr después de cambiar un handler o una consulta. Uno suelto:
+  `go test -count=1 ./e2e/ -run 'TestOrders/checks'`.
+- En el CI, el job `api` pasa `gofmt`, `go vet` y `go test -count=1` (los e2e incluidos), y el
+  despliegue lo espera. El `-count=1` también hace falta ahí: el CI restaura la caché de Go
+  entre ejecuciones.
 
 ## Documentación
 

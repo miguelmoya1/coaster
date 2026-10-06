@@ -32,8 +32,9 @@ La documentación está en `docs/apps/api/`:
   explican en el chat. **Sin comentarios en el código Go**, ni doc comments; solo directivas como `//go:embed`.
 - **Sin código repetido**: antes de escribir un helper, un fake o una consulta, buscar si ya
   existe. Un fake nuevo de un puerto que ya tiene uno amplía ese.
-- **Un cambio está terminado** cuando pasan `gofmt -l .` (vacío), `go vet ./...` y `go test ./...`
-  (los e2e de `e2e/` incluidos). Mientras producción siga con Nest, lo que cambie para la web o
+- **Un cambio está terminado** cuando pasan `gofmt -l .` (vacío), `go vet ./...` y
+  `go test -count=1 ./...` (los e2e de `e2e/` incluidos: sin `-count=1`, la caché los da por
+  pasados aunque cambie la API, porque la compilan en otro proceso). Mientras producción siga con Nest, lo que cambie para la web o
   para los usuarios respecto a producción se apunta en «Diferencias conocidas» de `migracion.md`.
 - **Todo va a `dev`, sin ramas**, en commits pequeños. Cada push a `dev` despliega `api-beta`:
   se empuja cuando el cambio está entero.

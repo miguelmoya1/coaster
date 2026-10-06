@@ -119,8 +119,9 @@ jobs:
       - name: 🔎 go vet
         run: go vet ./...
 
+      # -count=1: los e2e compilan la API en otro proceso y la caché de Go no ve sus cambios.
       - name: 🧪 go test
-        run: go test -race ./...
+        run: go test -race -count=1 ./...
 
   database:
     name: 🗄️ Base de datos
