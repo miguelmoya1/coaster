@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import type { EstablishmentId } from '@coaster/common';
+import type { EstablishmentId } from '@coaster/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { EstablishmentSubscriptionRepository } from '../data-access/establishment-subscription-repository';
 import { CreateCustomerPortalSession } from './create-customer-portal-session';

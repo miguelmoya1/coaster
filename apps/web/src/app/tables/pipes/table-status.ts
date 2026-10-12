@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { TableStatus } from '@coaster/common';
+import { TableStatus } from '../models/table-status.type';
 
 @Pipe({
   name: 'tableStatus',

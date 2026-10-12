@@ -1,5 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { EstablishmentRole, asEstablishmentId, asShiftId, asUserId } from '@coaster/common';
+import { EstablishmentRole } from '@coaster/establishments';
+import { asEstablishmentId, asUserId } from '@coaster/core';
+import { asShiftId } from '@coaster/shifts';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { ScheduleWeeklyGrid, WeeklyDayItem, WeeklyShiftItem } from './schedule-weekly-grid';

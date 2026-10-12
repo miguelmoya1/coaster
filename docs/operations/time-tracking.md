@@ -10,7 +10,7 @@ The law does **not** prescribe a format. Paper is compliant. That is worth knowi
 machinery: CSV export satisfies "make it available", and cryptographic anchoring is an engineering
 choice, not an obligation.
 
-The module lives in `apps/api/src/time-tracking` and hangs off `establishments/:establishmentId/time-entries`.
+The module is the `time_entry_*` files of `apps/api/internal` and hangs off `establishments/:establishmentId/time-entries`.
 
 ## The table is the audit trail
 
@@ -108,7 +108,7 @@ intermediate states: the change takes effect immediately, and what provides the 
 history, which keeps the previous time, the new one, who changed it, when and why.
 
 The guard cannot know whose mark it is, so the half of the rule that depends on ownership is checked
-in `AmendTimeEntryHandler`, which answers `NOT_YOUR_TIME_ENTRY`.
+in `TimeEntryService.Amend`, which answers `NOT_YOUR_TIME_ENTRY`.
 
 Voiding stays with `MANAGER` and `OWNER`: removing a mark from the count weighs more than moving its
 time, and it is recorded just the same.
@@ -134,7 +134,7 @@ orphaning the clock-out.
 `GET /me` carries no permission: any member sees their own marks and any corrections made to them,
 which is exactly what the law requires.
 
-`POST /clock` carries `@SkipSubscriptionCheck()`. A venue that stops paying loses writes, but it
+`POST /clock` is registered with `middleware.SkipSubscriptionCheck()`. A venue that stops paying loses writes, but it
 cannot lose its workers' time register: the legal obligation does not depend on the subscription
 being current. Corrections and manual entries do require a live subscription.
 
@@ -146,7 +146,7 @@ mark, so the register stands even if the account changes. The four-year legal cu
 policy, not an automatic cleanup: there is none today.
 
 **The policy, written down so it stops being folklore: nothing in `TimeEntry` is ever deleted.** Not
-by a scheduled job, not by hand, not when a venue leaves. Four years is the *minimum* the law asks
+by a scheduled job, not by hand, not when a venue leaves. Four years is the _minimum_ the law asks
 for, and it punishes failing to keep the register, never keeping it too long — so there is no
 deadline to hit and no cleanup worth building. The `RESTRICT` foreign keys already enforce it
 against the two accidents that could happen (deleting a user, deleting an establishment); anything
@@ -193,9 +193,10 @@ Before that, a `MANAGER` had the permissions in the API but the interface hid th
 
 ## Backoffice auditing
 
-`AuditTimeEntryChangedHandler` listens for `TimeEntryRecordedEvent`, `TimeEntryAmendedEvent` and
-`TimeEntryVoidedEvent`, and only when the actor is a platform admin does it publish
-`AdminActionEvent` with `TIME_ENTRY_CREATED`, `TIME_ENTRY_AMENDED` or `TIME_ENTRY_VOIDED`. An admin
+`TimeEntryService` subscribes to `TimeEntryRecordedEvent` (manual entries only),
+`TimeEntryAmendedEvent` and `TimeEntryVoidedEvent`, and only when the actor is a platform admin does
+it publish `AdminActionEvent` with `TIME_ENTRY_CREATED`, `TIME_ENTRY_AMENDED` or
+`TIME_ENTRY_VOIDED`. An admin
 clocking their own day does not clutter the panel log; an admin correcting somebody else's does.
 
 ## Not done

@@ -1,10 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { DEFAULT_ESTABLISHMENT_MODULES } from '@coaster/common';
-import { CategoriesStore } from '@coaster/categories';
-import { ModulesStore } from '@coaster/establishments';
-import { ProductsStore } from '@coaster/products';
-import { CatalogueStore } from '@coaster/catalogue';
+import { DEFAULT_ESTABLISHMENT_MODULES, ModulesStore } from '@coaster/establishments';
+import { ImportStarterCatalogue } from '@coaster/catalogue';
 import { provideChildTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { OnboardingDialog } from './onboarding-dialog';
@@ -15,11 +12,7 @@ describe('OnboardingDialog', () => {
 
   const dialogRefMock = { close: vi.fn() };
   const modulesStoreMock = { save: vi.fn().mockResolvedValue(undefined) };
-  const categoriesStoreMock = { reloadCategories: vi.fn() };
-  const productsStoreMock = { reloadProducts: vi.fn() };
-  const catalogueStoreMock = {
-    import: vi.fn().mockResolvedValue(undefined),
-  };
+  const importMock = { execute: vi.fn().mockResolvedValue(undefined) };
 
   beforeEach(async () => {
     vi.clearAllMocks();
@@ -31,9 +24,7 @@ describe('OnboardingDialog', () => {
         { provide: MatDialogRef, useValue: dialogRefMock },
         { provide: MAT_DIALOG_DATA, useValue: { establishmentId: 'establishment-1', establishmentName: 'El Bar' } },
         { provide: ModulesStore, useValue: modulesStoreMock },
-        { provide: CatalogueStore, useValue: catalogueStoreMock },
-        { provide: CategoriesStore, useValue: categoriesStoreMock },
-        { provide: ProductsStore, useValue: productsStoreMock },
+        { provide: ImportStarterCatalogue, useValue: importMock },
       ],
     }).compileComponents();
 
@@ -46,9 +37,7 @@ describe('OnboardingDialog', () => {
     await component['finish'](true);
 
     expect(modulesStoreMock.save).toHaveBeenCalledWith(DEFAULT_ESTABLISHMENT_MODULES);
-    expect(catalogueStoreMock.import).toHaveBeenCalledWith('establishment-1');
-    expect(categoriesStoreMock.reloadCategories).toHaveBeenCalled();
-    expect(productsStoreMock.reloadProducts).toHaveBeenCalled();
+    expect(importMock.execute).toHaveBeenCalledWith('establishment-1');
     expect(dialogRefMock.close).toHaveBeenCalledWith(true);
   });
 
@@ -56,9 +45,7 @@ describe('OnboardingDialog', () => {
     await component['finish'](false);
 
     expect(modulesStoreMock.save).toHaveBeenCalledWith(DEFAULT_ESTABLISHMENT_MODULES);
-    expect(catalogueStoreMock.import).not.toHaveBeenCalled();
-    expect(categoriesStoreMock.reloadCategories).not.toHaveBeenCalled();
-    expect(productsStoreMock.reloadProducts).not.toHaveBeenCalled();
+    expect(importMock.execute).not.toHaveBeenCalled();
     expect(dialogRefMock.close).toHaveBeenCalledWith(true);
   });
 
@@ -70,4 +57,3 @@ describe('OnboardingDialog', () => {
     expect(modulesStoreMock.save).not.toHaveBeenCalled();
   });
 });
-

@@ -2,7 +2,7 @@ import { createEnvironmentInjector, EnvironmentInjector, provideZonelessChangeDe
 import { TestBed } from '@angular/core/testing';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { provideNativeDateAdapter } from '@angular/material/core';
-import { TimeTrackingStore } from '@coaster/time-tracking';
+import { ManageTimeEntries } from '@coaster/time-tracking';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { TimeEntryForm } from './time-entry-form';
@@ -15,7 +15,7 @@ describe('TimeEntryForm opened in a bottom sheet', () => {
       providers: [
         provideZonelessChangeDetection(),
         provideTranslateService(),
-        { provide: TimeTrackingStore, useValue: { amend: vi.fn(), createEntry: vi.fn() } },
+        { provide: ManageTimeEntries, useValue: { amend: vi.fn(), create: vi.fn() } },
       ],
     });
 

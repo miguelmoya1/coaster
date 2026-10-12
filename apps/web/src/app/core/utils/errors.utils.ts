@@ -1,5 +1,5 @@
 import { TreeValidationResult } from '@angular/forms/signals';
-import { ErrorCodes } from '@coaster/common';
+import { ErrorCodes } from '../errors/error.types';
 import { environment } from '@coaster/env';
 import { ApiError } from '../errors/api-error';
 

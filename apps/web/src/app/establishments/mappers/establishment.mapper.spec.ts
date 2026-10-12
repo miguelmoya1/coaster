@@ -1,5 +1,5 @@
-import type { Establishment } from '@coaster/common';
-import { asEstablishmentId } from '@coaster/common';
+import type { Establishment } from '../models/establishment.interface';
+import { asEstablishmentId } from '@coaster/core';
 import { describe, expect, it } from 'vitest';
 import { establishmentArrayMapper, establishmentMapper, checkIsEstablishment } from './establishment.mapper';
 

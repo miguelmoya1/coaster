@@ -1,6 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRouteSnapshot, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
+import { redirectOf } from '@coaster/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Auth } from '../services/auth';
 import { noAuthGuard } from './no-auth-guard';
@@ -43,7 +44,7 @@ describe('noAuthGuard', () => {
   it('should send someone who is already signed in to their establishments', async () => {
     isAuthenticated.set(true);
 
-    const result = (await run()) as UrlTree & { path: string[] };
+    const result = (await redirectOf(run() as Promise<unknown>)) as UrlTree & { path: string[] };
 
     expect(routerMock.createUrlTree).toHaveBeenCalledWith(['/establishments/select']);
     expect(result.path).toEqual(['/establishments/select']);
@@ -54,7 +55,7 @@ describe('noAuthGuard', () => {
       isAuthenticated.set(true);
     });
 
-    const result = (await run()) as UrlTree & { path: string[] };
+    const result = (await redirectOf(run() as Promise<unknown>)) as UrlTree & { path: string[] };
 
     expect(result.path).toEqual(['/establishments/select']);
   });

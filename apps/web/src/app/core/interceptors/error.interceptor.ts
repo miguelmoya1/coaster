@@ -1,8 +1,8 @@
 import type { HttpErrorResponse } from '@angular/common/http';
 import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { ErrorCodes } from '@coaster/common';
-import type { EstablishmentId } from '@coaster/common';
+import { ErrorCodes } from '../errors/error.types';
+import type { EstablishmentId } from '../models/establishment-id';
 import { throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { ApiError } from '../errors/api-error';

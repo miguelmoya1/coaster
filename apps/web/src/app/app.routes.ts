@@ -1,6 +1,16 @@
+import { computed } from '@angular/core';
 import { Routes } from '@angular/router';
 import { adminGuard } from '@coaster/admin';
-import { authGuard, noAuthGuard } from '@coaster/core';
+import {
+  accountResource,
+  accountSessionsResource,
+  authGuard,
+  noAuthGuard,
+  nonBlockingResources,
+  queryParam,
+  routeParam,
+} from '@coaster/core';
+import { menuLanguageOf, publishedMenuResource } from '@coaster/menu';
 
 export const appRoutes: Routes = [
   {
@@ -10,6 +20,16 @@ export const appRoutes: Routes = [
   {
     path: 'm/:slug',
     loadComponent: () => import('./presentation/public-menu/public-menu'),
+    resources: nonBlockingResources((context) => {
+      const lang = queryParam(context, 'lang');
+
+      return {
+        published: publishedMenuResource(
+          routeParam(context, 'slug'),
+          computed(() => menuLanguageOf(lang())),
+        ),
+      };
+    }),
   },
   {
     path: 'forgot-password',
@@ -32,6 +52,10 @@ export const appRoutes: Routes = [
     path: 'account',
     canActivate: [authGuard],
     loadComponent: () => import('./presentation/account/account'),
+    resources: nonBlockingResources(() => ({
+      account: accountResource(),
+      sessions: accountSessionsResource(),
+    })),
   },
   {
     path: 'register',

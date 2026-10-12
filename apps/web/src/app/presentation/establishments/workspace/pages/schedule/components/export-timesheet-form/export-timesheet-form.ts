@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input, linkedSignal, output } from '@angular/core';
+import { Component, computed, input, linkedSignal, output } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Field } from '../../../../../../components/field/field';
@@ -6,7 +6,6 @@ import { CoasterInput } from '../../../../../../components/field/input.directive
 
 @Component({
   selector: 'coaster-export-timesheet-form',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatButton, TranslatePipe, Field, CoasterInput],
   host: {
     class: 'block',

@@ -13,28 +13,25 @@ import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { ActivatedRoute, createUrlTreeFromSnapshot, isActive, Router, RouterLink } from '@angular/router';
-import { MyMemberStore } from '@coaster/establishment-members';
+import { EstablishmentPermission, MyMemberStore, type EstablishmentMember } from '@coaster/establishment-members';
 import { RequireSubscriptionDirective } from '@coaster/establishment-subscription';
-import type {
-  EstablishmentId,
-  Shift,
-  ShiftExchange,
-  ShiftExchangeId,
-  ShiftId,
-  TimeEntry,
-  TimeEntryType,
-} from '@coaster/common';
-import { EstablishmentPermission, EstablishmentRole } from '@coaster/common';
-import { ActionFeedback, DateFormatterService } from '@coaster/core';
-import { ExchangesStore } from '@coaster/exchanges';
-import { MembersStore } from '@coaster/establishment-members';
-import { ScheduleStateService } from '@coaster/schedule';
-import { ShiftsStore } from '@coaster/shifts';
-import { TimeTrackingStore } from '@coaster/time-tracking';
+import { EstablishmentRole } from '@coaster/establishments';
+import { ActionFeedback, DateFormatterService, loadedOr, type EstablishmentId, type PageResource } from '@coaster/core';
+import { ManageExchanges } from '@coaster/exchanges';
+import { ScheduleStateService, scheduleDateOf, scheduleViewOf, type ScheduleView } from '@coaster/schedule';
+import { ManageShifts, type Shift, type ShiftExchange, type ShiftExchangeId, type ShiftId } from '@coaster/shifts';
+import {
+  clockStateOf,
+  ManageTimeEntries,
+  workdayOn,
+  type TimeEntry,
+  type TimeEntryType,
+  type Workday,
+} from '@coaster/time-tracking';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { addDays, endOfWeek, isSameDay, startOfWeek, subWeeks } from 'date-fns';
 import { ConfirmationDialog } from '../../../../components/confirm-dialog/confirmation-dialog.service';
-import { Loading } from '../../../../components/loading/loading';
+import { ResourceStatus } from '../../../../components/resource-status/resource-status';
 import { PageContainer } from '../../../../components/page-container/page-container';
 import { PageHeader } from '../../../../components/page-header/page-header';
 import { Fab } from '../../components/fab/fab';
@@ -86,7 +83,7 @@ const toDailyShiftItem = (
 @Component({
   selector: 'coaster-schedule',
   imports: [
-    Loading,
+    ResourceStatus,
     Fab,
     ShiftCard,
     TranslatePipe,
@@ -113,15 +110,20 @@ export default class Schedule {
   protected readonly EstablishmentRole = EstablishmentRole;
   public readonly establishmentId = input.required<EstablishmentId>();
   public readonly date = input<string>();
-  public readonly view = input<'day' | 'week' | 'month'>();
+  public readonly view = input<ScheduleView>();
+  public readonly shifts = input.required<PageResource<Shift[]>>();
+  public readonly exchanges = input.required<PageResource<ShiftExchange[]>>();
+  public readonly members = input.required<PageResource<EstablishmentMember[]>>();
+  public readonly myWorkdays = input.required<PageResource<Workday[]>>();
+  public readonly runningWorkday = input.required<PageResource<Workday | null>>();
+  public readonly teamWorkdays = input.required<PageResource<Workday[]>>();
 
   readonly #state = inject(ScheduleStateService);
-  readonly #shiftsStore = inject(ShiftsStore);
+  readonly #manageShifts = inject(ManageShifts);
+  readonly #manageExchanges = inject(ManageExchanges);
+  readonly #manageTimeEntries = inject(ManageTimeEntries);
   readonly #dateFormatter = inject(DateFormatterService);
-  readonly #membersStore = inject(MembersStore);
   readonly #myMemberStore = inject(MyMemberStore);
-  readonly #exchangesStore = inject(ExchangesStore);
-  readonly #timeTrackingStore = inject(TimeTrackingStore);
   readonly #router = inject(Router);
   readonly #route = inject(ActivatedRoute);
   readonly #confirmation = inject(ConfirmationDialog);
@@ -131,12 +133,11 @@ export default class Schedule {
   readonly #translate = inject(TranslateService);
   readonly #feedback = inject(ActionFeedback);
 
-  readonly shifts = this.#shiftsStore.shifts;
-  readonly myWorkday = this.#timeTrackingStore.myWorkday;
-  readonly currentWorkday = this.#timeTrackingStore.currentWorkday;
-  readonly clockState = this.#timeTrackingStore.clockState;
-  readonly isClockLoading = this.#timeTrackingStore.isClockLoading;
-  readonly teamWorkdays = this.#timeTrackingStore.teamWorkdays;
+  readonly #shiftList = computed(() => loadedOr(this.shifts(), []));
+  readonly myWorkday = computed(() => workdayOn(loadedOr(this.myWorkdays(), []), this.#state.timeSheetRange().from));
+  readonly currentWorkday = computed(() => loadedOr(this.runningWorkday(), null) ?? undefined);
+  readonly clockState = computed(() => clockStateOf(this.currentWorkday()));
+  readonly isClockLoading = computed(() => this.runningWorkday().isLoading());
 
   readonly canClockIn = computed(() => this.#hasPermission(EstablishmentPermission.ESTABLISHMENT_CLOCK_IN));
   readonly canCreateShift = computed(() => this.#hasPermission(EstablishmentPermission.ESTABLISHMENT_CREATE_SHIFT));
@@ -151,14 +152,8 @@ export default class Schedule {
     this.#hasPermission(EstablishmentPermission.ESTABLISHMENT_MANAGE_TIME_ENTRIES),
   );
 
-  readonly teamWorkdaysList = computed(() => {
-    if (!this.teamWorkdays.hasValue()) {
-      return [];
-    }
-
-    return this.teamWorkdays.value() ?? [];
-  });
-  readonly pendingExchanges = this.#exchangesStore.exchanges;
+  readonly teamWorkdaysList = computed(() => loadedOr(this.teamWorkdays(), []));
+  readonly #exchangeList = computed(() => loadedOr(this.exchanges(), []));
   readonly displayMonthYear = this.#state.displayMonthYear;
   readonly displaySelectedDate = computed(() => {
     return this.#dateFormatter.formatShortDate(this.#state.selectedDate());
@@ -173,12 +168,7 @@ export default class Schedule {
     this.#router,
   );
 
-  readonly membersList = computed(() => {
-    if (!this.#membersStore.list.hasValue()) {
-      return [];
-    }
-    return this.#membersStore.list.value() ?? [];
-  });
+  readonly membersList = computed(() => loadedOr(this.members(), []));
 
   readonly currentUserId = computed(() => {
     if (!this.#myMemberStore.myMember.hasValue()) {
@@ -198,38 +188,22 @@ export default class Schedule {
     return this.#myMemberStore.myMember.value()?.role;
   });
 
-  readonly pendingShiftIds = computed(() => {
-    if (!this.pendingExchanges.hasValue()) {
-      return new Set<string>();
-    }
-
-    const exchanges = this.pendingExchanges.value();
-    return new Set(exchanges.map((e) => e.shiftId));
-  });
+  readonly pendingShiftIds = computed(() => new Set(this.#exchangeList().map((e) => e.shiftId)));
 
   readonly dailyShifts = computed(() => {
-    if (!this.shifts.hasValue()) {
-      return [];
-    }
-
     const now = new Date();
     const selectedId = this.selectedDayId();
     const pendingShiftIds = this.pendingShiftIds();
     const currentUserId = this.currentUserId();
 
-    return this.shifts
-      .value()
+    return this.#shiftList()
       .filter((shift) => this.#dateFormatter.formatDayId(new Date(shift.startTime)) === selectedId)
       .map((shift) => toDailyShiftItem(shift, now, pendingShiftIds, currentUserId, this.#dateFormatter));
   });
 
   readonly weekViewDays = computed(() => {
-    if (!this.shifts.hasValue()) {
-      return [];
-    }
-
     const now = new Date();
-    const shiftsList = this.shifts.value();
+    const shiftsList = this.#shiftList();
     const pendingShiftIds = this.pendingShiftIds();
     const currentUserId = this.currentUserId();
 
@@ -252,12 +226,8 @@ export default class Schedule {
   });
 
   readonly calendarMonthDaysWithShifts = computed(() => {
-    if (!this.shifts.hasValue()) {
-      return [];
-    }
-
     const now = new Date();
-    const shiftsList = this.shifts.value();
+    const shiftsList = this.#shiftList();
     const pendingShiftIds = this.pendingShiftIds();
     const currentUserId = this.currentUserId();
 
@@ -273,12 +243,8 @@ export default class Schedule {
     });
   });
 
-  readonly pendingExchangesList = computed(() => {
-    if (!this.pendingExchanges.hasValue()) {
-      return [];
-    }
-
-    return this.pendingExchanges.value().map((exchange) => ({
+  readonly pendingExchangesList = computed(() =>
+    this.#exchangeList().map((exchange) => ({
       ...exchange,
       month: this.#dateFormatter.formatMonth(exchange.shiftStartTime),
       day: this.#dateFormatter.formatDay(exchange.shiftStartTime),
@@ -287,50 +253,13 @@ export default class Schedule {
       roleName: EstablishmentRole.STAFF as EstablishmentRole,
       isOwnRequest: exchange.requesterId === this.currentUserId(),
       hasStarted: new Date(exchange.shiftStartTime) <= new Date(),
-    }));
-  });
+    })),
+  );
 
   constructor() {
-    effect(() => {
-      const d = this.date();
-      if (d) {
-        const parsed = new Date(d);
-        if (!isNaN(parsed.getTime())) {
-          this.#state.setDate(parsed);
-        }
-      }
-    });
+    effect(() => this.#state.setDate(scheduleDateOf(this.date())));
 
-    effect(() => {
-      const v = this.view();
-      if (v) {
-        this.#state.setViewMode(v);
-      }
-    });
-
-    effect(() => {
-      const range = this.#state.dailyShiftsRange();
-      this.#shiftsStore.setDateRange(range.startIso, range.endIso);
-    });
-
-    effect(() => {
-      const establishmentId = this.establishmentId();
-
-      this.#exchangesStore.setEstablishmentId(establishmentId);
-      this.#shiftsStore.setEstablishmentId(establishmentId);
-      this.#membersStore.setEstablishmentId(establishmentId);
-      this.#timeTrackingStore.setEstablishmentId(establishmentId);
-    });
-
-    effect(() => {
-      const { from, to } = this.#state.timeSheetRange();
-
-      this.#timeTrackingStore.setRange(from, to);
-    });
-
-    effect(() => {
-      this.#timeTrackingStore.setTeamEnabled(this.canViewTimeEntries());
-    });
+    effect(() => this.#state.setViewMode(scheduleViewOf(this.view())));
 
     effect(() => {
       const isCreateMode = this.isCreateMode();
@@ -340,6 +269,7 @@ export default class Schedule {
           disableClose: true,
           injector: this.#injector,
           bindings: [
+            inputBinding('establishmentId', () => this.establishmentId()),
             inputBinding('members', () => this.membersList()),
             outputBinding('canceled', () => {
               bottomSheetRef.dismiss();
@@ -355,7 +285,7 @@ export default class Schedule {
     });
   }
 
-  protected updateQueryParams(date: Date, view: 'day' | 'week' | 'month') {
+  protected updateQueryParams(date: Date, view: ScheduleView) {
     this.#router.navigate([], {
       relativeTo: this.#route,
       queryParams: {
@@ -383,17 +313,28 @@ export default class Schedule {
   }
 
   protected handleCreateShift() {
-    this.#exchangesStore.reload();
+    this.shifts().reload();
+    this.exchanges().reload();
     this.handleCloseModal();
+  }
+
+  #reloadShifts() {
+    this.shifts().reload();
+    this.exchanges().reload();
+  }
+
+  #reloadTimeSheet() {
+    this.myWorkdays().reload();
+    this.runningWorkday().reload();
+    this.teamWorkdays().reload();
   }
 
   protected async handleAcceptExchange(exchangeId: ShiftExchangeId) {
     this.isSubmitting.set(true);
 
     try {
-      await this.#exchangesStore.accept(exchangeId);
-      this.#shiftsStore.reload();
-      this.#exchangesStore.reload();
+      await this.#manageExchanges.accept(this.establishmentId(), exchangeId);
+      this.#reloadShifts();
     } catch (error) {
       this.#feedback.error(error);
     } finally {
@@ -405,9 +346,8 @@ export default class Schedule {
     this.isSubmitting.set(true);
 
     try {
-      await this.#exchangesStore.request(shiftId, {});
-      this.#shiftsStore.reload();
-      this.#exchangesStore.reload();
+      await this.#manageExchanges.request(this.establishmentId(), shiftId, {});
+      this.#reloadShifts();
     } catch (error) {
       this.#feedback.error(error);
     } finally {
@@ -426,8 +366,8 @@ export default class Schedule {
 
     this.isSubmitting.set(true);
     try {
-      await this.#shiftsStore.delete(shift.id);
-      this.#exchangesStore.reload();
+      await this.#manageShifts.delete(this.establishmentId(), shift.id);
+      this.#reloadShifts();
     } catch (error) {
       this.#feedback.error(error);
     } finally {
@@ -446,8 +386,8 @@ export default class Schedule {
 
     this.isSubmitting.set(true);
     try {
-      await this.#exchangesStore.delete(exchange.id);
-      this.#shiftsStore.reload();
+      await this.#manageExchanges.delete(this.establishmentId(), exchange.id);
+      this.#reloadShifts();
     } catch (error) {
       this.#feedback.error(error);
     } finally {
@@ -469,7 +409,7 @@ export default class Schedule {
     this.updateQueryParams(new Date(), this.viewMode());
   }
 
-  protected handleSetView(view: 'day' | 'week' | 'month') {
+  protected handleSetView(view: ScheduleView) {
     this.updateQueryParams(this.#state.selectedDate(), view);
   }
 
@@ -506,14 +446,18 @@ export default class Schedule {
       const endLocal = new Date(prevWeekEnd);
       endLocal.setHours(23, 59, 59, 999);
 
-      const rawShifts = await this.#shiftsStore.listBetween(startLocal.toISOString(), endLocal.toISOString());
+      const rawShifts = await this.#manageShifts.listBetween(
+        this.establishmentId(),
+        startLocal.toISOString(),
+        endLocal.toISOString(),
+      );
 
       if (rawShifts && rawShifts.length > 0) {
         for (const shift of rawShifts) {
           const newStart = addDays(new Date(shift.startTime), 7).toISOString();
           const newEnd = addDays(new Date(shift.endTime), 7).toISOString();
 
-          await this.#shiftsStore.create({
+          await this.#manageShifts.create(this.establishmentId(), {
             userId: shift.userId,
             startTime: newStart,
             endTime: newEnd,
@@ -522,7 +466,7 @@ export default class Schedule {
         }
       }
 
-      this.#shiftsStore.reload();
+      this.shifts().reload();
     } catch (error) {
       this.#feedback.error(error);
     } finally {
@@ -534,11 +478,12 @@ export default class Schedule {
     this.isSubmitting.set(true);
 
     try {
-      await this.#timeTrackingStore.clock(type, await this.#currentPosition());
+      await this.#manageTimeEntries.clock(this.establishmentId(), type, await this.#currentPosition());
       this.#feedback.success(this.#translate.instant('schedule.time_tracking.clock_saved'));
     } catch (error) {
       this.#feedback.error(error);
     } finally {
+      this.#reloadTimeSheet();
       this.isSubmitting.set(false);
     }
   }
@@ -548,6 +493,7 @@ export default class Schedule {
       disableClose: true,
       injector: this.#injector,
       bindings: [
+        inputBinding('establishmentId', () => this.establishmentId()),
         inputBinding('entry', () => entry),
         inputBinding('workdayDate', () => entry.workdayDate),
         outputBinding('canceled', () => {
@@ -555,6 +501,7 @@ export default class Schedule {
         }),
         outputBinding('saved', () => {
           sheetRef.dismiss();
+          this.#reloadTimeSheet();
         }),
       ],
     });
@@ -565,12 +512,14 @@ export default class Schedule {
       disableClose: true,
       injector: this.#injector,
       bindings: [
+        inputBinding('establishmentId', () => this.establishmentId()),
         inputBinding('entry', () => entry),
         outputBinding('canceled', () => {
           sheetRef.dismiss();
         }),
         outputBinding('voided', () => {
           sheetRef.dismiss();
+          this.#reloadTimeSheet();
         }),
       ],
     });
@@ -581,6 +530,7 @@ export default class Schedule {
       disableClose: true,
       injector: this.#injector,
       bindings: [
+        inputBinding('establishmentId', () => this.establishmentId()),
         inputBinding('members', () => this.membersList()),
         inputBinding('workdayDate', () => this.selectedDayId()),
         outputBinding('canceled', () => {
@@ -588,6 +538,7 @@ export default class Schedule {
         }),
         outputBinding('saved', () => {
           sheetRef.dismiss();
+          this.#reloadTimeSheet();
         }),
       ],
     });
@@ -616,7 +567,7 @@ export default class Schedule {
     this.isSubmitting.set(true);
 
     try {
-      const blob = await this.#timeTrackingStore.exportCsv(range);
+      const blob = await this.#manageTimeEntries.exportCsv(this.establishmentId(), range);
       const suffix = range.from === range.to ? range.from : `${range.from}_${range.to}`;
       this.#download(blob, `registro-horario-${suffix}.csv`);
     } catch (error) {
@@ -630,7 +581,7 @@ export default class Schedule {
     this.isSubmitting.set(true);
 
     try {
-      const integrity = await this.#timeTrackingStore.verifyIntegrity();
+      const integrity = await this.#manageTimeEntries.verifyIntegrity(this.establishmentId());
       const key = integrity.valid ? 'schedule.time_tracking.integrity_ok' : 'schedule.time_tracking.integrity_broken';
 
       this.#feedback.info(this.#translate.instant(key, { entries: integrity.checkedEntries }));

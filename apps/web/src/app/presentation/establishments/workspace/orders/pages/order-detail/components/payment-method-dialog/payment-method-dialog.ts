@@ -2,7 +2,7 @@ import { Component, input, output } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatDialogActions, MatDialogContent, MatDialogTitle } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
-import { PaymentMethod } from '@coaster/common';
+import { PaymentMethod } from '@coaster/orders';
 import { TranslatePipe } from '@ngx-translate/core';
 import { PricePipe } from '../../../../../pipes/price/price';
 

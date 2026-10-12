@@ -1,3 +1,3 @@
 export * from './data-access/stats-repository';
-export * from './services/establishment-stats';
-export * from './store/stats-store';
+export { statsResource } from './resources/stats.resource';
+export * from './models/stats.interface';

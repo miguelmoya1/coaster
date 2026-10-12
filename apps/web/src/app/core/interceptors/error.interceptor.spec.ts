@@ -1,7 +1,7 @@
 import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { ErrorCodes } from '@coaster/common';
+import { ErrorCodes } from '../errors/error.types';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Toast } from '../services/toast';
 import { PAYWALL_HANDLER } from '../tokens/paywall-handler.token';

@@ -1,0 +1,87 @@
+package service
+
+import (
+	"context"
+	"time"
+
+	"coaster-api/internal/core/domain"
+)
+
+type fakeCashCloseRepository struct {
+	recent   []domain.CashClose
+	last     *domain.LastCashClose
+	unclosed []domain.CashCloseOrder
+	charges  []domain.OpenOrderCharge
+	closed   domain.CashClose
+	err      error
+
+	establishmentIDs []string
+	closedBetween    []time.Time
+	closeInput       *domain.NewCashClose
+	voidInput        *domain.VoidCashClose
+}
+
+func (f *fakeCashCloseRepository) ListRecent(_ context.Context, establishmentID string) ([]domain.CashClose, error) {
+	f.establishmentIDs = append(f.establishmentIDs, establishmentID)
+	return f.recent, f.err
+}
+
+func (f *fakeCashCloseRepository) ListClosedBetween(_ context.Context, establishmentID string, from, to time.Time) ([]domain.CashClose, error) {
+	f.establishmentIDs = append(f.establishmentIDs, establishmentID)
+	f.closedBetween = []time.Time{from, to}
+	return f.recent, f.err
+}
+
+func (f *fakeCashCloseRepository) FindTill(_ context.Context, establishmentID string) (domain.CashCloseTill, error) {
+	f.establishmentIDs = append(f.establishmentIDs, establishmentID)
+	return domain.CashCloseTill{Last: f.last, UnclosedOrders: f.unclosed, OpenOrdersCharges: f.charges}, f.err
+}
+
+func (f *fakeCashCloseRepository) Close(_ context.Context, input domain.NewCashClose) (domain.CashClose, error) {
+	f.closeInput = &input
+	if f.err != nil {
+		return domain.CashClose{}, f.err
+	}
+
+	closed := f.closed
+	closed.EstablishmentID = input.EstablishmentID
+	closed.ClosedByID = input.ClosedByID
+	closed.OpeningFloat = input.OpeningFloat
+	closed.CountedCash = input.CountedCash
+	closed.Notes = input.Notes
+	return closed, nil
+}
+
+func (f *fakeCashCloseRepository) Void(_ context.Context, input domain.VoidCashClose) (domain.CashClose, error) {
+	f.voidInput = &input
+	if f.err != nil {
+		return domain.CashClose{}, f.err
+	}
+
+	voided := f.closed
+	voided.ID = input.CashCloseID
+	voided.EstablishmentID = input.EstablishmentID
+	voided.VoidedByID = &input.VoidedByID
+	return voided, nil
+}
+
+type fakeStatsRepository struct {
+	orders []domain.StatsOrder
+	err    error
+
+	establishmentID string
+	since           time.Time
+}
+
+func (f *fakeStatsRepository) FindClosedOrders(_ context.Context, establishmentID string, since time.Time) ([]domain.StatsOrder, error) {
+	f.establishmentID = establishmentID
+	f.since = since
+
+	var found []domain.StatsOrder
+	for _, order := range f.orders {
+		if !order.CreatedAt.Before(since) {
+			found = append(found, order)
+		}
+	}
+	return found, f.err
+}

@@ -1,9 +1,9 @@
 <section class="flex flex-col gap-4" data-testid="widget-weekly-chart">
-  @if (stats.isLoading()) {
+  @if (stats().status() === 'loading') {
     <coaster-loading
       containerClasses="min-h-[220px] bg-surface-container rounded-2xl border border-outline-variant/30"
     />
-  } @else if (stats.hasValue()) {
+  } @else if (stats().hasValue()) {
     <mat-card class="p-5 flex flex-col gap-4 border border-outline-variant/30! overflow-hidden">
       <mat-card-header class="flex justify-between items-center p-0">
         <h3 class="text-xxs-plus font-bold text-on-surface-variant tracking-widest uppercase flex items-center gap-1.5">

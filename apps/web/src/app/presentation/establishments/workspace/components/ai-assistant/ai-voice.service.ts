@@ -1,6 +1,7 @@
 import { httpResource } from '@angular/common/http';
 import { effect, inject, resource, Service, signal, untracked } from '@angular/core';
-import type { AiMessage, AiUsage, EstablishmentId } from '@coaster/common';
+import type { AiMessage, AiUsage } from './ai.interface';
+import type { EstablishmentId } from '@coaster/core';
 import { TranslateService } from '@ngx-translate/core';
 import { AiUsageService } from './ai-usage.service';
 import { AiVoiceRepository } from './ai-voice-repository';

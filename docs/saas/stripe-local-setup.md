@@ -12,7 +12,7 @@ In the [Stripe Dashboard](https://dashboard.stripe.com/), in **Test mode**:
 1. **Product catalog** → create a product called **Coaster Pro**.
 2. Give it a single recurring **monthly** price, billed by **graduated tiers** on quantity: the first
    tier up to 10 units at a flat 19,99 € and 0 € per unit, the second up to infinity at 2 € per unit.
-   The dashboard hides tiering until you pick *Usage-based* → *Tiered* → *Graduated*, so the CLI is
+   The dashboard hides tiering until you pick _Usage-based_ → _Tiered_ → _Graduated_, so the CLI is
    less fiddly:
 
    ```bash
@@ -53,17 +53,23 @@ FRONTEND_URL="http://localhost:4200"
 ### 4. Forward webhooks
 
 `docker compose up` already starts a `stripe` service that runs `stripe listen --forward-to
-http://api:3000/api/v1/stripe/webhook` using the key from `apps/api/.env`. Its log prints the signing
-secret on startup:
+http://api:8080/api/v1/stripe/webhook` —the Go API— using the key from `apps/api/.env`. Its
+log prints the signing secret on startup:
 
 ```bash
 docker compose logs stripe | grep "signing secret"
 ```
 
-Put that value in `apps/api/.env` and restart the API:
+Put that value in `apps/api/.env`:
 
 ```env
 STRIPE_WEBHOOK_SECRET="whsec_..."
+```
+
+and recreate the API, since a restart keeps the variables it started with:
+
+```bash
+docker compose up -d api
 ```
 
 To run the CLI yourself instead:
@@ -94,7 +100,7 @@ that is expected, not a failure.
 
 ## Production
 
-`STRIPE_WEBHOOK_SECRET` is **required**. `StripeWebhookGuard` verifies every notification's
+`STRIPE_WEBHOOK_SECRET` is **required**. `StripeGateway.ParseWebhook` verifies every notification's
 signature; if the variable is missing or wrong, every webhook is rejected and subscriptions never
 activate.
 

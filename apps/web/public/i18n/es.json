@@ -27,6 +27,8 @@
   "IDENTITY_NOT_LINKED": "Esa cuenta no está vinculada.",
   "LAST_WAY_IN": "Es tu única forma de entrar. Pon una contraseña antes de desvincularla.",
   "SESSION_EXPIRED": "Tu sesión ha caducado. Vuelve a entrar.",
+  "SESSION_NOT_FOUND": "Esa sesión ya no existe. Actualiza la página.",
+  "CANNOT_CLOSE_CURRENT_SESSION": "Esta es la sesión que estás usando. Para salir de ella, cierra sesión.",
   "SUBSCRIPTION_EXPIRED": "Tu prueba o suscripción ha finalizado. Activa Coaster Pro para continuar.",
   "email": "Introduce un email válido.",
   "EXCHANGE_ALREADY_PENDING": "Este turno ya tiene una solicitud de intercambio pendiente.",
@@ -35,6 +37,8 @@
   "EMAIL_ALREADY_LINKED": "Ese correo ya está asociado a otra cuenta de acceso. Entra con la cuenta con la que te registraste.",
   "EMAIL_NOT_VERIFIED": "Verifica tu correo antes de entrar.",
   "INVALID_CREDENTIALS": "El correo o contraseña ingresados son incorrectos.",
+  "TOO_MANY_ATTEMPTS": "Demasiados intentos con esta cuenta. Espera unos minutos antes de volver a probar.",
+  "PASSWORD_COMPROMISED": "Esta contraseña aparece en filtraciones conocidas. Elige otra distinta.",
   "INVALID_DATE": "La fecha ingresada no tiene un formato válido.",
   "INVALID_EMAIL": "El correo electrónico tiene un formato incorrecto.",
   "INVALID_EXCHANGE": "El intercambio de turnos propuesto no es válido.",
@@ -56,6 +60,10 @@
   "ORDER_ITEM_NOT_FOUND": "El producto solicitado no está en este pedido.",
   "ORDER_NOT_FOUND": "El pedido del cliente solicitado no existe.",
   "ORDER_NOT_OPEN": "No se pueden realizar cambios porque el pedido ya está cerrado.",
+  "ORDER_IN_CASH_CLOSE": "Este pedido ya está en un cierre de caja y no se puede eliminar",
+  "CASH_CLOSE_NOT_FOUND": "Ese cierre de caja no existe",
+  "CASH_CLOSE_NOT_LAST": "Solo se puede deshacer el último cierre de caja",
+  "CASH_CLOSE_ALREADY_VOIDED": "Ese cierre de caja ya estaba anulado",
   "pattern": "Formato no válido.",
   "PRODUCT_NOT_FOUND": "El producto de inventario solicitado no existe.",
   "MENU_NOT_FOUND": "Esta carta no existe o todavía no se ha publicado.",
@@ -75,11 +83,10 @@
   "UNAUTHORIZED": "No tienes permisos para realizar esta acción.",
   "UNAUTHORIZED_SHIFT_ACTION": "No estás autorizado para gestionar este turno de trabajo.",
   "UNEXPECTED_ERROR": "Ocurrió un error inesperado",
-  "UPLOAD_CLICK_TO_UPLOAD": "Haz clic para subir",
-  "UPLOAD_DRAG_DROP": "o arrastra y suelta",
-  "UPLOAD_OR_PASTE_URL": "O pega la URL de una imagen...",
   "USER_ALREADY_EXISTS": "El usuario ya existe en el sistema.",
   "USER_ALREADY_MEMBER": "Este usuario ya es miembro de la plantilla.",
+  "INVITE_ALREADY_ACCEPTED": "Esta persona ya entró con su cuenta, así que no hay invitación que reenviar.",
+  "INVITE_EMAIL_FAILED": "No hemos podido enviar el correo de invitación. Inténtalo de nuevo en unos minutos.",
   "USER_CREATION_FAILED": "Hubo un error y no se pudo registrar al usuario.",
   "USER_NOT_FOUND": "No hay ningún usuario registrado con ese email.",
   "ai_voice": {
@@ -251,6 +258,7 @@
     "update": "Actualizar",
     "loading": "Cargando...",
     "refresh": "Actualizar",
+    "retry": "Reintentar",
     "submitting": "Enviando"
   },
   "dashboard": {
@@ -327,9 +335,48 @@
     "status_closed": "Cerrado",
     "status_open": "Abierto",
     "title": "Historial de Pedidos",
-    "today": "Hoy",
-    "total_orders": "Completados",
-    "yesterday": "Ayer"
+    "total_orders": "Completados"
+  },
+  "cash_close": {
+    "tab": "Caja",
+    "since": "Desde {{date}}",
+    "since_start": "Desde el primer pedido: es el primer cierre",
+    "open_orders_warning": "Comandas abiertas: {{count}}. No entran en este cierre: entrarán en el siguiente cuando se cobren.",
+    "open_orders_charged": "De ellas ya se han cobrado {{amount}}. Ese dinero ya está en el cajón, pero no cuenta como esperado hasta que se cobre la comanda entera.",
+    "closed_orders": "Comandas cobradas",
+    "cancelled_orders": "Anuladas",
+    "cash": "Efectivo",
+    "card": "Tarjeta",
+    "tips": "Propinas (incluidas)",
+    "total": "Total",
+    "count_title": "Arqueo",
+    "opening_float": "Fondo de caja",
+    "opening_float_hint": "Lo que había en el cajón al empezar",
+    "counted_cash": "Efectivo contado",
+    "counted_cash_hint": "Todo lo que hay ahora en el cajón, fondo incluido",
+    "counted": "Contado",
+    "notes": "Notas",
+    "notes_placeholder": "Ej. faltan 2 € del cambio de la mesa 4",
+    "expected": "Esperado en caja",
+    "difference": "Diferencia",
+    "balanced": "Cuadra",
+    "short": "Falta",
+    "over": "Sobra",
+    "close": "Cerrar caja",
+    "confirm_title": "Cerrar caja",
+    "confirm_message": "Se cierran {{count}} comandas cobradas y el arqueo queda guardado. Si te equivocas, puedes deshacer el último cierre.",
+    "closed": "Caja cerrada",
+    "history_title": "Cierres",
+    "no_history": "Ese día no se cerró la caja",
+    "closed_by": "Cerró {{name}}",
+    "print": "Imprimir",
+    "undo": "Deshacer",
+    "undo_title": "Deshacer el cierre",
+    "undo_message": "Las {{count}} comandas de este cierre vuelven a la caja abierta para cerrarlas de nuevo. El cierre queda en el historial como anulado.",
+    "undone": "Cierre deshecho",
+    "voided": "Anulado",
+    "voided_by": "Anuló {{name}} el {{date}}",
+    "ticket_title": "CIERRE DE CAJA"
   },
   "members": {
     "delete": {
@@ -360,6 +407,11 @@
       "seats_over": "{{extra}} por encima de las incluidas · {{total}} al mes + IVA"
     },
     "change_role": "Cambiar rol",
+    "pending_invite": "Invitación pendiente",
+    "resend_invite": {
+      "action": "Reenviar invitación",
+      "success": "Invitación reenviada a {{email}}"
+    },
     "role_dialog": {
       "title": "Cambiar el rol",
       "message": "{{ name }} pasará a ser {{ role }} en este establecimiento. Sus permisos cambian de inmediato.",
@@ -1077,6 +1129,12 @@
   "BETA_TESTER_ALREADY_EXISTS": "Ese email ya está en la lista de testers.",
   "BETA_TESTER_NOT_FOUND": "Ese tester ya no está en la lista.",
   "components": {
+    "day_picker": {
+      "next_day": "Día siguiente",
+      "previous_day": "Día anterior",
+      "today": "Hoy",
+      "yesterday": "Ayer"
+    },
     "icon_picker": {
       "search": "Buscar icono",
       "loading": "Cargando iconos…",
@@ -1113,6 +1171,26 @@
       "unlink": "Desvincular",
       "google": "Google",
       "only_way_in": "Es tu única forma de entrar. Pon una contraseña y entonces podrás desvincularla."
+    },
+    "sessions": {
+      "heading": "Sesiones abiertas",
+      "subtitle": "Los dispositivos en los que has entrado. Si ves uno que no reconoces, ciérralo y cambia la contraseña.",
+      "current": "Esta sesión",
+      "unknown_device": "Dispositivo desconocido",
+      "last_used": "Última actividad {{ when }}",
+      "none": "No hay ninguna sesión abierta.",
+      "close": "Cerrar",
+      "closed": "Sesión cerrada.",
+      "close_others": "Cerrar las demás",
+      "others_closed": "Las demás sesiones se han cerrado.",
+      "close_dialog": {
+        "title": "¿Cerrar esta sesión?",
+        "message": "{{ device }} tendrá que volver a entrar."
+      },
+      "close_others_dialog": {
+        "title": "¿Cerrar las demás sesiones?",
+        "message": "Todos los dispositivos menos este tendrán que volver a entrar. Esta sesión se queda."
+      }
     }
   }
 }

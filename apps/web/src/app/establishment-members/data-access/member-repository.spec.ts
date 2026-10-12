@@ -1,7 +1,8 @@
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import type { EstablishmentMember } from '@coaster/common';
-import { asEstablishmentId, asEstablishmentMemberId, asUserId, EstablishmentRole } from '@coaster/common';
+import { asEstablishmentMemberId, type EstablishmentMember } from '../models/establishment-member.interface';
+import { asEstablishmentId, asUserId } from '@coaster/core';
+import { EstablishmentRole } from '@coaster/establishments';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { MemberRepository } from './member-repository';
 
@@ -14,7 +15,6 @@ describe('MemberRepository', () => {
     userId: asUserId('user-1'),
     establishmentId: asEstablishmentId('establishment-1'),
     role: EstablishmentRole.STAFF,
-    permissions: [],
     active: true,
     userName: 'John Doe',
     userEmail: 'john@test.com',
@@ -45,6 +45,12 @@ describe('MemberRepository', () => {
     it('should have the invite route', () => {
       expect(service.routes.invite(asEstablishmentId('1'))).toBe('/establishments/1/members');
     });
+
+    it('should have the resend invite route', () => {
+      expect(service.routes.resendInvite(asEstablishmentId('1'), 'member-1')).toBe(
+        '/establishments/1/members/member-1/invite',
+      );
+    });
   });
 
   describe('invite', () => {
@@ -66,6 +72,21 @@ describe('MemberRepository', () => {
       httpMock.expectOne(service.routes.invite(establishmentId)).flush(mockMember);
 
       expect(await res).toEqual(mockMember);
+    });
+  });
+
+  describe('resendInvite', () => {
+    const establishmentId = asEstablishmentId('establishment-1');
+    const memberId = asEstablishmentMemberId('member-1');
+
+    it('should post to the resend invite endpoint', async () => {
+      const promise = service.resendInvite(establishmentId, memberId);
+
+      const req = httpMock.expectOne(service.routes.resendInvite(establishmentId, memberId));
+      expect(req.request.method).toBe('POST');
+      req.flush(null);
+
+      await promise;
     });
   });
 });

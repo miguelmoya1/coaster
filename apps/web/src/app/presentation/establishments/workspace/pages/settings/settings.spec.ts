@@ -1,8 +1,7 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { EstablishmentModule } from '@coaster/common';
 import { ActionFeedback } from '@coaster/core';
-import { ModulesStore } from '@coaster/establishments';
+import { EstablishmentModule, ModulesStore } from '@coaster/establishments';
 import { PrinterRepository } from '@coaster/printer';
 import { provideChildTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';

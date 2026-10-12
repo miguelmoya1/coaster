@@ -8,7 +8,7 @@
     "esbenp.prettier-vscode",
     "dbaeumer.vscode-eslint",
     "vitest.explorer",
-    "prisma.prisma",
+    "golang.go",
     "ms-azuretools.vscode-docker",
     "vercel.vercel"
   ],

@@ -2,15 +2,14 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
 import type {
   AmendTimeEntryDto,
-  EstablishmentId,
   ClockDto,
   CreateTimeEntryDto,
   TimeEntry,
   TimeEntryId,
   TimeSheetIntegrity,
-  UserId,
   VoidTimeEntryDto,
-} from '@coaster/common';
+} from '../models/time-entry.interface';
+import type { EstablishmentId, UserId } from '@coaster/core';
 import { firstValueFrom } from 'rxjs';
 
 const range = (from: string, to: string, userId?: UserId) =>

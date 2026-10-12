@@ -1,0 +1,130 @@
+package httpapi
+
+import (
+	"net/http"
+	"time"
+
+	"coaster-api/internal/adapter/handler/middleware"
+	"coaster-api/internal/adapter/handler/respond"
+	"coaster-api/internal/core/domain"
+	"coaster-api/internal/core/ports"
+)
+
+type AccountHandler struct {
+	account ports.AccountService
+}
+
+func NewAccountHandler(account ports.AccountService) *AccountHandler {
+	return &AccountHandler{account: account}
+}
+
+func (h *AccountHandler) RegisterRoutes(mux *http.ServeMux, guard *middleware.Guard) {
+	handle(mux, guard, "GET /account", h.summary, middleware.RequireAuth())
+	handle(mux, guard, "POST /account/verify-email", h.requestVerification, middleware.RequireAuth(), middleware.Throttle(3, time.Minute))
+	handle(mux, guard, "PUT /account/password", h.setPassword, middleware.RequireAuth(), middleware.Throttle(5, time.Minute))
+	handle(mux, guard, "GET /account/sessions", h.sessions, middleware.RequireAuth())
+	handle(mux, guard, "DELETE /account/sessions", h.closeOtherSessions, middleware.RequireAuth())
+	handle(mux, guard, "DELETE /account/sessions/{id}", h.closeSession, middleware.RequireAuth())
+	handle(mux, guard, "DELETE /account/identities/{provider}", h.unlink, middleware.RequireAuth())
+}
+
+type setPasswordRequest struct {
+	Password        string  `json:"password" validate:"min=8,max=128" msg:"type=password must be longer than or equal to 8 characters"`
+	CurrentPassword *string `json:"currentPassword" validate:"omitnil,max=128"`
+}
+
+func (h *AccountHandler) summary(w http.ResponseWriter, r *http.Request) {
+	summary, err := h.account.Account(r.Context(), middleware.CurrentUser(r.Context()).ID)
+	if err != nil {
+		writeError(w, err)
+		return
+	}
+
+	respond.JSON(w, http.StatusOK, summary)
+}
+
+func (h *AccountHandler) requestVerification(w http.ResponseWriter, r *http.Request) {
+	if err := h.account.RequestEmailVerification(r.Context(), middleware.CurrentUser(r.Context()).ID); err != nil {
+		writeError(w, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func (h *AccountHandler) setPassword(w http.ResponseWriter, r *http.Request) {
+	var input setPasswordRequest
+	if err := decodeJSON(r, &input); err != nil {
+		writeError(w, err)
+		return
+	}
+
+	current := ""
+	if input.CurrentPassword != nil {
+		current = *input.CurrentPassword
+	}
+
+	err := h.account.SetPassword(r.Context(), domain.SetPasswordInput{
+		UserID:          middleware.CurrentUser(r.Context()).ID,
+		SessionID:       middleware.CurrentSession(r.Context()).Sid,
+		Password:        input.Password,
+		CurrentPassword: current,
+	}, originOf(r))
+	if err != nil {
+		writeError(w, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func (h *AccountHandler) sessions(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	sessions, err := h.account.Sessions(ctx, middleware.CurrentUser(ctx).ID, middleware.CurrentSession(ctx).Sid)
+	if err != nil {
+		writeError(w, err)
+		return
+	}
+
+	respond.JSON(w, http.StatusOK, sessions)
+}
+
+func (h *AccountHandler) closeOtherSessions(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	if err := h.account.CloseOtherSessions(ctx, middleware.CurrentUser(ctx).ID, middleware.CurrentSession(ctx).Sid); err != nil {
+		writeError(w, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func (h *AccountHandler) closeSession(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	err := h.account.CloseSession(ctx, middleware.CurrentUser(ctx).ID, r.PathValue("id"), middleware.CurrentSession(ctx).Sid)
+	if err != nil {
+		writeError(w, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func (h *AccountHandler) unlink(w http.ResponseWriter, r *http.Request) {
+	provider := domain.AuthProvider(r.PathValue("provider"))
+	if provider != domain.AuthProviderGoogle {
+
+		respond.NestError(w, http.StatusBadRequest, "Validation failed (enum string is expected)")
+		return
+	}
+
+	if err := h.account.UnlinkIdentity(r.Context(), middleware.CurrentUser(r.Context()).ID, provider, originOf(r)); err != nil {
+		writeError(w, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}

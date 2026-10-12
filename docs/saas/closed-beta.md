@@ -33,23 +33,25 @@ for `beta.coaster.business` on its own.
 sign-up behaves exactly as it did before the allowlist existed. The default is open, so a fresh
 environment that never sets the variable will not lock anybody out.
 
-When the flag is on, the API says so once at boot, at `warn` level so it survives the production log
-filter:
+The API does not announce the switch at boot. `/admin/beta-testers` shows whether it is enforcing,
+and every refusal is logged at `warn` level, so it survives the production log filter:
 
 ```
-Beta allowlist is ON: only emails on the BetaTester table can open a new account
+refusing to open an account: not on the beta allowlist
 ```
 
 ## Where the check lives
 
-`SyncUserHandler` is the only place a `User` row is born, so it is the only place that asks. The
-check sits on the branch that creates a brand new user, which means:
+An account is opened in two places, and both ask before writing: `AuthService.Register` (email and
+password) and `AuthService.googleRegistered` (the first Google sign-in of an address with no
+account). Both go through `outsideBeta`, which means:
 
 - An address on the list signs in and gets an account.
 - An address that is not on the list is refused with `403 BETA_ACCESS_REQUIRED`, **and no row is
   written** — the database does not fill up with people who bounced off the door.
-- Someone an owner invited to their venue already has a row waiting for them, so they never reach
-  the check. Testers can staff their own venues without going through you.
+- Someone an owner invited to their venue already has a row waiting for them, written by the
+  invitation (`EstablishmentMemberRepository.Invite`), so they never reach the check. Testers can
+  staff their own venues without going through you.
 
 The screen stays available whether the switch is on or off, and says which. Hiding it while the
 allowlist is idle would be a trap: you would have no way to fill the list before turning the switch
@@ -68,8 +70,8 @@ who is already in, deactivate them under Users.
 ## Opening the beta
 
 Set `BETA_ALLOWLIST_ENABLED=false` (or drop the variable) and redeploy. No migration, no code
-change, no data change. The table can stay where it is; to be rid of it entirely, delete the check
-in `SyncUserHandler` and drop `BetaTester`.
+change, no data change. The table can stay where it is; to be rid of it entirely, delete `outsideBeta`
+and its two callers in `AuthService`, and drop `BetaTester`.
 
 ## Closing a beta that was open
 

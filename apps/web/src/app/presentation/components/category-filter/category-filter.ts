@@ -1,7 +1,7 @@
 import { Component, computed, input, model, output } from '@angular/core';
 import { MatChipListbox, MatChipListboxChange, MatChipOption, MatChipTrailingIcon } from '@angular/material/chips';
 import { MatIcon } from '@angular/material/icon';
-import type { Category } from '@coaster/common';
+import type { Category } from '@coaster/categories';
 import { TranslatePipe } from '@ngx-translate/core';
 import { isMaterialIconName } from '../icon-picker/icon-picker';
 

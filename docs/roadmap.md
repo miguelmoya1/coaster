@@ -1,7 +1,7 @@
 # Product roadmap
 
-What has been built, and why it counts as done. What is **left** lives in [`TODO.md`](../TODO.md) at
-the root, in the order it should be built — keeping the two apart is what stops them drifting into
+What has been built, and why it counts as done. What is **left** lives in [pending](todo.md), in the
+order it should be built — keeping the two apart is what stops them drifting into
 two different plans.
 
 ## Done
@@ -11,7 +11,7 @@ two different plans.
 - Marketing landing at the root, application under `/establishments`.
 - Stripe Checkout, Customer Portal and webhooks, with the Pro price tax-exclusive through Stripe Tax.
 - Internal domain events published from webhook handlers, so side effects stay decoupled.
-- `SubscriptionActiveGuard`: an unpaid venue loses writes but **keeps reads**, so it never loses
+- The guard's subscription step: an unpaid venue loses writes but **keeps reads**, so it never loses
   access to its own history — and never loses the working-time register at all.
 
 See [Stripe integration](saas/stripe-integration.md).
@@ -22,8 +22,8 @@ See [Stripe integration](saas/stripe-integration.md).
 - Manual PRO grants without going through Stripe, with expiry and reason, in columns a webhook
   cannot clobber.
 - Every admin action recorded through one event and one writer.
-- Single permission table in `@coaster/common`, with the OWNER / MANAGER / STAFF hierarchy covered
-  by tests.
+- Single permission table, now in the web's `establishment-members` models and compared by a test
+  with the Go API's, with the OWNER / MANAGER / STAFF hierarchy covered by tests.
 
 See [backoffice](admin/backoffice.md) and [access model](architecture/permissions.md).
 
@@ -43,7 +43,7 @@ See [time tracking](operations/time-tracking.md).
 
 - `TIME_TRACKING`, `ORDERS` and `INVENTORY` on `EstablishmentSettings`, chosen once at onboarding
   from a business type and changed afterwards under Settings.
-- Enforced on all three surfaces from the same array: `EstablishmentModulesGuard` on the API,
+- Enforced on all three surfaces from the same array: `middleware.Modules` on the API,
   `moduleGuard` on the routes, and the assistant's tool list.
 
 ### The catalogue and the menu
@@ -65,12 +65,14 @@ See [catalogue and menu](architecture/catalogue-and-menu.md).
 - Shared across instances through Redis when `REDIS_URL` is set, and degrading to local-only —
   never to an outage — when it is not.
 - A two-minute replay buffer, so a reconnect does not lose what happened while the tunnel was down.
+- A stream that comes back renews an expired session itself and makes every screen it feeds load
+  again, so a tablet nobody touches never falls behind, however long it was away.
 
 See [the shared cache](operations/redis.md).
 
 ### The assistant
 
-- Text and voice, over tools that dispatch the same CQRS commands the HTTP routes do and check the
+- Text and voice, over tools that call the same services the HTTP routes do and check the
   same permission first — it can never do more than the caller can.
 - Bounded on both sides: a context budget per message, a monthly allowance per venue.
 
@@ -84,6 +86,21 @@ See [the assistant](architecture/assistant.md).
 
 See [printing bridge](architecture/printing-bridge.md).
 
+### Own accounts
+
+Firebase is gone from the code since 9 September 2026; switching it off is in [pending](todo.md).
+
+- Email and password (Argon2id), and Google as an identity linked to the same person, verified by
+  ID token against Google's published keys. Accounts are matched by verified email, so the old
+  Firebase users land on their own record without a data migration.
+- A 15-minute access JWT as `Bearer`, and an opaque refresh token in an `httpOnly` cookie, rotated
+  on every use, sliding to 30 days and hashed, with reuse detection per family.
+- One `AuthToken` table for email verification, password reset and invitations, and four emails on
+  one template. Where somebody is waiting for the email, a sending failure shows.
+- Per-address lockout after ten failed logins in fifteen minutes (keyed by the sha256 of the
+  address), Have I Been Pwned with k-anonymity that lets the password through if the service is
+  down, and an `AuthEvent` log of every sign-in, failure and credential change.
+
 ### Two environments
 
 - `main` is production, `dev` is beta on `beta.coaster.business`, from one workflow and one image.
@@ -91,3 +108,15 @@ See [printing bridge](architecture/printing-bridge.md).
   needs no rebuild.
 
 See [production and beta](operations/environments.md) and [closed beta](saas/closed-beta.md).
+
+### The API in Go
+
+- The NestJS API rewritten in Go: the same 124 routes, permissions, error codes and bodies, hexagonal,
+  with hand-written SQL over pgx. Beta runs it since 30 September 2026; production follows with the
+  merge of `dev` into `main`, which is already prepared.
+- The schema as its own application, `apps/database`: goose migrations applied by a Cloud Run job
+  before each deploy, which took over the Prisma history on its first run.
+- Its own e2e suite, the real binary against a real Postgres, gating the deploy.
+
+See [API](apps/api/README.md), [migration](apps/api/migracion.md) and
+[database](apps/database.md).

@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { EstablishmentRole } from '@coaster/common';
+import { EstablishmentRole } from '@coaster/establishments';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ShiftCard } from './shift-card';

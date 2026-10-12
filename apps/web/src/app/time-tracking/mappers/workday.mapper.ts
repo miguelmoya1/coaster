@@ -1,4 +1,4 @@
-import type { Workday } from '@coaster/common';
+import type { Workday } from '../models/time-entry.interface';
 
 const isWorkday = (workday: unknown): workday is Workday =>
   typeof workday === 'object' &&

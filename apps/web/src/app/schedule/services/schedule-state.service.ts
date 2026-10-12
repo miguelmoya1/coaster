@@ -14,6 +14,7 @@ import {
   subMonths,
   subWeeks,
 } from 'date-fns';
+import { type ScheduleView, timeSheetRangeOf } from '../utils/schedule-range';
 
 export interface ScrollerDay {
   id: string;
@@ -29,7 +30,7 @@ export class ScheduleStateService {
   readonly #dateFormatter = inject(DateFormatterService);
 
   readonly selectedDate = signal<Date>(new Date());
-  readonly viewMode = signal<'day' | 'week' | 'month'>('day');
+  readonly viewMode = signal<ScheduleView>('day');
 
   readonly scrollerDays = computed<(ScrollerDay & { dateObj: Date })[]>(() => {
     const currentSelected = this.selectedDate();
@@ -74,49 +75,7 @@ export class ScheduleStateService {
     });
   });
 
-  readonly dailyShiftsRange = computed(() => {
-    const selected = this.selectedDate();
-    const view = this.viewMode();
-
-    if (view === 'month') {
-      const start = startOfMonth(selected);
-      const end = endOfMonth(selected);
-      const startLocal = new Date(start);
-      startLocal.setHours(0, 0, 0, 0);
-      const endLocal = new Date(end);
-      endLocal.setHours(23, 59, 59, 999);
-      return {
-        startIso: startLocal.toISOString(),
-        endIso: endLocal.toISOString(),
-      };
-    } else {
-      const start = startOfWeek(selected, { weekStartsOn: 1 });
-      const end = endOfWeek(selected, { weekStartsOn: 1 });
-      const startLocal = new Date(start);
-      startLocal.setHours(0, 0, 0, 0);
-      const endLocal = new Date(end);
-      endLocal.setHours(23, 59, 59, 999);
-      return {
-        startIso: startLocal.toISOString(),
-        endIso: endLocal.toISOString(),
-      };
-    }
-  });
-
-  readonly timeSheetRange = computed(() => {
-    const selected = this.selectedDate();
-    const view = this.viewMode();
-
-    if (view === 'day') {
-      const day = this.#dateFormatter.formatDayId(selected);
-      return { from: day, to: day };
-    }
-
-    const start = view === 'month' ? startOfMonth(selected) : startOfWeek(selected, { weekStartsOn: 1 });
-    const end = view === 'month' ? endOfMonth(selected) : endOfWeek(selected, { weekStartsOn: 1 });
-
-    return { from: this.#dateFormatter.formatDayId(start), to: this.#dateFormatter.formatDayId(end) };
-  });
+  readonly timeSheetRange = computed(() => timeSheetRangeOf(this.selectedDate(), this.viewMode()));
 
   readonly displayMonthYear = computed(() => {
     return this.#dateFormatter.formatMonthYear(this.selectedDate());
@@ -137,7 +96,7 @@ export class ScheduleStateService {
     }
   }
 
-  public setViewMode(view: 'day' | 'week' | 'month') {
+  public setViewMode(view: ScheduleView) {
     if (this.viewMode() !== view) {
       this.viewMode.set(view);
     }

@@ -22,6 +22,7 @@ const openStream = () => {
 describe('Realtime', () => {
   let service: Realtime;
   let fetchMock: ReturnType<typeof vi.fn>;
+  let refresh: ReturnType<typeof vi.fn>;
   let consoleError: ReturnType<typeof vi.spyOn>;
   const accessToken = signal<string | null | undefined>(undefined);
 
@@ -49,8 +50,13 @@ describe('Realtime', () => {
     fetchMock = vi.fn();
     vi.stubGlobal('fetch', fetchMock);
 
+    refresh = vi.fn();
+
     TestBed.configureTestingModule({
-      providers: [provideZonelessChangeDetection(), { provide: Auth, useValue: { accessToken: accessToken.asReadonly() } }],
+      providers: [
+        provideZonelessChangeDetection(),
+        { provide: Auth, useValue: { accessToken: accessToken.asReadonly(), refresh } },
+      ],
     });
 
     service = TestBed.inject(Realtime);
@@ -101,7 +107,7 @@ describe('Realtime', () => {
     stream.push('event: orderCreated\ndata: {"id":"order-1"}\n\n');
     await settle();
 
-    expect(service.orderCreated()).toEqual({ id: 'order-1' });
+    expect(service.on('orderCreated')()).toEqual({ id: 'order-1' });
   });
 
   it('should ignore a comment, so a heartbeat never reaches a signal', async () => {
@@ -115,7 +121,7 @@ describe('Realtime', () => {
     stream.push(': ping\n\n');
     await settle();
 
-    expect(service.orderCreated()).toBeNull();
+    expect(service.on('orderCreated')()).toBeNull();
     expect(service.connected()).toBe(true);
   });
 
@@ -130,7 +136,7 @@ describe('Realtime', () => {
     expect(() => stream.push('event: somethingElse\ndata: {}\n\n')).not.toThrow();
     await settle();
 
-    expect(service.orderCreated()).toBeNull();
+    expect(service.on('orderCreated')()).toBeNull();
   });
 
   it('should ask for what it missed when it comes back', async () => {
@@ -194,6 +200,75 @@ describe('Realtime', () => {
     expect(consoleError).toHaveBeenCalled();
     expect(service.connected()).toBe(false);
     expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('should renew the session and come back with the new token when the stream says it expired', async () => {
+    refresh.mockImplementation(async () => {
+      accessToken.set('token-456');
+      return 'token-456';
+    });
+    answerWith(openStream(), 401);
+
+    service.watch('establishment-1');
+    accessToken.set('token-123');
+    await settle();
+
+    answerWith(openStream());
+    await reconnect();
+
+    expect(refresh).toHaveBeenCalledTimes(1);
+    expect(fetchMock).toHaveBeenLastCalledWith(
+      expect.anything(),
+      expect.objectContaining({ headers: expect.objectContaining({ Authorization: 'Bearer token-456' }) }),
+    );
+    expect(service.connected()).toBe(true);
+  });
+
+  it('should stop when the session cannot be renewed', async () => {
+    refresh.mockImplementation(async () => {
+      accessToken.set(null);
+      return null;
+    });
+    answerWith(openStream(), 401);
+
+    service.watch('establishment-1');
+    accessToken.set('token-123');
+    await settle();
+    await reconnect();
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(service.connected()).toBe(false);
+  });
+
+  it('should count each time the stream comes back, so whoever shows its events can load what it missed', async () => {
+    const first = openStream();
+    answerWith(first);
+
+    service.watch('establishment-1');
+    accessToken.set('token-123');
+    await settle();
+
+    expect(service.reconnected()).toBe(0);
+
+    answerWith(openStream());
+    first.finish();
+    await reconnect();
+
+    expect(service.reconnected()).toBe(1);
+  });
+
+  it('should not count the first stream of another establishment as coming back', async () => {
+    answerWith(openStream());
+
+    service.watch('establishment-1');
+    accessToken.set('token-123');
+    await settle();
+
+    answerWith(openStream());
+    service.watch('establishment-2');
+    await settle();
+
+    expect(service.reconnected()).toBe(0);
   });
 
   it('should report itself disconnected once the stream ends', async () => {

@@ -1,5 +1,5 @@
 import { Component, computed, input } from '@angular/core';
-import { SubscriptionStatus } from '@coaster/common';
+import { SubscriptionStatus } from '@coaster/establishment-subscription';
 import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({

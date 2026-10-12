@@ -1,7 +1,7 @@
 import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { ErrorCodes } from '@coaster/common';
+import { ErrorCodes } from '../errors/error.types';
 import { catchError, from, switchMap, throwError } from 'rxjs';
 import { Auth } from '../services/auth';
 import { Toast } from '../services/toast';

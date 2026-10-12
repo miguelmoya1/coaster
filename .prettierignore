@@ -1,6 +1,0 @@
-# Add files here to ignore them from prettier formatting
-/dist
-/coverage
-.angular
-node_modules
-/apps/api/src/core/db/client

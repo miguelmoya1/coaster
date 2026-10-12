@@ -1,9 +1,10 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { MyMemberStore } from '@coaster/establishment-members';
-import { EstablishmentRole } from '@coaster/common';
-import { MembersStore } from '@coaster/establishment-members';
+import { MyMemberStore, type EstablishmentMember } from '@coaster/establishment-members';
+import { EstablishmentRole } from '@coaster/establishments';
+import { ManageMembers } from '@coaster/establishment-members';
+import { fakeResource } from '@coaster/testing';
 import { EstablishmentSubscriptionStore } from '@coaster/establishment-subscription';
 
 import { provideTranslateService } from '@ngx-translate/core';
@@ -15,18 +16,16 @@ describe('Staff', () => {
   let component: Staff;
   let fixture: ComponentFixture<Staff>;
 
+  let members = fakeResource<EstablishmentMember[]>([]);
+
   const membersStoreMock = {
-    list: {
-      value: signal([]),
-      hasValue: signal(false),
-      isLoading: signal(false),
-    },
-    isOnlyOwner: vi.fn().mockReturnValue(false),
-    setEstablishmentId: vi.fn(),
     remove: vi.fn(),
+    resendInvite: vi.fn(),
+    updateRole: vi.fn(),
   };
 
   const canManageBilling = signal(true);
+  const canInvite = signal(false);
 
   const myMemberStoreMock = {
     myMember: {
@@ -34,9 +33,11 @@ describe('Staff', () => {
       hasValue: signal(true),
     },
     isOwner: signal(false),
-    hasPermission: vi.fn((permission: string) =>
-      permission === 'establishment:manage-billing' ? canManageBilling() : false,
-    ),
+    hasPermission: vi.fn((permission: string) => {
+      if (permission === 'establishment:manage-billing') return canManageBilling();
+      if (permission === 'establishment:invite-member') return canInvite();
+      return false;
+    }),
   };
 
   const confirmationDialogMock = {
@@ -65,13 +66,14 @@ describe('Staff', () => {
   beforeEach(async () => {
     billedSeats.set(undefined);
     canManageBilling.set(true);
+    canInvite.set(false);
 
     await TestBed.configureTestingModule({
       imports: [Staff],
       providers: [
         provideTranslateService(),
         provideRouter([]),
-        { provide: MembersStore, useValue: membersStoreMock },
+        { provide: ManageMembers, useValue: membersStoreMock },
         { provide: MyMemberStore, useValue: myMemberStoreMock },
         { provide: ConfirmationDialog, useValue: confirmationDialogMock },
         { provide: EstablishmentSubscriptionStore, useValue: subscriptionStoreMock },
@@ -80,8 +82,10 @@ describe('Staff', () => {
 
     vi.clearAllMocks();
 
+    members = fakeResource<EstablishmentMember[]>([]);
     fixture = TestBed.createComponent(Staff);
     fixture.componentRef.setInput('establishmentId', 'establishment-1');
+    fixture.componentRef.setInput('members', members.resource);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });
@@ -149,7 +153,7 @@ describe('Staff', () => {
     });
 
     it('should return empty members array when list is empty', () => {
-      expect(component['members']()).toEqual([]);
+      expect(component['memberItems']()).toEqual([]);
     });
 
     it('should return undefined userMember when no matching member', () => {
@@ -157,10 +161,7 @@ describe('Staff', () => {
     });
 
     it('should calculate members correctly with permissions', () => {
-      membersStoreMock.list.hasValue.set(true);
-      membersStoreMock.list.value.set([
-        { id: 'm1', userId: 'u1', userName: 'Test User 1', role: EstablishmentRole.OWNER },
-      ] as any);
+      members.resolve([{ id: 'm1', userId: 'u1', userName: 'Test User 1', role: EstablishmentRole.OWNER }] as any);
       myMemberStoreMock.myMember.hasValue.set(true);
       myMemberStoreMock.myMember.value.set({
         userId: 'u1',
@@ -168,12 +169,11 @@ describe('Staff', () => {
         role: EstablishmentRole.OWNER,
       } as any);
       myMemberStoreMock.isOwner.set(false);
-      membersStoreMock.isOnlyOwner.mockReturnValue(false);
 
-      const members = component['members']();
-      expect(members.length).toBe(1);
-      expect(members[0].isCurrentUser).toBe(true);
-      expect(members[0].showDeleteButton).toBe(true);
+      const items = component['memberItems']();
+      expect(items.length).toBe(1);
+      expect(items[0].isCurrentUser).toBe(true);
+      expect(items[0].showDeleteButton).toBe(true);
     });
   });
 
@@ -197,7 +197,8 @@ describe('Staff', () => {
       });
 
       expect(confirmationDialogMock.confirm).toHaveBeenCalled();
-      expect(membersStoreMock.remove).toHaveBeenCalledWith('m1');
+      expect(membersStoreMock.remove).toHaveBeenCalledWith('establishment-1', 'm1');
+      expect(members.reload).toHaveBeenCalled();
     });
   });
 
@@ -217,6 +218,50 @@ describe('Staff', () => {
 
       expect(component['seats']()).toBeUndefined();
       expect(fixture.nativeElement.textContent).not.toContain('members.staff.seats_used');
+    });
+  });
+  describe('a pending invitation', () => {
+    const listPendingMember = () => {
+      members.resolve([
+        {
+          id: 'm2',
+          userId: 'u2',
+          userName: 'Invited',
+          userEmail: 'invited@test.com',
+          role: EstablishmentRole.STAFF,
+          pending: true,
+        },
+      ] as any);
+      myMemberStoreMock.myMember.hasValue.set(true);
+      myMemberStoreMock.myMember.value.set({ userId: 'u1', role: EstablishmentRole.OWNER } as any);
+    };
+
+    it('should offer to resend it to whoever can invite', () => {
+      canInvite.set(true);
+      listPendingMember();
+
+      const [member] = component['memberItems']();
+
+      expect(member.isPending).toBe(true);
+      expect(member.canResendInvite).toBe(true);
+    });
+
+    it('should not offer it to somebody who cannot invite', () => {
+      canInvite.set(false);
+      listPendingMember();
+
+      expect(component['memberItems']()[0].canResendInvite).toBe(false);
+    });
+
+    it('should send it again', async () => {
+      membersStoreMock.resendInvite.mockResolvedValue(undefined);
+
+      await (component as any).handleResendInvite({
+        id: 'm2',
+        userEmail: 'invited@test.com',
+      });
+
+      expect(membersStoreMock.resendInvite).toHaveBeenCalledWith('establishment-1', 'm2');
     });
   });
 });

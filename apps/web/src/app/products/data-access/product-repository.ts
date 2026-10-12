@@ -1,14 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
-import type {
-  EstablishmentId,
-  CreateProductDto,
-  DeleteResponse,
-  ProductId,
-  UpdateProductDto,
-  UpdateProductStockDto,
-} from '@coaster/common';
-import { deleteResponseMapper } from '@coaster/core';
+import type { CreateProductDto, ProductId, UpdateProductDto, UpdateProductStockDto } from '../models/product.interface';
+import { deleteResponseMapper, type DeleteResponse, type EstablishmentId } from '@coaster/core';
 import { firstValueFrom, map } from 'rxjs';
 
 @Service()

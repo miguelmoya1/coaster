@@ -1,0 +1,984 @@
+[
+  {
+    "name": "listTables",
+    "description": "List every table of the establishment with its UUID and status. Use it to refresh the table list or when a table the user mentions is not in the context above.",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {},
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "createTable",
+    "description": "Create a new table in the establishment.",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Table name or designation to create, e.g. 'Mesa 4', 'Terraza 1'. Use the exact name mentioned by the user."
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "updateTable",
+    "description": "Update details of an existing table in the establishment, such as its name.",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "tableId": {
+          "type": "string",
+          "description": "The UUID of the table to update."
+        },
+        "name": {
+          "type": "string",
+          "description": "New name of the table."
+        }
+      },
+      "required": [
+        "tableId",
+        "name"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "deleteTable",
+    "description": "Permanently delete a table from the establishment. Destructive: requires the user to confirm first.",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "tableId": {
+          "type": "string",
+          "description": "The UUID of the table to delete."
+        },
+        "confirmed": {
+          "type": "boolean",
+          "description": "Set to true only after the user has explicitly confirmed the deletion in a previous turn."
+        }
+      },
+      "required": [
+        "tableId",
+        "confirmed"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "listOpenOrders",
+    "description": "List the currently open orders with their items, served/paid quantities and totals in euros. Use it to refresh the order list before acting on it.",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {},
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "getOrderDetails",
+    "description": "Get the full detail of a single order: items, item UUIDs, served and paid quantities, discounts, tip and totals in euros.",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "orderId": {
+          "type": "string",
+          "description": "The UUID of the order to inspect."
+        }
+      },
+      "required": [
+        "orderId"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "getOrdersByDate",
+    "description": "List every order of a given day (closed, cancelled and open) to answer questions about past activity, such as what was sold yesterday.",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "date": {
+          "type": "string",
+          "description": "The day to look up, formatted as YYYY-MM-DD."
+        }
+      },
+      "required": [
+        "date"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "createOrder",
+    "description": "Create a new open order for a specific table in the establishment.",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "tableId": {
+          "type": "string",
+          "description": "The UUID of the table where this new order is placed. Look up the user-specified table name (e.g. \"Mesa 2\") in the list of available tables to find its UUID."
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "productId": {
+                "type": "string",
+                "description": "The UUID of the product. Match the food/drink name requested (e.g. \"cerveza\", \"café\", \"bocadillo\") against the available products list to get its UUID."
+              },
+              "quantity": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9007199254740991,
+                "description": "The quantity of the item. Match natural numbers or word numbers, e.g. \"tres cañas\" -> 3. Defaults to 1 if not specified."
+              }
+            },
+            "required": [
+              "productId",
+              "quantity"
+            ],
+            "additionalProperties": false
+          },
+          "description": "List of exact product UUIDs and their quantities."
+        }
+      },
+      "required": [
+        "tableId",
+        "items"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "addOrderItems",
+    "description": "Add more items to an existing open order.",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "orderId": {
+          "type": "string",
+          "description": "The UUID of the existing open order to add items to. Look up the active open orders list to find the order UUID matching the requested table or order details."
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "productId": {
+                "type": "string",
+                "description": "The UUID of the product. Match the food/drink name requested (e.g. \"cerveza\", \"café\", \"bocadillo\") against the available products list to get its UUID."
+              },
+              "quantity": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9007199254740991,
+                "description": "The quantity of the item to add. Match natural numbers or word numbers, e.g. \"tres cañas\" -> 3. Defaults to 1 if not specified."
+              }
+            },
+            "required": [
+              "productId",
+              "quantity"
+            ],
+            "additionalProperties": false
+          },
+          "description": "List of product UUIDs and their quantities."
+        }
+      },
+      "required": [
+        "orderId",
+        "items"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "checkoutOrder",
+    "description": "Collect payment and close an open order.",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "orderId": {
+          "type": "string",
+          "description": "The UUID of the open order to check out. Look up the active open orders list to find the order UUID matching the table or order details."
+        },
+        "paymentMethod": {
+          "type": "string",
+          "enum": [
+            "CASH",
+            "CARD"
+          ],
+          "description": "Payment method: CASH (efectivo, caja) or CARD (tarjeta, datáfono). Defaults to CASH if not specified."
+        }
+      },
+      "required": [
+        "orderId",
+        "paymentMethod"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "serveOrPayItems",
+    "description": "Update the preparation (served) or payment status of items in an open order.",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "orderId": {
+          "type": "string",
+          "description": "The UUID of the order to update."
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "itemId": {
+                "type": "string",
+                "description": "The UUID of the order item to update (OrderItemId). Find this item ID inside the items list of the specified order in the active open orders list."
+              },
+              "servedQuantity": {
+                "description": "The new total quantity of this item that has been prepared/served. Use this when the user says \"saca X cañas\" or \"sirve la mesa\".",
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "paidQuantity": {
+                "description": "The new total quantity of this item that has been paid.",
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "paymentMethod": {
+                "description": "Payment method used if paying.",
+                "type": "string",
+                "enum": [
+                  "CASH",
+                  "CARD",
+                  "NONE"
+                ]
+              }
+            },
+            "required": [
+              "itemId"
+            ],
+            "additionalProperties": false
+          },
+          "description": "List of order items to update."
+        }
+      },
+      "required": [
+        "orderId",
+        "items"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "moveOrderTable",
+    "description": "Move an open order to a different table, e.g. when a group changes seats.",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "orderId": {
+          "type": "string",
+          "description": "The UUID of the order to move."
+        },
+        "tableId": {
+          "type": "string",
+          "description": "The UUID of the destination table."
+        }
+      },
+      "required": [
+        "orderId",
+        "tableId"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "mergeOrders",
+    "description": "Merge two or more open orders into a single one, e.g. when two tables want to pay together.",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "orderIds": {
+          "minItems": 2,
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "The UUIDs of the orders to merge. At least two are required."
+        },
+        "targetTableId": {
+          "description": "Optional UUID of the table the merged order should end up at.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "orderIds"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "updateOrderTip",
+    "description": "Set the tip of an open order. The tip replaces any previous tip on that order.",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "orderId": {
+          "type": "string",
+          "description": "The UUID of the order."
+        },
+        "tip": {
+          "type": "number",
+          "minimum": 0,
+          "description": "The tip amount in Euros, e.g. 2.50. Use 0 to remove the tip."
+        }
+      },
+      "required": [
+        "orderId",
+        "tip"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "applyOrderDiscount",
+    "description": "Apply a discount to a whole order or to one of its items, either as a percentage or as a fixed amount in Euros.",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "orderId": {
+          "type": "string",
+          "description": "The UUID of the order to discount."
+        },
+        "target": {
+          "type": "string",
+          "enum": [
+            "ORDER",
+            "ITEM"
+          ],
+          "description": "ORDER discounts the full order, ITEM discounts a single line of the order."
+        },
+        "itemId": {
+          "description": "The UUID of the order item. Required when target is ITEM.",
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "PERCENTAGE",
+            "FIXED_AMOUNT"
+          ],
+          "description": "PERCENTAGE for \"un 10% de descuento\", FIXED_AMOUNT for \"quítale 2 euros\"."
+        },
+        "value": {
+          "type": "number",
+          "minimum": 0,
+          "description": "The percentage (1-100) when type is PERCENTAGE, or the amount in Euros when FIXED_AMOUNT."
+        },
+        "reason": {
+          "description": "Short reason for the discount, e.g. \"invitación\" or \"queja\".",
+          "type": "string"
+        }
+      },
+      "required": [
+        "orderId",
+        "target",
+        "type",
+        "value"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "removeOrderDiscount",
+    "description": "Remove a discount previously applied to an order. Use getOrderDetails to find the adjustment UUID.",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "orderId": {
+          "type": "string",
+          "description": "The UUID of the order."
+        },
+        "adjustmentId": {
+          "type": "string",
+          "description": "The UUID of the adjustment (discount) to remove."
+        }
+      },
+      "required": [
+        "orderId",
+        "adjustmentId"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "removeOrderItem",
+    "description": "Remove a single item line from an open order, e.g. when a drink was added by mistake. Destructive: requires the user to confirm first.",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "orderId": {
+          "type": "string",
+          "description": "The UUID of the order."
+        },
+        "itemId": {
+          "type": "string",
+          "description": "The UUID of the order item to remove."
+        },
+        "confirmed": {
+          "type": "boolean",
+          "description": "Set to true only after the user has explicitly confirmed the removal in a previous turn."
+        }
+      },
+      "required": [
+        "orderId",
+        "itemId",
+        "confirmed"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "cancelOrder",
+    "description": "Cancel an open order without charging it. Destructive: requires the user to confirm first.",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "orderId": {
+          "type": "string",
+          "description": "The UUID of the order to cancel. Find the order UUID in the active open orders list."
+        },
+        "confirmed": {
+          "type": "boolean",
+          "description": "Set to true only after the user has explicitly confirmed the cancellation in a previous turn."
+        }
+      },
+      "required": [
+        "orderId",
+        "confirmed"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "deleteOrder",
+    "description": "Permanently delete an order and all its history. Destructive: requires the user to confirm first. Prefer cancelOrder unless the user really wants it gone.",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "orderId": {
+          "type": "string",
+          "description": "The UUID of the order to delete."
+        },
+        "confirmed": {
+          "type": "boolean",
+          "description": "Set to true only after the user has explicitly confirmed the deletion in a previous turn."
+        }
+      },
+      "required": [
+        "orderId",
+        "confirmed"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "listProducts",
+    "description": "List the products of the establishment with their UUID, price in euros, current stock and minimum stock alert. Use lowStockOnly to answer questions like \"¿qué productos están bajo mínimos?\" or \"¿de qué me estoy quedando sin stock?\".",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "lowStockOnly": {
+          "description": "When true, return only products whose current stock is at or below their minimum stock alert.",
+          "type": "boolean"
+        },
+        "search": {
+          "description": "Optional case-insensitive filter on the product name.",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "createProduct",
+    "description": "Create a new product in the establishment menu. The category must already exist.",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the new product, e.g. \"Tarta de queso\"."
+        },
+        "categoryId": {
+          "type": "string",
+          "description": "The UUID of the category this product belongs to. Match it in the available categories list."
+        },
+        "price": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Price of the product in Euros, e.g. 2.50."
+        },
+        "currentStock": {
+          "description": "Initial stock quantity. Defaults to 0.",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "minStockAlert": {
+          "description": "Stock level that should trigger a low alert.",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "name",
+        "categoryId",
+        "price"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "updateProduct",
+    "description": "Update details of an existing product in the establishment, such as name, categoryId, price (in Euros, e.g. 2.50), or minStockAlert.",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "productId": {
+          "type": "string",
+          "description": "The UUID of the product to update."
+        },
+        "name": {
+          "description": "New name of the product.",
+          "type": "string"
+        },
+        "categoryId": {
+          "description": "New Category UUID of the product.",
+          "type": "string"
+        },
+        "price": {
+          "description": "New price of the product in Euros (e.g. 2.50).",
+          "type": "number"
+        },
+        "minStockAlert": {
+          "description": "Minimum stock level to trigger an alert.",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "productId"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "updateProductStock",
+    "description": "Set the current stock quantity of a product to an exact value. Use it for \"quedan 12 cervezas\" or after a stock count.",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "productId": {
+          "type": "string",
+          "description": "The UUID of the product to update stock for."
+        },
+        "currentStock": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991,
+          "description": "The new current stock quantity."
+        }
+      },
+      "required": [
+        "productId",
+        "currentStock"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "adjustProductStock",
+    "description": "Add or subtract stock relative to the current amount. Use it for \"ha entrado un palé de 24 cervezas\" (delta 24) or \"se han roto 3 vasos\" (delta -3).",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "productId": {
+          "type": "string",
+          "description": "The UUID of the product to adjust."
+        },
+        "delta": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991,
+          "description": "Positive to add stock (a delivery arrived), negative to subtract it (breakage, waste)."
+        }
+      },
+      "required": [
+        "productId",
+        "delta"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "deleteProduct",
+    "description": "Permanently delete a product from the establishment menu. Destructive: requires the user to confirm first.",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "productId": {
+          "type": "string",
+          "description": "The UUID of the product to delete."
+        },
+        "confirmed": {
+          "type": "boolean",
+          "description": "Set to true only after the user has explicitly confirmed the deletion in a previous turn."
+        }
+      },
+      "required": [
+        "productId",
+        "confirmed"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "listCategories",
+    "description": "List the menu categories of the establishment with their UUID and icon.",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {},
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "createCategory",
+    "description": "Create a new menu category in the establishment, e.g. \"Postres\" or \"Vinos\".",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the new category."
+        },
+        "icon": {
+          "description": "Optional Material Symbols icon name, e.g. \"local_bar\", \"restaurant\", \"cake\".",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "updateCategory",
+    "description": "Update details of an existing category in the establishment, such as its name or icon.",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "categoryId": {
+          "type": "string",
+          "description": "The UUID of the category to update."
+        },
+        "name": {
+          "description": "New name of the category.",
+          "type": "string"
+        },
+        "icon": {
+          "description": "New icon name of the category.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "categoryId"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "deleteCategory",
+    "description": "Permanently delete a menu category. Destructive: requires the user to confirm first, and it affects every product inside it.",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "categoryId": {
+          "type": "string",
+          "description": "The UUID of the category to delete."
+        },
+        "confirmed": {
+          "type": "boolean",
+          "description": "Set to true only after the user has explicitly confirmed the deletion in a previous turn."
+        }
+      },
+      "required": [
+        "categoryId",
+        "confirmed"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "getEstablishmentStats",
+    "description": "Get the revenue figures of the establishment in euros: today, yesterday, this week day by day, this month against the previous one, and the year. Use it for \"¿cuánto llevamos hoy?\", \"¿vamos mejor que el mes pasado?\" or any takings question.",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {},
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "listShifts",
+    "description": "List the scheduled shifts of the establishment within a date range, with the worker assigned to each one. Use it for \"¿quién trabaja mañana?\" or \"¿cuándo me toca turno?\".",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "startDate": {
+          "description": "Start of the range as an ISO date-time, e.g. \"2026-08-06T00:00:00Z\". Defaults to all shifts.",
+          "type": "string"
+        },
+        "endDate": {
+          "description": "End of the range as an ISO date-time.",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "createShift",
+    "description": "Schedule a shift for a member of the establishment. Use listMembers first to resolve the worker name into a user UUID.",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "The user UUID of the worker taking the shift."
+        },
+        "startTime": {
+          "type": "string",
+          "description": "Shift start as an ISO date-time, e.g. \"2026-08-07T16:00:00Z\"."
+        },
+        "endTime": {
+          "type": "string",
+          "description": "Shift end as an ISO date-time, e.g. \"2026-08-07T23:00:00Z\"."
+        },
+        "notes": {
+          "description": "Optional note for the shift, e.g. \"turno de cierre\".",
+          "type": "string"
+        }
+      },
+      "required": [
+        "userId",
+        "startTime",
+        "endTime"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "deleteShift",
+    "description": "Delete a scheduled shift. Destructive: requires the user to confirm first.",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "shiftId": {
+          "type": "string",
+          "description": "The UUID of the shift to delete. Use listShifts to find it."
+        },
+        "confirmed": {
+          "type": "boolean",
+          "description": "Set to true only after the user has explicitly confirmed the deletion in a previous turn."
+        }
+      },
+      "required": [
+        "shiftId",
+        "confirmed"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "listShiftExchanges",
+    "description": "List the pending shift exchange requests of the establishment, so staff can see which swaps are open.",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {},
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "requestShiftExchange",
+    "description": "Ask to swap one of the current user's own shifts, optionally targeting a specific colleague. Use it for \"no puedo el sábado, ¿alguien me cambia el turno?\".",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "shiftId": {
+          "type": "string",
+          "description": "The UUID of the shift the current user wants to give away."
+        },
+        "targetUserId": {
+          "description": "Optional user UUID of the colleague the swap is offered to. Omit to offer it to everyone.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "shiftId"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "acceptShiftExchange",
+    "description": "Accept a pending shift exchange on behalf of the current user, taking over that shift.",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "exchangeId": {
+          "type": "string",
+          "description": "The UUID of the exchange request to accept."
+        }
+      },
+      "required": [
+        "exchangeId"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "cancelShiftExchange",
+    "description": "Withdraw a pending shift exchange request. Destructive: requires the user to confirm first.",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "exchangeId": {
+          "type": "string",
+          "description": "The UUID of the exchange request to withdraw."
+        },
+        "confirmed": {
+          "type": "boolean",
+          "description": "Set to true only after the user has explicitly confirmed the withdrawal in a previous turn."
+        }
+      },
+      "required": [
+        "exchangeId",
+        "confirmed"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "listMembers",
+    "description": "List the staff of the establishment with their user UUID, name, email and role. Use it to resolve a worker name into a UUID before scheduling shifts, or to answer \"¿quién trabaja aquí?\".",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {},
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "inviteMember",
+    "description": "Invite somebody to join the establishment staff by email. Destructive: it sends a real email, so it requires the user to confirm first.",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "description": "Email address of the person to invite."
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "MANAGER",
+            "STAFF"
+          ],
+          "description": "Role to grant: MANAGER can manage the menu and shifts, STAFF only works the floor."
+        },
+        "confirmed": {
+          "type": "boolean",
+          "description": "Set to true only after the user has explicitly confirmed the invite in a previous turn."
+        }
+      },
+      "required": [
+        "email",
+        "role",
+        "confirmed"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "removeMember",
+    "description": "Remove a member from the establishment staff, revoking their access. Destructive: requires the user to confirm first.",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "memberId": {
+          "type": "string",
+          "description": "The establishment member UUID (memberId, not userId) to remove. Use listMembers to find it."
+        },
+        "confirmed": {
+          "type": "boolean",
+          "description": "Set to true only after the user has explicitly confirmed the removal in a previous turn."
+        }
+      },
+      "required": [
+        "memberId",
+        "confirmed"
+      ],
+      "additionalProperties": false
+    }
+  }
+]

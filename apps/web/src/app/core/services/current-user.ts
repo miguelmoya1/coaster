@@ -1,6 +1,6 @@
 import { HttpClient, httpResource } from '@angular/common/http';
 import { computed, effect, inject, Service } from '@angular/core';
-import { Role } from '@coaster/common';
+import { Role } from '../models/role.type';
 import { TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { userMapper } from '../mappers/user.mapper';
@@ -58,5 +58,4 @@ export class CurrentUser {
     this.#translate.use(language);
     this.#current.reload();
   }
-
 }

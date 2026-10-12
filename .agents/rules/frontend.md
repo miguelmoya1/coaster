@@ -12,9 +12,9 @@ When working within `apps/web`, leverage your expert Angular developer skills, b
    - `data-access/`: HTTP services to consume the backend API. These should be pure and focused only on data fetching.
    - `services/`: Frontend business logic, state orchestrators, and data transformations.
    - `store/`: Global or feature-level application state management (Signal Store).
-   - `ui/` or `components/`: Dumb (presentational) components that only receive `@Input()` and emit `@Output()`.
+   - `ui/` or `components/`: Dumb (presentational) components that only receive `input()` and emit `output()`.
    - `features/`: Smart components (containers) that connect to the store/data-access and coordinate the UI components.
-3. **Standalone Components:** Ensure all new components, directives, and pipes are generated as standalone elements (`standalone: true`). Do not use `NgModules` unless integrating with legacy code.
+3. **Standalone Components:** Components, directives, and pipes are standalone by default; do not write `standalone: true`. Do not use `NgModules`.
 4. **Control Flow:** Prefer the new Angular control flow syntax (`@if`, `@for`, `@switch`) over structural directives (`*ngIf`, `*ngFor`).
-5. **Typing:** Never create local models or interfaces for API responses. Always import DTOs and Interfaces from `packages/common`.
-6. **Performance & Lazy Loading:** Ensure that routes are lazy-loaded. Use `OnPush` change detection strategy by default for all components to maximize performance with Signals.
+5. **Typing:** The shapes of API requests and responses live in each domain's `models/` folder (`apps/web/src/app/<domain>/models/`), or in `core/models/` when every layer needs them. Import them through the domain's `@coaster/<domain>` barrel and never redefine one.
+6. **Performance & Lazy Loading:** Ensure that routes are lazy-loaded. `OnPush` is the default change detection since Angular v22, so do not set `changeDetection`.

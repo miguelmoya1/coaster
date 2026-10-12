@@ -1,9 +1,8 @@
-import { asUserId } from '@coaster/common';
+import { asUserId, type User } from '../models/user.interface';
+import { Role } from '../models/role.type';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ApplicationRef, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import type { User } from '@coaster/common';
-import { Role } from '@coaster/common';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { Auth } from './auth';

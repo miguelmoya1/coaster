@@ -3,7 +3,7 @@ import { form, FormField, FormRoot, maxLength } from '@angular/forms/signals';
 import { MatButton } from '@angular/material/button';
 import { MatDialogActions, MatDialogContent, MatDialogTitle } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
-import { SubscriptionPlan } from '@coaster/common';
+import { SubscriptionPlan } from '@coaster/establishment-subscription';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Field } from '../../../components/field/field';
 import { CoasterInput } from '../../../components/field/input.directive';

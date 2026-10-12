@@ -1,7 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { Component, input } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
-import type { AdminAuditLogEntry } from '@coaster/common';
+import type { AdminAuditLogEntry } from '@coaster/admin';
 import { TranslatePipe } from '@ngx-translate/core';
 
 const ACTION_ICONS: Record<string, string> = {

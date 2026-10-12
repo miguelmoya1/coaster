@@ -1,4 +1,4 @@
-export { MenuStore } from './store/menu.store';
-export { PublicMenuStore } from './store/public-menu.store';
-export { MenuDraft } from './services/menu-draft';
-export { PublishedMenu } from './services/published-menu';
+export { menuDraftResource, publishedMenuResource } from './resources/menu.resources';
+export { ManageMenu } from './services/manage-menu';
+export { menuLanguageOf } from './utils/menu-language';
+export * from './models/menu.interface';

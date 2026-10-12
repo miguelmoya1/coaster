@@ -1,20 +1,20 @@
 # Domain models
 
-## What lives in `@coaster/common`
+## Where the contract lives
 
-Anything the API and the front end need to agree on lives in the shared package, never duplicated on
-both sides:
+What the API and the front end need to agree on lives in the web, next to the domain that owns it:
 
-- Domain interfaces and DTOs.
-- Enums and constants (`EstablishmentRole`, `Role`, `SubscriptionPlan`, `ErrorCodes`, ...).
-- `domain/permissions` — the permission table and `hasPermission`.
-- `domain/pricing` — the order pricing engine.
-- `utils/brands` — branded-type constructors (`asEstablishmentId`, `asEstablishmentRole`, ...).
-- `utils/stock` — stock status calculation.
+- Each domain's interfaces, DTOs and enums in `apps/web/src/app/<domain>/models/`, with their
+  branded-type constructors (`asOrderId`, `asOrderStatus`, ...) beside the type they build.
+- What every layer needs in `core/`: `ErrorCodes`, `Role`, the user and the session, `Language`,
+  `EstablishmentId` and the realtime event names.
+- `establishment-members/models/establishment-permissions.ts` — the permission table and
+  `hasPermission`.
+- `products/models/stock.util.ts` — stock status calculation.
 
-Rule: if the logic is identical on both sides, it goes here. Each `core` only keeps what belongs to
-its own environment (Prisma and Nest guards in the API; interceptors and session services in the
-web app).
+The Go API has its own types and must answer those shapes. Its tests compare the error codes, the
+permission table and the realtime event names with these files, so a change on one side without the
+other fails the build.
 
 `ErrorCodes` deserves a note: every value must have a translation in both `es.json` and `en.json`,
 and a test fails the build if one is missing. Adding an error code without a message would surface
@@ -32,7 +32,7 @@ administration.
 - Establishment — a name, and everything else hangs off it.
 - EstablishmentSettings — one row per establishment, created with it:
   - `modules`: which of `TIME_TRACKING`, `ORDERS`, `INVENTORY` the venue runs. Enforced by
-    `EstablishmentModulesGuard` — see [access model](permissions.md).
+    the modules step of `middleware.Guard` — see [access model](permissions.md).
   - `language`: the establishment's own language, inherited from its creator. It decides what the
     starter catalogue is imported as and what a draft menu's default language is. It is **not** the
     language of the interface, which is `UserPreferences.language`, per person.
@@ -82,9 +82,10 @@ product and history must survive the product being retired.
 
 ## Orders and pricing
 
-`OrderPricingEngine` in `@coaster/common` is the single calculator. It takes items, adjustments, the
-tip and what has been paid, and returns the line totals, the order total and what is still pending.
-Both sides use it, so a discount never renders differently from how it is charged.
+`CalculatePricing` in the Go API (`internal/core/domain/order_pricing.go`) is the single calculator.
+It takes items, adjustments, the tip and what has been paid, and returns the line totals, the order
+total and what is still pending. The web shows the totals the API returns and never recalculates
+them, so a discount never renders differently from how it is charged.
 
 Money is **always integer cents**. Only the AI assistant converts to euros, at its boundary, because
 it speaks to people.
@@ -93,7 +94,8 @@ Rules worth knowing:
 
 - Item discounts are clamped to the line total, and order discounts to the post-item-discount
   subtotal, so a total can never go negative.
-- Percentage adjustments are capped at 100 by DTO validation.
+- Percentage adjustments are capped at 100 by request validation (the `percentage` rule in
+  `adapter/handler/httpapi/validation.go`).
 - Adjustments and tips are refused once an order is `CLOSED`. Allowing them would rewrite historical
   takings without recalculating what was actually collected.
 - Checkout accepts `CASH` or `CARD` only. `MIXED` and `NONE` are states an order arrives at from
@@ -198,8 +200,8 @@ than three columns on the invoice — most tickets carry one 10% line, but a clo
 `OrderAuditLog` is the establishment-level counterpart of `AdminAuditLog`: who voided a line, applied
 a discount or reprinted a ticket, and why.
 
-The full design, and the eleven work packages it is split into, are in
-[`VERIFACTU.md`](../../VERIFACTU.md).
+The full design, and the work packages left, are in
+[the Veri*factu plan](../plans/verifactu.md).
 
 ### Where the tax rate lives
 
@@ -275,7 +277,8 @@ end at the same realtime handler, which tells the establishment's clients with `
 
 ## Indexing
 
-PostgreSQL does not index foreign keys on its own and Prisma does not add them. Every hot filter has
+PostgreSQL does not index foreign keys on its own, and the migrations are plain SQL, so nothing adds
+them for us. Every hot filter has
 an explicit index: `Order(establishmentId, status)`, `Order(establishmentId, createdAt)` and
 `Order(establishmentId, createdById, createdAt)` for one waiter's own takings, `OrderItem(orderId)`,
 `OrderAdjustment(orderId)`, `Shift(establishmentId, startTime)` and `Shift(userId, startTime)`,

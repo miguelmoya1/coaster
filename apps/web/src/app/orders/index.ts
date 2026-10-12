@@ -1,3 +1,13 @@
 export { OrderTitlePipe } from './pipes/order-title';
-export { ActiveOrdersStore } from './store/active-orders.store';
-export { OrderHistoryStore } from './store/order-history.store';
+export { openOrdersResource } from './resources/open-orders.resource';
+export { orderHistoryResource, todayIso } from './resources/order-history.resource';
+export { orderResource } from './resources/order.resource';
+export { ManageOrder } from './services/manage-order';
+export { orderHistorySummary, type OrderHistorySummary } from './utils/order-history-summary';
+export * from './models/adjustment-target.type';
+export * from './models/adjustment-type.type';
+export * from './models/delivery-status.type';
+export * from './models/order-status.type';
+export * from './models/order.interface';
+export * from './models/payment-method.type';
+export * from './models/payment-status.type';

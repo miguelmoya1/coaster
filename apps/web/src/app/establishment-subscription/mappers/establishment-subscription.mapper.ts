@@ -1,4 +1,4 @@
-import type { EstablishmentSubscription } from '@coaster/common';
+import type { EstablishmentSubscription } from '../models/establishment-subscription.interface';
 
 export const checkIsEstablishmentSubscription = (subscription: unknown): subscription is EstablishmentSubscription => {
   return (

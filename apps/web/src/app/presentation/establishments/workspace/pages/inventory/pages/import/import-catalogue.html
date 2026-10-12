@@ -21,9 +21,9 @@
   }
 </div>
 
-@if (isLoading()) {
-  <coaster-loading />
-} @else {
+<coaster-resource-status [resource]="starter()" />
+
+@if (starter().hasValue()) {
   @if (filteredCategories().length > 0) {
     <div class="flex gap-2 mb-4 justify-between items-center px-1">
       <span class="text-xs font-semibold text-on-surface-variant">

@@ -1,13 +1,12 @@
 import { signal } from '@angular/core';
-import { EstablishmentPermission, EstablishmentRole, hasPermission } from '@coaster/common';
-import { ModulesStore } from '@coaster/establishments';
+import { EstablishmentRole, ModulesStore } from '@coaster/establishments';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideChildTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BottomBar } from '../bottom-bar/bottom-bar';
 import { BottomNav } from './bottom-nav';
-import { MyMemberStore } from '@coaster/establishment-members';
+import { EstablishmentPermission, hasPermission, MyMemberStore } from '@coaster/establishment-members';
 
 const modulesStoreMock = {
   currentEstablishmentId: signal(undefined).asReadonly(),
@@ -52,9 +51,7 @@ describe('BottomNav', () => {
       TestBed.inject(BottomBar).registerFab();
       await fixture.whenStable();
 
-      expect(nav().style.width).toBe(
-        'calc(var(--bottom-bar-width) - var(--bottom-fab-size) - var(--bottom-bar-gap))',
-      );
+      expect(nav().style.width).toBe('calc(var(--bottom-bar-width) - var(--bottom-fab-size) - var(--bottom-bar-gap))');
     });
 
     it('should take the width back when the page with the button is left', async () => {

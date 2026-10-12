@@ -1,7 +1,13 @@
-import { asEstablishmentId, asCategoryId, asProductId } from '@coaster/common';
+import { asEstablishmentId } from '@coaster/core';
+import { asCategoryId } from '@coaster/categories';
+import {
+  asProductId,
+  type CreateProductDto,
+  type UpdateProductDto,
+  type UpdateProductStockDto,
+} from '../models/product.interface';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import type { CreateProductDto, UpdateProductDto, UpdateProductStockDto } from '@coaster/common';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { ProductRepository } from './product-repository';
 

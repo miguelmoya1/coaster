@@ -1,5 +1,7 @@
 import { TestBed } from '@angular/core/testing';
-import { asUserId, Role, type AuthSession } from '@coaster/common';
+import { asUserId } from '../models/user.interface';
+import { Role } from '../models/role.type';
+import type { AuthSession } from '../models/auth.interface';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AuthRepository } from '../data-access/auth-repository';
 import { Auth } from './auth';

@@ -2,11 +2,10 @@ import { DestroyRef, Directive, ElementRef, effect, inject, input } from '@angul
 import { TranslateService } from '@ngx-translate/core';
 import { BillingEntryPoint } from '../services/billing-entry-point';
 import { EstablishmentSubscriptionStore } from '../store/establishment-subscription.store';
-import type { EstablishmentId } from '@coaster/common';
+import type { EstablishmentId } from '@coaster/core';
 
 @Directive({
   selector: '[coasterRequireSubscription]',
-  standalone: true,
 })
 export class RequireSubscriptionDirective {
   readonly #subStore = inject(EstablishmentSubscriptionStore, { optional: true });

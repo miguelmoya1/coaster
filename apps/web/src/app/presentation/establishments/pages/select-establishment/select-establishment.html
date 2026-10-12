@@ -18,13 +18,11 @@
     </ng-container>
   </coaster-page-header>
 
-  @if (establishments.isLoading()) {
-    <coaster-loading />
-  }
+  <coaster-resource-status [resource]="establishments()" />
 
-  @if (establishments.hasValue()) {
+  @if (establishments().hasValue()) {
     <div class="flex flex-col gap-3">
-      @for (establishment of establishments.value(); track establishment.id) {
+      @for (establishment of list(); track establishment.id) {
         <coaster-establishment-card [establishment]="establishment" (click)="selectEstablishment(establishment.id)" />
       } @empty {
         <div

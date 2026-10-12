@@ -1,5 +1,5 @@
 import { provideHttpClient } from '@angular/common/http';
-import { asEstablishmentId } from '@coaster/common';
+import { asEstablishmentId } from '@coaster/core';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideTranslateService } from '@ngx-translate/core';

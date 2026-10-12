@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { AdjustmentType } from '@coaster/common';
+import { AdjustmentType } from '@coaster/orders';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { AddAdjustmentDialog, type AddAdjustmentResult } from './add-adjustment-dialog';

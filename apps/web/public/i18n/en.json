@@ -27,6 +27,8 @@
   "IDENTITY_NOT_LINKED": "That account is not linked.",
   "LAST_WAY_IN": "It is your only way in. Set a password before unlinking it.",
   "SESSION_EXPIRED": "Your session has expired. Please sign in again.",
+  "SESSION_NOT_FOUND": "That session no longer exists. Refresh the page.",
+  "CANNOT_CLOSE_CURRENT_SESSION": "That is the session you are using. Sign out to leave it.",
   "SUBSCRIPTION_EXPIRED": "Your trial or subscription has ended. Activate Coaster Pro to continue.",
   "email": "Please enter a valid email.",
   "EXCHANGE_ALREADY_PENDING": "This shift already has a pending exchange request.",
@@ -35,6 +37,8 @@
   "EMAIL_ALREADY_LINKED": "That email already belongs to another sign-in account. Use the one you registered with.",
   "EMAIL_NOT_VERIFIED": "Verify your email address before signing in.",
   "INVALID_CREDENTIALS": "The email or password entered is incorrect.",
+  "TOO_MANY_ATTEMPTS": "Too many attempts on this account. Wait a few minutes before trying again.",
+  "PASSWORD_COMPROMISED": "This password shows up in known breaches. Please choose a different one.",
   "INVALID_DATE": "The entered date does not have a valid format.",
   "INVALID_EMAIL": "The email address has an incorrect format.",
   "INVALID_EXCHANGE": "The proposed shift exchange is not valid.",
@@ -56,6 +60,10 @@
   "ORDER_ITEM_NOT_FOUND": "The requested product is not in this order.",
   "ORDER_NOT_FOUND": "The requested customer order does not exist.",
   "ORDER_NOT_OPEN": "Cannot make changes because the order is already closed.",
+  "ORDER_IN_CASH_CLOSE": "This order is already in a till close and cannot be deleted",
+  "CASH_CLOSE_NOT_FOUND": "That till close does not exist",
+  "CASH_CLOSE_NOT_LAST": "Only the last till close can be undone",
+  "CASH_CLOSE_ALREADY_VOIDED": "That till close had already been voided",
   "pattern": "Invalid format.",
   "PRODUCT_NOT_FOUND": "The requested inventory product does not exist.",
   "MENU_NOT_FOUND": "This menu does not exist or has not been published yet.",
@@ -75,11 +83,10 @@
   "UNAUTHORIZED": "You do not have permissions to perform this action.",
   "UNAUTHORIZED_SHIFT_ACTION": "You are not authorized to manage this work shift.",
   "UNEXPECTED_ERROR": "An unexpected error occurred",
-  "UPLOAD_CLICK_TO_UPLOAD": "Click to upload",
-  "UPLOAD_DRAG_DROP": "or drag and drop",
-  "UPLOAD_OR_PASTE_URL": "Or paste an image URL...",
   "USER_ALREADY_EXISTS": "User already exists in the system.",
   "USER_ALREADY_MEMBER": "This user is already a member of the staff.",
+  "INVITE_ALREADY_ACCEPTED": "This person already signed in with their account, so there is no invitation to resend.",
+  "INVITE_EMAIL_FAILED": "We could not send the invitation email. Try again in a few minutes.",
   "USER_CREATION_FAILED": "An error occurred and the user could not be registered.",
   "USER_NOT_FOUND": "No user registered with that email address.",
   "ai_voice": {
@@ -251,6 +258,7 @@
     "update": "Update",
     "loading": "Loading...",
     "refresh": "Refresh",
+    "retry": "Try again",
     "submitting": "Submitting"
   },
   "dashboard": {
@@ -327,9 +335,48 @@
     "status_closed": "Closed",
     "status_open": "Open",
     "title": "Order History",
-    "today": "Today",
-    "total_orders": "Completed",
-    "yesterday": "Yesterday"
+    "total_orders": "Completed"
+  },
+  "cash_close": {
+    "tab": "Till",
+    "since": "Since {{date}}",
+    "since_start": "Since the first order: this is the first close",
+    "open_orders_warning": "Open orders: {{count}}. They stay out of this close and go into the next one once they are paid.",
+    "open_orders_charged": "{{amount}} of them has already been charged. That money is in the drawer, but it is not expected until the whole order is paid.",
+    "closed_orders": "Paid orders",
+    "cancelled_orders": "Cancelled",
+    "cash": "Cash",
+    "card": "Card",
+    "tips": "Tips (included)",
+    "total": "Total",
+    "count_title": "Cash count",
+    "opening_float": "Opening float",
+    "opening_float_hint": "What was in the drawer at the start",
+    "counted_cash": "Cash counted",
+    "counted_cash_hint": "Everything in the drawer now, float included",
+    "counted": "Counted",
+    "notes": "Notes",
+    "notes_placeholder": "E.g. €2 short from table 4's change",
+    "expected": "Expected in the drawer",
+    "difference": "Difference",
+    "balanced": "Balanced",
+    "short": "Short",
+    "over": "Over",
+    "close": "Close the till",
+    "confirm_title": "Close the till",
+    "confirm_message": "{{count}} paid orders are closed and the cash count is saved. If you get it wrong, you can undo the last till close.",
+    "closed": "Till closed",
+    "history_title": "Closes",
+    "no_history": "The till was not closed that day",
+    "closed_by": "Closed by {{name}}",
+    "print": "Print",
+    "undo": "Undo",
+    "undo_title": "Undo the till close",
+    "undo_message": "The {{count}} orders of this close go back to the open till to be closed again. The close stays in the history as voided.",
+    "undone": "Till close undone",
+    "voided": "Voided",
+    "voided_by": "Voided by {{name}} on {{date}}",
+    "ticket_title": "TILL CLOSE"
   },
   "members": {
     "delete": {
@@ -360,6 +407,11 @@
       "seats_over": "{{extra}} beyond the included ones · {{total}} a month + VAT"
     },
     "change_role": "Change role",
+    "pending_invite": "Invitation pending",
+    "resend_invite": {
+      "action": "Resend invitation",
+      "success": "Invitation resent to {{email}}"
+    },
     "role_dialog": {
       "title": "Change the role",
       "message": "{{ name }} will become {{ role }} in this establishment. Their permissions change straight away.",
@@ -1077,6 +1129,12 @@
   "BETA_TESTER_ALREADY_EXISTS": "That email is already on the tester list.",
   "BETA_TESTER_NOT_FOUND": "That tester is no longer on the list.",
   "components": {
+    "day_picker": {
+      "next_day": "Next day",
+      "previous_day": "Previous day",
+      "today": "Today",
+      "yesterday": "Yesterday"
+    },
     "icon_picker": {
       "search": "Search icon",
       "loading": "Loading icons…",
@@ -1113,6 +1171,26 @@
       "unlink": "Unlink",
       "google": "Google",
       "only_way_in": "It is your only way in. Set a password and then you can unlink it."
+    },
+    "sessions": {
+      "heading": "Open sessions",
+      "subtitle": "The devices you are signed in on. If you do not recognise one, close it and change your password.",
+      "current": "This session",
+      "unknown_device": "Unknown device",
+      "last_used": "Last active {{ when }}",
+      "none": "There are no open sessions.",
+      "close": "Close",
+      "closed": "Session closed.",
+      "close_others": "Close the others",
+      "others_closed": "Every other session was closed.",
+      "close_dialog": {
+        "title": "Close this session?",
+        "message": "{{ device }} will have to sign in again."
+      },
+      "close_others_dialog": {
+        "title": "Close every other session?",
+        "message": "Every device but this one will have to sign in again. This session stays."
+      }
     }
   }
 }

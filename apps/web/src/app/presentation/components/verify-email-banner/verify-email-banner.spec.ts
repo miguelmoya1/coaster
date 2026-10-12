@@ -1,7 +1,6 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import type { User } from '@coaster/common';
-import { AccountRepository, Auth, Toast } from '@coaster/core';
+import { AccountRepository, Auth, Toast, type User } from '@coaster/core';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { VerifyEmailBanner } from './verify-email-banner';

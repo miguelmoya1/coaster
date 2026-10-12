@@ -1,4 +1,4 @@
-import type { Order, OrderItem } from '@coaster/common';
+import type { Order, OrderItem } from '../models/order.interface';
 
 const checkIsOrderItem = (item: unknown): item is OrderItem => {
   const i = item as Record<string, unknown>;

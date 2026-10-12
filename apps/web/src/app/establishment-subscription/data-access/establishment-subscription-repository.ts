@@ -1,12 +1,12 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
+import type { EstablishmentId } from '@coaster/core';
 import type {
-  EstablishmentId,
   CreateCheckoutSessionDto,
   CreateCheckoutSessionResponse,
   CreateCustomerPortalSessionDto,
   CreateCustomerPortalSessionResponse,
-} from '@coaster/common';
+} from '../models/establishment-subscription.interface';
 import { firstValueFrom } from 'rxjs';
 
 @Service()

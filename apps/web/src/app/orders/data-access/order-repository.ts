@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
 import type {
+  AddOrderAdjustmentDto,
   AddOrderItemsDto,
-  EstablishmentId,
   BulkUpdateDto,
   CheckoutOrderDto,
   CreateOrderDto,
@@ -14,8 +14,8 @@ import type {
   UpdateOrderItemNotesDto,
   UpdateOrderNotesDto,
   UpdateOrderTipDto,
-  AddOrderAdjustmentDto,
-} from '@coaster/common';
+} from '../models/order.interface';
+import type { EstablishmentId } from '@coaster/core';
 import { firstValueFrom, map } from 'rxjs';
 import { orderMapper } from '../mappers/order.mapper';
 

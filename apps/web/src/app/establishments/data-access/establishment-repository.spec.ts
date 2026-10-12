@@ -1,6 +1,6 @@
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { asEstablishmentId } from '@coaster/common';
+import { asEstablishmentId } from '@coaster/core';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { EstablishmentRepository } from './establishment-repository';
 

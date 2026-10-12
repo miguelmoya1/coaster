@@ -1,5 +1,5 @@
 import { computed, inject, Service, signal } from '@angular/core';
-import type { AuthSession } from '@coaster/common';
+import type { AuthSession } from '../models/auth.interface';
 import { AuthRepository, Credentials, Registration } from '../data-access/auth-repository';
 
 @Service()

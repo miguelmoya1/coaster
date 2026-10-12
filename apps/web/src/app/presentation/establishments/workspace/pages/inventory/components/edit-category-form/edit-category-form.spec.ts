@@ -1,8 +1,7 @@
-import { asEstablishmentId, asCategoryId } from '@coaster/common';
+import { asEstablishmentId } from '@coaster/core';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { CategoriesStore } from '@coaster/categories';
-import type { Category } from '@coaster/common';
+import { asCategoryId, ManageCategories, type Category } from '@coaster/categories';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { EditCategoryForm } from './edit-category-form';
@@ -34,11 +33,12 @@ describe('EditCategoryForm', () => {
       providers: [
         provideZonelessChangeDetection(),
         provideTranslateService(),
-        { provide: CategoriesStore, useValue: categoriesStoreMock },
+        { provide: ManageCategories, useValue: categoriesStoreMock },
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(EditCategoryForm);
+    fixture.componentRef.setInput('establishmentId', 'establishment-1');
     component = fixture.componentInstance;
 
     fixture.componentRef.setInput('category', mockCategory);

@@ -8,7 +8,7 @@ import {
   OrderAdjustment,
   OrderItem,
   PaymentStatus,
-} from '@coaster/common';
+} from '@coaster/orders';
 import { TranslatePipe } from '@ngx-translate/core';
 import { NoteEditor } from '../../../../../../../components/note-editor/note-editor';
 import { NumberInput } from '../../../../../../../components/number-input/number-input';

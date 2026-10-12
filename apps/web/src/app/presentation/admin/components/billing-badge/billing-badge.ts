@@ -1,6 +1,6 @@
 import { Component, computed, input } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
-import type { EstablishmentBillingSource } from '@coaster/common';
+import type { EstablishmentBillingSource } from '@coaster/admin';
 import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({

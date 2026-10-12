@@ -27,13 +27,32 @@ services:
       timeout: 3s
       retries: 5
 
+  migrate:
+    build:
+      context: .
+      dockerfile: ./apps/database/Dockerfile
+    environment:
+      - DATABASE_URL=postgres://admin:admin@db:5432/coaster
+    depends_on:
+      db:
+        condition: service_healthy
+
   api:
     build:
       context: .
-      dockerfile: ./apps/api/Dockerfile.dev
+      dockerfile: ./apps/api/Dockerfile
     ports:
-      - '3000:3000'
+      - '3000:8080'
+    env_file:
+      - path: ./apps/api/.env
+        required: false
+    # apps/api/.env is written for the host (scripts/dev.sh): what differs inside Docker is
+    # set here, and environment wins over env_file.
     environment:
+      - NODE_ENV=development
+      - PORT=8080
+      - PUBLIC_DIR=/app/public
+      - PUBLIC_URL=http://localhost:3000
       - DATABASE_URL=postgres://admin:admin@db:5432/coaster
       - REDIS_URL=redis://redis:6379
       - TRUST_PROXY_HOPS=0
@@ -41,15 +60,10 @@ services:
       - CORS_ORIGINS=${CORS_ORIGINS:-}
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
     depends_on:
-      db:
-        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
       redis:
         condition: service_healthy
-    volumes:
-      - ./:/app
-      - /app/node_modules
-      - /app/apps/api/node_modules
-      - /app/packages/common/node_modules
 
   web:
     build:
@@ -58,16 +72,14 @@ services:
     ports:
       - '4200:4200'
     environment:
-      - API_URL=http://localhost:3000
+      - API_URL=${API_URL:-http://localhost:3000}
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
     depends_on:
       api:
         condition: service_started
     volumes:
       - ./:/app
-      - /app/node_modules
       - /app/apps/web/node_modules
-      - /app/packages/common/node_modules
       - web_angular_cache:/app/apps/web/.angular
 
   stripe:
@@ -79,7 +91,7 @@ services:
       - -c
       - >-
         exec stripe listen --api-key "$${STRIPE_SECRET_KEY}"
-        --forward-to http://api:3000/api/v1/stripe/webhook
+        --forward-to http://api:8080/api/v1/stripe/webhook
     depends_on:
       api:
         condition: service_started

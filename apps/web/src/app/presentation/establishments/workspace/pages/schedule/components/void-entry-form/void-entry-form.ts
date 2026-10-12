@@ -1,10 +1,8 @@
-import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
+import { Component, inject, input, output, signal } from '@angular/core';
 import { form, FormField, FormRoot, maxLength, minLength, required } from '@angular/forms/signals';
 import { MatButton } from '@angular/material/button';
-import type { TimeEntry } from '@coaster/common';
-import { asTimeEntryId } from '@coaster/common';
-import { handleErrorFormField } from '@coaster/core';
-import { TimeTrackingStore } from '@coaster/time-tracking';
+import { handleErrorFormField, type EstablishmentId } from '@coaster/core';
+import { asTimeEntryId, ManageTimeEntries, type TimeEntry } from '@coaster/time-tracking';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Field } from '../../../../../../components/field/field';
 import { FormErrors } from '../../../../../../components/field/form-errors';
@@ -12,7 +10,6 @@ import { CoasterInput } from '../../../../../../components/field/input.directive
 
 @Component({
   selector: 'coaster-void-entry-form',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormRoot, FormField, MatButton, TranslatePipe, Field, CoasterInput, FormErrors],
   template: `
     <div class="mb-4 pb-4 border-b border-outline-variant/15 select-none">
@@ -55,8 +52,9 @@ import { CoasterInput } from '../../../../../../components/field/input.directive
   `,
 })
 export class VoidEntryForm {
-  readonly #store = inject(TimeTrackingStore);
+  readonly #manageTimeEntries = inject(ManageTimeEntries);
 
+  public readonly establishmentId = input.required<EstablishmentId>();
   public readonly entry = input.required<TimeEntry>();
 
   public readonly canceled = output<void>();
@@ -75,7 +73,9 @@ export class VoidEntryForm {
       submission: {
         action: async (form) => {
           try {
-            await this.#store.voidEntry(asTimeEntryId(this.entry().id), { reason: form().value().reason });
+            await this.#manageTimeEntries.void(this.establishmentId(), asTimeEntryId(this.entry().id), {
+              reason: form().value().reason,
+            });
             this.voided.emit();
             return null;
           } catch (error) {

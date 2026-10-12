@@ -1,7 +1,7 @@
 import { Component, input, output } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
-import type { EstablishmentId } from '@coaster/common';
+import type { EstablishmentId } from '@coaster/core';
 import { RequireSubscriptionDirective } from '@coaster/establishment-subscription';
 import { TranslatePipe } from '@ngx-translate/core';
 

@@ -12,11 +12,11 @@
         type="button"
         class="px-3 py-1.5 rounded-full text-sm border transition-colors"
         [class]="
-          action() === actionFilter
+          selectedAction() === actionFilter
             ? 'border-primary bg-primary/10 text-primary font-semibold'
             : 'border-outline-variant text-on-surface-variant hover:bg-surface-container'
         "
-        [attr.aria-pressed]="action() === actionFilter"
+        [attr.aria-pressed]="selectedAction() === actionFilter"
         (click)="selectAction(actionFilter)"
       >
         {{ filterLabel(actionFilter) | translate }}
@@ -38,7 +38,7 @@
 
       @if (total() > pageSize) {
         <coaster-admin-pagination
-          [page]="page()"
+          [page]="currentPage()"
           [pageSize]="pageSize"
           [total]="total()"
           [totalPages]="totalPages()"

@@ -1,6 +1,7 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Realtime } from '@coaster/core';
+import { fakeRealtime } from '@coaster/testing';
 import { EstablishmentSubscriptionStore } from '@coaster/establishment-subscription';
 import { MyMemberStore } from '@coaster/establishment-members';
 import { provideTranslateService } from '@ngx-translate/core';
@@ -28,16 +29,17 @@ describe('InviteMemberForm', () => {
         { provide: MyMemberStore, useValue: { hasPermission: () => canManageBilling() } },
         {
           provide: Realtime,
-          useValue: {
+          useValue: fakeRealtime({
             memberRemoved: signal<any>(null),
             memberInvited: signal<any>(null),
             memberRoleChanged: signal<any>(null),
-          },
+          }),
         },
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(InviteMemberForm);
+    fixture.componentRef.setInput('establishmentId', 'establishment-1');
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

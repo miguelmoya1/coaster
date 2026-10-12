@@ -1,4 +1,4 @@
-import { EstablishmentRole } from '@coaster/common';
+import { EstablishmentRole } from '../../src/app/establishments/models/establishment-role.type';
 import { expect, test } from '@playwright/test';
 import { MenuPage } from '../pom/menu.page';
 import { mockApiResponse } from './utils/mock-api';
@@ -24,7 +24,6 @@ test.describe('Menu Management', () => {
       userId: 'test-user-123',
       establishmentId,
       role: EstablishmentRole.OWNER,
-      permissions: [],
       active: true,
       userName: 'Test User',
       userImage: '',
@@ -65,7 +64,6 @@ test.describe('Menu Management', () => {
       userId: 'test-user-123',
       establishmentId,
       role: EstablishmentRole.OWNER,
-      permissions: [],
       active: true,
       userName: 'Test User',
       userImage: '',

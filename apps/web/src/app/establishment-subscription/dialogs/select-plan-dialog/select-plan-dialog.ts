@@ -3,22 +3,14 @@ import { MatButton } from '@angular/material/button';
 import { MatDialogActions, MatDialogContent, MatDialogTitle } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
-import { SubscriptionPlan } from '@coaster/common';
+import { SubscriptionPlan } from '../../models/subscription-plan.type';
 import { MoneyFormatterService } from '@coaster/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { EstablishmentSubscriptionStore } from '../../store/establishment-subscription.store';
 
 @Component({
   selector: 'coaster-select-plan-dialog',
-  imports: [
-    MatProgressSpinner,
-    MatButton,
-    MatIcon,
-    TranslatePipe,
-    MatDialogTitle,
-    MatDialogContent,
-    MatDialogActions,
-  ],
+  imports: [MatProgressSpinner, MatButton, MatIcon, TranslatePipe, MatDialogTitle, MatDialogContent, MatDialogActions],
   template: `
     <h2 mat-dialog-title class="flex items-center gap-3 m-0 p-0 text-xl font-bold text-on-surface">
       <span class="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
@@ -67,8 +59,7 @@ import { EstablishmentSubscriptionStore } from '../../store/establishment-subscr
                 }}
               } @else {
                 {{
-                  'billing.seats.breakdown_within'
-                    | translate: { included: summary.included, each: summary.extraPrice }
+                  'billing.seats.breakdown_within' | translate: { included: summary.included, each: summary.extraPrice }
                 }}
               }
             </p>

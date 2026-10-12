@@ -15,35 +15,33 @@ env:
   GCP_REGION_SERVICE: 'europe-west1'
   GCP_REGION_JOB: 'europe-southwest1'
   GCP_IMAGE_NAME: 'europe-west1-docker.pkg.dev/coaster-437f2/coaster-repo/api-new'
+  GCP_DATABASE_IMAGE_NAME: 'europe-west1-docker.pkg.dev/coaster-437f2/coaster-repo/coaster-database'
 
 jobs:
-  build-and-test:
-    name: 🧪 Tests & Quality Checks
+  web:
+    name: 🧪 Web
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/web
     steps:
       - name: 📥 Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: 🟢 Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 26
           cache: 'npm'
+          cache-dependency-path: apps/web/package-lock.json
 
       - name: 📦 Install Dependencies
         run: npm ci
 
-      - name: 🗄️ Generate Prisma Client
-        run: npm run db:gen -w apps/api
-
-      - name: 🏗️ Build All (Common, API, Web)
-        run: |
-          npm run build -w @coaster/common
-          npm run build -w @coaster/api
-          npm run build -w @coaster/web
+      - name: 🏗️ Build
+        run: npm run build
 
       - name: 🏗️ The production bundle must build, budgets included
-        working-directory: apps/web
         env:
           PRODUCTION: 'true'
         run: |
@@ -54,31 +52,113 @@ jobs:
         run: npm run lint
 
       - name: 🧪 Unit Tests
-        run: npm run test
-
-      - name: 🧪 Backend E2E Tests
-        run: npm run test:e2e -w @coaster/api
+        run: npm test
 
       #      - name: 🌐 Install Playwright Browsers
       #        run: npx playwright install --with-deps
-      #        working-directory: apps/web
       #
       #      - name: 🧪 Frontend E2E Tests
       #        run: npx playwright test
-      #        working-directory: apps/web
+
+  printer-service:
+    name: 🖨️ Puente de impresora
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/printer-service
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v7
 
       - name: 🐹 Setup Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v7
         with:
-          go-version: '1.26'
+          go-version-file: apps/printer-service/go.mod
           cache-dependency-path: apps/printer-service/go.sum
 
-      - name: 🧪 Go Unit Tests (Printer Service)
-        run: cd apps/printer-service && go test -v ./... -cover
+      - name: 🧹 gofmt
+        run: |
+          unformatted=$(gofmt -l .)
+          if [ -n "$unformatted" ]; then
+            echo "::error::Sin gofmt: $unformatted"
+            exit 1
+          fi
 
+      - name: 🔎 go vet
+        run: |
+          go vet ./...
+          GOOS=windows go vet ./...
+
+      - name: 🧪 go test
+        run: go test -race -v ./... -cover
+
+  api:
+    name: 🐹 API en Go
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/api
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v7
+
+      - name: 🐹 Setup Go
+        uses: actions/setup-go@v7
+        with:
+          go-version-file: apps/api/go.mod
+          cache-dependency-path: apps/api/go.sum
+
+      - name: 🧹 gofmt
+        run: |
+          unformatted=$(gofmt -l .)
+          if [ -n "$unformatted" ]; then
+            echo "::error::Sin gofmt: $unformatted"
+            exit 1
+          fi
+
+      - name: 🔎 go vet
+        run: go vet ./...
+
+      # -count=1: los e2e compilan la API en otro proceso y la caché de Go no ve sus cambios.
+      - name: 🧪 go test
+        run: go test -race -count=1 ./...
+
+  database:
+    name: 🗄️ Base de datos
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/database
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v7
+
+      - name: 🐹 Setup Go
+        uses: actions/setup-go@v7
+        with:
+          go-version-file: apps/database/go.mod
+          cache-dependency-path: apps/database/go.sum
+
+      - name: 🧹 gofmt
+        run: |
+          unformatted=$(gofmt -l .)
+          if [ -n "$unformatted" ]; then
+            echo "::error::Sin gofmt: $unformatted"
+            exit 1
+          fi
+
+      - name: 🔎 go vet
+        run: go vet ./...
+
+      # Incluye schema.sql: falla si no coincide con las migraciones.
+      - name: 🧪 go test
+        run: go test -race ./...
+
+  # Every job is here so no migration and no API reach beta or production before the
+  # whole repository passes.
   deploy-backend:
     name: 🚀 Deploy Backend & Migrate DB
-    needs: build-and-test
+    needs: [web, printer-service, api, database]
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     environment: ${{ github.ref_name == 'main' && 'api-production' || 'api-beta' }}
@@ -88,7 +168,7 @@ jobs:
       SECRET_PREFIX: ${{ github.ref_name == 'main' && 'coaster-prod' || 'coaster-beta' }}
     steps:
       - name: 📦 Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: 🔎 The target environment must be configured
         env:
@@ -104,13 +184,13 @@ jobs:
           done
 
       - name: 🔐 Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
+        uses: google-github-actions/auth@v3
         with:
           workload_identity_provider: 'projects/774617138158/locations/global/workloadIdentityPools/github/providers/my-repo'
           service_account: 'github-actions@coaster-437f2.iam.gserviceaccount.com'
 
       - name: ☁️ Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v2
+        uses: google-github-actions/setup-gcloud@v3
 
       # Credentials live in Secret Manager and the deploy only ever carries their names.
       # Each secret is its variable in kebab-case behind the environment's prefix, so
@@ -197,19 +277,23 @@ jobs:
       - name: 🔑 Configure Docker
         run: gcloud auth configure-docker ${{ env.GCP_REGION_SERVICE }}-docker.pkg.dev
 
-      - name: 🛠️ Build & Push Docker Image
+      - name: 🛠️ Build & Push Docker Images
         run: |
           docker build -t ${{ env.GCP_IMAGE_NAME }}:${{ github.sha }} -f apps/api/Dockerfile .
           docker push ${{ env.GCP_IMAGE_NAME }}:${{ github.sha }}
+          docker build -t ${{ env.GCP_DATABASE_IMAGE_NAME }}:${{ github.sha }} -f apps/database/Dockerfile .
+          docker push ${{ env.GCP_DATABASE_IMAGE_NAME }}:${{ github.sha }}
 
-      - name: 🗄️ Run Prisma Migrations (Cloud Run Job)
+      # goose owns the schema: the job runs the migrate binary of apps/database. On a database
+      # Prisma migrated, its first run records what Prisma applied and applies only the rest.
+      - name: 🗄️ Run Migrations (Cloud Run Job)
         run: |
           gcloud run jobs deploy ${{ vars.GCP_JOB_NAME }} \
-            --image ${{ env.GCP_IMAGE_NAME }}:${{ github.sha }} \
+            --image ${{ env.GCP_DATABASE_IMAGE_NAME }}:${{ github.sha }} \
             --region ${{ env.GCP_REGION_JOB }} \
             ${REMOVE_STALE_JOB} \
             --update-secrets="DATABASE_URL=${SECRET_PREFIX}-database-url:latest" \
-            --command "npx,prisma,migrate,deploy,--config=apps/api/prisma.config.ts"
+            --command "/app/migrate"
 
           gcloud run jobs execute ${{ vars.GCP_JOB_NAME }} --region ${{ env.GCP_REGION_JOB }} --wait
 

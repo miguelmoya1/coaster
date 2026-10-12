@@ -2,9 +2,10 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideZonelessChangeDetection, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import type { EstablishmentId } from '@coaster/common';
-import { SubscriptionPlan, SubscriptionStatus } from '@coaster/common';
-import { Realtime } from '@coaster/core';
+import { SubscriptionPlan } from '../models/subscription-plan.type';
+import { SubscriptionStatus } from '../models/subscription-status.type';
+import { Realtime, type EstablishmentId } from '@coaster/core';
+import { fakeRealtime } from '@coaster/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { EstablishmentSubscription } from '../services/establishment-subscription';
 import { SubscriptionSeats } from '../services/subscription-seats';
@@ -18,6 +19,7 @@ describe('EstablishmentSubscriptionStore', () => {
   const realtimeSignal = signal<{ establishmentId: string } | null>(null);
   const memberInvitedSignal = signal<{ id: string } | null>(null);
   const memberRemovedSignal = signal<{ id: string } | null>(null);
+  const reconnectedSignal = signal(0);
 
   const establishmentId = 'establishment-1' as EstablishmentId;
   const url = `/establishments/${establishmentId}/establishment-subscription`;
@@ -68,11 +70,12 @@ describe('EstablishmentSubscriptionStore', () => {
         { provide: CreateCheckoutSession, useValue: { execute: vi.fn() } },
         {
           provide: Realtime,
-          useValue: {
+          useValue: fakeRealtime({
             subscriptionUpdated: realtimeSignal,
             memberInvited: memberInvitedSignal,
             memberRemoved: memberRemovedSignal,
-          },
+            reconnected: reconnectedSignal,
+          }),
         },
       ],
     });
@@ -191,6 +194,23 @@ describe('EstablishmentSubscriptionStore', () => {
       TestBed.tick();
 
       expect(store.billedSeats()?.used).toBe(2);
+    });
+
+    it('should load the subscription and the seats again when the stream comes back, in case it missed a payment', async () => {
+      await loadSeats({ used: 3, billed: 3, included: 10, basePriceCents: 1999, extraPriceCents: 200 });
+
+      reconnectedSignal.update((count) => count + 1);
+      TestBed.tick();
+
+      httpMock.expectOne(url).flush(activeSubscription);
+      httpMock
+        .expectOne(seatsUrl)
+        .flush({ used: 4, billed: 4, included: 10, basePriceCents: 1999, extraPriceCents: 200 });
+      TestBed.tick();
+      await Promise.resolve();
+      TestBed.tick();
+
+      expect(store.billedSeats()?.used).toBe(4);
     });
 
     it('should stay quiet while the venue still has room in its allowance', async () => {

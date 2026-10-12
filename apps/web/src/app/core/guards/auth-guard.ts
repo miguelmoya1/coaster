@@ -1,5 +1,5 @@
 import { inject } from '@angular/core';
-import { CanActivateFn, Router } from '@angular/router';
+import { CanActivateFn, RedirectCommand, Router } from '@angular/router';
 import { Auth } from '../services/auth';
 
 export const authGuard: CanActivateFn = async () => {
@@ -8,5 +8,9 @@ export const authGuard: CanActivateFn = async () => {
 
   await authService.ensureRestored();
 
-  return authService.isAuthenticated() || router.createUrlTree(['/login']);
+  if (!authService.isAuthenticated()) {
+    throw new RedirectCommand(router.createUrlTree(['/login']));
+  }
+
+  return true;
 };
