@@ -49,7 +49,7 @@ type OrderService interface {
 	ListByDate(ctx context.Context, establishmentID, date string) ([]domain.Order, error)
 	List(ctx context.Context, establishmentID string, status domain.OrderStatus) ([]domain.Order, error)
 	Get(ctx context.Context, establishmentID, orderID string) (domain.Order, error)
-	Create(ctx context.Context, establishmentID string, input domain.CreateOrderInput) error
+	Create(ctx context.Context, establishmentID string, input domain.CreateOrderInput) (domain.Order, error)
 	AddItems(ctx context.Context, establishmentID, orderID string, input domain.AddOrderItemsInput) error
 	BulkUpdate(ctx context.Context, establishmentID, orderID string, updates []domain.OrderItemUpdate) error
 	Checkout(ctx context.Context, establishmentID, orderID string, method domain.PaymentMethod) error

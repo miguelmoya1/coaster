@@ -66,8 +66,10 @@ export class OrderRepository {
     );
   }
 
-  public async create(establishmentId: EstablishmentId, dto: CreateOrderDto): Promise<void> {
-    return firstValueFrom(this.#http.post<void>(this.routes.create(establishmentId), dto));
+  public async create(establishmentId: EstablishmentId, dto: CreateOrderDto): Promise<Order> {
+    return firstValueFrom(
+      this.#http.post<Order>(this.routes.create(establishmentId), dto).pipe(map((order) => orderMapper(order))),
+    );
   }
 
   public async addItems(establishmentId: EstablishmentId, orderId: OrderId, dto: AddOrderItemsDto): Promise<void> {

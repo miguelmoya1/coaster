@@ -42,6 +42,19 @@ describe('ManageOrder', () => {
     expect(service).toBeTruthy();
   });
 
+  describe('create', () => {
+    it('should delegate to repository and return created order', async () => {
+      const dto = { items: [{ productId: asProductId('prod-1'), quantity: 2 }] };
+      const mockOrder = { id: asOrderId('order-1') } as Order;
+      orderRepoMock.create.mockResolvedValue(mockOrder);
+
+      const result = await service.create(establishmentId, dto);
+
+      expect(orderRepoMock.create).toHaveBeenCalledWith(establishmentId, dto);
+      expect(result).toBe(mockOrder);
+    });
+  });
+
   describe('addItems', () => {
     it('should delegate to repository', async () => {
       const dto = { items: [{ productId: asProductId('prod-2'), quantity: 3 }] };

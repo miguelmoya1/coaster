@@ -7,6 +7,7 @@ import type {
   CreateOrderDto,
   MergeOrdersDto,
   MoveTableDto,
+  Order,
   OrderId,
   OrderItemId,
   UpdateOrderItemNotesDto,
@@ -24,8 +25,8 @@ export class ManageOrder {
     return await this.#orderRepository.getOrder(establishmentId, orderId);
   }
 
-  public async create(establishmentId: EstablishmentId, dto: CreateOrderDto): Promise<void> {
-    await this.#orderRepository.create(establishmentId, dto);
+  public async create(establishmentId: EstablishmentId, dto: CreateOrderDto): Promise<Order> {
+    return await this.#orderRepository.create(establishmentId, dto);
   }
 
   public async addItems(establishmentId: EstablishmentId, orderId: OrderId, dto: AddOrderItemsDto): Promise<void> {

@@ -170,12 +170,13 @@ func (h *OrderHandler) create(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	if err := h.orders.Create(r.Context(), r.PathValue("establishmentId"), create); err != nil {
+	order, err := h.orders.Create(r.Context(), r.PathValue("establishmentId"), create)
+	if err != nil {
 		writeError(w, err)
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
+	respond.JSON(w, http.StatusCreated, order)
 }
 
 func (h *OrderHandler) addItems(w http.ResponseWriter, r *http.Request) {

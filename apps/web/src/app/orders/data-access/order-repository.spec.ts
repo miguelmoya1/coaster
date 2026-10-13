@@ -59,19 +59,32 @@ describe('OrderRepository', () => {
   describe('create', () => {
     const establishmentId = asEstablishmentId('establishment-1');
     const dto = { items: [{ productId: asProductId('prod-1'), quantity: 2 }] };
+    const rawOrder = {
+      id: 'order-1',
+      establishmentId: 'establishment-1',
+      status: 'OPEN',
+      totalAmount: 1000,
+      amountPaidCash: 0,
+      amountPaidCard: 0,
+      items: [],
+      adjustments: [],
+      paymentMethod: 'NONE',
+      tipAmount: 0,
+      netTotal: 1000,
+      taxBreakdown: [],
+      taxAmountTotal: 0,
+      orderTotal: 1000,
+      payableTotal: 1000,
+    };
 
-    it('should call create endpoint', async () => {
+    it('should call create endpoint and return mapped order', async () => {
       const promise = service.create(establishmentId, dto);
       const req = httpMock.expectOne(service.routes.create(establishmentId));
       expect(req.request.method).toBe('POST');
-      req.flush(null);
-      await promise;
-    });
-
-    it('should return null', async () => {
-      const res = service.create(establishmentId, dto);
-      httpMock.expectOne(service.routes.create(establishmentId)).flush(null);
-      expect(await res).toBeNull();
+      req.flush(rawOrder);
+      const res = await promise;
+      expect(res.id).toBe('order-1');
+      expect(res.orderTotal).toBe(1000);
     });
   });
 

@@ -59,21 +59,21 @@ func (s *OrderService) Get(ctx context.Context, establishmentID, orderID string)
 	return order.ToOrder(), nil
 }
 
-func (s *OrderService) Create(ctx context.Context, establishmentID string, input domain.CreateOrderInput) error {
+func (s *OrderService) Create(ctx context.Context, establishmentID string, input domain.CreateOrderInput) (domain.Order, error) {
 	items, totalAmount, err := s.priceLines(ctx, establishmentID, input.Items)
 	if err != nil {
-		return err
+		return domain.Order{}, err
 	}
 
 	tableID := domain.NilIfEmpty(input.TableID)
 	tableName, err := s.freeTableName(ctx, establishmentID, tableID)
 	if err != nil {
-		return err
+		return domain.Order{}, err
 	}
 
 	adjustments, err := newOrderAdjustments(input.Adjustments)
 	if err != nil {
-		return err
+		return domain.Order{}, err
 	}
 
 	row, err := s.orders.Create(ctx, domain.NewOrder{
@@ -88,11 +88,12 @@ func (s *OrderService) Create(ctx context.Context, establishmentID string, input
 		Notes:           cutOrderNote(input.Notes),
 	})
 	if err != nil {
-		return err
+		return domain.Order{}, err
 	}
 
-	s.events.Publish(ctx, domain.OrderCreatedEvent{EstablishmentID: establishmentID, Order: row.ToOrder(), TableID: tableID})
-	return nil
+	order := row.ToOrder()
+	s.events.Publish(ctx, domain.OrderCreatedEvent{EstablishmentID: establishmentID, Order: order, TableID: tableID})
+	return order, nil
 }
 
 func (s *OrderService) freeTableName(ctx context.Context, establishmentID string, tableID *string) (*string, error) {

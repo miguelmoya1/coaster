@@ -159,6 +159,29 @@ describe('NewOrder', () => {
 
       expect(component.cartItems().length).toBe(0);
     });
+
+    it('should navigate back to existing order on goBack if orderId is set', async () => {
+      fixture.componentRef.setInput('orderId', asOrderId('order-1'));
+      await fixture.whenStable();
+      component.goBack();
+      expect(routerMock.navigate).toHaveBeenCalledWith(['/establishments', 'establishment-1', 'orders', 'order-1']);
+    });
+
+    it('should navigate to created order on submitOrder for new order', async () => {
+      manageOrderMock.create.mockResolvedValue({ id: 'created-order-123' });
+      const product = { id: 'p-1', name: 'Beer', price: 500 } as Product;
+      component.addToCart(product);
+
+      await component.submitOrder();
+
+      expect(manageOrderMock.create).toHaveBeenCalled();
+      expect(routerMock.navigate).toHaveBeenCalledWith([
+        '/establishments',
+        'establishment-1',
+        'orders',
+        'created-order-123',
+      ]);
+    });
   });
 
   describe('adding to an order that already exists', () => {
@@ -171,7 +194,7 @@ describe('NewOrder', () => {
       expect(component.orderNotes()).toBe('mesa exterior');
     });
 
-    it('should add the cart to that order rather than open a new one', async () => {
+    it('should add the cart to that order rather than open a new one and navigate to that order', async () => {
       fixture.componentRef.setInput('orderId', asOrderId('order-1'));
       fixture.componentRef.setInput('order', fakeResource({ id: 'order-1' } as Order).resource);
       await fixture.whenStable();
@@ -181,6 +204,7 @@ describe('NewOrder', () => {
 
       expect(manageOrderMock.addItems).toHaveBeenCalled();
       expect(manageOrderMock.create).not.toHaveBeenCalled();
+      expect(routerMock.navigate).toHaveBeenCalledWith(['/establishments', 'establishment-1', 'orders', 'order-1']);
     });
   });
 });

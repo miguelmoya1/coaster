@@ -277,11 +277,12 @@ func (s *AIService) orderTools(tc *aiToolContext) []ports.AITool {
 				}
 
 				return tc.execute(domain.PermissionCreateOrder, nil, func() error {
-					return s.orders.Create(ctx, tc.establishmentID, domain.CreateOrderInput{
+					_, err := s.orders.Create(ctx, tc.establishmentID, domain.CreateOrderInput{
 						CreatedByID: tc.user.ID,
 						TableID:     domain.NilIfEmpty(&input.TableID),
 						Items:       lines,
 					})
+					return err
 				})
 			}),
 

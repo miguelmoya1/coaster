@@ -242,7 +242,7 @@ func TestOrderAndTableResponses(t *testing.T) {
 		{"list", "GET " + orders + "?status=OPEN", "", http.StatusOK, `[{"id":"` + orderTestID + `","establishmentId":"e1","status":"OPEN"`},
 		{"get", "GET " + order, "", http.StatusOK, `{"id":"` + orderTestID + `","establishmentId":"e1","status":"OPEN","totalAmount":500`},
 		{"get another", "GET " + orders + "/missing", "", http.StatusNotFound, `{"message":"ORDER_NOT_FOUND","error":"Not Found","statusCode":404}`},
-		{"create", "POST " + orders, `{"items":[{"productId":"` + orderTestProd + `","quantity":1}]}`, http.StatusCreated, ""},
+		{"create", "POST " + orders, `{"items":[{"productId":"` + orderTestProd + `","quantity":1}]}`, http.StatusCreated, `{"id":"` + orderTestID + `"`},
 		{"bulk", "PATCH " + order + "/items/bulk", `{"items":[{"itemId":"` + orderTestItem + `","paidQuantity":2}]}`, http.StatusBadRequest,
 			`{"message":"PAY_QUANTITY_EXCEEDS_TOTAL","error":"Bad Request","statusCode":400}`},
 		{"bulk", "PATCH " + order + "/items/bulk", `{"items":[{"itemId":"` + orderTestItem + `","servedQuantity":1}]}`, http.StatusOK, ""},

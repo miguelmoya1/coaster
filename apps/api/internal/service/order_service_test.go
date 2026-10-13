@@ -56,7 +56,7 @@ func TestOrderServiceCreate(t *testing.T) {
 	longNote := strings.Repeat("ñ", 501)
 
 	f := newOrderFixture()
-	err := f.service.Create(context.Background(), "e1", domain.CreateOrderInput{
+	_, err := f.service.Create(context.Background(), "e1", domain.CreateOrderInput{
 		CreatedByID: "u1",
 		TableID:     new("t-free"),
 		Items: []domain.OrderLineInput{
@@ -117,7 +117,7 @@ func TestOrderServiceCreateRefuses(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			f := newOrderFixture()
-			err := f.service.Create(context.Background(), "e1", tt.input)
+			_, err := f.service.Create(context.Background(), "e1", tt.input)
 			if !domain.HasCode(err, tt.code) || len(f.orders.writes) != 0 || len(f.events.events) != 0 {
 				t.Fatalf("err = %v, writes = %v; want %s and nothing written", err, f.orders.writes, tt.code)
 			}
