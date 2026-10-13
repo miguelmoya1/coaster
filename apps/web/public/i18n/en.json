@@ -498,7 +498,9 @@
     "all_served_title": "All served!",
     "all_served_desc": "There are no pending orders to serve at the establishment right now.",
     "summary": {
+      "already_paid": "Already paid",
       "net_total": "Net total",
+      "pending": "Pending payment",
       "tax_line": "VAT ({{rate}}%)"
     }
   },

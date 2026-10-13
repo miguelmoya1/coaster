@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 import { MatIconButton, MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { AdjustmentTarget, AdjustmentType, Order, OrderStatus } from '@coaster/orders';
@@ -109,12 +109,29 @@ import { PricePipe } from '../../../../../pipes/price/price';
         </div>
       </div>
 
-      <div class="flex justify-between items-center border-t border-outline-variant pt-3 mt-1">
-        <span class="text-lg font-bold">Total a Pagar</span>
-        <span class="text-2xl font-black" [class.text-primary]="order().status === OrderStatus.OPEN">
-          {{ order().payableTotal | price }}
-        </span>
-      </div>
+      @if (hasPartialPayment()) {
+        <div class="flex flex-col gap-1 border-t border-outline-variant pt-3 mt-1">
+          <div class="flex justify-between items-center text-on-surface-variant">
+            <span class="text-sm font-medium">{{ 'orders.total_to_pay' | translate }}</span>
+            <span class="text-base font-semibold line-through">{{ order().payableTotal | price }}</span>
+          </div>
+          <div class="flex justify-between items-center text-emerald-400">
+            <span class="text-sm font-medium">{{ 'orders.summary.already_paid' | translate }}</span>
+            <span class="text-base font-semibold">- {{ paidAmount() | price }}</span>
+          </div>
+          <div class="flex justify-between items-center pt-1">
+            <span class="text-lg font-bold">{{ 'orders.summary.pending' | translate }}</span>
+            <span class="text-2xl font-black text-primary">{{ pendingAmount() | price }}</span>
+          </div>
+        </div>
+      } @else {
+        <div class="flex justify-between items-center border-t border-outline-variant pt-3 mt-1">
+          <span class="text-lg font-bold">{{ 'orders.total_to_pay' | translate }}</span>
+          <span class="text-2xl font-black" [class.text-primary]="order().status === OrderStatus.OPEN">
+            {{ order().payableTotal | price }}
+          </span>
+        </div>
+      }
     </div>
   `,
 })
@@ -123,6 +140,12 @@ export class OrderSummaryCard {
   protected readonly AdjustmentType = AdjustmentType;
 
   public readonly order = input.required<Order>();
+
+  protected readonly paidAmount = computed(() => this.order().amountPaidCash + this.order().amountPaidCard);
+  protected readonly pendingAmount = computed(() => Math.max(0, this.order().payableTotal - this.paidAmount()));
+  protected readonly hasPartialPayment = computed(
+    () => this.order().status === OrderStatus.OPEN && this.paidAmount() > 0,
+  );
 
   public readonly updateTip = output<number>();
   public readonly addAdjustment = output<void>();

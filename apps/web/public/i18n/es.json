@@ -498,7 +498,9 @@
     "all_served_title": "¡Todo servido!",
     "all_served_desc": "No hay pedidos pendientes de servir en la barra en este momento.",
     "summary": {
+      "already_paid": "Ya cobrado",
       "net_total": "Base imponible",
+      "pending": "Pendiente de cobro",
       "tax_line": "IVA ({{rate}}%)"
     }
   },
