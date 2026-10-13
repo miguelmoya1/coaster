@@ -16,6 +16,7 @@ describe('ManageOrder', () => {
     addItems: vi.fn(),
     bulkUpdate: vi.fn(),
     checkout: vi.fn(),
+    close: vi.fn(),
     cancel: vi.fn(),
     moveTable: vi.fn(),
     merge: vi.fn(),
@@ -74,6 +75,17 @@ describe('ManageOrder', () => {
       expect(orderRepoMock.checkout).toHaveBeenCalledWith(establishmentId, orderId, {
         paymentMethod: PaymentMethod.CASH,
       });
+      expect(result).toBeUndefined();
+    });
+  });
+
+  describe('close', () => {
+    it('should delegate to repository', async () => {
+      orderRepoMock.close.mockResolvedValue(undefined);
+
+      const result = await service.close(establishmentId, orderId);
+
+      expect(orderRepoMock.close).toHaveBeenCalledWith(establishmentId, orderId);
       expect(result).toBeUndefined();
     });
   });

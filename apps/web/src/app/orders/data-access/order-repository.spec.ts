@@ -43,6 +43,10 @@ describe('OrderRepository', () => {
       );
     });
 
+    it('should have the close route', () => {
+      expect(service.routes.close(asEstablishmentId('1'), asOrderId('2'))).toBe('/establishments/1/orders/2/close');
+    });
+
     it('should have the cancel route', () => {
       expect(service.routes.cancel(asEstablishmentId('1'), asOrderId('2'))).toBe('/establishments/1/orders/2/cancel');
     });
@@ -78,6 +82,19 @@ describe('OrderRepository', () => {
     it('should call checkout endpoint', async () => {
       const promise = service.checkout(establishmentId, orderId, { paymentMethod: PaymentMethod.CASH });
       const req = httpMock.expectOne(service.routes.checkout(establishmentId, orderId));
+      expect(req.request.method).toBe('POST');
+      req.flush(null);
+      await promise;
+    });
+  });
+
+  describe('close', () => {
+    const establishmentId = asEstablishmentId('establishment-1');
+    const orderId = asOrderId('order-1');
+
+    it('should call close endpoint', async () => {
+      const promise = service.close(establishmentId, orderId);
+      const req = httpMock.expectOne(service.routes.close(establishmentId, orderId));
       expect(req.request.method).toBe('POST');
       req.flush(null);
       await promise;

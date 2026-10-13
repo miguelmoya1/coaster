@@ -33,6 +33,8 @@ func (h *OrderHandler) RegisterRoutes(mux *http.ServeMux, guard *middleware.Guar
 		middleware.Permissions(domain.PermissionUpdateOrder), orders)
 	handle(mux, guard, "POST "+base+"/{orderId}/checkout", h.checkout,
 		middleware.Permissions(domain.PermissionCheckoutOrder), orders)
+	handle(mux, guard, "POST "+base+"/{orderId}/close", h.close,
+		middleware.Permissions(domain.PermissionCheckoutOrder), orders)
 	handle(mux, guard, "POST "+base+"/{orderId}/cancel", h.cancel,
 		middleware.Permissions(domain.PermissionCancelOrder), orders)
 	handle(mux, guard, "PATCH "+base+"/{orderId}/move-table", h.moveTable,
@@ -230,6 +232,15 @@ func (h *OrderHandler) checkout(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := h.orders.Checkout(r.Context(), r.PathValue("establishmentId"), r.PathValue("orderId"), input.PaymentMethod); err != nil {
+		writeError(w, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+}
+
+func (h *OrderHandler) close(w http.ResponseWriter, r *http.Request) {
+	if err := h.orders.Close(r.Context(), r.PathValue("establishmentId"), r.PathValue("orderId")); err != nil {
 		writeError(w, err)
 		return
 	}

@@ -208,13 +208,31 @@ func checkQuantity(quantity, total int, exceedsTotal, negative string) error {
 	}
 	return nil
 }
+
 func (s *OrderService) Checkout(ctx context.Context, establishmentID, orderID string, method domain.PaymentMethod) error {
-	order, err := s.findOpen(ctx, establishmentID, orderID)
+	if _, err := s.findOpen(ctx, establishmentID, orderID); err != nil {
+		return err
+	}
+
+	row, err := s.orders.Checkout(ctx, orderID, method)
 	if err != nil {
 		return err
 	}
 
-	row, err := s.orders.Checkout(ctx, orderID, order.TableID, method)
+	s.events.Publish(ctx, domain.OrderUpdatedEvent{EstablishmentID: establishmentID, Order: row.ToOrder()})
+	return nil
+}
+
+func (s *OrderService) Close(ctx context.Context, establishmentID, orderID string) error {
+	order, err := s.findOpen(ctx, establishmentID, orderID)
+	if err != nil {
+		return err
+	}
+	if !order.IsFullyPaid() {
+		return domain.BadRequest(domain.CodeOrderHasPendingPayment)
+	}
+
+	row, err := s.orders.Close(ctx, orderID, order.TableID)
 	if err != nil {
 		return err
 	}

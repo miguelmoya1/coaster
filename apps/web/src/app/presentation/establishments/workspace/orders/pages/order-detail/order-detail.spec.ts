@@ -6,6 +6,7 @@ import { asOrderId, ManageOrder, OrderStatus, type Order } from '@coaster/orders
 import { fakeResource } from '@coaster/testing';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { ConfirmationDialog } from '../../../../../components/confirm-dialog/confirmation-dialog.service';
 import OrderDetail from './order-detail';
 
 const establishmentId = asEstablishmentId('establishment-1');
@@ -32,10 +33,13 @@ describe('OrderDetail', () => {
   let fixture: ComponentFixture<OrderDetail>;
 
   const routerMock = { navigate: vi.fn().mockResolvedValue(true) };
+  const confirmationMock = { confirm: vi.fn().mockResolvedValue(true) };
   const manageOrderMock = {
     updateTip: vi.fn().mockResolvedValue(undefined),
     updateNotes: vi.fn().mockResolvedValue(undefined),
     removeAdjustment: vi.fn().mockResolvedValue(undefined),
+    checkout: vi.fn().mockResolvedValue(undefined),
+    close: vi.fn().mockResolvedValue(undefined),
   };
 
   const render = async (current = fakeResource(order())) => {
@@ -60,6 +64,7 @@ describe('OrderDetail', () => {
         provideRouter([]),
         { provide: Router, useValue: routerMock },
         { provide: ManageOrder, useValue: manageOrderMock },
+        { provide: ConfirmationDialog, useValue: confirmationMock },
       ],
     }).compileComponents();
   });
@@ -129,5 +134,25 @@ describe('OrderDetail', () => {
     await component.goBack();
 
     expect(routerMock.navigate).toHaveBeenCalledWith(['/establishments', establishmentId, 'orders', 'tables']);
+  });
+
+  it('should close fully paid order after confirmation and navigate back', async () => {
+    await render(fakeResource(order({ payableTotal: 1000, amountPaidCash: 1000 })));
+
+    await component['handleCloseOrder']();
+
+    expect(confirmationMock.confirm).toHaveBeenCalled();
+    expect(manageOrderMock.close).toHaveBeenCalledWith(establishmentId, 'order-1');
+    expect(routerMock.navigate).toHaveBeenCalledWith(['/establishments', establishmentId, 'orders', 'tables']);
+  });
+
+  it('should not close order if confirmation is rejected', async () => {
+    confirmationMock.confirm.mockResolvedValueOnce(false);
+    await render(fakeResource(order({ payableTotal: 1000, amountPaidCash: 1000 })));
+
+    await component['handleCloseOrder']();
+
+    expect(manageOrderMock.close).not.toHaveBeenCalled();
+    expect(routerMock.navigate).not.toHaveBeenCalled();
   });
 });

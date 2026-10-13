@@ -173,7 +173,7 @@ func TestAIToolsFollowTheModules(t *testing.T) {
 	}{
 		{[]domain.EstablishmentModule{domain.ModuleTimeTracking}, "listShifts", 10},
 		{[]domain.EstablishmentModule{domain.ModuleTimeTracking, domain.ModuleInventory}, "listProducts", 20},
-		{domain.DefaultEstablishmentModules, "listTables", 40},
+		{domain.DefaultEstablishmentModules, "listTables", 41},
 	}
 
 	for _, test := range tests {

@@ -292,6 +292,24 @@ func (row OrderRow) HasAdjustment(adjustmentID string) bool {
 	return false
 }
 
+// IsFullyPaid tells whether nothing is left to charge, so the order can be closed and its table freed.
+func (row OrderRow) IsFullyPaid() bool {
+	return row.Pricing().IsFullyPaid
+}
+
+// NothingToCharge tells whether charging the rest would neither take money nor mark any line as paid.
+func (row OrderRow) NothingToCharge() bool {
+	if !row.IsFullyPaid() {
+		return false
+	}
+	for _, item := range row.Items {
+		if item.PaymentStatus != PaymentPaid {
+			return false
+		}
+	}
+	return true
+}
+
 func (row OrderRow) ItemsTotal() int {
 	total := 0
 	for _, item := range row.Items {

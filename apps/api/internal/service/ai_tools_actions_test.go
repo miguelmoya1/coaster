@@ -129,6 +129,18 @@ func TestAIOrderActions(t *testing.T) {
 		}
 	})
 
+	t.Run("closeOrder of a fully paid order", func(t *testing.T) {
+		f := newAIFixture()
+		order := f.orders.orders["o1"]
+		order.AmountPaidCash = order.Pricing().PayableTotal
+		f.orders.orders["o1"] = order
+
+		got := f.run(t, f.toolContext(t, "u1"), "closeOrder", `{"orderId":"o1"}`)
+		if got != aiDone || !slices.Contains(f.orders.writes, "Close") {
+			t.Errorf("closeOrder = %s, writes %v", got, f.orders.writes)
+		}
+	})
+
 	t.Run("deleteOrder of an open order", func(t *testing.T) {
 		f := newAIFixture()
 		got := f.run(t, f.toolContext(t, "u1"), "deleteOrder", `{"orderId":"o1","confirmed":true}`)

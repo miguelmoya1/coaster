@@ -307,25 +307,45 @@ func TestOrderRepositoryCheckout(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	closed, err := orders.Checkout(ctx, order.ID, &table, domain.PaymentCash)
+	// Attempting to close while pending payment must fail
+	if _, err := orders.Close(ctx, order.ID, &table); !domain.HasCode(err, domain.CodeOrderHasPendingPayment) {
+		t.Fatalf("closing before paying = %v; want %s", err, domain.CodeOrderHasPendingPayment)
+	}
+
+	charged, err := orders.Checkout(ctx, order.ID, domain.PaymentCash)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if closed.Status != domain.OrderClosed || closed.TotalAmount != 1300 || closed.AmountPaidCard != 550 ||
-		closed.AmountPaidCash != 913 || closed.PaymentMethod != domain.PaymentMixed {
-		t.Fatalf("closed = %+v", closed)
+	if charged.Status != domain.OrderOpen || charged.TotalAmount != 1300 || charged.AmountPaidCard != 550 ||
+		charged.AmountPaidCash != 913 || charged.PaymentMethod != domain.PaymentMixed {
+		t.Fatalf("charged = %+v", charged)
 	}
-	for _, item := range closed.Items {
+	for _, item := range charged.Items {
 		if item.PaymentStatus != domain.PaymentPaid || item.PaidQuantity != item.Quantity {
 			t.Errorf("line = %+v", item)
 		}
+	}
+	if tableStatusOf(t, "t1") != domain.TableOccupied {
+		t.Fatal("the table should stay occupied after checkout")
+	}
+
+	if _, err := orders.Checkout(ctx, order.ID, domain.PaymentCash); !domain.HasCode(err, domain.CodeOrderAlreadyPaid) {
+		t.Fatalf("checking out already paid order = %v; want %s", err, domain.CodeOrderAlreadyPaid)
+	}
+
+	closed, err := orders.Close(ctx, order.ID, &table)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if closed.Status != domain.OrderClosed {
+		t.Fatalf("closed = %+v", closed)
 	}
 	if tableStatusOf(t, "t1") != domain.TableFree {
 		t.Fatal("the table is still occupied")
 	}
 
-	if _, err := orders.Checkout(ctx, order.ID, &table, domain.PaymentCash); !domain.HasCode(err, domain.CodeOrderNotOpen) {
+	if _, err := orders.Close(ctx, order.ID, &table); !domain.HasCode(err, domain.CodeOrderNotOpen) {
 		t.Fatalf("closing it again = %v", err)
 	}
 }
@@ -342,7 +362,7 @@ func TestOrderRepositoryCheckoutTakesTheMoneyOnce(t *testing.T) {
 	errs := make([]error, 2)
 	for i := range errs {
 		wg.Go(func() {
-			_, errs[i] = orders.Checkout(ctx, order.ID, nil, domain.PaymentCash)
+			_, errs[i] = orders.Checkout(ctx, order.ID, domain.PaymentCash)
 		})
 	}
 	wg.Wait()
@@ -352,7 +372,7 @@ func TestOrderRepositoryCheckoutTakesTheMoneyOnce(t *testing.T) {
 		switch {
 		case err == nil:
 			succeeded++
-		case domain.HasCode(err, domain.CodeOrderNotOpen):
+		case domain.HasCode(err, domain.CodeOrderAlreadyPaid):
 			refused++
 		default:
 			t.Fatalf("unexpected error: %v", err)
@@ -486,7 +506,10 @@ func TestOrderRepositoryCancelAndMoveOnlyAnOpenOrder(t *testing.T) {
 	t1 := "t1"
 
 	order := openTestOrder(t, orders, &t1, beerLine(1))
-	if _, err := orders.Checkout(ctx, order.ID, &t1, domain.PaymentCash); err != nil {
+	if _, err := orders.Checkout(ctx, order.ID, domain.PaymentCash); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := orders.Close(ctx, order.ID, &t1); err != nil {
 		t.Fatal(err)
 	}
 
@@ -509,20 +532,23 @@ func TestOrderRepositoryCancelAndMoveOnlyAnOpenOrder(t *testing.T) {
 	}
 
 	racing := openTestOrder(t, orders, nil, beerLine(1))
+	if _, err := orders.Checkout(ctx, racing.ID, domain.PaymentCash); err != nil {
+		t.Fatal(err)
+	}
 	var wg sync.WaitGroup
-	var cancelErr, checkoutErr error
+	var cancelErr, closeErr error
 	wg.Go(func() {
 		_, cancelErr = orders.Cancel(ctx, racing.ID, nil)
 	})
 	wg.Go(func() {
-		_, checkoutErr = orders.Checkout(ctx, racing.ID, nil, domain.PaymentCash)
+		_, closeErr = orders.Close(ctx, racing.ID, nil)
 	})
 	wg.Wait()
 
-	if (cancelErr == nil) == (checkoutErr == nil) {
-		t.Fatalf("cancel = %v, checkout = %v; want exactly one to go through", cancelErr, checkoutErr)
+	if (cancelErr == nil) == (closeErr == nil) {
+		t.Fatalf("cancel = %v, close = %v; want exactly one to go through", cancelErr, closeErr)
 	}
-	for _, err := range []error{cancelErr, checkoutErr} {
+	for _, err := range []error{cancelErr, closeErr} {
 		if err != nil && !domain.HasCode(err, domain.CodeOrderNotOpen) {
 			t.Fatalf("unexpected error: %v", err)
 		}

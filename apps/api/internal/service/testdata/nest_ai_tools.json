@@ -207,7 +207,7 @@
   },
   {
     "name": "checkoutOrder",
-    "description": "Collect payment and close an open order.",
+    "description": "Collect the pending payment of an open order. The order and its table stay open; use closeOrder to close them.",
     "parameters": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "type": "object",
@@ -228,6 +228,24 @@
       "required": [
         "orderId",
         "paymentMethod"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "closeOrder",
+    "description": "Close a fully paid open order and free its table. It fails if money is still pending; collect it first with checkoutOrder.",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "orderId": {
+          "type": "string",
+          "description": "The UUID of the open order to close (levantar la mesa). Look up the active open orders list to find the order UUID matching the table or order details."
+        }
+      },
+      "required": [
+        "orderId"
       ],
       "additionalProperties": false
     }

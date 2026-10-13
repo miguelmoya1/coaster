@@ -40,6 +40,10 @@ export class ManageOrder {
     await this.#orderRepository.checkout(establishmentId, orderId, dto);
   }
 
+  public async close(establishmentId: EstablishmentId, orderId: OrderId): Promise<void> {
+    await this.#orderRepository.close(establishmentId, orderId);
+  }
+
   public async cancel(establishmentId: EstablishmentId, orderId: OrderId): Promise<void> {
     await this.#orderRepository.cancel(establishmentId, orderId);
   }

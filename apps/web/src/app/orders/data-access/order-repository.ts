@@ -39,6 +39,8 @@ export class OrderRepository {
       `/establishments/${establishmentId}/orders/${orderId}/items/bulk`,
     checkout: (establishmentId: EstablishmentId, orderId: OrderId) =>
       `/establishments/${establishmentId}/orders/${orderId}/checkout`,
+    close: (establishmentId: EstablishmentId, orderId: OrderId) =>
+      `/establishments/${establishmentId}/orders/${orderId}/close`,
     cancel: (establishmentId: EstablishmentId, orderId: OrderId) =>
       `/establishments/${establishmentId}/orders/${orderId}/cancel`,
     moveTable: (establishmentId: EstablishmentId, orderId: OrderId) =>
@@ -78,6 +80,10 @@ export class OrderRepository {
 
   public async checkout(establishmentId: EstablishmentId, orderId: OrderId, dto: CheckoutOrderDto): Promise<void> {
     return firstValueFrom(this.#http.post<void>(this.routes.checkout(establishmentId, orderId), dto));
+  }
+
+  public async close(establishmentId: EstablishmentId, orderId: OrderId): Promise<void> {
+    return firstValueFrom(this.#http.post<void>(this.routes.close(establishmentId, orderId), {}));
   }
 
   public async cancel(establishmentId: EstablishmentId, orderId: OrderId): Promise<void> {

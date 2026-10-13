@@ -134,6 +134,7 @@ func TestOrderRoutesNeedTheOrdersModule(t *testing.T) {
 		"POST /api/v1/establishments/e1/orders/o1/items",
 		"PATCH /api/v1/establishments/e1/orders/o1/items/bulk",
 		"POST /api/v1/establishments/e1/orders/o1/checkout",
+		"POST /api/v1/establishments/e1/orders/o1/close",
 		"POST /api/v1/establishments/e1/orders/o1/cancel",
 		"PATCH /api/v1/establishments/e1/orders/o1/move-table",
 		"POST /api/v1/establishments/e1/orders/merge",

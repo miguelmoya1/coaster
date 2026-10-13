@@ -64,6 +64,7 @@ const (
 	CodeOrderNotOpen                          = "ORDER_NOT_OPEN"
 	CodeOrderItemNotFound                     = "ORDER_ITEM_NOT_FOUND"
 	CodeOrderAlreadyPaid                      = "ORDER_ALREADY_PAID"
+	CodeOrderHasPendingPayment                = "ORDER_HAS_PENDING_PAYMENT"
 	CodeInvalidOrderIds                       = "INVALID_ORDER_IDS"
 	CodeOrderInCashClose                      = "ORDER_IN_CASH_CLOSE"
 	CodeCashCloseNotFound                     = "CASH_CLOSE_NOT_FOUND"
@@ -168,6 +169,7 @@ var AllErrorCodes = []string{
 	CodeOrderNotOpen,
 	CodeOrderItemNotFound,
 	CodeOrderAlreadyPaid,
+	CodeOrderHasPendingPayment,
 	CodeInvalidOrderIds,
 	CodeOrderInCashClose,
 	CodeCashCloseNotFound,
