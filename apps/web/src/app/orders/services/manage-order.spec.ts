@@ -2,7 +2,7 @@ import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { PaymentMethod } from '../models/payment-method.type';
 import { asEstablishmentId } from '@coaster/core';
-import { asOrderId, asOrderItemId } from '../models/order.interface';
+import { asOrderId, asOrderItemId, Order } from '../models/order.interface';
 import { asProductId } from '@coaster/products';
 import { asTableId } from '@coaster/tables';
 import { beforeEach, describe, expect, it, vi } from 'vitest';

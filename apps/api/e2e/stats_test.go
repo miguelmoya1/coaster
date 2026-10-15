@@ -28,6 +28,7 @@ func TestStats(t *testing.T) {
 			api.patch(t, orders+"/"+orderID+"/tip", map[string]any{"tipAmount": tipAmount}).expect(t, http.StatusOK)
 		}
 		api.post(t, orders+"/"+orderID+"/checkout", map[string]any{"paymentMethod": "CASH"}).expect(t, http.StatusCreated)
+		api.post(t, orders+"/"+orderID+"/close", nil).expect(t, http.StatusCreated)
 
 		return api.get(t, "/establishments/"+establishmentID+"/stats").expect(t, http.StatusOK).object(t)["todayRevenue"].(float64)
 	}
