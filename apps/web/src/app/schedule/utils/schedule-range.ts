@@ -1,4 +1,4 @@
-import { endOfMonth, endOfWeek, format, startOfMonth, startOfWeek } from 'date-fns';
+import { endOfMonth, endOfWeek, startOfMonth, startOfWeek } from 'date-fns';
 import { calendarDateOf, dateOfCalendarDate } from '@coaster/core';
 
 export type ScheduleView = 'day' | 'week' | 'month';

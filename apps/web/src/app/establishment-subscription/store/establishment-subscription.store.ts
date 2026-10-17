@@ -1,5 +1,5 @@
 import { httpResource } from '@angular/common/http';
-import { computed, effect, inject, Service, signal } from '@angular/core';
+import { computed, inject, Service, signal } from '@angular/core';
 import type { SubscriptionSeats as SubscriptionSeatsInfo } from '../models/establishment-subscription.interface';
 import { SubscriptionPlan } from '../models/subscription-plan.type';
 import { SubscriptionStatus } from '../models/subscription-status.type';
