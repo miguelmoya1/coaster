@@ -131,6 +131,9 @@ func TestTimeEntryRepository(t *testing.T) {
 	if inactive, err := entries.FindActiveMember(ctx, "e1", "luis"); err != nil || inactive != nil {
 		t.Fatalf("FindActiveMember(inactive) = %+v, %v", inactive, err)
 	}
+	if _, err := entries.Append(ctx, newTestPunch("nobody", domain.TimeEntryClockIn, clockIn, "2026-08-08")); err == nil {
+		t.Fatal("Append for a missing user must fail")
+	}
 }
 
 func TestTimeEntryRepositoryIsAppendOnly(t *testing.T) {

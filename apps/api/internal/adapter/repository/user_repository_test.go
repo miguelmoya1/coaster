@@ -70,4 +70,8 @@ func TestUserRepository(t *testing.T) {
 	if err := testPool.QueryRow(ctx, `SELECT count(*) FROM "UserPreferences" WHERE "userId" = 'u1'`).Scan(&preferences); err != nil || preferences != 1 {
 		t.Errorf("preferences rows = %d, %v", preferences, err)
 	}
+
+	if err := users.UpdateProfile(ctx, "nobody", domain.UserProfileChanges{Language: &spanish}); err == nil {
+		t.Fatal("saving the language of a missing user must fail")
+	}
 }

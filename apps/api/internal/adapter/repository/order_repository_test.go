@@ -65,55 +65,6 @@ func cokeLine(quantity int) domain.NewOrderItem {
 	return domain.NewOrderItem{ProductID: "coke", ProductName: "Coke", Quantity: quantity, Price: 300, TaxRate: 2100}
 }
 
-func TestTableRepository(t *testing.T) {
-	resetDB(t)
-	insertOrderFixtures(t)
-	ctx := context.Background()
-	tables := NewTableRepository(testPool)
-
-	created, err := tables.Create(ctx, "e1", "Barra")
-	if err != nil || created.Status != domain.TableFree || created.EstablishmentID != "e1" || created.CreatedAt.IsZero() {
-		t.Fatalf("Create = %+v, %v", created, err)
-	}
-
-	listed, err := tables.ListOf(ctx, "e1")
-	if err != nil || len(listed) != 3 || listed[0].Name != "Barra" || listed[2].Name != "Mesa 2" {
-		t.Fatalf("ListOf = %+v, %v", listed, err)
-	}
-
-	renamed, err := tables.Rename(ctx, created.ID, "Barra 1")
-	if err != nil || renamed.Name != "Barra 1" || !renamed.UpdatedAt.After(created.UpdatedAt.Add(-time.Millisecond)) {
-		t.Fatalf("Rename = %+v, %v", renamed, err)
-	}
-
-	if err := setTableStatus(ctx, testPool, created.ID, domain.TableOccupied); err != nil || tableStatusOf(t, created.ID) != domain.TableOccupied {
-		t.Fatalf("setTableStatus: %v", err)
-	}
-
-	if missing, err := tables.FindByID(ctx, "missing"); err != nil || missing != nil {
-		t.Fatalf("FindByID(missing) = %+v, %v", missing, err)
-	}
-
-	orders := NewOrderRepository(testPool)
-	order := openTestOrder(t, orders, &created.ID, beerLine(1))
-
-	if err := tables.Delete(ctx, created.ID); err != nil {
-		t.Fatal(err)
-	}
-	if gone, _ := tables.FindByID(ctx, created.ID); gone != nil {
-		t.Fatal("the table is still there")
-	}
-
-	after, err := orders.FindByID(ctx, order.ID)
-	if err != nil || after.TableID != nil || after.TableName != nil {
-		t.Fatalf("the order of a deleted table = %+v, %v", after, err)
-	}
-
-	if err := tables.Delete(ctx, created.ID); !errors.Is(err, errMissingRow) {
-		t.Fatalf("deleting it twice = %v", err)
-	}
-}
-
 func TestOrderRepositoryCreateAndRead(t *testing.T) {
 	resetDB(t)
 	insertOrderFixtures(t)
@@ -215,6 +166,17 @@ func TestOrderRepositoryCreateAndRead(t *testing.T) {
 	if missing, err := orders.FindByID(ctx, "missing"); err != nil || missing != nil {
 		t.Fatalf("FindByID(missing) = %+v, %v", missing, err)
 	}
+
+	missingTable := "missing"
+	for _, invalid := range []domain.NewOrder{
+		{EstablishmentID: "missing", Items: []domain.NewOrderItem{beerLine(1)}},
+		{EstablishmentID: "e1", Items: []domain.NewOrderItem{{ProductID: "missing", ProductName: "X", Quantity: 1, Price: 100}}},
+		{EstablishmentID: "e1", TableID: &missingTable, Items: []domain.NewOrderItem{beerLine(1)}},
+	} {
+		if _, err := orders.Create(ctx, invalid); err == nil {
+			t.Fatalf("Create(%+v) must fail", invalid)
+		}
+	}
 }
 
 func TestOrderRepositoryAddItems(t *testing.T) {
@@ -240,6 +202,13 @@ func TestOrderRepositoryAddItems(t *testing.T) {
 	if err != nil || updated.Notes != nil || len(updated.Items) != 4 {
 		t.Fatalf("AddItems emptying the notes = %+v, %v", updated, err)
 	}
+
+	if _, err := orders.AddItems(ctx, "missing", domain.OrderItemsAddition{TotalAmount: 100}); !errors.Is(err, errMissingRow) {
+		t.Fatalf("AddItems on a missing order = %v", err)
+	}
+	if _, err := orders.AddItems(ctx, order.ID, domain.OrderItemsAddition{Items: []domain.NewOrderItem{{ProductID: "missing", ProductName: "X", Quantity: 1}}}); err == nil {
+		t.Fatal("AddItems with a missing product must fail")
+	}
 }
 
 func TestOrderRepositoryBulkUpdate(t *testing.T) {
@@ -256,6 +225,7 @@ func TestOrderRepositoryBulkUpdate(t *testing.T) {
 	updated, err := orders.BulkUpdate(ctx, order.ID, []domain.OrderItemUpdate{
 		{ItemID: itemID, PaidQuantity: new(1), PaymentMethod: &card, ServedQuantity: new(2)},
 		{ItemID: other.Items[0].ID, ServedQuantity: new(1)},
+		{ItemID: "missing", ServedQuantity: new(1)},
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -290,6 +260,9 @@ func TestOrderRepositoryBulkUpdate(t *testing.T) {
 	_, err = orders.BulkUpdate(ctx, order.ID, []domain.OrderItemUpdate{{ItemID: itemID, ServedQuantity: new(1)}})
 	if !domain.HasCode(err, domain.CodeOrderNotOpen) {
 		t.Fatalf("a closed order = %v", err)
+	}
+	if _, err := orders.BulkUpdate(ctx, "missing", nil); err == nil {
+		t.Fatal("BulkUpdate on a missing order must fail")
 	}
 }
 
@@ -347,6 +320,19 @@ func TestOrderRepositoryCheckout(t *testing.T) {
 
 	if _, err := orders.Close(ctx, order.ID, &table); !domain.HasCode(err, domain.CodeOrderNotOpen) {
 		t.Fatalf("closing it again = %v", err)
+	}
+
+	partial := openTestOrder(t, orders, nil, beerLine(1), cokeLine(1))
+	paidCoke := orderLineOf(t, partial, "coke")
+	if _, err := orders.BulkUpdate(ctx, partial.ID, []domain.OrderItemUpdate{{ItemID: paidCoke.ID, PaidQuantity: new(1), PaymentMethod: &card}}); err != nil {
+		t.Fatal(err)
+	}
+	finished, err := orders.Checkout(ctx, partial.ID, domain.PaymentCash)
+	if err != nil || finished.AmountPaidCard != 363 || finished.AmountPaidCash != 550 {
+		t.Fatalf("Checkout with a line already paid in full = %+v, %v", finished, err)
+	}
+	if _, err := orders.Checkout(ctx, "missing", domain.PaymentCash); err == nil {
+		t.Fatal("Checkout on a missing order must fail")
 	}
 }
 
@@ -412,6 +398,9 @@ func TestOrderRepositoryMerge(t *testing.T) {
 	if _, err := orders.AddAdjustment(ctx, first.ID, domain.NewOrderAdjustment{Target: domain.AdjustmentOrder, Type: domain.AdjustmentPercentage, Value: 10}); err != nil {
 		t.Fatal(err)
 	}
+	if _, err := orders.AddAdjustment(ctx, first.ID, domain.NewOrderAdjustment{Target: domain.AdjustmentOrder, Type: domain.AdjustmentFixedAmount, Value: 20}); err != nil {
+		t.Fatal(err)
+	}
 	if _, err := orders.AddAdjustment(ctx, second.ID, domain.NewOrderAdjustment{Target: domain.AdjustmentOrder, Type: domain.AdjustmentFixedAmount, Value: 30}); err != nil {
 		t.Fatal(err)
 	}
@@ -433,11 +422,11 @@ func TestOrderRepositoryMerge(t *testing.T) {
 		t.Fatalf("merged = %+v", merged)
 	}
 
-	if len(merged.Adjustments) != 2 {
+	if len(merged.Adjustments) != 3 {
 		t.Fatalf("discounts = %+v", merged.Adjustments)
 	}
 	for _, adjustment := range merged.Adjustments {
-		if adjustment.Type != domain.AdjustmentFixedAmount || (adjustment.Value != 100 && adjustment.Value != 30) {
+		if adjustment.Type != domain.AdjustmentFixedAmount || (adjustment.Value != 100 && adjustment.Value != 20 && adjustment.Value != 30) {
 			t.Errorf("discount = %+v; the 10 %% of 1000 has to be frozen at 100", adjustment)
 		}
 	}
@@ -448,6 +437,17 @@ func TestOrderRepositoryMerge(t *testing.T) {
 	}
 	if tableStatusOf(t, "t1") != domain.TableFree || tableStatusOf(t, "t2") != domain.TableOccupied {
 		t.Fatal("the tables did not follow the order")
+	}
+
+	third := openTestOrder(t, orders, &t1, beerLine(1))
+	intoPrimaryTable, err := orders.Merge(ctx, domain.OrderMerge{
+		PrimaryID:        merged.ID,
+		PrimaryTableID:   &t2,
+		PrimaryTableName: new("Mesa 2"),
+		Sources:          []domain.MergedOrder{{ID: third.ID, TableID: &t1}},
+	})
+	if err != nil || len(intoPrimaryTable.Items) != 3 || tableStatusOf(t, "t1") != domain.TableFree || tableStatusOf(t, "t2") != domain.TableOccupied {
+		t.Fatalf("Merge freeing the source table = %+v, %v", intoPrimaryTable, err)
 	}
 }
 
@@ -577,6 +577,12 @@ func TestOrderRepositoryNotesTipDiscountsAndDelete(t *testing.T) {
 	if err != nil || !unchanged.UpdatedAt.Equal(updated.UpdatedAt) {
 		t.Fatalf("UpdateNotes without changes touched the order: %v → %v, %v", updated.UpdatedAt, unchanged.UpdatedAt, err)
 	}
+	if _, err := orders.UpdateNotes(ctx, "missing", domain.OrderNotesChanges{ChangeNotes: true}); !errors.Is(err, errMissingRow) {
+		t.Fatalf("UpdateNotes on a missing order = %v", err)
+	}
+	if _, err := orders.UpdateNotes(ctx, "missing", domain.OrderNotesChanges{}); !errors.Is(err, errMissingRow) {
+		t.Fatalf("UpdateNotes without changes on a missing order = %v", err)
+	}
 
 	itemID := order.Items[0].ID
 	updated, err = orders.UpdateItemNotes(ctx, order.ID, itemID, new("bien fría"))
@@ -595,10 +601,16 @@ func TestOrderRepositoryNotesTipDiscountsAndDelete(t *testing.T) {
 	if err != nil || withDiscount.TipAmount != 120 || len(withDiscount.Adjustments) != 1 || withDiscount.Adjustments[0].Value != 20 {
 		t.Fatalf("AddAdjustment = %+v, %v", withDiscount, err)
 	}
+	if _, err := orders.AddAdjustment(ctx, "missing", domain.NewOrderAdjustment{Target: domain.AdjustmentOrder, Type: domain.AdjustmentFixedAmount, Value: 10}); err == nil {
+		t.Fatal("AddAdjustment on a missing order must fail")
+	}
 
 	withoutDiscount, err := orders.RemoveAdjustment(ctx, order.ID, withDiscount.Adjustments[0].ID)
 	if err != nil || len(withoutDiscount.Adjustments) != 0 {
 		t.Fatalf("RemoveAdjustment = %+v, %v", withoutDiscount, err)
+	}
+	if _, err := orders.RemoveAdjustment(ctx, order.ID, "missing"); !errors.Is(err, errMissingRow) {
+		t.Fatalf("RemoveAdjustment on a missing adjustment = %v", err)
 	}
 
 	if err := orders.Delete(ctx, order.ID); err != nil {

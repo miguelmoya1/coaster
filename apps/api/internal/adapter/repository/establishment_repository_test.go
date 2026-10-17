@@ -146,4 +146,11 @@ func TestEstablishmentRepositorySaveSettings(t *testing.T) {
 	if err := testPool.QueryRow(ctx, `SELECT count(*) FROM "EstablishmentSettings" WHERE "establishmentId" = 'e1'`).Scan(&rows); err != nil || rows != 1 {
 		t.Errorf("settings rows of e1 = %d, %v", rows, err)
 	}
+
+	if _, err := establishments.Create(ctx, domain.NewEstablishment{Name: "Fail", OwnerID: "nobody", Language: "es"}); err == nil {
+		t.Fatal("Create with a missing owner must fail")
+	}
+	if _, err := establishments.SaveSettings(ctx, "nobody", domain.EstablishmentSettingsChanges{Modules: inventory}); err == nil {
+		t.Fatal("SaveSettings on a missing establishment must fail")
+	}
 }
