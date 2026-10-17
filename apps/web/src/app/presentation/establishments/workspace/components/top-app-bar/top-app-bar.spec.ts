@@ -30,7 +30,6 @@ describe('TopAppBar', () => {
   };
 
   const myMemberStoreMock = {
-    isOwner: signal(true).asReadonly(),
     hasPermission: vi
       .fn()
       .mockImplementation(
@@ -48,6 +47,7 @@ describe('TopAppBar', () => {
   const establishmentSubscriptionStoreMock = {
     isReadOnly: signal(false).asReadonly(),
     subscription: {
+      hasValue: computed(() => subscriptionSignal() !== null),
       value: subscriptionSignal,
     },
     billingAction: computed(() => (subscriptionSignal()?.status === 'ACTIVE' ? 'MANAGE' : 'ACTIVATE')),

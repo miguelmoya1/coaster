@@ -431,6 +431,11 @@ func (r *OrderRepository) Merge(ctx context.Context, merge domain.OrderMerge) (d
 			return err
 		}
 
+		finalTableID := merge.PrimaryTableID
+		if merge.TargetTableID != nil {
+			finalTableID = merge.TargetTableID
+		}
+
 		carriedCash, carriedCard, carriedTip := 0, 0, 0
 		for _, source := range merge.Sources {
 			sourceOrder, err := freezeOrderDiscounts(ctx, tx, source.ID, &merge.PrimaryID)
@@ -450,7 +455,7 @@ func (r *OrderRepository) Merge(ctx context.Context, merge domain.OrderMerge) (d
 				return err
 			}
 
-			if source.TableID != nil {
+			if source.TableID != nil && (finalTableID == nil || *source.TableID != *finalTableID) {
 				if err := setTableStatus(ctx, tx, *source.TableID, domain.TableFree); err != nil {
 					return err
 				}

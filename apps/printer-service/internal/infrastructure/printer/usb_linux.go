@@ -6,6 +6,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"syscall"
+	"time"
 )
 
 type USBPrinter struct {
@@ -18,7 +20,7 @@ func NewUSBPrinter(identifier string) *USBPrinter {
 }
 
 func (u *USBPrinter) Connect(ctx context.Context) error {
-	f, err := os.OpenFile(u.DevicePath, os.O_WRONLY, 0)
+	f, err := os.OpenFile(u.DevicePath, os.O_WRONLY|syscall.O_NONBLOCK, 0)
 	if err != nil {
 		return fmt.Errorf("could not open printer device %s: %w", u.DevicePath, err)
 	}
@@ -30,6 +32,7 @@ func (u *USBPrinter) Write(b []byte) (int, error) {
 	if u.file == nil {
 		return 0, fmt.Errorf("printer device %s not connected", u.DevicePath)
 	}
+	_ = u.file.SetWriteDeadline(time.Now().Add(10 * time.Second))
 	return u.file.Write(b)
 }
 

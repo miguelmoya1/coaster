@@ -30,7 +30,7 @@ type createShiftRequest struct {
 	UserID    string  `json:"userId" validate:"required,uuid4" msg:"required=REQUIRED,uuid4=INVALID_TYPE,type=INVALID_TYPE"`
 	StartTime string  `json:"startTime" validate:"required" msg:"required=REQUIRED,type=INVALID_DATE"`
 	EndTime   string  `json:"endTime" validate:"required" msg:"required=REQUIRED,type=INVALID_DATE"`
-	Notes     *string `json:"notes" validate:"omitnil" msg:"type=INVALID_TYPE"`
+	Notes     *string `json:"notes" validate:"omitnil,max=500" msg:"max=INVALID_TYPE,type=INVALID_TYPE"`
 }
 
 func (h *ShiftHandler) list(w http.ResponseWriter, r *http.Request) {

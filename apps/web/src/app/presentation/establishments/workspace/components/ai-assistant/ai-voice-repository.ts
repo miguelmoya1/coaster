@@ -31,12 +31,9 @@ export class AiVoiceRepository {
     prompt: string,
     messages: AiMessage[] | undefined,
     onDelta: (delta: string) => void,
+    signal?: AbortSignal,
   ): Promise<AiResponse> {
-    try {
-      return await this.#readStream(establishmentId, prompt, messages, onDelta);
-    } catch {
-      return await this.executeCommand(establishmentId, prompt, messages);
-    }
+    return await this.#readStream(establishmentId, prompt, messages, onDelta, signal);
   }
 
   async #readStream(
@@ -44,6 +41,7 @@ export class AiVoiceRepository {
     prompt: string,
     messages: AiMessage[] | undefined,
     onDelta: (delta: string) => void,
+    signal?: AbortSignal,
   ): Promise<AiResponse> {
     const token = this.#auth.accessToken();
 
@@ -54,10 +52,15 @@ export class AiVoiceRepository {
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
       body: JSON.stringify({ prompt, messages }),
+      signal,
     });
 
-    if (!response.ok || !response.body) {
+    if (response.status === 404 || response.status === 405 || (response.ok && !response.body)) {
       return await this.executeCommand(establishmentId, prompt, messages);
+    }
+
+    if (!response.ok || !response.body) {
+      throw new Error(`AI stream failed with status ${response.status}`);
     }
 
     let final: AiResponse | null = null;

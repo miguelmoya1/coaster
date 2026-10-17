@@ -1,4 +1,3 @@
-import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { asOrderId, OrderStatus, type Order } from '@coaster/orders';
@@ -53,7 +52,7 @@ describe('Tables', () => {
         provideRouter([]),
         { provide: ManageTables, useValue: manageTablesMock },
         { provide: ConfirmationDialog, useValue: confirmationMock },
-        { provide: MyMemberStore, useValue: { isOwner: signal(true) } },
+        { provide: MyMemberStore, useValue: { hasPermission: vi.fn().mockReturnValue(true) } },
       ],
     }).compileComponents();
   });

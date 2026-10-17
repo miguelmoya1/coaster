@@ -48,9 +48,10 @@ type OrderTableMovedEvent struct {
 }
 
 type OrdersMergedEvent struct {
-	EstablishmentID string
-	PrimaryOrder    Order
-	SourceOrders    []MergedOrder
+	EstablishmentID   string
+	PrimaryOrder      Order
+	OldPrimaryTableID *string
+	SourceOrders      []MergedOrder
 }
 
 type OrderDeletedEvent struct {

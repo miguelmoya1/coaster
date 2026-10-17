@@ -9,7 +9,8 @@ export class MoneyFormatterService {
   readonly #translate = inject(TranslateService, { optional: true });
 
   get #locale(): string {
-    return LOCALES[this.#translate?.getCurrentLang() ?? ''] ?? LOCALES['es'];
+    const lang = this.#translate?.currentLang() ?? this.#translate?.getCurrentLang() ?? '';
+    return LOCALES[lang] ?? LOCALES['es'];
   }
 
   public format(valueInCents: number, currency = 'EUR'): string {

@@ -168,7 +168,11 @@ export class TopAppBar {
   readonly canManageBilling = computed(() =>
     this.#myMemberStore.hasPermission(EstablishmentPermission.ESTABLISHMENT_MANAGE_BILLING),
   );
-  readonly subscription = computed(() => this.#establishmentSubscriptionStore.subscription.value());
+  readonly subscription = computed(() =>
+    this.#establishmentSubscriptionStore.subscription.hasValue()
+      ? this.#establishmentSubscriptionStore.subscription.value()
+      : undefined,
+  );
   readonly billingAction = this.#establishmentSubscriptionStore.billingAction;
   readonly isOpeningBillingPortal = this.#establishmentSubscriptionStore.isOpeningBillingPortal;
   readonly BillingAction = BillingAction;

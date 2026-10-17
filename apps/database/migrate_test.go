@@ -55,6 +55,7 @@ func TestMigrateTakesOverThePrismaHistory(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	defer rows.Close()
 	for rows.Next() {
 		var version int64
 		if err := rows.Scan(&version); err != nil {

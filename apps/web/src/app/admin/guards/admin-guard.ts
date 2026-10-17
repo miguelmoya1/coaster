@@ -14,9 +14,9 @@ export const adminGuard: CanActivateFn = async () => {
     throw new RedirectCommand(router.createUrlTree(['/login']));
   }
 
-  await until(() => currentUser.current.value() !== undefined, injector);
+  await until(() => !currentUser.current.isLoading() && currentUser.current.status() !== 'idle', injector);
 
-  if (currentUser.current.value()?.role !== Role.ADMIN) {
+  if (!currentUser.current.hasValue() || currentUser.current.value()?.role !== Role.ADMIN) {
     throw new RedirectCommand(router.createUrlTree(['/establishments/select']));
   }
 

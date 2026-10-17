@@ -1,7 +1,6 @@
 import { httpResource } from '@angular/common/http';
-import { computed, effect, inject, Injector, Service, signal } from '@angular/core';
+import { inject, Injector, Service, signal } from '@angular/core';
 import { EstablishmentPermission } from '../models/establishment-permissions.type';
-import { EstablishmentRole } from '@coaster/establishments';
 import { hasPermission } from '../models/establishment-permissions';
 import { onRealtime, Realtime, until, type EstablishmentId } from '@coaster/core';
 import { memberMapper } from '../mappers/member.mapper';
@@ -19,28 +18,21 @@ export class MyMemberStore {
   });
 
   constructor() {
-    effect(() => {
-      const roleChanged = this.#realtime.on<{ id: string; userId: string; role: string }>('memberRoleChanged')();
-      const mine = this.myMember.hasValue() ? this.myMember.value() : undefined;
-
-      if (roleChanged && mine && roleChanged.userId === mine.userId) {
-        this.reloadMyMember();
-      }
-    });
+    onRealtime(
+      this.#realtime.on<{ id: string; userId: string; role: string }>('memberRoleChanged'),
+      (roleChanged) => {
+        const mine = this.myMember.hasValue() ? this.myMember.value() : undefined;
+        if (roleChanged && mine && roleChanged.userId === mine.userId) {
+          this.reloadMyMember();
+        }
+      },
+    );
 
     onRealtime(this.#realtime.reconnected, () => this.reloadMyMember());
   }
 
   public readonly myMember = this.#myMemberResource.asReadonly();
   public readonly currentEstablishmentId = this.#currentEstablishmentId.asReadonly();
-
-  public readonly isOwner = computed(() => {
-    if (!this.myMember.hasValue()) {
-      return false;
-    }
-    const member = this.myMember.value();
-    return member?.role === EstablishmentRole.OWNER;
-  });
 
   public hasPermission(permission: EstablishmentPermission): boolean {
     if (!this.myMember.hasValue()) {

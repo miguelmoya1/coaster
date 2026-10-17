@@ -39,6 +39,7 @@ type Updater struct {
 	ExitFunc        func(code int)
 
 	AcquireIdle func(timeout time.Duration) bool
+	ReleaseIdle func()
 
 	checkClient    *http.Client
 	downloadClient *http.Client
@@ -115,12 +116,17 @@ func (u *Updater) AutoUpdate() error {
 		return fmt.Errorf("could not get executable path: %w", err)
 	}
 
+	if u.AcquireIdle != nil && !u.AcquireIdle(idleTimeout) {
+		return fmt.Errorf("update to %s postponed: the printer stayed busy; it will be retried on the next check", target.Version)
+	}
+	defer func() {
+		if u.ReleaseIdle != nil {
+			u.ReleaseIdle()
+		}
+	}()
+
 	if err := u.ApplyUpdateFunc(body, checksum); err != nil {
 		return fmt.Errorf("failed to apply update: %w", err)
-	}
-
-	if u.AcquireIdle != nil && !u.AcquireIdle(idleTimeout) {
-		return fmt.Errorf("update to %s is staged but the printer stayed busy; it will apply on the next restart", target.Version)
 	}
 
 	log.Printf("Update to %s applied, restarting...\n", target.Version)

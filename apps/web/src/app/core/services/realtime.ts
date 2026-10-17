@@ -139,7 +139,11 @@ export class Realtime implements OnDestroy {
       this.#lastEventId = frame.id;
     }
 
-    this.#inbox[frame.event as RealtimeEvents]?.set(JSON.parse(frame.data) as unknown);
+    try {
+      this.#inbox[frame.event as RealtimeEvents]?.set(JSON.parse(frame.data) as unknown);
+    } catch {
+      // Ignore malformed JSON frames to keep stream alive
+    }
   }
 
   #pause(attempt: number): Promise<void> {
@@ -156,6 +160,10 @@ export class Realtime implements OnDestroy {
     this.#lastEventId = null;
     this.#connectedBefore = false;
     this.#connected.set(false);
+
+    for (const key of Object.keys(this.#inbox) as RealtimeEvents[]) {
+      this.#inbox[key]?.set(null);
+    }
   }
 
   ngOnDestroy() {

@@ -32,7 +32,6 @@ describe('Staff', () => {
       value: signal(undefined),
       hasValue: signal(true),
     },
-    isOwner: signal(false),
     hasPermission: vi.fn((permission: string) => {
       if (permission === 'establishment:manage-billing') return canManageBilling();
       if (permission === 'establishment:invite-member') return canInvite();
@@ -168,7 +167,6 @@ describe('Staff', () => {
         userName: 'Test User 1',
         role: EstablishmentRole.OWNER,
       } as any);
-      myMemberStoreMock.isOwner.set(false);
 
       const items = component['memberItems']();
       expect(items.length).toBe(1);

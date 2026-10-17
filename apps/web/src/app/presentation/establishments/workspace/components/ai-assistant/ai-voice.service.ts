@@ -89,6 +89,9 @@ export class AiVoiceService {
   public readonly usage = this.#usageResource.asReadonly();
 
   public watchUsage(establishmentId: EstablishmentId | undefined): void {
+    if (this.#usageEstablishmentId() !== establishmentId) {
+      this.resetChat();
+    }
     this.#usageEstablishmentId.set(establishmentId);
   }
 
@@ -98,7 +101,7 @@ export class AiVoiceService {
 
   public readonly aiResource = resource({
     params: () => this.#commandParams(),
-    loader: async ({ params }) => {
+    loader: async ({ params, abortSignal }) => {
       if (!params) return null;
 
       this.streamingText.set('');
@@ -110,6 +113,7 @@ export class AiVoiceService {
         (delta) => {
           this.streamingText.update((current) => current + delta);
         },
+        abortSignal,
       );
 
       this.#usageResource.reload();
@@ -387,7 +391,7 @@ export class AiVoiceService {
     this.stopSpeaking();
     if ('speechSynthesis' in window) {
       const utterance = new SpeechSynthesisUtterance(toSpokenText(text));
-      utterance.lang = this.#lang;
+      utterance.lang = this.#currentLang();
       window.speechSynthesis.speak(utterance);
     }
   }

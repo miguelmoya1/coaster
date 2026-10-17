@@ -33,30 +33,30 @@ func (h *ProductHandler) RegisterRoutes(mux *http.ServeMux, guard *middleware.Gu
 }
 
 type createProductRequest struct {
-	Name          string    `json:"name" validate:"required" msg:"required=REQUIRED,type=INVALID_TYPE"`
+	Name          string    `json:"name" validate:"required,max=150" msg:"required=REQUIRED,max=INVALID_TYPE,type=INVALID_TYPE"`
 	CategoryID    string    `json:"categoryId" validate:"required,uuid4" msg:"required=REQUIRED,uuid4=INVALID_TYPE,type=INVALID_TYPE"`
-	Price         *int      `json:"price" validate:"omitnil" msg:"type=INVALID_TYPE"`
-	CurrentStock  *int      `json:"currentStock" validate:"omitnil" msg:"type=INVALID_TYPE"`
-	MinStockAlert *int      `json:"minStockAlert" validate:"omitnil" msg:"type=INVALID_TYPE"`
-	ImageURL      *string   `json:"imageUrl" validate:"omitnil" msg:"type=INVALID_TYPE"`
+	Price         *int      `json:"price" validate:"omitnil,min=0" msg:"min=INVALID_TYPE,type=INVALID_TYPE"`
+	CurrentStock  *int      `json:"currentStock" validate:"omitnil,min=0" msg:"min=INVALID_TYPE,type=INVALID_TYPE"`
+	MinStockAlert *int      `json:"minStockAlert" validate:"omitnil,min=0" msg:"min=INVALID_TYPE,type=INVALID_TYPE"`
+	ImageURL      *string   `json:"imageUrl" validate:"omitnil,max=2048" msg:"max=INVALID_TYPE,type=INVALID_TYPE"`
 	Allergens     *[]string `json:"allergens" validate:"omitnil,dive,oneof=GLUTEN CRUSTACEANS EGGS FISH PEANUTS SOYBEANS MILK NUTS CELERY MUSTARD SESAME SULPHITES LUPIN MOLLUSCS" msg:"oneof=INVALID_TYPE,type=INVALID_TYPE"`
-	Icon          *string   `json:"icon" validate:"omitnil" msg:"type=INVALID_TYPE"`
+	Icon          *string   `json:"icon" validate:"omitnil,max=100" msg:"max=INVALID_TYPE,type=INVALID_TYPE"`
 	OwnTaxRate    *int      `json:"ownTaxRate" validate:"omitnil,min=0,max=10000" msg:"min=INVALID_TYPE,max=INVALID_TYPE,type=INVALID_TYPE"`
 }
 
 type updateProductRequest struct {
-	Name          *string   `json:"name" validate:"omitnil" msg:"type=INVALID_TYPE"`
+	Name          *string   `json:"name" validate:"omitnil,max=150" msg:"max=INVALID_TYPE,type=INVALID_TYPE"`
 	CategoryID    *string   `json:"categoryId" validate:"omitnil" msg:"type=INVALID_TYPE"`
-	Price         *int      `json:"price" validate:"omitnil" msg:"type=INVALID_TYPE"`
+	Price         *int      `json:"price" validate:"omitnil,min=0" msg:"min=INVALID_TYPE,type=INVALID_TYPE"`
 	MinStockAlert *int      `json:"minStockAlert" validate:"omitnil,min=0" msg:"min=INVALID_TYPE,type=INVALID_TYPE"`
-	ImageURL      *string   `json:"imageUrl" validate:"omitnil" msg:"type=INVALID_TYPE"`
+	ImageURL      *string   `json:"imageUrl" validate:"omitnil,max=2048" msg:"max=INVALID_TYPE,type=INVALID_TYPE"`
 	Allergens     *[]string `json:"allergens" validate:"omitnil,dive,oneof=GLUTEN CRUSTACEANS EGGS FISH PEANUTS SOYBEANS MILK NUTS CELERY MUSTARD SESAME SULPHITES LUPIN MOLLUSCS" msg:"oneof=INVALID_TYPE,type=INVALID_TYPE"`
-	Icon          *string   `json:"icon" validate:"omitnil" msg:"type=INVALID_TYPE"`
+	Icon          *string   `json:"icon" validate:"omitnil,max=100" msg:"max=INVALID_TYPE,type=INVALID_TYPE"`
 	OwnTaxRate    *int      `json:"ownTaxRate" validate:"omitnil,min=0,max=10000" msg:"min=INVALID_TYPE,max=INVALID_TYPE,type=INVALID_TYPE"`
 }
 
 type updateStockRequest struct {
-	CurrentStock int `json:"currentStock" msg:"type=INVALID_TYPE"`
+	CurrentStock int `json:"currentStock" validate:"min=0" msg:"min=INVALID_TYPE,type=INVALID_TYPE"`
 }
 
 func (h *ProductHandler) list(w http.ResponseWriter, r *http.Request) {

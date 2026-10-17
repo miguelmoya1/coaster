@@ -23,8 +23,8 @@ func (h *UserHandler) RegisterRoutes(mux *http.ServeMux, guard *middleware.Guard
 }
 
 type updateUserRequest struct {
-	Name     *string `json:"name" validate:"omitnil" msg:"type=INVALID_TYPE"`
-	PhotoURL *string `json:"photoUrl" validate:"omitnil" msg:"type=INVALID_TYPE"`
+	Name     *string `json:"name" validate:"omitnil,max=100" msg:"max=INVALID_TYPE,type=INVALID_TYPE"`
+	PhotoURL *string `json:"photoUrl" validate:"omitnil,max=2048" msg:"max=INVALID_TYPE,type=INVALID_TYPE"`
 	Language *string `json:"language" validate:"omitnil" msg:"type=INVALID_TYPE"`
 }
 

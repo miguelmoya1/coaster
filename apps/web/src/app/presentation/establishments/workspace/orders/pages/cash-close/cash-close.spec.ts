@@ -116,7 +116,10 @@ describe('CashClosePage', () => {
         { provide: ConfirmationDialog, useValue: confirmationMock },
         { provide: PrintTicket, useValue: printMock },
         { provide: ActionFeedback, useValue: feedbackMock },
-        { provide: CurrentEstablishmentStore, useValue: { current: { value: () => ({ name: 'Bar Pepe' }) } } },
+        {
+          provide: CurrentEstablishmentStore,
+          useValue: { current: { hasValue: () => true, value: () => ({ name: 'Bar Pepe' }) } },
+        },
       ],
     }).compileComponents();
 

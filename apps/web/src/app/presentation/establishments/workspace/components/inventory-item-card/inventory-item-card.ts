@@ -67,24 +67,28 @@ import { StatusBadge } from '../status-badge/status-badge';
       </div>
     </div>
 
-    @if (showEditButton()) {
+    @if (showEditButton() || showDeleteButton()) {
       <div class="flex items-center gap-1">
-        <button
-          mat-icon-button
-          coasterRequireSubscription
-          [establishmentId]="establishmentId()"
-          (click)="onEditClick($event)"
-        >
-          <mat-icon class="text-base">edit</mat-icon>
-        </button>
-        <button
-          mat-icon-button
-          coasterRequireSubscription
-          [establishmentId]="establishmentId()"
-          (click)="onDeleteClick($event)"
-        >
-          <mat-icon class="text-base">delete</mat-icon>
-        </button>
+        @if (showEditButton()) {
+          <button
+            mat-icon-button
+            coasterRequireSubscription
+            [establishmentId]="establishmentId()"
+            (click)="onEditClick($event)"
+          >
+            <mat-icon class="text-base">edit</mat-icon>
+          </button>
+        }
+        @if (showDeleteButton()) {
+          <button
+            mat-icon-button
+            coasterRequireSubscription
+            [establishmentId]="establishmentId()"
+            (click)="onDeleteClick($event)"
+          >
+            <mat-icon class="text-base">delete</mat-icon>
+          </button>
+        }
       </div>
     }
   `,
@@ -114,6 +118,7 @@ export class InventoryItemCard {
   readonly statusLevel = input<StockStatus>(StockStatus.GOOD);
   readonly disabled = input(false);
   readonly showEditButton = input(false);
+  readonly showDeleteButton = input(false);
 
   readonly editClicked = output<void>();
   readonly deleteClicked = output<void>();

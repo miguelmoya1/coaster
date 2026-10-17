@@ -53,7 +53,7 @@
     }
   </div>
 
-  @if (isOwner()) {
+  @if (canInvite()) {
     <coaster-fab coasterRequireSubscription [establishmentId]="establishmentId()" routerLink="invite" />
   }
 </coaster-page-container>

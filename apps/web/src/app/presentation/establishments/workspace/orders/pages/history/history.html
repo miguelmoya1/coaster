@@ -78,7 +78,7 @@
           }
         </div>
 
-        @if (isOwner() && isToday()) {
+        @if (canDeleteOrder() && isToday()) {
           <button
             mat-icon-button
             coasterRequireSubscription

@@ -319,9 +319,10 @@ func (s *OrderService) Merge(ctx context.Context, establishmentID string, input 
 	}
 
 	s.events.Publish(ctx, domain.OrdersMergedEvent{
-		EstablishmentID: establishmentID,
-		PrimaryOrder:    row.ToOrder(),
-		SourceOrders:    merge.Sources,
+		EstablishmentID:   establishmentID,
+		PrimaryOrder:      row.ToOrder(),
+		OldPrimaryTableID: merge.PrimaryTableID,
+		SourceOrders:      merge.Sources,
 	})
 	return nil
 }

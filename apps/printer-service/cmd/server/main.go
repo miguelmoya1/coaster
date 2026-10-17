@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/signal"
 	"runtime"
+	"sync"
 	"syscall"
 	"time"
 
@@ -47,6 +48,10 @@ type service struct {
 	renderer *escpos.Renderer
 	device   domain.Printer
 	server   *http.Server
+
+	cfgMu   sync.RWMutex
+	ctx     context.Context
+	startMu sync.Once
 }
 
 func buildService(args []string) (*service, error) {
@@ -71,10 +76,13 @@ func buildService(args []string) (*service, error) {
 
 func (s *service) routes() http.Handler {
 	cors := middleware.CORS(s.cfg.AllowedOrigins)
+	target := fmt.Sprint(s.device)
 
 	mux := http.NewServeMux()
 	mux.Handle("/print", cors(s.printHandler()))
-	mux.Handle("/health", cors(handler.NewHealthHandler(updater.CurrentVersion, s.cfg.EstablishmentID, fmt.Sprint(s.device))))
+	mux.Handle("/health", cors(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		handler.NewHealthHandler(updater.CurrentVersion, s.establishmentID(), target).ServeHTTP(w, r)
+	})))
 	mux.Handle("/printers", cors(handler.NewDiscoveryHandler()))
 	mux.Handle("/setup", handler.NewSetupHandler(s))
 
@@ -82,16 +90,25 @@ func (s *service) routes() http.Handler {
 }
 
 func (s *service) printHandler() http.Handler {
+	print := handler.NewPrintHandler(s.printUC, s.renderer)
 	if s.cfg.JWTSecret != "" {
-		return middleware.JWT(s.cfg.JWTSecret, s.cfg.EstablishmentID)(handler.NewPrintHandler(s.printUC, s.renderer))
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			middleware.JWT(s.cfg.JWTSecret, s.establishmentID())(print).ServeHTTP(w, r)
+		})
 	}
 
 	if s.cfg.Insecure {
-		return handler.NewPrintHandler(s.printUC, s.renderer)
+		return print
 	}
 
 	return handler.NewDisabledHandler(
 		"The local print endpoint needs -jwt-secret (or -insecure to run without authentication)")
+}
+
+func (s *service) establishmentID() string {
+	s.cfgMu.RLock()
+	defer s.cfgMu.RUnlock()
+	return s.cfg.EstablishmentID
 }
 
 func (s *service) run() error {
@@ -104,15 +121,16 @@ func (s *service) run() error {
 
 	up := updater.NewUpdater(s.cfg.APIURL + "/printer/check-version")
 	up.AcquireIdle = s.printUC.AcquireIdle
+	up.ReleaseIdle = s.printUC.ReleaseIdle
 	go up.Watch(ctx, s.cfg.UpdateInterval)
 
-	if !s.cfg.RelayEnabled() {
+	s.ctx = ctx
+	if !s.Paired() {
 		s.pairFromFileName()
 	}
 
-	if s.cfg.RelayEnabled() {
-		go registration.StartIPRegistration(ctx, s.cfg)
-		go relay.Run(ctx, s.cfg, s.printUC, s.renderer)
+	if s.Paired() {
+		s.startRelay()
 	} else {
 		log.Println("No establishment-id/device-key: printing only from the local network.")
 	}
@@ -138,6 +156,15 @@ func (s *service) run() error {
 	return s.server.Shutdown(shutdownCtx)
 }
 
+func (s *service) startRelay() {
+	s.startMu.Do(func() {
+		if s.ctx != nil && s.cfg.RelayEnabled() {
+			go registration.StartIPRegistration(s.ctx, s.cfg)
+			go relay.Run(s.ctx, s.cfg, s.printUC, s.renderer)
+		}
+	})
+}
+
 func (s *service) pairFromFileName() {
 	executable, err := os.Executable()
 	if err != nil {
@@ -156,8 +183,10 @@ func (s *service) pairFromFileName() {
 		return
 	}
 
+	s.cfgMu.Lock()
 	s.cfg.EstablishmentID = paired.EstablishmentID
 	s.cfg.DeviceKey = paired.DeviceKey
+	s.cfgMu.Unlock()
 
 	if err := pairing.Save(*paired); err != nil {
 		log.Printf("Paired, but could not save it next to the binary: %v\n", err)
@@ -173,13 +202,22 @@ func (s *service) Pair(code string) error {
 		return err
 	}
 
+	s.cfgMu.Lock()
 	s.cfg.EstablishmentID = paired.EstablishmentID
 	s.cfg.DeviceKey = paired.DeviceKey
+	s.cfgMu.Unlock()
 
-	return pairing.Save(*paired)
+	if err := pairing.Save(*paired); err != nil {
+		return err
+	}
+
+	s.startRelay()
+	return nil
 }
 
 func (s *service) Paired() bool {
+	s.cfgMu.RLock()
+	defer s.cfgMu.RUnlock()
 	return s.cfg.RelayEnabled()
 }
 

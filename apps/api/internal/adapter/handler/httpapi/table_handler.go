@@ -31,11 +31,11 @@ func (h *TableHandler) RegisterRoutes(mux *http.ServeMux, guard *middleware.Guar
 }
 
 type createTableRequest struct {
-	Name string `json:"name" validate:"required" msg:"required=REQUIRED,type=INVALID_TYPE"`
+	Name string `json:"name" validate:"required,max=100" msg:"required=REQUIRED,max=INVALID_TYPE,type=INVALID_TYPE"`
 }
 
 type updateTableRequest struct {
-	Name *string `json:"name" validate:"omitnil" msg:"type=INVALID_TYPE"`
+	Name *string `json:"name" validate:"omitnil,max=100" msg:"max=INVALID_TYPE,type=INVALID_TYPE"`
 }
 
 func (h *TableHandler) list(w http.ResponseWriter, r *http.Request) {

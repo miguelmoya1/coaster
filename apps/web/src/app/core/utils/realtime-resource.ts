@@ -1,12 +1,13 @@
 import { effect, untracked, type Signal, type WritableResource } from '@angular/core';
 
 export const onRealtime = <T>(event: Signal<T | null>, handler: (payload: T) => void): void => {
-  const alreadySeen = untracked(event);
+  let previous = untracked(event);
 
   effect(() => {
     const payload = event();
 
-    if (payload !== null && payload !== alreadySeen) {
+    if (payload !== null && payload !== previous) {
+      previous = payload;
       untracked(() => handler(payload));
     }
   });

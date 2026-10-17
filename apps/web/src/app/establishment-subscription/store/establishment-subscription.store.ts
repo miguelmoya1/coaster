@@ -89,7 +89,9 @@ export class EstablishmentSubscriptionStore {
     }
 
     if (sub.manualGrant) {
-      return false;
+      if (!sub.manualGrant.expiresAt || new Date() <= new Date(sub.manualGrant.expiresAt)) {
+        return false;
+      }
     }
 
     if (sub.status === SubscriptionStatus.ACTIVE) {
@@ -165,21 +167,19 @@ export class EstablishmentSubscriptionStore {
   });
 
   constructor() {
-    effect(() => {
-      const event = this.#realtime.on<{ establishmentId: string }>('subscriptionUpdated')();
+    onRealtime(this.#realtime.on<{ establishmentId?: string }>('subscriptionUpdated'), (event) => {
       const currentEstablishmentId = this.#currentEstablishmentId();
-      if (event && (!event.establishmentId || event.establishmentId === currentEstablishmentId)) {
+      if (!event.establishmentId || event.establishmentId === currentEstablishmentId) {
         this.reloadSubscription();
       }
     });
 
-    effect(() => {
-      if (
-        this.#realtime.on<{ id: string }>('memberInvited')() ||
-        this.#realtime.on<{ id: string }>('memberRemoved')()
-      ) {
-        this.reloadSeats();
-      }
+    onRealtime(this.#realtime.on<{ id: string }>('memberInvited'), () => {
+      this.reloadSeats();
+    });
+
+    onRealtime(this.#realtime.on<{ id: string }>('memberRemoved'), () => {
+      this.reloadSeats();
     });
 
     onRealtime(this.#realtime.reconnected, () => {

@@ -1,4 +1,3 @@
-import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { provideRouter, Router } from '@angular/router';
@@ -45,7 +44,7 @@ describe('History', () => {
         provideRouter([]),
         { provide: ManageOrder, useValue: manageOrderMock },
         { provide: ConfirmationDialog, useValue: confirmationMock },
-        { provide: MyMemberStore, useValue: { isOwner: signal(true) } },
+        { provide: MyMemberStore, useValue: { hasPermission: vi.fn().mockReturnValue(true) } },
       ],
     }).compileComponents();
 

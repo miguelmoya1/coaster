@@ -26,7 +26,6 @@ describe('Inventory', () => {
       }),
       hasValue: vi.fn().mockReturnValue(true),
     },
-    isOwner: signal(false),
     hasPermission: vi.fn().mockReturnValue(false),
   };
 

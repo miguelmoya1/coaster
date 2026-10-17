@@ -42,9 +42,18 @@ func (r *OrderRealtime) EventHandlers() []ports.EventHandler {
 		}),
 		ports.On(func(_ context.Context, event domain.OrdersMergedEvent) {
 			r.realtime.Publish(event.EstablishmentID, domain.RealtimeOrderUpdated, event.PrimaryOrder)
+			finalTableID := event.PrimaryOrder.TableID
+			if event.OldPrimaryTableID != nil && (finalTableID == nil || *event.OldPrimaryTableID != *finalTableID) {
+				r.tableStatusChanged(event.EstablishmentID, event.OldPrimaryTableID, domain.TableFree)
+			}
 			for _, source := range event.SourceOrders {
 				r.realtime.Publish(event.EstablishmentID, domain.RealtimeOrderCancelled, orderRealtimeID{ID: source.ID})
-				r.tableStatusChanged(event.EstablishmentID, source.TableID, domain.TableFree)
+				if source.TableID != nil && (finalTableID == nil || *source.TableID != *finalTableID) {
+					r.tableStatusChanged(event.EstablishmentID, source.TableID, domain.TableFree)
+				}
+			}
+			if finalTableID != nil {
+				r.tableStatusChanged(event.EstablishmentID, finalTableID, domain.TableOccupied)
 			}
 		}),
 		ports.On(func(_ context.Context, event domain.OrderDeletedEvent) {

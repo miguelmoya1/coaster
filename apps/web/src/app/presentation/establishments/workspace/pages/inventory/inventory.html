@@ -58,6 +58,7 @@
         [icon]="product.icon || 'inventory_2'"
         [statusLevel]="product.stockStatus"
         [showEditButton]="canUpdateProduct()"
+        [showDeleteButton]="canDeleteProduct()"
         (click)="onProductClicked(product)"
         (editClicked)="onEditProductClicked(product)"
         (deleteClicked)="handleDeleteProductClicked(product)"
@@ -69,7 +70,7 @@
     }
   </div>
 
-  @if (canCreateProduct()) {
+  @if (canCreateProduct() || canCreateCategory()) {
     <coaster-fab
       data-testid="create-inventory-fab"
       coasterRequireSubscription

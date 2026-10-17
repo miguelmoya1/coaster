@@ -75,7 +75,9 @@ export default class Staff {
     }
     return this.#myMemberStore.myMember.value();
   });
-  protected readonly isOwner = this.#myMemberStore.isOwner;
+  protected readonly canRemoveMember = computed(() =>
+    this.#myMemberStore.hasPermission(EstablishmentPermission.ESTABLISHMENT_REMOVE_MEMBER),
+  );
   protected readonly canChangeRole = computed(() =>
     this.#myMemberStore.hasPermission(EstablishmentPermission.ESTABLISHMENT_UPDATE_MEMBER_ROLE),
   );
@@ -96,7 +98,7 @@ export default class Staff {
 
       return {
         ...member,
-        showDeleteButton: this.isOwner() || isCurrentUser,
+        showDeleteButton: this.canRemoveMember() || isCurrentUser,
         isCurrentUser,
         isOnlyOwner: onlyOwner,
         isPending,
