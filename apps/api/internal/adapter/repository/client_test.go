@@ -71,4 +71,3 @@ func TestNewPool(t *testing.T) {
 		t.Fatal("NewPool with an unreachable database must fail")
 	}
 }
-
