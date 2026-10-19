@@ -22,7 +22,7 @@ import { TranslatePipe } from '@ngx-translate/core';
         {{ 'orders.add_items' | translate }}
       </button>
       <button
-        mat-flat-button
+        mat-stroked-button
         coasterRequireSubscription
         [establishmentId]="establishmentId()"
         (click)="checkout.emit()"
@@ -54,19 +54,32 @@ import { TranslatePipe } from '@ngx-translate/core';
         <mat-icon>merge</mat-icon>
         {{ 'orders.merge' | translate }}
       </button>
+      <button mat-stroked-button class="w-full" (click)="printOrder.emit()">
+        <mat-icon>receipt_long</mat-icon>
+        {{ 'orders.print_ticket' | translate }}
+      </button>
       <button
         mat-stroked-button
         coasterRequireSubscription
         [establishmentId]="establishmentId()"
-        class="w-full"
+        class="w-full text-error! border-error/40! hover:bg-error/10!"
         (click)="cancelOrder.emit()"
       >
-        <mat-icon>close</mat-icon>
+        <mat-icon class="text-error!">close</mat-icon>
         {{ 'orders.cancel_order' | translate }}
       </button>
-      <button mat-stroked-button class="w-full" (click)="printOrder.emit()">
-        <mat-icon>receipt_long</mat-icon>
-        {{ 'orders.print_ticket' | translate }}
+    </div>
+
+    <div>
+      <button
+        mat-flat-button
+        coasterRequireSubscription
+        [establishmentId]="establishmentId()"
+        (click)="closeOrder.emit()"
+        class="w-full"
+      >
+        <mat-icon>check_circle</mat-icon>
+        {{ (hasTable() ? 'orders.close_table' : 'orders.close_order') | translate }}
       </button>
     </div>
   `,
@@ -77,6 +90,7 @@ export class OrderActions {
 
   readonly addItems = output<void>();
   readonly checkout = output<void>();
+  readonly closeOrder = output<void>();
   readonly moveTable = output<void>();
   readonly merge = output<void>();
   readonly cancelOrder = output<void>();

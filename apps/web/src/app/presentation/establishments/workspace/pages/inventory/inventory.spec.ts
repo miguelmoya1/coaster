@@ -1,4 +1,3 @@
-import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { MyMemberStore } from '@coaster/establishment-members';
@@ -26,7 +25,6 @@ describe('Inventory', () => {
       }),
       hasValue: vi.fn().mockReturnValue(true),
     },
-    isOwner: signal(false),
     hasPermission: vi.fn().mockReturnValue(false),
   };
 

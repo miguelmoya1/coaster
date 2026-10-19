@@ -53,3 +53,21 @@ func TestDomainTimeReadsAndWritesTimestamps(t *testing.T) {
 		t.Errorf("got %v, want %v", got, want)
 	}
 }
+
+func TestNewPool(t *testing.T) {
+	ctx := context.Background()
+
+	pool, err := NewPool(ctx, testDB.URL)
+	if err != nil {
+		t.Fatalf("NewPool: %v", err)
+	}
+	defer pool.Close()
+
+	if _, err := NewPool(ctx, "://not-a-url"); err == nil {
+		t.Fatal("NewPool with an invalid URL must fail")
+	}
+
+	if _, err := NewPool(ctx, "postgres://127.0.0.1:1/coaster?connect_timeout=1"); err == nil {
+		t.Fatal("NewPool with an unreachable database must fail")
+	}
+}

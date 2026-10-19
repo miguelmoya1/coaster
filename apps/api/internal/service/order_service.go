@@ -59,21 +59,21 @@ func (s *OrderService) Get(ctx context.Context, establishmentID, orderID string)
 	return order.ToOrder(), nil
 }
 
-func (s *OrderService) Create(ctx context.Context, establishmentID string, input domain.CreateOrderInput) error {
+func (s *OrderService) Create(ctx context.Context, establishmentID string, input domain.CreateOrderInput) (domain.Order, error) {
 	items, totalAmount, err := s.priceLines(ctx, establishmentID, input.Items)
 	if err != nil {
-		return err
+		return domain.Order{}, err
 	}
 
 	tableID := domain.NilIfEmpty(input.TableID)
 	tableName, err := s.freeTableName(ctx, establishmentID, tableID)
 	if err != nil {
-		return err
+		return domain.Order{}, err
 	}
 
 	adjustments, err := newOrderAdjustments(input.Adjustments)
 	if err != nil {
-		return err
+		return domain.Order{}, err
 	}
 
 	row, err := s.orders.Create(ctx, domain.NewOrder{
@@ -88,11 +88,12 @@ func (s *OrderService) Create(ctx context.Context, establishmentID string, input
 		Notes:           cutOrderNote(input.Notes),
 	})
 	if err != nil {
-		return err
+		return domain.Order{}, err
 	}
 
-	s.events.Publish(ctx, domain.OrderCreatedEvent{EstablishmentID: establishmentID, Order: row.ToOrder(), TableID: tableID})
-	return nil
+	order := row.ToOrder()
+	s.events.Publish(ctx, domain.OrderCreatedEvent{EstablishmentID: establishmentID, Order: order, TableID: tableID})
+	return order, nil
 }
 
 func (s *OrderService) freeTableName(ctx context.Context, establishmentID string, tableID *string) (*string, error) {
@@ -208,13 +209,31 @@ func checkQuantity(quantity, total int, exceedsTotal, negative string) error {
 	}
 	return nil
 }
+
 func (s *OrderService) Checkout(ctx context.Context, establishmentID, orderID string, method domain.PaymentMethod) error {
-	order, err := s.findOpen(ctx, establishmentID, orderID)
+	if _, err := s.findOpen(ctx, establishmentID, orderID); err != nil {
+		return err
+	}
+
+	row, err := s.orders.Checkout(ctx, orderID, method)
 	if err != nil {
 		return err
 	}
 
-	row, err := s.orders.Checkout(ctx, orderID, order.TableID, method)
+	s.events.Publish(ctx, domain.OrderUpdatedEvent{EstablishmentID: establishmentID, Order: row.ToOrder()})
+	return nil
+}
+
+func (s *OrderService) Close(ctx context.Context, establishmentID, orderID string) error {
+	order, err := s.findOpen(ctx, establishmentID, orderID)
+	if err != nil {
+		return err
+	}
+	if !order.IsFullyPaid() {
+		return domain.BadRequest(domain.CodeOrderHasPendingPayment)
+	}
+
+	row, err := s.orders.Close(ctx, orderID, order.TableID)
 	if err != nil {
 		return err
 	}
@@ -300,9 +319,10 @@ func (s *OrderService) Merge(ctx context.Context, establishmentID string, input 
 	}
 
 	s.events.Publish(ctx, domain.OrdersMergedEvent{
-		EstablishmentID: establishmentID,
-		PrimaryOrder:    row.ToOrder(),
-		SourceOrders:    merge.Sources,
+		EstablishmentID:   establishmentID,
+		PrimaryOrder:      row.ToOrder(),
+		OldPrimaryTableID: merge.PrimaryTableID,
+		SourceOrders:      merge.Sources,
 	})
 	return nil
 }

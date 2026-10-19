@@ -24,7 +24,9 @@ type OrderRepository interface {
 
 	BulkUpdate(ctx context.Context, orderID string, updates []domain.OrderItemUpdate) (domain.OrderRow, error)
 
-	Checkout(ctx context.Context, orderID string, tableID *string, method domain.PaymentMethod) (domain.OrderRow, error)
+	Checkout(ctx context.Context, orderID string, method domain.PaymentMethod) (domain.OrderRow, error)
+
+	Close(ctx context.Context, orderID string, tableID *string) (domain.OrderRow, error)
 
 	Cancel(ctx context.Context, orderID string, tableID *string) (domain.OrderRow, error)
 
@@ -47,10 +49,11 @@ type OrderService interface {
 	ListByDate(ctx context.Context, establishmentID, date string) ([]domain.Order, error)
 	List(ctx context.Context, establishmentID string, status domain.OrderStatus) ([]domain.Order, error)
 	Get(ctx context.Context, establishmentID, orderID string) (domain.Order, error)
-	Create(ctx context.Context, establishmentID string, input domain.CreateOrderInput) error
+	Create(ctx context.Context, establishmentID string, input domain.CreateOrderInput) (domain.Order, error)
 	AddItems(ctx context.Context, establishmentID, orderID string, input domain.AddOrderItemsInput) error
 	BulkUpdate(ctx context.Context, establishmentID, orderID string, updates []domain.OrderItemUpdate) error
 	Checkout(ctx context.Context, establishmentID, orderID string, method domain.PaymentMethod) error
+	Close(ctx context.Context, establishmentID, orderID string) error
 	Cancel(ctx context.Context, establishmentID, orderID string) error
 	MoveTable(ctx context.Context, establishmentID, orderID, tableID string) error
 	Merge(ctx context.Context, establishmentID string, input domain.MergeOrdersInput) error

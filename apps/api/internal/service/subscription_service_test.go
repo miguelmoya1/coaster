@@ -441,3 +441,13 @@ func TestSubscriptionChangesForgetTheCacheAndReachRealtime(t *testing.T) {
 		t.Errorf("messages = %+v, want %+v", test.realtime.messages, want)
 	}
 }
+
+func TestSubscriptionMemberChangeSyncsSeats(t *testing.T) {
+	test := newSubscriptionTest(newFakeSubscriptions(), newFakePayments())
+
+	deliver(test.service.EventHandlers(), domain.MemberInvitedEvent{EstablishmentID: "establishment-4"})
+	deliver(test.service.EventHandlers(), domain.MemberRemovedEvent{EstablishmentID: "establishment-4"})
+	deliver(test.service.EventHandlers(), domain.SubscriptionActivatedEvent{EstablishmentID: "establishment-4"})
+	deliver(test.service.EventHandlers(), domain.SubscriptionOverriddenEvent{EstablishmentID: "establishment-4"})
+	deliver(test.service.EventHandlers(), domain.SubscriptionPaymentFailedEvent{EstablishmentID: "establishment-4"})
+}

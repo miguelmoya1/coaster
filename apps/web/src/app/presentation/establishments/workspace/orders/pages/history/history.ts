@@ -2,7 +2,7 @@ import { Component, computed, inject, input } from '@angular/core';
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { Router } from '@angular/router';
-import { MyMemberStore } from '@coaster/establishment-members';
+import { EstablishmentPermission, MyMemberStore } from '@coaster/establishment-members';
 import { RequireSubscriptionDirective } from '@coaster/establishment-subscription';
 import { ActionFeedback, loadedOr, type EstablishmentId, type PageResource } from '@coaster/core';
 import { asOrderId, ManageOrder, orderHistorySummary, OrderStatus, todayIso, type Order } from '@coaster/orders';
@@ -48,7 +48,9 @@ class History {
   protected readonly summary = computed(() => orderHistorySummary(this.#orders()));
 
   readonly isToday = computed(() => this.selectedDate() === this.today);
-  readonly isOwner = this.#myMemberStore.isOwner;
+  readonly canDeleteOrder = computed(() =>
+    this.#myMemberStore.hasPermission(EstablishmentPermission.ESTABLISHMENT_DELETE_ORDER),
+  );
 
   protected readonly ordersViewModel = computed(() =>
     this.#orders().map((order) => ({

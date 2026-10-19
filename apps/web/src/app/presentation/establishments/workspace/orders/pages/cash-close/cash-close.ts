@@ -206,7 +206,9 @@ class CashClosePage {
     const t = (key: string, params?: Record<string, string>) => this.#translate.instant(key, params);
     return cashCloseTicket(cashClose, {
       title: t('cash_close.ticket_title'),
-      establishmentName: this.#currentEstablishment.current.value()?.name ?? '',
+      establishmentName: this.#currentEstablishment.current.hasValue()
+        ? this.#currentEstablishment.current.value()?.name ?? ''
+        : '',
       closedAt: this.when(cashClose.closedAt),
       since: cashClose.since
         ? t('cash_close.since', { date: this.when(cashClose.since) })

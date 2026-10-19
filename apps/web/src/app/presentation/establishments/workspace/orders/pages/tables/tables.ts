@@ -4,7 +4,7 @@ import { MatCard } from '@angular/material/card';
 import { MatChip } from '@angular/material/chips';
 import { MatIcon } from '@angular/material/icon';
 import { Router } from '@angular/router';
-import { MyMemberStore } from '@coaster/establishment-members';
+import { EstablishmentPermission, MyMemberStore } from '@coaster/establishment-members';
 import { RequireSubscriptionDirective } from '@coaster/establishment-subscription';
 import type { Order } from '@coaster/orders';
 import { ActionFeedback, loadedOr, type EstablishmentId, type PageResource } from '@coaster/core';
@@ -50,7 +50,12 @@ class Tables {
 
   readonly isSubmitting = signal(false);
 
-  readonly isOwner = this.#myMemberStore.isOwner;
+  readonly canCreateTable = computed(() =>
+    this.#myMemberStore.hasPermission(EstablishmentPermission.ESTABLISHMENT_CREATE_TABLE),
+  );
+  readonly canDeleteTable = computed(() =>
+    this.#myMemberStore.hasPermission(EstablishmentPermission.ESTABLISHMENT_DELETE_TABLE),
+  );
 
   readonly #openOrders = computed(() => loadedOr(this.openOrders(), []));
 

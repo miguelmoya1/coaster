@@ -33,6 +33,8 @@ func (h *OrderHandler) RegisterRoutes(mux *http.ServeMux, guard *middleware.Guar
 		middleware.Permissions(domain.PermissionUpdateOrder), orders)
 	handle(mux, guard, "POST "+base+"/{orderId}/checkout", h.checkout,
 		middleware.Permissions(domain.PermissionCheckoutOrder), orders)
+	handle(mux, guard, "POST "+base+"/{orderId}/close", h.close,
+		middleware.Permissions(domain.PermissionCheckoutOrder), orders)
 	handle(mux, guard, "POST "+base+"/{orderId}/cancel", h.cancel,
 		middleware.Permissions(domain.PermissionCancelOrder), orders)
 	handle(mux, guard, "PATCH "+base+"/{orderId}/move-table", h.moveTable,
@@ -58,28 +60,28 @@ func (h *OrderHandler) RegisterRoutes(mux *http.ServeMux, guard *middleware.Guar
 type orderLineRequest struct {
 	ProductID string  `json:"productId" validate:"required,uuid4" msg:"required=REQUIRED,uuid4=INVALID_TYPE,type=INVALID_TYPE"`
 	Quantity  int     `json:"quantity" validate:"min=1" msg:"min=INVALID_TYPE,type=INVALID_TYPE"`
-	Notes     *string `json:"notes" validate:"omitnil" msg:"type=INVALID_TYPE"`
+	Notes     *string `json:"notes" validate:"omitnil,max=500" msg:"max=INVALID_TYPE,type=INVALID_TYPE"`
 }
 
 type orderAdjustmentRequest struct {
 	Target domain.AdjustmentTarget `json:"target" validate:"oneof=ORDER ITEM" msg:"oneof=INVALID_TYPE,type=INVALID_TYPE"`
 	Type   domain.AdjustmentType   `json:"type" validate:"oneof=PERCENTAGE FIXED_AMOUNT" msg:"oneof=INVALID_TYPE,type=INVALID_TYPE"`
 	Value  int                     `json:"value" validate:"min=1,percentage" msg:"min=INVALID_TYPE,percentage=INVALID_TYPE,type=INVALID_TYPE"`
-	Reason *string                 `json:"reason" validate:"omitnil" msg:"type=INVALID_TYPE"`
+	Reason *string                 `json:"reason" validate:"omitnil,max=500" msg:"max=INVALID_TYPE,type=INVALID_TYPE"`
 	ItemID *string                 `json:"itemId" validate:"omitnil" msg:"type=INVALID_TYPE"`
 }
 
 type createOrderRequest struct {
 	TableID     *string                   `json:"tableId" validate:"omitnil,uuid4" msg:"uuid4=INVALID_TYPE,type=INVALID_TYPE"`
 	Items       []orderLineRequest        `json:"items" validate:"min=1,dive" msg:"min=REQUIRED,type=INVALID_TYPE"`
-	Notes       *string                   `json:"notes" validate:"omitnil" msg:"type=INVALID_TYPE"`
+	Notes       *string                   `json:"notes" validate:"omitnil,max=500" msg:"max=INVALID_TYPE,type=INVALID_TYPE"`
 	Adjustments *[]orderAdjustmentRequest `json:"adjustments" validate:"omitnil,dive" msg:"type=INVALID_TYPE"`
 	TipAmount   *int                      `json:"tipAmount" validate:"omitnil,min=0" msg:"min=INVALID_TYPE,type=INVALID_TYPE"`
 }
 
 type addOrderItemsRequest struct {
 	Items []orderLineRequest `json:"items" validate:"min=1,dive" msg:"min=REQUIRED,type=INVALID_TYPE"`
-	Notes *string            `json:"notes" validate:"omitnil" msg:"type=INVALID_TYPE"`
+	Notes *string            `json:"notes" validate:"omitnil,max=500" msg:"max=INVALID_TYPE,type=INVALID_TYPE"`
 }
 
 type bulkUpdateItemRequest struct {
@@ -168,12 +170,13 @@ func (h *OrderHandler) create(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	if err := h.orders.Create(r.Context(), r.PathValue("establishmentId"), create); err != nil {
+	order, err := h.orders.Create(r.Context(), r.PathValue("establishmentId"), create)
+	if err != nil {
 		writeError(w, err)
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
+	respond.JSON(w, http.StatusCreated, order)
 }
 
 func (h *OrderHandler) addItems(w http.ResponseWriter, r *http.Request) {
@@ -230,6 +233,15 @@ func (h *OrderHandler) checkout(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := h.orders.Checkout(r.Context(), r.PathValue("establishmentId"), r.PathValue("orderId"), input.PaymentMethod); err != nil {
+		writeError(w, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+}
+
+func (h *OrderHandler) close(w http.ResponseWriter, r *http.Request) {
+	if err := h.orders.Close(r.Context(), r.PathValue("establishmentId"), r.PathValue("orderId")); err != nil {
 		writeError(w, err)
 		return
 	}

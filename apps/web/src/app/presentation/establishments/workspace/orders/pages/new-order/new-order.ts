@@ -121,6 +121,11 @@ class NewOrder {
   }
 
   goBack() {
+    const orderId = this.existingOrderId();
+    if (orderId) {
+      this.#router.navigate(['/establishments', this.establishmentId(), 'orders', orderId]);
+      return;
+    }
     this.#router.navigate(['/establishments', this.establishmentId(), 'orders', 'tables']);
   }
 
@@ -184,24 +189,33 @@ class NewOrder {
         notes: item.notes,
       }));
 
-      const orderId = this.existingOrderId();
-      if (orderId) {
-        await this.#manageOrder.addItems(this.establishmentId(), orderId, {
+      const existingOrderId = this.existingOrderId();
+      if (existingOrderId) {
+        await this.#manageOrder.addItems(this.establishmentId(), existingOrderId, {
           items: itemDtos,
           notes: this.orderNotes(),
         });
+
+        this.cart.set(new Map());
+        this.orderNotes.set('');
+
+        await this.#router.navigate(['/establishments', this.establishmentId(), 'orders', existingOrderId]);
       } else {
-        await this.#manageOrder.create(this.establishmentId(), {
+        const createdOrder = await this.#manageOrder.create(this.establishmentId(), {
           tableId: this.selectedTableId() ? asTableId(this.selectedTableId()!) : undefined,
           items: itemDtos,
           notes: this.orderNotes(),
         });
+
+        this.cart.set(new Map());
+        this.orderNotes.set('');
+
+        if (createdOrder?.id) {
+          await this.#router.navigate(['/establishments', this.establishmentId(), 'orders', createdOrder.id]);
+        } else {
+          await this.#router.navigate(['/establishments', this.establishmentId(), 'orders', 'tables']);
+        }
       }
-
-      this.cart.set(new Map());
-      this.orderNotes.set('');
-
-      await this.#router.navigate(['/establishments', this.establishmentId(), 'orders', 'tables']);
     } catch (e) {
       this.#feedback.error(e);
     }

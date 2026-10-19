@@ -246,6 +246,7 @@ describe('AiVoiceService', () => {
         'Crear mesa Mesa 5',
         [{ role: 'user', content: 'Crear mesa Mesa 5' }],
         expect.any(Function),
+        expect.any(AbortSignal),
       );
     });
 

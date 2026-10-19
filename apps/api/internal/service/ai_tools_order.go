@@ -45,6 +45,10 @@ type checkoutOrderInput struct {
 	PaymentMethod string `json:"paymentMethod" jsonschema:"enum=CASH,enum=CARD" jsonschema_description:"Payment method: CASH (efectivo, caja) or CARD (tarjeta, datáfono). Defaults to CASH if not specified."`
 }
 
+type closeOrderInput struct {
+	OrderID string `json:"orderId" jsonschema_description:"The UUID of the open order to close (levantar la mesa). Look up the active open orders list to find the order UUID matching the table or order details."`
+}
+
 type serveOrPayItemsInput struct {
 	OrderID string                `json:"orderId" jsonschema_description:"The UUID of the order to update."`
 	Items   []serveOrPayItemInput `json:"items" jsonschema_description:"List of order items to update."`
@@ -273,11 +277,12 @@ func (s *AIService) orderTools(tc *aiToolContext) []ports.AITool {
 				}
 
 				return tc.execute(domain.PermissionCreateOrder, nil, func() error {
-					return s.orders.Create(ctx, tc.establishmentID, domain.CreateOrderInput{
+					_, err := s.orders.Create(ctx, tc.establishmentID, domain.CreateOrderInput{
 						CreatedByID: tc.user.ID,
 						TableID:     domain.NilIfEmpty(&input.TableID),
 						Items:       lines,
 					})
+					return err
 				})
 			}),
 
@@ -297,10 +302,17 @@ func (s *AIService) orderTools(tc *aiToolContext) []ports.AITool {
 				})
 			}),
 
-		newAITool("checkoutOrder", "Collect payment and close an open order.",
+		newAITool("checkoutOrder", "Collect the pending payment of an open order. The order and its table stay open; use closeOrder to close them.",
 			func(ctx context.Context, input checkoutOrderInput) domain.AIToolResult {
 				return tc.execute(domain.PermissionCheckoutOrder, nil, func() error {
 					return s.orders.Checkout(ctx, tc.establishmentID, input.OrderID, domain.PaymentMethod(input.PaymentMethod))
+				})
+			}),
+
+		newAITool("closeOrder", "Close a fully paid open order and free its table. It fails if money is still pending; collect it first with checkoutOrder.",
+			func(ctx context.Context, input closeOrderInput) domain.AIToolResult {
+				return tc.execute(domain.PermissionCheckoutOrder, nil, func() error {
+					return s.orders.Close(ctx, tc.establishmentID, input.OrderID)
 				})
 			}),
 

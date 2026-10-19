@@ -2,7 +2,7 @@ import { Component, computed, effect, inject, input, untracked } from '@angular/
 import { MatDialog } from '@angular/material/dialog';
 import { RouterOutlet } from '@angular/router';
 import { CurrentUser, Realtime, type EstablishmentId } from '@coaster/core';
-import { MyMemberStore } from '@coaster/establishment-members';
+import { EstablishmentPermission, MyMemberStore } from '@coaster/establishment-members';
 import { EstablishmentSubscriptionStore } from '@coaster/establishment-subscription';
 import { CurrentEstablishmentStore, ModulesStore } from '@coaster/establishments';
 import { AiAssistantPanel } from '../components/ai-assistant/ai-assistant-panel';
@@ -52,7 +52,7 @@ export default class WorkspaceLayout {
   readonly #currentEstablishmentStore = inject(CurrentEstablishmentStore);
   readonly #modulesStore = inject(ModulesStore);
   readonly #dialog = inject(MatDialog);
-  #onboardingShown = false;
+  #onboardingShownFor: EstablishmentId | undefined;
   readonly #myMemberStore = inject(MyMemberStore);
   readonly #establishmentSubscriptionStore = inject(EstablishmentSubscriptionStore);
   readonly #realtime = inject(Realtime);
@@ -61,7 +61,9 @@ export default class WorkspaceLayout {
   protected readonly currentUser = this.#currentUser.current;
   protected readonly currentEstablishment = this.#currentEstablishmentStore.current;
 
-  protected readonly isOwner = this.#myMemberStore.isOwner;
+  protected readonly canManageSettings = computed(() =>
+    this.#myMemberStore.hasPermission(EstablishmentPermission.ESTABLISHMENT_MANAGE_SETTINGS),
+  );
 
   protected readonly mainPaddingClass = computed(() =>
     this.#aiVoiceService.isOpen() && this.#aiVoiceService.snap() === 'peek' ? 'pb-[13rem] lg:pb-28' : 'pb-28',
@@ -85,14 +87,23 @@ export default class WorkspaceLayout {
 
   constructor() {
     effect(() => {
+      const targetId = this.establishmentId();
       const isConfigured = this.#modulesStore.isConfigured();
       const establishment = this.currentEstablishment.hasValue() ? this.currentEstablishment.value() : undefined;
 
-      if (isConfigured !== false || !establishment || !this.isOwner() || this.#onboardingShown) {
+      if (
+        isConfigured !== false ||
+        !establishment ||
+        establishment.id !== targetId ||
+        this.#modulesStore.settings.isLoading() ||
+        this.#myMemberStore.myMember.isLoading() ||
+        !this.canManageSettings() ||
+        this.#onboardingShownFor === establishment.id
+      ) {
         return;
       }
 
-      this.#onboardingShown = true;
+      this.#onboardingShownFor = establishment.id;
 
       untracked(() =>
         this.#dialog.open(OnboardingDialog, {
@@ -118,6 +129,8 @@ export default class WorkspaceLayout {
         this.#realtime.unwatch(establishmentId);
         this.#myMemberStore.setEstablishmentId(undefined);
         this.#establishmentSubscriptionStore.setEstablishmentId(undefined);
+        this.#aiVoiceService.close();
+        this.#aiVoiceService.resetChat();
       });
     });
   }

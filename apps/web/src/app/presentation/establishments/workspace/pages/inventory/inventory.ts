@@ -71,11 +71,20 @@ export default class Inventory {
   protected readonly canUpdateCategory = computed(() =>
     this.#myMemberStore.hasPermission(EstablishmentPermission.ESTABLISHMENT_UPDATE_CATEGORY),
   );
+  protected readonly canDeleteCategory = computed(() =>
+    this.#myMemberStore.hasPermission(EstablishmentPermission.ESTABLISHMENT_DELETE_CATEGORY),
+  );
   protected readonly canUpdateProduct = computed(() =>
     this.#myMemberStore.hasPermission(EstablishmentPermission.ESTABLISHMENT_UPDATE_PRODUCT),
   );
+  protected readonly canDeleteProduct = computed(() =>
+    this.#myMemberStore.hasPermission(EstablishmentPermission.ESTABLISHMENT_DELETE_PRODUCT),
+  );
   protected readonly canCreateProduct = computed(() =>
     this.#myMemberStore.hasPermission(EstablishmentPermission.ESTABLISHMENT_CREATE_PRODUCT),
+  );
+  protected readonly canCreateCategory = computed(() =>
+    this.#myMemberStore.hasPermission(EstablishmentPermission.ESTABLISHMENT_CREATE_CATEGORY),
   );
 
   readonly #manageProducts = inject(ManageProducts);
@@ -173,6 +182,7 @@ export default class Inventory {
         bindings: [
           inputBinding('establishmentId', () => this.establishmentId()),
           inputBinding('category', () => cat),
+          inputBinding('canDelete', () => this.canDeleteCategory()),
           outputBinding('updated', () => {
             bottomSheetRef.dismiss();
             this.categories().reload();

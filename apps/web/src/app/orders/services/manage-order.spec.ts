@@ -2,7 +2,7 @@ import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { PaymentMethod } from '../models/payment-method.type';
 import { asEstablishmentId } from '@coaster/core';
-import { asOrderId, asOrderItemId } from '../models/order.interface';
+import { asOrderId, asOrderItemId, Order } from '../models/order.interface';
 import { asProductId } from '@coaster/products';
 import { asTableId } from '@coaster/tables';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -16,6 +16,7 @@ describe('ManageOrder', () => {
     addItems: vi.fn(),
     bulkUpdate: vi.fn(),
     checkout: vi.fn(),
+    close: vi.fn(),
     cancel: vi.fn(),
     moveTable: vi.fn(),
     merge: vi.fn(),
@@ -39,6 +40,19 @@ describe('ManageOrder', () => {
 
   it('should be created', () => {
     expect(service).toBeTruthy();
+  });
+
+  describe('create', () => {
+    it('should delegate to repository and return created order', async () => {
+      const dto = { items: [{ productId: asProductId('prod-1'), quantity: 2 }] };
+      const mockOrder = { id: asOrderId('order-1') } as Order;
+      orderRepoMock.create.mockResolvedValue(mockOrder);
+
+      const result = await service.create(establishmentId, dto);
+
+      expect(orderRepoMock.create).toHaveBeenCalledWith(establishmentId, dto);
+      expect(result).toBe(mockOrder);
+    });
   });
 
   describe('addItems', () => {
@@ -74,6 +88,17 @@ describe('ManageOrder', () => {
       expect(orderRepoMock.checkout).toHaveBeenCalledWith(establishmentId, orderId, {
         paymentMethod: PaymentMethod.CASH,
       });
+      expect(result).toBeUndefined();
+    });
+  });
+
+  describe('close', () => {
+    it('should delegate to repository', async () => {
+      orderRepoMock.close.mockResolvedValue(undefined);
+
+      const result = await service.close(establishmentId, orderId);
+
+      expect(orderRepoMock.close).toHaveBeenCalledWith(establishmentId, orderId);
       expect(result).toBeUndefined();
     });
   });

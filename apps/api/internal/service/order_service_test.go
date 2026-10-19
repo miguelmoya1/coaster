@@ -56,7 +56,7 @@ func TestOrderServiceCreate(t *testing.T) {
 	longNote := strings.Repeat("ñ", 501)
 
 	f := newOrderFixture()
-	err := f.service.Create(context.Background(), "e1", domain.CreateOrderInput{
+	_, err := f.service.Create(context.Background(), "e1", domain.CreateOrderInput{
 		CreatedByID: "u1",
 		TableID:     new("t-free"),
 		Items: []domain.OrderLineInput{
@@ -117,7 +117,7 @@ func TestOrderServiceCreateRefuses(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			f := newOrderFixture()
-			err := f.service.Create(context.Background(), "e1", tt.input)
+			_, err := f.service.Create(context.Background(), "e1", tt.input)
 			if !domain.HasCode(err, tt.code) || len(f.orders.writes) != 0 || len(f.events.events) != 0 {
 				t.Fatalf("err = %v, writes = %v; want %s and nothing written", err, f.orders.writes, tt.code)
 			}
@@ -135,6 +135,9 @@ func TestOrderServiceNeedsAnOpenOrderOfTheEstablishment(t *testing.T) {
 		},
 		"Checkout": func(s *OrderService, id string) error {
 			return s.Checkout(context.Background(), "e1", id, domain.PaymentCash)
+		},
+		"Close": func(s *OrderService, id string) error {
+			return s.Close(context.Background(), "e1", id)
 		},
 		"Cancel":    func(s *OrderService, id string) error { return s.Cancel(context.Background(), "e1", id) },
 		"MoveTable": func(s *OrderService, id string) error { return s.MoveTable(context.Background(), "e1", id, "t-free") },
@@ -294,9 +297,24 @@ func TestOrderServiceCheckoutAndCancel(t *testing.T) {
 	if err := f.service.Checkout(ctx, "e1", "o1", domain.PaymentCard); err != nil {
 		t.Fatal(err)
 	}
+	updated, ok := f.events.events[0].(domain.OrderUpdatedEvent)
+	if !ok || f.orders.method != domain.PaymentCard || updated.Order.ID != "o1" {
+		t.Fatalf("method %s, event %+v", f.orders.method, f.events.events)
+	}
+
+	if err := f.service.Close(ctx, "e1", "o1"); !domain.HasCode(err, domain.CodeOrderHasPendingPayment) {
+		t.Fatalf("closing order with pending payment = %v; want %s", err, domain.CodeOrderHasPendingPayment)
+	}
+
+	paidOrder := sampleOpenOrder()
+	paidOrder.AmountPaidCash = 1320
+	f = newOrderFixture(paidOrder)
+	if err := f.service.Close(ctx, "e1", "o1"); err != nil {
+		t.Fatal(err)
+	}
 	closed, ok := f.events.events[0].(domain.OrderClosedEvent)
-	if !ok || f.orders.method != domain.PaymentCard || *f.orders.tableID != "t-busy" || *closed.TableID != "t-busy" || closed.Order.Status != domain.OrderClosed {
-		t.Fatalf("method %s, table %v, event %+v", f.orders.method, f.orders.tableID, f.events.events)
+	if !ok || *f.orders.tableID != "t-busy" || *closed.TableID != "t-busy" || closed.Order.Status != domain.OrderClosed {
+		t.Fatalf("table %v, event %+v", f.orders.tableID, f.events.events)
 	}
 
 	f = newOrderFixture(sampleOpenOrder())

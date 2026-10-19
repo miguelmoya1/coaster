@@ -10,7 +10,8 @@ export class DateFormatterService {
   readonly #translate = inject(TranslateService, { optional: true });
 
   get #locale(): Locale {
-    return LOCALES[this.#translate?.getCurrentLang() ?? ''] ?? es;
+    const lang = this.#translate?.currentLang() ?? this.#translate?.getCurrentLang() ?? '';
+    return LOCALES[lang] ?? es;
   }
 
   public formatTimeRange(startIso: string, endIso: string): string {

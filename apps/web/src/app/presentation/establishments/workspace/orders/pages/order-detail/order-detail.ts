@@ -4,7 +4,13 @@ import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { Router } from '@angular/router';
-import { ActionFeedback, loadedOr, type EstablishmentId, type PageResource } from '@coaster/core';
+import {
+  ActionFeedback,
+  loadedOr,
+  MoneyFormatterService,
+  type EstablishmentId,
+  type PageResource,
+} from '@coaster/core';
 import {
   AdjustmentTarget,
   asOrderId,
@@ -66,6 +72,7 @@ class OrderDetail {
   readonly #feedback = inject(ActionFeedback);
 
   readonly #translate = inject(TranslateService);
+  readonly #money = inject(MoneyFormatterService);
 
   protected readonly isPrinting = signal(false);
   protected readonly isSaving = signal(false);
@@ -225,16 +232,65 @@ class OrderDetail {
     if (!order) return;
 
     const pendingAmount = Math.max(0, order.payableTotal - (order.amountPaidCash + order.amountPaidCard));
+    if (pendingAmount === 0) return;
+
     this.#openPaymentMethodDialog(pendingAmount).subscribe(async (method) => {
       if (!method) return;
 
       try {
         await this.#manageOrder.checkout(this.establishmentId(), order.id, { paymentMethod: method });
-        await this.goBack();
+        this.order().reload();
       } catch (e) {
         this.#feedback.error(e);
       }
     });
+  }
+
+  protected async handleCloseOrder() {
+    const order = this.currentOrder();
+    if (!order) return;
+
+    const pendingAmount = Math.max(0, order.payableTotal - (order.amountPaidCash + order.amountPaidCard));
+
+    if (pendingAmount > 0) {
+      const formattedAmount = this.#money.format(pendingAmount);
+      const confirmed = await this.#confirmation.confirm({
+        title: this.#translate.instant('orders.pending_payment_title'),
+        text: this.#translate.instant('orders.pending_payment_close_message', { amount: formattedAmount }),
+        confirmLabel: this.#translate.instant('orders.pay_and_close'),
+      });
+
+      if (!confirmed) return;
+
+      this.#openPaymentMethodDialog(pendingAmount).subscribe(async (method) => {
+        if (!method) return;
+
+        try {
+          await this.#manageOrder.checkout(this.establishmentId(), order.id, { paymentMethod: method });
+          await this.#manageOrder.close(this.establishmentId(), order.id);
+          await this.goBack();
+        } catch (e) {
+          this.#feedback.error(e);
+        }
+      });
+      return;
+    }
+
+    const hasTable = !!order.tableId;
+    const confirmed = await this.#confirmation.confirm({
+      title: this.#translate.instant(hasTable ? 'orders.close_table_title' : 'orders.close_order_title'),
+      text: this.#translate.instant(hasTable ? 'orders.close_table_message' : 'orders.close_order_message'),
+      confirmLabel: this.#translate.instant(hasTable ? 'orders.close_table' : 'orders.close_order'),
+    });
+
+    if (!confirmed) return;
+
+    try {
+      await this.#manageOrder.close(this.establishmentId(), order.id);
+      await this.goBack();
+    } catch (e) {
+      this.#feedback.error(e);
+    }
   }
 
   #openPaymentMethodDialog(amount: number) {

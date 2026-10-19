@@ -123,6 +123,18 @@ func TestEstablishmentSubscriptionRepository(t *testing.T) {
 		!refreshed.CurrentPeriodEnd.Equal(*billingUTC("2026-03-01T00:00:00Z")) || refreshed.CurrentPeriodStart != nil {
 		t.Errorf("refreshed = %+v", refreshed)
 	}
+
+	if _, err := testPool.Exec(ctx, `UPDATE "EstablishmentSubscription" SET "manualPlan" = 'PRO' WHERE "establishmentId" = 'e1'`); err != nil {
+		t.Fatal(err)
+	}
+	withGrant, err := subscriptions.FindByEstablishmentID(ctx, "e1")
+	if err != nil || withGrant == nil || withGrant.ManualPlan == nil || *withGrant.ManualPlan != domain.PlanPro {
+		t.Errorf("with manualPlan = %+v, %v", withGrant, err)
+	}
+
+	if err := subscriptions.Upsert(ctx, "missing", domain.SubscriptionUpsert{Plan: domain.PlanPro, Status: domain.SubscriptionActive}); err == nil {
+		t.Fatal("Upsert for a missing establishment must fail")
+	}
 }
 
 func TestEstablishmentSubscriptionUpsertReleasesStripeIDs(t *testing.T) {

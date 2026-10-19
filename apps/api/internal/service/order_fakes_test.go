@@ -168,9 +168,15 @@ func (r *fakeOrderRepo) BulkUpdate(_ context.Context, orderID string, updates []
 	return r.orders[orderID], nil
 }
 
-func (r *fakeOrderRepo) Checkout(_ context.Context, orderID string, tableID *string, method domain.PaymentMethod) (domain.OrderRow, error) {
+func (r *fakeOrderRepo) Checkout(_ context.Context, orderID string, method domain.PaymentMethod) (domain.OrderRow, error) {
 	r.writes = append(r.writes, "Checkout")
-	r.tableID, r.method = tableID, method
+	r.method = method
+	return r.orders[orderID], nil
+}
+
+func (r *fakeOrderRepo) Close(_ context.Context, orderID string, tableID *string) (domain.OrderRow, error) {
+	r.writes = append(r.writes, "Close")
+	r.tableID = tableID
 	row := r.orders[orderID]
 	row.Status = domain.OrderClosed
 	return row, nil

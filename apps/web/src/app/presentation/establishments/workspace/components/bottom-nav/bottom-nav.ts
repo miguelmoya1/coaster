@@ -91,7 +91,7 @@ export class BottomNav {
       link: `/establishments/${this.establishmentId()}/staff`,
       icon: 'group',
       labelKey: 'nav.staff',
-      requiredPermission: EstablishmentPermission.ESTABLISHMENT_INVITE_MEMBER,
+      requiredPermission: EstablishmentPermission.ESTABLISHMENT_VIEW_MEMBERS,
     },
   ]);
 

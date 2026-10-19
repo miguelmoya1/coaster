@@ -479,13 +479,24 @@ func (s *AuthService) ResetPassword(ctx context.Context, token, password string,
 		return domain.IssuedSession{}, err
 	}
 
-	stored, err := s.spendToken(ctx, token, domain.AuthTokenPasswordReset)
+	stored, err := s.tokens.FindUsable(ctx, token, domain.AuthTokenPasswordReset)
 	if err != nil {
 		return domain.IssuedSession{}, err
+	}
+	if stored == nil {
+		return domain.IssuedSession{}, domain.BadRequest(domain.CodeInvalidToken)
 	}
 
 	if !stored.User.Active {
 		return domain.IssuedSession{}, domain.Unauthorized(domain.CodeInvalidCredentials)
+	}
+
+	spent, err := s.tokens.Spend(ctx, stored.ID)
+	if err != nil {
+		return domain.IssuedSession{}, err
+	}
+	if !spent {
+		return domain.IssuedSession{}, domain.BadRequest(domain.CodeInvalidToken)
 	}
 
 	if err := s.sessionRepo.RevokeEverySessionOf(ctx, stored.UserID); err != nil {
@@ -561,9 +572,12 @@ func (s *AuthService) AcceptInvite(ctx context.Context, token, password string, 
 		return domain.IssuedSession{}, err
 	}
 
-	stored, err := s.spendToken(ctx, token, domain.AuthTokenInvite)
+	stored, err := s.tokens.FindUsable(ctx, token, domain.AuthTokenInvite)
 	if err != nil {
 		return domain.IssuedSession{}, err
+	}
+	if stored == nil {
+		return domain.IssuedSession{}, domain.BadRequest(domain.CodeInvalidToken)
 	}
 
 	if !stored.User.Active {
@@ -572,6 +586,14 @@ func (s *AuthService) AcceptInvite(ctx context.Context, token, password string, 
 
 	if stored.User.PasswordHash != nil {
 		return domain.IssuedSession{}, domain.BadRequest(domain.CodePasswordAlreadySet)
+	}
+
+	spent, err := s.tokens.Spend(ctx, stored.ID)
+	if err != nil {
+		return domain.IssuedSession{}, err
+	}
+	if !spent {
+		return domain.IssuedSession{}, domain.BadRequest(domain.CodeInvalidToken)
 	}
 
 	user, err := s.setPassword(ctx, stored.UserID, password, true)

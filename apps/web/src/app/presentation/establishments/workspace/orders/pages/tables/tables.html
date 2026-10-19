@@ -71,7 +71,7 @@
     <coaster-table-card
       [table]="table.original"
       [orderAmount]="table.orderAmount"
-      [deletable]="isOwner()"
+      [deletable]="canDeleteTable()"
       (cardClicked)="onTableClicked($event)"
       (deleteClicked)="handleDeleteTable($event)"
     />
@@ -109,6 +109,6 @@
   </div>
 }
 
-@if (isOwner()) {
+@if (canCreateTable()) {
   <coaster-fab coasterRequireSubscription [establishmentId]="establishmentId()" (click)="onCreateTable()" />
 }

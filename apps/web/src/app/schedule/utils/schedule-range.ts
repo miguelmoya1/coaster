@@ -1,13 +1,18 @@
-import { endOfMonth, endOfWeek, format, startOfMonth, startOfWeek } from 'date-fns';
+import { endOfMonth, endOfWeek, startOfMonth, startOfWeek } from 'date-fns';
+import { calendarDateOf, dateOfCalendarDate } from '@coaster/core';
 
 export type ScheduleView = 'day' | 'week' | 'month';
 
 export const SCHEDULE_VIEWS: readonly ScheduleView[] = ['day', 'week', 'month'];
 
-const dayIdOf = (date: Date): string => format(date, 'yyyy-MM-dd');
+const dayIdOf = (date: Date): string => calendarDateOf(date);
 
 export const scheduleDateOf = (date: string | undefined): Date => {
-  const parsed = date ? new Date(date) : new Date();
+  if (!date) return new Date();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    return dateOfCalendarDate(date);
+  }
+  const parsed = new Date(date);
   return Number.isNaN(parsed.getTime()) ? new Date() : parsed;
 };
 

@@ -165,7 +165,7 @@ func (r *EstablishmentSubscriptionRepository) UpdateFromStripe(ctx context.Conte
 	billing := snapshot.Billing
 
 	_, err := r.pool.Exec(ctx, updateSubscriptionFromStripeQuery,
-		establishmentID, string(snapshot.Status), snapshot.StripeSubscriptionID, billing.Seats,
+		establishmentID, string(snapshot.Status), string(snapshot.Plan), snapshot.StripeSubscriptionID, billing.Seats,
 		utcOrNil(billing.CurrentPeriodStart), utcOrNil(billing.CurrentPeriodEnd),
 		utcOrNil(billing.TrialEndsAt), utcOrNil(billing.CanceledAt), now(),
 	)

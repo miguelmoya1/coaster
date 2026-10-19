@@ -297,7 +297,7 @@ export default class Schedule {
   }
 
   protected handleDaySelected(dateStr: string) {
-    const parsed = new Date(dateStr);
+    const parsed = scheduleDateOf(dateStr);
     if (!isNaN(parsed.getTime())) {
       this.updateQueryParams(parsed, 'day');
     }

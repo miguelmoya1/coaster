@@ -1,5 +1,6 @@
 import { inject, Service } from '@angular/core';
 import { environment } from '@coaster/env';
+import { ApiError } from '../errors/api-error';
 import { getErrorMessage } from '../utils/errors.utils';
 import { Toast } from './toast';
 
@@ -10,6 +11,10 @@ export class ActionFeedback {
   error(error: unknown) {
     if (!environment.production) {
       console.error(error);
+    }
+
+    if (error instanceof ApiError) {
+      return;
     }
 
     this.#toast?.error(getErrorMessage(error));

@@ -3,10 +3,12 @@ import { inject, type Signal } from '@angular/core';
 import type { Order } from '../models/order.interface';
 import { OrderStatus } from '../models/order-status.type';
 import {
+  calendarDateOf,
   onRealtime,
   patchById,
   Realtime,
   removeById,
+  todayCalendarDate,
   updateLoaded,
   upsertById,
   type EstablishmentId,
@@ -14,9 +16,9 @@ import {
 import { OrderRepository } from '../data-access/order-repository';
 import { orderArrayMapper } from '../mappers/order.mapper';
 
-export const todayIso = (): string => new Date().toISOString().split('T')[0];
+export const todayIso = (): string => todayCalendarDate();
 
-const isoDateOf = (moment: string | Date): string => new Date(moment).toISOString().split('T')[0];
+const isoDateOf = (moment: string | Date): string => calendarDateOf(new Date(moment));
 
 export const orderHistoryResource = (establishmentId: Signal<EstablishmentId | undefined>, date: Signal<string>) => {
   const repository = inject(OrderRepository);

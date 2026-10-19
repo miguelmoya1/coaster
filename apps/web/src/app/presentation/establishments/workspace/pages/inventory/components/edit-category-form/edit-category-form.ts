@@ -59,17 +59,19 @@ import { IconPicker } from '../../../../../../components/icon-picker/icon-picker
           </button>
         </div>
 
-        <div class="mt-4 border-t border-outline-variant/20 pt-4">
-          <button
-            mat-stroked-button
-            class="warn w-full"
-            type="button"
-            [disabled]="form().submitting()"
-            (click)="deleteHandler()"
-          >
-            {{ 'common.delete' | translate }}
-          </button>
-        </div>
+        @if (canDelete()) {
+          <div class="mt-4 border-t border-outline-variant/20 pt-4">
+            <button
+              mat-stroked-button
+              class="warn w-full"
+              type="button"
+              [disabled]="form().submitting()"
+              (click)="deleteHandler()"
+            >
+              {{ 'common.delete' | translate }}
+            </button>
+          </div>
+        }
       </div>
     </form>
   `,
@@ -79,6 +81,7 @@ export class EditCategoryForm {
 
   readonly establishmentId = input.required<EstablishmentId>();
   readonly category = input.required<Category>();
+  readonly canDelete = input(false);
 
   readonly canceled = output<void>();
   readonly deleted = output<void>();

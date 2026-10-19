@@ -68,8 +68,8 @@ func TestAICallsTheModelLikeNest(t *testing.T) {
 	if len(request.Messages) != 1 || request.Messages[0] != (domain.AIMessage{Role: "user", Content: "Crea la mesa 3"}) {
 		t.Errorf("messages = %+v", request.Messages)
 	}
-	if len(request.Tools) != 40 {
-		t.Errorf("%d tools, want 40", len(request.Tools))
+	if len(request.Tools) != 41 {
+		t.Errorf("%d tools, want 41", len(request.Tools))
 	}
 }
 

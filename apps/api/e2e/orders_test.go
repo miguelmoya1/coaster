@@ -6,6 +6,8 @@ import (
 	"slices"
 	"sync"
 	"testing"
+
+	"coaster-api/internal/core/domain"
 )
 
 func TestOrders(t *testing.T) {
@@ -142,7 +144,7 @@ func TestOrders(t *testing.T) {
 		}
 	})
 
-	t.Run("checks an order out", func(t *testing.T) {
+	t.Run("checks an order out without closing it", func(t *testing.T) {
 		api := newApp(t)
 		s := setup(t)
 		orderID := createOrder(t, s.id, order{totalAmount: 5})
@@ -150,9 +152,28 @@ func TestOrders(t *testing.T) {
 
 		api.post(t, s.base+"/orders/"+orderID+"/checkout", map[string]any{"paymentMethod": "CASH"}).expect(t, http.StatusCreated)
 
+		if row := orderRow(t, orderID, `status::text || ' ' || "paymentMethod"::text`); row != "OPEN CASH" {
+			t.Errorf("order = %s, want OPEN CASH", row)
+		}
+		messageContains(t, api.post(t, s.base+"/orders/"+orderID+"/checkout", map[string]any{"paymentMethod": "CASH"}).
+			expect(t, http.StatusBadRequest), domain.CodeOrderAlreadyPaid)
+	})
+
+	t.Run("closes an order once it is fully paid", func(t *testing.T) {
+		api := newApp(t)
+		s := setup(t)
+		orderID := createOrder(t, s.id, order{totalAmount: 5})
+		addOrderItem(t, orderID, orderItem{productID: s.beerID, quantity: 1, price: 5, served: 1})
+
+		messageContains(t, api.post(t, s.base+"/orders/"+orderID+"/close", nil).expect(t, http.StatusBadRequest), domain.CodeOrderHasPendingPayment)
+
+		api.post(t, s.base+"/orders/"+orderID+"/checkout", map[string]any{"paymentMethod": "CASH"}).expect(t, http.StatusCreated)
+		api.post(t, s.base+"/orders/"+orderID+"/close", nil).expect(t, http.StatusCreated)
+
 		if row := orderRow(t, orderID, `status::text || ' ' || "paymentMethod"::text`); row != "CLOSED CASH" {
 			t.Errorf("order = %s, want CLOSED CASH", row)
 		}
+		messageContains(t, api.post(t, s.base+"/orders/"+orderID+"/close", nil).expect(t, http.StatusBadRequest), domain.CodeOrderNotOpen)
 	})
 
 	t.Run("merging carries payments, tips and discounts over to the surviving order", func(t *testing.T) {
@@ -244,7 +265,7 @@ func TestOrders(t *testing.T) {
 		bulk(t, api, s, orderID, map[string]any{"itemId": itemID, "servedQuantity": 1}).expect(t, http.StatusBadRequest)
 	})
 
-	t.Run("takes the money once when two people close the same order", func(t *testing.T) {
+	t.Run("takes the money once when two people charge the same order", func(t *testing.T) {
 		api := newApp(t)
 		s := setup(t)
 		orderID := createOrder(t, s.id, order{totalAmount: 1000})
@@ -271,8 +292,8 @@ func TestOrders(t *testing.T) {
 		if !slices.Equal(statuses, []int{http.StatusCreated, http.StatusBadRequest}) {
 			t.Errorf("statuses = %v, want one 201 and one 400", statuses)
 		}
-		if row := orderRow(t, orderID, `status::text || ' ' || "amountPaidCash"`); row != "CLOSED 1100" {
-			t.Errorf("order = %s, want CLOSED 1100", row)
+		if row := orderRow(t, orderID, `status::text || ' ' || "amountPaidCash"`); row != "OPEN 1100" {
+			t.Errorf("order = %s, want OPEN 1100", row)
 		}
 	})
 

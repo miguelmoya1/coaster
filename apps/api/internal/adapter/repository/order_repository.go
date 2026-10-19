@@ -44,8 +44,6 @@ var (
 	setOrderItemServedQuery string
 	//go:embed queries/order/set_amounts_paid.sql
 	setOrderAmountsPaidQuery string
-	//go:embed queries/order/claim_for_checkout.sql
-	claimOrderForCheckoutQuery string
 	//go:embed queries/order/close.sql
 	closeOrderQuery string
 	//go:embed queries/order/cancel_open.sql
@@ -290,24 +288,18 @@ func updateOrderItem(ctx context.Context, tx pgx.Tx, orderID string, update doma
 	return nil
 }
 
-func (r *OrderRepository) Checkout(ctx context.Context, orderID string, tableID *string, method domain.PaymentMethod) (domain.OrderRow, error) {
-	var closed domain.OrderRow
+func (r *OrderRepository) Checkout(ctx context.Context, orderID string, method domain.PaymentMethod) (domain.OrderRow, error) {
+	var charged domain.OrderRow
 	err := pgx.BeginFunc(ctx, r.pool, func(tx pgx.Tx) error {
+		order, err := lockOpenOrder(ctx, tx, orderID)
+		if err != nil {
+			return err
+		}
+		if order.NothingToCharge() {
+			return domain.BadRequest(domain.CodeOrderAlreadyPaid)
+		}
+
 		at := now()
-
-		claimed, err := tx.Exec(ctx, claimOrderForCheckoutQuery, orderID, at)
-		if err != nil {
-			return err
-		}
-		if claimed.RowsAffected() == 0 {
-			return domain.BadRequest(domain.CodeOrderNotOpen)
-		}
-
-		order, err := loadOrder(ctx, tx, orderID)
-		if err != nil {
-			return err
-		}
-
 		for _, item := range order.Items {
 			if item.PaymentStatus == domain.PaymentPaid {
 				continue
@@ -325,7 +317,31 @@ func (r *OrderRepository) Checkout(ctx context.Context, orderID string, tableID 
 		}
 
 		cash, card := order.AmountsAfterCheckout(method)
-		err = execExisting(ctx, tx, closeOrderQuery, orderID, order.ItemsTotal(), domain.PaymentMethodFor(cash, card), cash, card, at)
+		err = execExisting(ctx, tx, setOrderAmountsPaidQuery, orderID, domain.PaymentMethodFor(cash, card), cash, card, at)
+		if err != nil {
+			return err
+		}
+
+		charged, err = loadOrder(ctx, tx, orderID)
+		return err
+	})
+
+	return charged, err
+}
+
+func (r *OrderRepository) Close(ctx context.Context, orderID string, tableID *string) (domain.OrderRow, error) {
+	var closed domain.OrderRow
+	err := pgx.BeginFunc(ctx, r.pool, func(tx pgx.Tx) error {
+		order, err := lockOpenOrder(ctx, tx, orderID)
+		if err != nil {
+			return err
+		}
+		if !order.IsFullyPaid() {
+			return domain.BadRequest(domain.CodeOrderHasPendingPayment)
+		}
+
+		cash, card := order.AmountPaidCash, order.AmountPaidCard
+		err = execExisting(ctx, tx, closeOrderQuery, orderID, order.ItemsTotal(), domain.PaymentMethodFor(cash, card), cash, card, now())
 		if err != nil {
 			return err
 		}
@@ -341,6 +357,22 @@ func (r *OrderRepository) Checkout(ctx context.Context, orderID string, tableID 
 	})
 
 	return closed, err
+}
+
+func lockOpenOrder(ctx context.Context, tx pgx.Tx, orderID string) (domain.OrderRow, error) {
+	if _, err := tx.Exec(ctx, lockOrderQuery, orderID); err != nil {
+		return domain.OrderRow{}, err
+	}
+
+	var open bool
+	if err := tx.QueryRow(ctx, orderIsOpenQuery, orderID).Scan(&open); err != nil {
+		return domain.OrderRow{}, err
+	}
+	if !open {
+		return domain.OrderRow{}, domain.BadRequest(domain.CodeOrderNotOpen)
+	}
+
+	return loadOrder(ctx, tx, orderID)
 }
 
 func (r *OrderRepository) Cancel(ctx context.Context, orderID string, tableID *string) (domain.OrderRow, error) {
@@ -399,6 +431,11 @@ func (r *OrderRepository) Merge(ctx context.Context, merge domain.OrderMerge) (d
 			return err
 		}
 
+		finalTableID := merge.PrimaryTableID
+		if merge.TargetTableID != nil {
+			finalTableID = merge.TargetTableID
+		}
+
 		carriedCash, carriedCard, carriedTip := 0, 0, 0
 		for _, source := range merge.Sources {
 			sourceOrder, err := freezeOrderDiscounts(ctx, tx, source.ID, &merge.PrimaryID)
@@ -418,7 +455,7 @@ func (r *OrderRepository) Merge(ctx context.Context, merge domain.OrderMerge) (d
 				return err
 			}
 
-			if source.TableID != nil {
+			if source.TableID != nil && (finalTableID == nil || *source.TableID != *finalTableID) {
 				if err := setTableStatus(ctx, tx, *source.TableID, domain.TableFree); err != nil {
 					return err
 				}

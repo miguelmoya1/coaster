@@ -31,8 +31,8 @@ func (h *CategoryHandler) RegisterRoutes(mux *http.ServeMux, guard *middleware.G
 }
 
 type categoryRequest struct {
-	Name    string  `json:"name" validate:"required" msg:"required=REQUIRED,type=INVALID_TYPE"`
-	Icon    *string `json:"icon" validate:"omitnil" msg:"type=INVALID_TYPE"`
+	Name    string  `json:"name" validate:"required,max=100" msg:"required=REQUIRED,max=INVALID_TYPE,type=INVALID_TYPE"`
+	Icon    *string `json:"icon" validate:"omitnil,max=100" msg:"max=INVALID_TYPE,type=INVALID_TYPE"`
 	TaxRate *int    `json:"taxRate" validate:"omitnil,min=0,max=10000" msg:"min=INVALID_TYPE,max=INVALID_TYPE,type=INVALID_TYPE"`
 }
 

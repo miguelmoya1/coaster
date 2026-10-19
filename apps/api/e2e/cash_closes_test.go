@@ -37,12 +37,17 @@ func TestCashCloses(t *testing.T) {
 			ORDER BY "createdAt" DESC LIMIT 1`, b.id)
 	}
 
+	chargeAndClose := func(t *testing.T, api *app, b bar, orderID, paymentMethod string) {
+		api.post(t, b.base+"/orders/"+orderID+"/checkout", map[string]any{"paymentMethod": paymentMethod}).expect(t, http.StatusCreated)
+		api.post(t, b.base+"/orders/"+orderID+"/close", nil).expect(t, http.StatusCreated)
+	}
+
 	sell := func(t *testing.T, api *app, b bar, paymentMethod string, tipAmount int) string {
 		orderID := openOrder(t, api, b)
 		if tipAmount > 0 {
 			api.patch(t, b.base+"/orders/"+orderID+"/tip", map[string]any{"tipAmount": tipAmount}).expect(t, http.StatusOK)
 		}
-		api.post(t, b.base+"/orders/"+orderID+"/checkout", map[string]any{"paymentMethod": paymentMethod}).expect(t, http.StatusCreated)
+		chargeAndClose(t, api, b, orderID, paymentMethod)
 		return orderID
 	}
 
@@ -125,7 +130,7 @@ func TestCashCloses(t *testing.T) {
 
 		expectFields(t, "first close", closeTill(t, api, b, 0, 0), map[string]any{"closedOrders": 0})
 
-		api.post(t, b.base+"/orders/"+tabID+"/checkout", map[string]any{"paymentMethod": "CASH"}).expect(t, http.StatusCreated)
+		api.post(t, b.base+"/orders/"+tabID+"/close", nil).expect(t, http.StatusCreated)
 
 		expectFields(t, "second close", closeTill(t, api, b, 0, 1100), map[string]any{"closedOrders": 1, "cashAmount": 1100, "difference": 0})
 	})

@@ -7,6 +7,7 @@ import type {
   CreateOrderDto,
   MergeOrdersDto,
   MoveTableDto,
+  Order,
   OrderId,
   OrderItemId,
   UpdateOrderItemNotesDto,
@@ -24,8 +25,8 @@ export class ManageOrder {
     return await this.#orderRepository.getOrder(establishmentId, orderId);
   }
 
-  public async create(establishmentId: EstablishmentId, dto: CreateOrderDto): Promise<void> {
-    await this.#orderRepository.create(establishmentId, dto);
+  public async create(establishmentId: EstablishmentId, dto: CreateOrderDto): Promise<Order> {
+    return await this.#orderRepository.create(establishmentId, dto);
   }
 
   public async addItems(establishmentId: EstablishmentId, orderId: OrderId, dto: AddOrderItemsDto): Promise<void> {
@@ -38,6 +39,10 @@ export class ManageOrder {
 
   public async checkout(establishmentId: EstablishmentId, orderId: OrderId, dto: CheckoutOrderDto): Promise<void> {
     await this.#orderRepository.checkout(establishmentId, orderId, dto);
+  }
+
+  public async close(establishmentId: EstablishmentId, orderId: OrderId): Promise<void> {
+    await this.#orderRepository.close(establishmentId, orderId);
   }
 
   public async cancel(establishmentId: EstablishmentId, orderId: OrderId): Promise<void> {

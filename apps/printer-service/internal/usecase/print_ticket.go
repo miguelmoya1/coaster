@@ -37,6 +37,10 @@ func (uc *PrintTicketUseCase) AcquireIdle(timeout time.Duration) bool {
 	}
 }
 
+func (uc *PrintTicketUseCase) ReleaseIdle() {
+	uc.mu.Unlock()
+}
+
 func (uc *PrintTicketUseCase) Execute(ctx context.Context, ticket domain.Ticket) error {
 	if len(ticket.Content) == 0 {
 		return errors.New("refusing to print an empty ticket")

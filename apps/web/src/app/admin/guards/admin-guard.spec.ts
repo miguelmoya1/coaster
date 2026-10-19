@@ -1,4 +1,4 @@
-import { signal } from '@angular/core';
+import { computed, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRouteSnapshot, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { Auth, CurrentUser, Role } from '@coaster/core';
@@ -30,7 +30,17 @@ describe('adminGuard', () => {
             ensureRestored: vi.fn().mockResolvedValue(undefined),
           },
         },
-        { provide: CurrentUser, useValue: { current: { value: user.asReadonly() } } },
+        {
+          provide: CurrentUser,
+          useValue: {
+            current: {
+              value: user.asReadonly(),
+              hasValue: computed(() => user() !== undefined),
+              isLoading: computed(() => user() === undefined),
+              status: computed(() => (user() === undefined ? 'loading' : 'resolved')),
+            },
+          },
+        },
         { provide: Router, useValue: routerMock },
       ],
     });
