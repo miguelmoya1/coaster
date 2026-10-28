@@ -75,4 +75,10 @@ describe('adminGuard', () => {
 
     await expect(guard).resolves.toBe(true);
   });
+
+  it('should resolve immediately when currentUser already has a value while reloading in background', async () => {
+    user.set({ role: Role.ADMIN });
+
+    await expect(run()).resolves.toBe(true);
+  });
 });

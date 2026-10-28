@@ -19,6 +19,7 @@ import type { EstablishmentId, PaywallHandler } from '@coaster/core';
 import {
   accessTokenInterceptor,
   AppUpdate,
+  Auth,
   errorInterceptor,
   PAYWALL_HANDLER,
   unauthorizedInterceptor,
@@ -45,6 +46,7 @@ export const appConfig: ApplicationConfig = {
       deps: [Injector],
     },
     provideBrowserGlobalErrorListeners(),
+    provideAppInitializer(() => inject(Auth).ensureRestored()),
     provideAppInitializer(() => inject(VirtualKeyboard).watch()),
     provideAppInitializer(() => inject(AppUpdate).watch()),
     provideServiceWorker('ngsw-worker.js', {

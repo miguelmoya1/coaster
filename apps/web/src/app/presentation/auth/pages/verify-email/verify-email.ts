@@ -1,7 +1,7 @@
 import { Component, inject, input, OnInit, signal } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { RouterLink } from '@angular/router';
-import { AuthRepository, getErrorMessage } from '@coaster/core';
+import { Auth, AuthRepository, getErrorMessage } from '@coaster/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Spinner } from '../../../components/spinner/spinner';
 import { AuthCard } from '../../components/auth-card';
@@ -45,6 +45,7 @@ export default class VerifyEmail implements OnInit {
   public readonly token = input.required<string>();
 
   readonly #repo = inject(AuthRepository);
+  readonly #auth = inject(Auth);
 
   protected readonly outcome = signal<Outcome>('checking');
   protected readonly error = signal('');
@@ -52,6 +53,7 @@ export default class VerifyEmail implements OnInit {
   async ngOnInit(): Promise<void> {
     try {
       await this.#repo.verifyEmail(this.token());
+      this.#auth.patchUser({ emailVerified: true });
       this.outcome.set('done');
     } catch (error) {
       this.error.set(getErrorMessage(error));

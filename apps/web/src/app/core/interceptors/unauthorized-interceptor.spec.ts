@@ -1,5 +1,6 @@
 import { HttpClient, HttpErrorResponse, provideHttpClient, withInterceptors } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -11,11 +12,13 @@ describe('unauthorizedInterceptor', () => {
   let httpMock: HttpTestingController;
   let httpClient: HttpClient;
 
-  const authMock = { refresh: vi.fn() };
+  const accessToken = signal<string | null>(null);
+  const authMock = { refresh: vi.fn(), accessToken: accessToken.asReadonly() };
   const routerMock = { navigate: vi.fn() };
   const toastMock = { error: vi.fn(), success: vi.fn() };
 
   beforeEach(() => {
+    accessToken.set(null);
     authMock.refresh.mockReset();
     routerMock.navigate.mockReset();
     toastMock.error.mockReset();
@@ -54,6 +57,25 @@ describe('unauthorizedInterceptor', () => {
 
     await expect(response).resolves.toEqual({ ok: true });
     expect(routerMock.navigate).not.toHaveBeenCalled();
+  });
+
+  it('should replay directly without refreshing again if another request already rotated the accessToken', async () => {
+    accessToken.set('already-rotated-token');
+
+    const response = new Promise((resolve, reject) => {
+      httpClient
+        .get('/test', { headers: { Authorization: 'Bearer stale-token' } })
+        .subscribe({ next: resolve, error: reject });
+    });
+
+    httpMock.expectOne('/test').flush('Unauthorized', { status: 401, statusText: 'Unauthorized' });
+
+    const replay = httpMock.expectOne('/test');
+    expect(replay.request.headers.get('Authorization')).toBe('Bearer already-rotated-token');
+    expect(authMock.refresh).not.toHaveBeenCalled();
+
+    replay.flush({ ok: true });
+    await expect(response).resolves.toEqual({ ok: true });
   });
 
   it('should send the user to the login page when the session cannot be refreshed', async () => {

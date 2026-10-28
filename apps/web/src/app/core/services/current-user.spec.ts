@@ -4,7 +4,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { ApplicationRef, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideTranslateService } from '@ngx-translate/core';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Auth } from './auth';
 import { CurrentUser } from './current-user';
 
@@ -14,15 +14,21 @@ describe('CurrentUser', () => {
 
   const isAuthLoaded = signal(true);
   const isAuthenticated = signal(true);
+  const sessionUser = signal<User | null>(null);
+  const patchUser = vi.fn();
 
   const authMock = {
     isAuthLoaded: isAuthLoaded.asReadonly(),
     isAuthenticated: isAuthenticated.asReadonly(),
+    currentUser: sessionUser.asReadonly(),
+    patchUser,
   };
 
   beforeEach(async () => {
     isAuthLoaded.set(true);
     isAuthenticated.set(true);
+    sessionUser.set(null);
+    patchUser.mockReset();
 
     TestBed.configureTestingModule({
       providers: [provideHttpClientTesting(), provideTranslateService(), { provide: Auth, useValue: authMock }],
@@ -84,6 +90,30 @@ describe('CurrentUser', () => {
       expect(currentUser?.email).toBe(mockUser.email);
       expect(currentUser?.name).toBe(mockUser.name);
       expect(currentUser?.photoUrl).toContain('ui-avatars.com');
+      expect(patchUser).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: mockUser.id,
+          email: mockUser.email,
+          name: mockUser.name,
+        }),
+      );
+    });
+
+    it('should immediately expose the session user and admin role before /users/me resolves', () => {
+      sessionUser.set({
+        id: asUserId('user-admin'),
+        email: 'admin@coaster.test',
+        name: 'Admin User',
+        active: true,
+        role: Role.ADMIN,
+        language: 'es',
+        emailVerified: true,
+      });
+
+      expect(service.current.hasValue()).toBe(true);
+      expect(service.current.value()?.name).toBe('Admin User');
+      expect(service.current.value()?.photoUrl).toContain('ui-avatars.com');
+      expect(service.isAdmin()).toBe(true);
     });
   });
 });

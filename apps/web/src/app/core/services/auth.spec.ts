@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { TranslateService } from '@ngx-translate/core';
 import { asUserId } from '../models/user.interface';
 import { Role } from '../models/role.type';
 import type { AuthSession } from '../models/auth.interface';
@@ -30,11 +31,18 @@ describe('Auth', () => {
     logout: vi.fn(),
   };
 
+  const translate = {
+    use: vi.fn(),
+  };
+
   beforeEach(() => {
     vi.clearAllMocks();
 
     TestBed.configureTestingModule({
-      providers: [{ provide: AuthRepository, useValue: repo }],
+      providers: [
+        { provide: AuthRepository, useValue: repo },
+        { provide: TranslateService, useValue: translate },
+      ],
     });
 
     service = TestBed.inject(Auth);
@@ -113,6 +121,50 @@ describe('Auth', () => {
 
       await expect(service.refresh()).resolves.toBeNull();
       expect(service.isAuthenticated()).toBe(false);
+    });
+
+    it('should not reinstate a session if logout completed while a refresh was in flight', async () => {
+      let resolveRefresh!: (value: AuthSession) => void;
+      repo.refresh.mockImplementation(
+        () =>
+          new Promise<AuthSession>((resolve) => {
+            resolveRefresh = resolve;
+          }),
+      );
+      repo.logout.mockResolvedValue(undefined);
+
+      const refreshing = service.refresh();
+      await service.logout();
+
+      resolveRefresh(session('late-token'));
+      await refreshing;
+
+      expect(service.isAuthenticated()).toBe(false);
+      expect(service.accessToken()).toBeNull();
+    });
+  });
+
+  describe('language and profile sync', () => {
+    it('should apply the user language as soon as the session is restored', async () => {
+      repo.refresh.mockResolvedValue(session());
+
+      await service.ensureRestored();
+      TestBed.tick();
+
+      expect(translate.use).toHaveBeenCalledWith('es');
+    });
+
+    it('should update the in-memory user and language when patchUser is called', async () => {
+      repo.refresh.mockResolvedValue(session());
+      await service.ensureRestored();
+      TestBed.tick();
+
+      service.patchUser({ name: 'Updated Name', language: 'en', emailVerified: false });
+      TestBed.tick();
+
+      expect(service.currentUser()?.name).toBe('Updated Name');
+      expect(service.currentUser()?.emailVerified).toBe(false);
+      expect(translate.use).toHaveBeenLastCalledWith('en');
     });
   });
 

@@ -19,6 +19,13 @@ export const unauthorizedInterceptor: HttpInterceptorFn = (req, next) => {
         return throwError(() => error);
       }
 
+      const sentAuthorization = req.headers.get('Authorization');
+      const currentToken = auth.accessToken?.() ?? null;
+
+      if (sentAuthorization && currentToken && sentAuthorization !== `Bearer ${currentToken}`) {
+        return next(req.clone({ setHeaders: { Authorization: `Bearer ${currentToken}` } }));
+      }
+
       return from(auth.refresh()).pipe(
         switchMap((token) => {
           if (!token) {
