@@ -2,7 +2,7 @@ package repository
 
 import (
 	"context"
-	"encoding/json"
+	"encoding/json/v2"
 	"slices"
 	"testing"
 	"time"
@@ -182,7 +182,7 @@ func TestAdminAuditRepositoryRecordsATimeEntryChange(t *testing.T) {
 		t.Fatalf("row = %s %s %s %s %s", action, targetType, targetID, storedLabel, storedReason)
 	}
 
-	got, _ := json.Marshal(metadata)
+	got, _ := json.Marshal(metadata, json.Deterministic(true))
 	want := `{"establishmentId":"e1","occurredAt":"2026-08-08T07:00:00.000Z","previousOccurredAt":"2026-08-08T08:00:00.000Z","type":"CLOCK_IN","userId":"luis"}`
 	if string(got) != want {
 		t.Fatalf("metadata = %s, want %s", got, want)

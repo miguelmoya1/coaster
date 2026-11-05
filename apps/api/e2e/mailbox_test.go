@@ -1,7 +1,7 @@
 package e2e
 
 import (
-	"encoding/json"
+	"encoding/json/v2"
 	"net/http"
 	"net/http/httptest"
 	"sync"
@@ -29,7 +29,7 @@ func newMailbox(t *testing.T) *mailbox {
 	box := &mailbox{}
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var delivered email
-		if err := json.NewDecoder(r.Body).Decode(&delivered); err != nil {
+		if err := json.UnmarshalRead(r.Body, &delivered); err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}

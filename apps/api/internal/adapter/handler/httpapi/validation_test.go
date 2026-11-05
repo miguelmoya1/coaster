@@ -47,7 +47,7 @@ func TestValidationMessages(t *testing.T) {
 		{name: "null optional field", body: `{` + validOrder + `,"note":null}`},
 		{
 			name: "unknown properties first, sorted",
-			body: `{` + validOrder + `,"zeta":1,"alpha":2,"count":20}`,
+			body: `{` + strings.Replace(validOrder, `"count":1`, `"count":20`, 1) + `,"zeta":1,"alpha":2}`,
 			want: []string{"property alpha should not exist", "property zeta should not exist", "count must not be greater than 10"},
 		},
 		{

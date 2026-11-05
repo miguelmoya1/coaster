@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"crypto/subtle"
-	"encoding/json"
+	"encoding/json/v2"
 	"errors"
 	"log"
 	"net/http"
@@ -64,7 +64,7 @@ func bearerToken(header string) (string, error) {
 func deny(w http.ResponseWriter, status int, message string) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	json.NewEncoder(w).Encode(map[string]string{"error": message})
+	_ = json.MarshalWrite(w, map[string]string{"error": message})
 }
 
 func ValidateJWT(tokenStr string, secret []byte) (*JWTPayload, error) {

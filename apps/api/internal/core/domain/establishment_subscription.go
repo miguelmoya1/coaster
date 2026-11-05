@@ -1,7 +1,8 @@
 package domain
 
 import (
-	"encoding/json"
+	"encoding/json/jsontext"
+	"encoding/json/v2"
 	"time"
 )
 
@@ -116,13 +117,13 @@ type EstablishmentSubscriptionView struct {
 	withoutRow bool
 }
 
-func (v EstablishmentSubscriptionView) MarshalJSON() ([]byte, error) {
+func (v EstablishmentSubscriptionView) MarshalJSONTo(enc *jsontext.Encoder) error {
 	type withRow EstablishmentSubscriptionView
 	if !v.withoutRow {
-		return json.Marshal(withRow(v))
+		return json.MarshalEncode(enc, withRow(v))
 	}
 
-	return json.Marshal(struct {
+	return json.MarshalEncode(enc, struct {
 		ID                   string             `json:"id"`
 		EstablishmentID      string             `json:"establishmentId"`
 		Plan                 SubscriptionPlan   `json:"plan"`

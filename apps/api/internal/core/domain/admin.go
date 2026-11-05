@@ -1,7 +1,7 @@
 package domain
 
 import (
-	"encoding/json"
+	"encoding/json/jsontext"
 	"time"
 )
 
@@ -73,17 +73,17 @@ type AdminAuditFilter struct {
 }
 
 type AdminAuditLogEntry struct {
-	ID          string          `json:"id"`
-	Action      string          `json:"action"`
-	TargetType  string          `json:"targetType"`
-	TargetID    string          `json:"targetId"`
-	TargetLabel *string         `json:"targetLabel"`
-	Reason      *string         `json:"reason"`
-	Metadata    json.RawMessage `json:"metadata"`
-	ActorID     string          `json:"actorId"`
-	ActorName   string          `json:"actorName"`
-	ActorEmail  string          `json:"actorEmail"`
-	CreatedAt   Time            `json:"createdAt"`
+	ID          string         `json:"id"`
+	Action      string         `json:"action"`
+	TargetType  string         `json:"targetType"`
+	TargetID    string         `json:"targetId"`
+	TargetLabel *string        `json:"targetLabel"`
+	Reason      *string        `json:"reason"`
+	Metadata    jsontext.Value `json:"metadata"`
+	ActorID     string         `json:"actorId"`
+	ActorName   string         `json:"actorName"`
+	ActorEmail  string         `json:"actorEmail"`
+	CreatedAt   Time           `json:"createdAt"`
 }
 
 type BetaTester struct {

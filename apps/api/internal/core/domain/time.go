@@ -2,6 +2,7 @@ package domain
 
 import (
 	"database/sql/driver"
+	"encoding/json/jsontext"
 	"fmt"
 	"time"
 )
@@ -23,8 +24,32 @@ func OptionalTime(t *time.Time) *Time {
 	return &Time{Time: *t}
 }
 
+func (t Time) MarshalJSONTo(enc *jsontext.Encoder) error {
+	return enc.WriteToken(jsontext.String(t.UTC().Format(isoLayout)))
+}
+
 func (t Time) MarshalJSON() ([]byte, error) {
 	return []byte(`"` + t.UTC().Format(isoLayout) + `"`), nil
+}
+
+func (t *Time) UnmarshalJSONFrom(dec *jsontext.Decoder) error {
+	tok, err := dec.ReadToken()
+	if err != nil {
+		return err
+	}
+	switch tok.Kind() {
+	case 'n':
+		return nil
+	case '"':
+		parsed, err := time.Parse(time.RFC3339Nano, tok.String())
+		if err != nil {
+			return err
+		}
+		t.Time = parsed
+		return nil
+	default:
+		return fmt.Errorf("cannot unmarshal %s into domain.Time", tok.Kind())
+	}
 }
 
 func (t *Time) UnmarshalJSON(data []byte) error {

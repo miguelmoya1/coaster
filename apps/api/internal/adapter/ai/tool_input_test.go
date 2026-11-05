@@ -1,7 +1,8 @@
 package ai
 
 import (
-	"encoding/json"
+	"encoding/json/jsontext"
+	"encoding/json/v2"
 	"strings"
 	"testing"
 
@@ -10,7 +11,7 @@ import (
 
 var orderTool = ports.AITool{
 	Name: "order",
-	Parameters: json.RawMessage(`{
+	Parameters: jsontext.Value(`{
 		"type": "object",
 		"properties": {
 			"e": {"type": "string", "enum": ["CASH", "CARD"]},

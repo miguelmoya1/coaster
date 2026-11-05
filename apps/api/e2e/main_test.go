@@ -5,7 +5,7 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"encoding/base64"
-	"encoding/json"
+	"encoding/json/v2"
 	"fmt"
 	"log"
 	"math/big"
@@ -93,5 +93,5 @@ func serveGoogleKeys(w http.ResponseWriter, _ *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(map[string]any{"keys": []map[string]string{key}})
+	_ = json.MarshalWrite(w, map[string]any{"keys": []map[string]string{key}})
 }

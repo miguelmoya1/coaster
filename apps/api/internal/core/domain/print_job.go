@@ -1,7 +1,7 @@
 package domain
 
 import (
-	"encoding/json"
+	"encoding/json/jsontext"
 	"time"
 )
 
@@ -59,8 +59,8 @@ type QueuedPrintJob struct {
 }
 
 type ClaimedPrintJob struct {
-	ID      string          `json:"id"`
-	Payload json.RawMessage `json:"payload"`
+	ID      string         `json:"id"`
+	Payload jsontext.Value `json:"payload"`
 }
 
 type PrintJobResult struct {

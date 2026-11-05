@@ -2,7 +2,7 @@ package email
 
 import (
 	"context"
-	"encoding/json"
+	"encoding/json/v2"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -30,7 +30,7 @@ func newTestResend(t *testing.T, from string, status int) (*ResendMailer, *[]sen
 		}
 
 		var email sentEmail
-		json.NewDecoder(r.Body).Decode(&email)
+		_ = json.UnmarshalRead(r.Body, &email)
 		sent = append(sent, email)
 
 		w.Header().Set("Content-Type", "application/json")

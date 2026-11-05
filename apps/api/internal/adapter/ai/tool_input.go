@@ -1,8 +1,8 @@
 package ai
 
 import (
-	"bytes"
-	"encoding/json"
+	"encoding/json/jsontext"
+	"encoding/json/v2"
 	"errors"
 	"fmt"
 	"math"
@@ -16,7 +16,7 @@ import (
 
 const maxSafeInteger = 1<<53 - 1
 
-func parseToolInput(tool ports.AITool, arguments string) (json.RawMessage, error) {
+func parseToolInput(tool ports.AITool, arguments string) (jsontext.Value, error) {
 	var value any
 	if strings.TrimSpace(arguments) == "" {
 		value = map[string]any{}
@@ -53,31 +53,32 @@ type schemaProperties struct {
 	byName map[string]*toolSchema
 }
 
-func (p *schemaProperties) UnmarshalJSON(data []byte) error {
-	decoder := json.NewDecoder(bytes.NewReader(data))
-	if _, err := decoder.Token(); err != nil {
+func (p *schemaProperties) UnmarshalJSONFrom(dec *jsontext.Decoder) error {
+	tok, err := dec.ReadToken()
+	if err != nil {
 		return err
+	}
+	if tok.Kind() != '{' {
+		return errors.New("properties is not an object")
 	}
 
 	p.byName = map[string]*toolSchema{}
-	for decoder.More() {
-		token, err := decoder.Token()
+	for dec.PeekKind() != '}' {
+		tok, err := dec.ReadToken()
 		if err != nil {
 			return err
 		}
-		name, ok := token.(string)
-		if !ok {
-			return errors.New("a property name is not a string")
-		}
+		name := tok.String()
 
 		var property toolSchema
-		if err := decoder.Decode(&property); err != nil {
+		if err := json.UnmarshalDecode(dec, &property); err != nil {
 			return err
 		}
 		p.names = append(p.names, name)
 		p.byName[name] = &property
 	}
-	return nil
+	_, err = dec.ReadToken()
+	return err
 }
 
 type zodIssue struct {
@@ -88,7 +89,7 @@ type zodIssue struct {
 	Values    []string `json:"values,omitempty"`
 	Minimum   *float64 `json:"minimum,omitempty"`
 	Maximum   *float64 `json:"maximum,omitempty"`
-	Inclusive bool     `json:"inclusive,omitempty"`
+	Inclusive bool     `json:"inclusive,omitzero"`
 	Path      []any    `json:"path"`
 	Message   string   `json:"message"`
 }
@@ -249,20 +250,20 @@ func formatNumber(number float64) string {
 }
 
 func issuesText(issues []zodIssue) string {
-	var buf bytes.Buffer
-	encoder := json.NewEncoder(&buf)
-	encoder.SetEscapeHTML(false)
-	encoder.SetIndent("", "  ")
-	if err := encoder.Encode(issues); err != nil {
+	raw, err := json.Marshal(issues, jsontext.Multiline(true), jsontext.WithIndent("  "))
+	if err != nil {
 		return err.Error()
 	}
-	return strings.TrimSuffix(buf.String(), "\n")
+	return string(raw)
 }
 
 func compactJSON(text string) string {
-	var buf bytes.Buffer
-	if err := json.Compact(&buf, []byte(text)); err != nil || buf.Len() == 0 {
+	if strings.TrimSpace(text) == "" {
 		return "{}"
 	}
-	return buf.String()
+	compact, err := jsontext.AppendFormat(nil, []byte(text))
+	if err != nil || len(compact) == 0 {
+		return "{}"
+	}
+	return string(compact)
 }

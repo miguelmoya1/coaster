@@ -2,7 +2,8 @@ package ai
 
 import (
 	"context"
-	"encoding/json"
+	"encoding/json/jsontext"
+	"encoding/json/v2"
 	"fmt"
 	"io"
 	"net/http"
@@ -85,7 +86,7 @@ func (f *fakeGateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		message["tool_calls"] = calls
 	}
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]any{
+	_ = json.MarshalWrite(w, map[string]any{
 		"id": "chatcmpl-1", "object": "chat.completion", "created": 0, "model": "zai/glm-4.7",
 		"choices": []any{map[string]any{"index": 0, "message": message, "finish_reason": step.finishReasonOr()}},
 	})
@@ -147,8 +148,8 @@ func (r *recordingTool) tool() ports.AITool {
 	return ports.AITool{
 		Name:        "createTable",
 		Description: "Create a new table in the establishment.",
-		Parameters:  json.RawMessage(`{"$schema":"http://json-schema.org/draft-07/schema#","type":"object","properties":{"name":{"type":"string","description":"Table name."}},"required":["name"],"additionalProperties":false}`),
-		Run: func(_ context.Context, input json.RawMessage) domain.AIToolResult {
+		Parameters:  jsontext.Value(`{"$schema":"http://json-schema.org/draft-07/schema#","type":"object","properties":{"name":{"type":"string","description":"Table name."}},"required":["name"],"additionalProperties":false}`),
+		Run: func(_ context.Context, input jsontext.Value) domain.AIToolResult {
 			r.inputs = append(r.inputs, string(input))
 			return domain.AIToolResult{Status: domain.AIToolOK, Message: "Action completed successfully."}
 		},
@@ -345,8 +346,8 @@ func TestGatewayGivesAnEmptyInputAsAnEmptyObject(t *testing.T) {
 	var input string
 	listTables := ports.AITool{
 		Name:       "listTables",
-		Parameters: json.RawMessage(`{"type":"object","properties":{},"additionalProperties":false}`),
-		Run: func(_ context.Context, raw json.RawMessage) domain.AIToolResult {
+		Parameters: jsontext.Value(`{"type":"object","properties":{},"additionalProperties":false}`),
+		Run: func(_ context.Context, raw jsontext.Value) domain.AIToolResult {
 			input = string(raw)
 			return domain.AIToolResult{Status: domain.AIToolOK, Message: "Query completed.", Data: []string{}}
 		},

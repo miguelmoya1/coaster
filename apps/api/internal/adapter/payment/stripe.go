@@ -2,7 +2,8 @@ package payment
 
 import (
 	"context"
-	"encoding/json"
+	"encoding/json/jsontext"
+	"encoding/json/v2"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -239,7 +240,7 @@ func (g *StripeGateway) ParseWebhook(payload []byte, signature string) (*domain.
 func toEvent(event stripe.Event) (*domain.StripeEvent, error) {
 	parsed := &domain.StripeEvent{ID: event.ID, Type: string(event.Type)}
 
-	var raw json.RawMessage
+	var raw jsontext.Value
 	if event.Data != nil {
 		raw = event.Data.Raw
 	}

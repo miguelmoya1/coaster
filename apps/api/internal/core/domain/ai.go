@@ -16,7 +16,7 @@ type AIMessage struct {
 
 type AIResponse struct {
 	Text     string `json:"text"`
-	IsError  bool   `json:"isError,omitempty"`
+	IsError  bool   `json:"isError,omitzero"`
 	ErrorKey string `json:"errorKey,omitempty"`
 }
 

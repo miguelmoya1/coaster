@@ -1,9 +1,8 @@
 package ai
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
+	"encoding/json/v2"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -221,15 +220,7 @@ func (a modelAnswer) assistantMessage() openai.ChatCompletionMessageParamUnion {
 }
 
 func argumentsForHistory(arguments string) string {
-	if strings.TrimSpace(arguments) == "" {
-		return "{}"
-	}
-
-	var compact bytes.Buffer
-	if err := json.Compact(&compact, []byte(arguments)); err != nil {
-		return "{}"
-	}
-	return compact.String()
+	return compactJSON(arguments)
 }
 
 func runTool(ctx context.Context, tools []ports.AITool, call toolCall) string {

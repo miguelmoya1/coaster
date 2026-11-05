@@ -1,7 +1,7 @@
 package escpos
 
 import (
-	"encoding/json"
+	"encoding/json/v2"
 	"fmt"
 	"strings"
 	"unicode/utf8"

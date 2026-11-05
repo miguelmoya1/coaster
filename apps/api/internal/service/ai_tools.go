@@ -2,7 +2,8 @@ package service
 
 import (
 	"context"
-	"encoding/json"
+	"encoding/json/jsontext"
+	"encoding/json/v2"
 	"fmt"
 	"log/slog"
 	"math"
@@ -53,7 +54,7 @@ func newAITool[T any](name, description string, run func(ctx context.Context, in
 		Name:        name,
 		Description: description,
 		Parameters:  aiSchemaOf[T](),
-		Run: func(ctx context.Context, raw json.RawMessage) domain.AIToolResult {
+		Run: func(ctx context.Context, raw jsontext.Value) domain.AIToolResult {
 			var input T
 			if err := json.Unmarshal(raw, &input); err != nil {
 				return aiToolError(err)
@@ -63,7 +64,7 @@ func newAITool[T any](name, description string, run func(ctx context.Context, in
 	}
 }
 
-func aiSchemaOf[T any]() json.RawMessage {
+func aiSchemaOf[T any]() jsontext.Value {
 	reflector := jsonschema.Reflector{Anonymous: true, DoNotReference: true, ExpandedStruct: true}
 	schema := reflector.Reflect(new(T))
 	schema.Version = "http://json-schema.org/draft-07/schema#"

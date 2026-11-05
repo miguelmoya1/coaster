@@ -2,7 +2,8 @@ package pairing
 
 import (
 	"bytes"
-	"encoding/json"
+	"encoding/json/jsontext"
+	"encoding/json/v2"
 	"fmt"
 	"net/http"
 	"os"
@@ -64,7 +65,7 @@ func Save(cfg Config) error {
 		return err
 	}
 
-	raw, err := json.MarshalIndent(cfg, "", "  ")
+	raw, err := json.Marshal(cfg, jsontext.Multiline(true), jsontext.WithIndent("  "))
 	if err != nil {
 		return err
 	}
@@ -90,7 +91,7 @@ func Redeem(apiURL, code string) (*Config, error) {
 	}
 
 	var cfg Config
-	if err := json.NewDecoder(response.Body).Decode(&cfg); err != nil {
+	if err := json.UnmarshalRead(response.Body, &cfg); err != nil {
 		return nil, err
 	}
 

@@ -7,7 +7,7 @@ import (
 	"crypto/rsa"
 	"crypto/sha256"
 	"encoding/base64"
-	"encoding/json"
+	"encoding/json/v2"
 	"math/big"
 	"net/http"
 	"net/http/httptest"
@@ -71,7 +71,7 @@ func newKeyServer(t *testing.T, key *rsa.PrivateKey, calls *atomic.Int32) *httpt
 		calls.Add(1)
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("Cache-Control", "public, max-age=3600")
-		json.NewEncoder(w).Encode(map[string]any{"keys": []any{jwk}})
+		_ = json.MarshalWrite(w, map[string]any{"keys": []any{jwk}})
 	}))
 	t.Cleanup(server.Close)
 	return server

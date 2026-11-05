@@ -3,7 +3,7 @@ package relay
 import (
 	"bytes"
 	"context"
-	"encoding/json"
+	"encoding/json/v2"
 	"errors"
 	"net/http"
 	"net/http/httptest"
@@ -56,7 +56,7 @@ func TestNextJob_ReturnsAQueuedJob(t *testing.T) {
 		if got := r.URL.Query().Get("establishmentId"); got != "establishment-123" {
 			t.Errorf("expected the establishment id in the query, got %q", got)
 		}
-		json.NewEncoder(w).Encode(Job{
+		_ = json.MarshalWrite(w, Job{
 			ID:      "job-1",
 			Payload: escpos.TicketPayload{Type: "order", EstablishmentName: "Establishment Central"},
 		})
@@ -134,14 +134,14 @@ func TestRun_PrintsAJobAndReportsSuccess(t *testing.T) {
 				return
 			}
 			served = true
-			json.NewEncoder(w).Encode(Job{
+			_ = json.MarshalWrite(w, Job{
 				ID:      "job-1",
 				Payload: escpos.TicketPayload{Type: "order", EstablishmentName: "Establishment Central", Total: "9.00"},
 			})
 
 		case r.URL.Path == "/printer/jobs/job-1/result":
 			mu.Lock()
-			json.NewDecoder(r.Body).Decode(&reported)
+			_ = json.UnmarshalRead(r.Body, &reported)
 			mu.Unlock()
 			close(done)
 
@@ -200,11 +200,11 @@ func TestRun_ReportsAFailedPrint(t *testing.T) {
 				return
 			}
 			served = true
-			json.NewEncoder(w).Encode(Job{ID: "job-2", Payload: escpos.TicketPayload{Type: "order"}})
+			_ = json.MarshalWrite(w, Job{ID: "job-2", Payload: escpos.TicketPayload{Type: "order"}})
 
 		case "/printer/jobs/job-2/result":
 			mu.Lock()
-			json.NewDecoder(r.Body).Decode(&reported)
+			_ = json.UnmarshalRead(r.Body, &reported)
 			mu.Unlock()
 			close(done)
 		}

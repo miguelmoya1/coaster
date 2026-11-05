@@ -1,9 +1,8 @@
 package service
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
+	"encoding/json/v2"
 	"log/slog"
 	"strconv"
 	"sync"
@@ -30,7 +29,7 @@ func NewRealtimeService(bus ports.RealtimeBus) *RealtimeService {
 }
 
 func (s *RealtimeService) Publish(establishmentID string, event string, payload any) {
-	data, err := marshalPayload(payload)
+	data, err := json.Marshal(payload, json.Deterministic(true))
 	if err != nil {
 		slog.Error("encoding a realtime payload", "event", event, "error", err)
 		return
@@ -130,17 +129,4 @@ func (s *RealtimeService) remove(establishmentID string, subscriber ports.Realti
 	if len(subscribers) == 0 {
 		delete(s.byEstablishment, establishmentID)
 	}
-}
-
-func marshalPayload(payload any) (json.RawMessage, error) {
-	var buf bytes.Buffer
-
-	encoder := json.NewEncoder(&buf)
-	encoder.SetEscapeHTML(false)
-
-	if err := encoder.Encode(payload); err != nil {
-		return nil, err
-	}
-
-	return bytes.TrimSuffix(buf.Bytes(), []byte("\n")), nil
 }

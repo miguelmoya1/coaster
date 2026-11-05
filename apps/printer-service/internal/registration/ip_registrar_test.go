@@ -2,7 +2,7 @@ package registration
 
 import (
 	"context"
-	"encoding/json"
+	"encoding/json/v2"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -43,7 +43,7 @@ func TestStartIPRegistration_HTTPCall(t *testing.T) {
 		receivedKey = r.Header.Get("X-Device-Key")
 
 		var body registration
-		json.NewDecoder(r.Body).Decode(&body)
+		_ = json.UnmarshalRead(r.Body, &body)
 		select {
 		case received <- body:
 		default:

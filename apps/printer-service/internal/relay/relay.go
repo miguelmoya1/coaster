@@ -3,7 +3,7 @@ package relay
 import (
 	"bytes"
 	"context"
-	"encoding/json"
+	"encoding/json/v2"
 	"errors"
 	"fmt"
 	"io"
@@ -132,7 +132,7 @@ func (c *Client) NextJob(ctx context.Context) (*Job, error) {
 		return nil, nil
 	case http.StatusOK:
 		var job Job
-		if err := json.NewDecoder(io.LimitReader(resp.Body, maxJobBytes)).Decode(&job); err != nil {
+		if err := json.UnmarshalRead(io.LimitReader(resp.Body, maxJobBytes), &job); err != nil {
 			return nil, fmt.Errorf("could not parse print job: %w", err)
 		}
 		if job.ID == "" {

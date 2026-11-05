@@ -2,7 +2,7 @@ package ports
 
 import (
 	"context"
-	"encoding/json"
+	"encoding/json/jsontext"
 
 	"coaster-api/internal/core/domain"
 )
@@ -11,9 +11,9 @@ type AITool struct {
 	Name        string
 	Description string
 
-	Parameters json.RawMessage
+	Parameters jsontext.Value
 
-	Run func(ctx context.Context, input json.RawMessage) domain.AIToolResult
+	Run func(ctx context.Context, input jsontext.Value) domain.AIToolResult
 }
 
 type AIRequest struct {

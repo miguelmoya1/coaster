@@ -2,7 +2,8 @@ package httpapi
 
 import (
 	"context"
-	"encoding/json"
+	"encoding/json/jsontext"
+	"encoding/json/v2"
 	"net/http"
 	"strings"
 	"testing"
@@ -206,7 +207,7 @@ func TestPrinterConnectionRoutes(t *testing.T) {
 }
 
 func TestPrinterBridgeRoutes(t *testing.T) {
-	waiting := &domain.ClaimedPrintJob{ID: "job-1", Payload: json.RawMessage(`{"type": "order", "total": "9.00"}`)}
+	waiting := &domain.ClaimedPrintJob{ID: "job-1", Payload: jsontext.Value(`{"type": "order", "total": "9.00"}`)}
 	server := newPrinterServer(printerServerOptions{})
 	busy := newPrinterServer(printerServerOptions{waiting: waiting})
 	key := map[string]string{"X-Device-Key": "the-key"}

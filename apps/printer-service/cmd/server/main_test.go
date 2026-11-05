@@ -5,7 +5,7 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/base64"
-	"encoding/json"
+	"encoding/json/v2"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -145,7 +145,7 @@ func TestRoutes_Health(t *testing.T) {
 	}
 
 	var body map[string]any
-	if err := json.NewDecoder(w.Body).Decode(&body); err != nil {
+	if err := json.UnmarshalRead(w.Body, &body); err != nil {
 		t.Fatalf("health did not return JSON: %v", err)
 	}
 	if body["establishmentId"] != "establishment-123" {

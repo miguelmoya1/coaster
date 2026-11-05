@@ -2,7 +2,8 @@ package httpapi
 
 import (
 	"context"
-	"encoding/json"
+	"encoding/json/jsontext"
+	"encoding/json/v2"
 	"errors"
 	"io"
 	"log/slog"
@@ -103,7 +104,7 @@ func (h *AIHandler) stream(w http.ResponseWriter, r *http.Request) {
 }
 
 type aiRequest struct {
-	Prompt   json.RawMessage    `json:"prompt"`
+	Prompt   jsontext.Value     `json:"prompt"`
 	Messages []domain.AIMessage `json:"messages"`
 }
 
@@ -125,12 +126,10 @@ func readAIInput(r *http.Request) (domain.AIInput, error) {
 }
 
 func sseData(data any) string {
-	var text strings.Builder
-	encoder := json.NewEncoder(&text)
-	encoder.SetEscapeHTML(false)
-	if err := encoder.Encode(data); err != nil {
+	encoded, err := json.Marshal(data)
+	if err != nil {
 		slog.Error("encoding an event of the assistant", "error", err)
 		return "{}"
 	}
-	return strings.TrimSuffix(text.String(), "\n")
+	return string(encoded)
 }

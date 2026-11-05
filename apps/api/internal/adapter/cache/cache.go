@@ -2,7 +2,8 @@ package cache
 
 import (
 	"context"
-	"encoding/json"
+	"encoding/json/jsontext"
+	"encoding/json/v2"
 	"log/slog"
 	"time"
 
@@ -12,7 +13,7 @@ import (
 const TTL = 8 * time.Hour
 
 type envelope struct {
-	V json.RawMessage `json:"v"`
+	V jsontext.Value `json:"v"`
 }
 
 type Cache struct {

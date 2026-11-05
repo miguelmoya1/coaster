@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
-	"encoding/json"
+	"encoding/json/v2"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -72,7 +72,7 @@ func newBackend(t *testing.T, opts backendOptions) *httptest.Server {
 		if !opts.omitURL {
 			resp.URL = server.URL + "/download"
 		}
-		json.NewEncoder(w).Encode(resp)
+		_ = json.MarshalWrite(w, resp)
 	})
 
 	download := opts.downloadFn

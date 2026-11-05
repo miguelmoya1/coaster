@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"encoding/json"
+	"encoding/json/v2"
 	"errors"
 	"io"
 	"log"
@@ -63,7 +63,7 @@ func renderContent(renderer *escpos.Renderer, body []byte, contentType string) [
 func writeJSON(w http.ResponseWriter, status int, body any) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	if err := json.NewEncoder(w).Encode(body); err != nil {
+	if err := json.MarshalWrite(w, body); err != nil {
 		log.Printf("Failed to write response: %v\n", err)
 	}
 }

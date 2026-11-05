@@ -1,7 +1,7 @@
 package domain
 
 import (
-	"encoding/json"
+	"encoding/json/v2"
 	"testing"
 	"time"
 )
@@ -135,7 +135,7 @@ func TestAdminEstablishmentRowSummary(t *testing.T) {
 
 			accessEndsAt := ""
 			if summary.AccessEndsAt != nil {
-				raw, _ := summary.AccessEndsAt.MarshalJSON()
+				raw, _ := json.Marshal(summary.AccessEndsAt)
 				accessEndsAt = string(raw[1 : len(raw)-1])
 			}
 			if summary.Plan != tt.plan || summary.Status != tt.status || summary.BillingSource != tt.source ||

@@ -2,7 +2,7 @@ package httpapi
 
 import (
 	"context"
-	"encoding/json"
+	"encoding/json/jsontext"
 	"errors"
 	"net/http"
 	"net/http/httptest"
@@ -254,7 +254,7 @@ func TestAdminValidation(t *testing.T) {
 }
 
 func TestAdminAuditMetadataIsWrittenAsStored(t *testing.T) {
-	entry := domain.AdminAuditLogEntry{ID: "a1", Metadata: json.RawMessage(`{"to": "Bar & Grill <1>", "from": "Bar"}`)}
+	entry := domain.AdminAuditLogEntry{ID: "a1", Metadata: jsontext.Value(`{"to": "Bar & Grill <1>", "from": "Bar"}`)}
 
 	response := httptest.NewRecorder()
 	respond.JSON(response, http.StatusOK, entry)

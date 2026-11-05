@@ -28,8 +28,8 @@ type adminRenameChange struct {
 }
 
 type adminModulesChange struct {
-	From []domain.EstablishmentModule `json:"from"`
-	To   []domain.EstablishmentModule `json:"to"`
+	From *[]domain.EstablishmentModule `json:"from"`
+	To   []domain.EstablishmentModule  `json:"to"`
 }
 
 type adminPlanGrant struct {
@@ -163,9 +163,9 @@ func (s *AdminEstablishmentService) UpdateModules(ctx context.Context, actorID, 
 
 	s.cache.Forget(ctx, modulesCacheKey(establishmentID))
 
-	var from []domain.EstablishmentModule
+	var from *[]domain.EstablishmentModule
 	if before != nil {
-		from = before.Modules
+		from = &before.Modules
 	}
 
 	s.events.Publish(ctx, domain.AdminActionEvent{Entry: domain.AdminAuditEntry{

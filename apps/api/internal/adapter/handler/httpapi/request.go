@@ -2,7 +2,7 @@ package httpapi
 
 import (
 	"bytes"
-	"encoding/json"
+	"encoding/json/v2"
 	"errors"
 	"io"
 	"mime"
@@ -89,14 +89,8 @@ func readJSON(r *http.Request) ([]byte, any, error) {
 		return nil, nil, &requestError{status: http.StatusUnsupportedMediaType, message: "Unsupported Media Type: " + contentType}
 	}
 
-	decoder := json.NewDecoder(bytes.NewReader(body))
-	decoder.UseNumber()
-
 	var raw any
-	if err := decoder.Decode(&raw); err != nil {
-		return nil, nil, &requestError{status: http.StatusBadRequest, message: messageInvalidJSON}
-	}
-	if decoder.More() {
+	if err := json.Unmarshal(body, &raw); err != nil {
 		return nil, nil, &requestError{status: http.StatusBadRequest, message: messageInvalidJSON}
 	}
 

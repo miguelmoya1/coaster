@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"encoding/json"
+	"encoding/json/v2"
 	"html/template"
 	"net/http"
 	"strings"
@@ -50,7 +50,7 @@ func NewSetupHandler(pairer Pairer) http.Handler {
 
 		if strings.Contains(r.Header.Get("Accept"), "application/json") {
 			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(view)
+			_ = json.MarshalWrite(w, view)
 			return
 		}
 

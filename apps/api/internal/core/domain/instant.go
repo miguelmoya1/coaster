@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"encoding/json/jsontext"
 	"strings"
 	"time"
 )
@@ -17,6 +18,10 @@ func NewInstant(t time.Time) Instant {
 
 func (i Instant) String() string {
 	return i.UTC().Truncate(time.Millisecond).Format(instantLayout)
+}
+
+func (i Instant) MarshalJSONTo(enc *jsontext.Encoder) error {
+	return enc.WriteToken(jsontext.String(i.String()))
 }
 
 func (i Instant) MarshalJSON() ([]byte, error) {

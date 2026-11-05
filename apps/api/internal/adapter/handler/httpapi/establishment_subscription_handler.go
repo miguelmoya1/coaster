@@ -1,7 +1,7 @@
 package httpapi
 
 import (
-	"encoding/json"
+	"encoding/json/jsontext"
 	"net/http"
 
 	"coaster-api/internal/adapter/handler/middleware"
@@ -34,7 +34,7 @@ type createCheckoutSessionRequest struct {
 }
 
 type createCustomerPortalSessionRequest struct {
-	Underscore *json.RawMessage `json:"_" validate:"omitnil"`
+	Underscore *jsontext.Value `json:"_" validate:"omitnil"`
 }
 
 func (h *EstablishmentSubscriptionHandler) find(w http.ResponseWriter, r *http.Request) {

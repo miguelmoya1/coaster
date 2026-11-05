@@ -1,9 +1,11 @@
 package httpapi
 
 import (
-	"encoding/json"
+	"encoding/json/jsontext"
+	"encoding/json/v2"
 	"errors"
 	"fmt"
+	"math"
 	"reflect"
 	"regexp"
 	"slices"
@@ -164,7 +166,9 @@ func (c *bodyCheck) object(structType reflect.Type, object map[string]any, prefi
 
 func (c *bodyCheck) value(field reflect.StructField, fieldType reflect.Type, value any, name, prefix string) {
 	fieldType = withoutPointers(fieldType)
-	if reflect.PointerTo(fieldType).Implements(reflect.TypeFor[json.Unmarshaler]()) {
+	if fieldType == reflect.TypeFor[jsontext.Value]() ||
+		reflect.PointerTo(fieldType).Implements(reflect.TypeFor[json.UnmarshalerFrom]()) ||
+		reflect.PointerTo(fieldType).Implements(reflect.TypeFor[json.Unmarshaler]()) {
 		return
 	}
 
@@ -226,14 +230,10 @@ func matchesKind(goType reflect.Type, value any) bool {
 		return ok
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
 		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		number, ok := value.(json.Number)
-		if !ok {
-			return false
-		}
-		_, err := strconv.ParseInt(number.String(), 10, 64)
-		return err == nil
+		number, ok := value.(float64)
+		return ok && !math.IsInf(number, 0) && !math.IsNaN(number) && math.Trunc(number) == number
 	case reflect.Float32, reflect.Float64:
-		_, ok := value.(json.Number)
+		_, ok := value.(float64)
 		return ok
 	case reflect.Map, reflect.Interface:
 		return true

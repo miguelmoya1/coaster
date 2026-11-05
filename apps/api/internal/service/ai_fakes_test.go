@@ -2,7 +2,8 @@ package service
 
 import (
 	"context"
-	"encoding/json"
+	"encoding/json/jsontext"
+	"encoding/json/v2"
 	"slices"
 	"strings"
 	"testing"
@@ -34,7 +35,7 @@ func (m *fakeAIModel) Generate(ctx context.Context, request ports.AIRequest) (st
 	for _, call := range m.calls {
 		for _, tool := range request.Tools {
 			if tool.Name == call.tool {
-				m.results = append(m.results, tool.Run(ctx, json.RawMessage(call.input)))
+				m.results = append(m.results, tool.Run(ctx, jsontext.Value(call.input)))
 			}
 		}
 	}
@@ -306,7 +307,7 @@ func (f *aiFixture) run(t *testing.T, tc *aiToolContext, name, input string) str
 
 	for _, tool := range f.service.aiTools(tc) {
 		if tool.Name == name {
-			result, err := aiJSON(tool.Run(context.Background(), json.RawMessage(input)))
+			result, err := aiJSON(tool.Run(context.Background(), jsontext.Value(input)))
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -318,11 +319,9 @@ func (f *aiFixture) run(t *testing.T, tc *aiToolContext, name, input string) str
 }
 
 func aiJSON(v any) (string, error) {
-	var buf strings.Builder
-	encoder := json.NewEncoder(&buf)
-	encoder.SetEscapeHTML(false)
-	if err := encoder.Encode(v); err != nil {
+	raw, err := json.Marshal(v, json.Deterministic(true))
+	if err != nil {
 		return "", err
 	}
-	return strings.TrimSuffix(buf.String(), "\n"), nil
+	return string(raw), nil
 }

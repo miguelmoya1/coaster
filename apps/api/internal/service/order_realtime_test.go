@@ -1,7 +1,7 @@
 package service
 
 import (
-	"encoding/json"
+	"encoding/json/v2"
 	"reflect"
 	"slices"
 	"testing"

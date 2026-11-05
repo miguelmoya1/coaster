@@ -1,8 +1,8 @@
 package service
 
 import (
-	"bytes"
-	"encoding/json"
+	"encoding/json/jsontext"
+	"encoding/json/v2"
 	"errors"
 	"os"
 	"reflect"
@@ -12,32 +12,32 @@ import (
 	"coaster-api/internal/core/domain"
 )
 
-func nestAnswers(t *testing.T) map[string]json.RawMessage {
+func nestAnswers(t *testing.T) map[string]jsontext.Value {
 	t.Helper()
 
 	data, err := os.ReadFile("testdata/nest_ai_answers.json")
 	if err != nil {
 		t.Fatal(err)
 	}
-	var answers map[string]json.RawMessage
+	var answers map[string]jsontext.Value
 	if err := json.Unmarshal(data, &answers); err != nil {
 		t.Fatal(err)
 	}
 	return answers
 }
 
-func nestAnswer(t *testing.T, answers map[string]json.RawMessage, key string) string {
+func nestAnswer(t *testing.T, answers map[string]jsontext.Value, key string) string {
 	t.Helper()
 
 	raw, found := answers[key]
 	if !found {
 		t.Fatalf("testdata has no answer %q", key)
 	}
-	var compact bytes.Buffer
-	if err := json.Compact(&compact, raw); err != nil {
+	compact, err := jsontext.AppendFormat(nil, raw)
+	if err != nil {
 		t.Fatal(err)
 	}
-	return compact.String()
+	return string(compact)
 }
 
 func TestAIToolsAnswerLikeNest(t *testing.T) {
@@ -260,7 +260,7 @@ func TestAIToolWithAnInputItCannotReadFails(t *testing.T) {
 	f := newAIFixture()
 
 	got := f.run(t, f.toolContext(t, "u1"), "createTable", `{"name":4}`)
-	if !strings.HasPrefix(got, `{"status":"error","message":"The action failed: json: cannot unmarshal number`) {
+	if !strings.HasPrefix(got, `{"status":"error","message":"The action failed: json: `) || !strings.Contains(got, "unmarshal JSON number") {
 		t.Errorf("result = %s", got)
 	}
 	if len(f.tables.tables) != 2 {

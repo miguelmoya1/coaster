@@ -1,9 +1,8 @@
 package cache
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
+	"encoding/json/v2"
 	"log/slog"
 	"math"
 	"strconv"
@@ -122,7 +121,7 @@ func (b *RealtimeBus) Remember(establishmentID string, frame domain.RealtimeFram
 		return
 	}
 
-	member, err := marshalCompact(frame)
+	member, err := json.Marshal(frame)
 	if err != nil {
 		slog.Error("encoding a realtime frame", "error", err)
 		return
@@ -133,7 +132,7 @@ func (b *RealtimeBus) Remember(establishmentID string, frame domain.RealtimeFram
 
 	key := replayKey(establishmentID)
 	_, err = b.client.Pipelined(ctx, func(pipe redis.Pipeliner) error {
-		pipe.ZAdd(ctx, key, redis.Z{Score: float64(score), Member: member})
+		pipe.ZAdd(ctx, key, redis.Z{Score: float64(score), Member: string(member)})
 		pipe.ZRemRangeByScore(ctx, key, "-inf", strconv.FormatInt(score-replayWindow.Milliseconds(), 10))
 		pipe.PExpire(ctx, key, replayWindow)
 		return nil
@@ -171,7 +170,7 @@ func (b *RealtimeBus) send(message busMessage) {
 		return
 	}
 
-	raw, err := marshalCompact(message)
+	raw, err := json.Marshal(message)
 	if err != nil {
 		slog.Error("encoding a realtime message", "error", err)
 		return
@@ -180,7 +179,7 @@ func (b *RealtimeBus) send(message busMessage) {
 	ctx, cancel := context.WithTimeout(context.Background(), busTimeout)
 	defer cancel()
 
-	if err := b.client.Publish(ctx, realtimeChannel, raw).Err(); err != nil {
+	if err := b.client.Publish(ctx, realtimeChannel, string(raw)).Err(); err != nil {
 		b.drop("publish", err)
 	}
 }
@@ -217,17 +216,4 @@ func (b *RealtimeBus) drop(command string, err error) {
 func isFiniteNumber(value string) bool {
 	number, err := strconv.ParseFloat(value, 64)
 	return err == nil && !math.IsInf(number, 0) && !math.IsNaN(number)
-}
-
-func marshalCompact(v any) (string, error) {
-	var buf bytes.Buffer
-
-	encoder := json.NewEncoder(&buf)
-	encoder.SetEscapeHTML(false)
-
-	if err := encoder.Encode(v); err != nil {
-		return "", err
-	}
-
-	return string(bytes.TrimSuffix(buf.Bytes(), []byte("\n"))), nil
 }
