@@ -69,6 +69,7 @@ export const appConfig: ApplicationConfig = {
       lang: environment.defaultLanguage,
       loader: provideTranslateHttpLoader({
         prefix: environment.defaultLanguagePath,
+        useHttpBackend: true,
       }),
     }),
   ],
